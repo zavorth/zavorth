@@ -27,6 +27,20 @@ export type ProviderLongTailEmbeddingSmokeReceipt = {
   receivedAt: string;
 };
 
+interface EmbeddingResponsePayload {
+  data?: Array<{
+    embedding?: number[];
+  }>;
+  usage?: {
+    prompt_tokens?: number;
+    total_tokens?: number;
+  };
+  error?: {
+    message?: string;
+  };
+  message?: string;
+}
+
 export type ProviderLongTailChatSmokeReceipt = Omit<ProviderP0ChatSmokeReceipt, 'family'> & {
   family: Exclude<ProviderLongTailAdapterFamily, 'embedding-compatible'>;
 };
@@ -122,13 +136,13 @@ export class ProviderLongTailEmbeddingLiveClient {
         input: input.input,
       }),
     });
-    const payload = await readJson(response);
+    const payload = await readJson(response) as EmbeddingResponsePayload | null;
     if (!response.ok) {
       throw new Error(`${this.config.providerId} embedding smoke failed: ${readError(payload, response.status)}`);
     }
 
     const firstEmbedding = payload?.data?.[0]?.embedding;
-    const usage = payload?.usage && typeof payload.usage === 'object' ? payload.usage : {};
+    const usage = payload?.usage || {};
     return {
       providerId: this.config.providerId,
       family: 'embedding-compatible',
@@ -145,15 +159,22 @@ export class ProviderLongTailEmbeddingLiveClient {
   }
 }
 
-async function readJson(response: Response): Promise<any> {
+async function readJson(response: Response): Promise<EmbeddingResponsePayload | null> {
   try {
     return await response.json();
   } catch (error: unknown) {return null;
   }
 }
 
-function readError(payload: any, status: number): string {
-  return String(payload?.error?.message || payload?.message || payload?.error || `HTTP ${status}`);
+function readError(payload: EmbeddingResponsePayload | null, status: number): string {
+  if (!payload) return `HTTP ${status}`;
+  if ('error' in payload && payload.error && typeof payload.error === 'object' && 'message' in payload.error) {
+    return String(payload.error.message);
+  }
+  if ('message' in payload && typeof payload.message === 'string') {
+    return payload.message;
+  }
+  return `HTTP ${status}`;
 }
 
 function numberOrNull(value: unknown): number | null {

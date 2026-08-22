@@ -6,25 +6,25 @@ class MockElement {
   tagName: string;
   className = '';
   style = {};
-  childNodes: any[] = [];
-  parentNode: any = null;
+  childNodes: unknown[] = [];
+  parentNode: MockElement | MockTextNode | null = null;
   attributes: Record<string, string> = {};
-  listeners: Record<string, any> = {};
-  ownerDocument: any = null;
+  listeners: Record<string, (...args: unknown[]) => void> = {};
+  ownerDocument: MockElement | null = null;
 
   constructor(tagName: string) {
     this.tagName = tagName.toUpperCase();
     this.ownerDocument = mockDocument;
   }
 
-  appendChild(child: any) {
+  appendChild(child: MockElement | MockTextNode) {
     if (child.parentNode) child.parentNode.removeChild(child);
     child.parentNode = this;
     this.childNodes.push(child);
     return child;
   }
 
-  removeChild(child: any) {
+  removeChild(child: MockElement | MockTextNode) {
     const idx = this.childNodes.indexOf(child);
     if (idx !== -1) {
       this.childNodes.splice(idx, 1);
@@ -33,7 +33,7 @@ class MockElement {
     return child;
   }
 
-  insertBefore(child: any, reference: any) {
+  insertBefore(child: MockElement | MockTextNode, reference: MockElement | MockTextNode) {
     if (child.parentNode) child.parentNode.removeChild(child);
     child.parentNode = this;
     const idx = this.childNodes.indexOf(reference);
@@ -55,7 +55,7 @@ class MockElement {
     if (name === 'class') this.className = '';
   }
 
-  addEventListener(type: string, handler: any) {
+  addEventListener(type: string, handler: (...args: unknown[]) => void) {
     this.listeners[type] = handler;
   }
 
@@ -64,11 +64,11 @@ class MockElement {
   }
 
   click() {
-    let current: any = this;
+    let current: MockElement | MockTextNode | null = this;
     const event = {
       target: this,
       currentTarget: this,
-      stopPropagation() { (this as any)._stopped = true; },
+      stopPropagation() { (event as unknown as { _stopped: boolean })._stopped = true; },
       preventDefault() {},
       _stopped: false,
       type: 'click',
@@ -84,13 +84,13 @@ class MockElement {
           try { rProps.onClick(event); } catch (error: unknown) { /* ignore */ }
         }
       }
-      if ((event as any)._stopped) break;
-      current = current.parentNode;
+      if ((event as unknown as { _stopped: boolean })._stopped) break;
+      current = current.parentNode as MockElement | MockTextNode | null;
     }
   }
 
   get textContent(): string {
-    return this.childNodes.map((n: any) => n.textContent || '').join('');
+    return this.childNodes.map((n: MockElement | MockTextNode) => n.textContent || '').join('');
   }
 
   set textContent(value: string) {
@@ -101,11 +101,11 @@ class MockElement {
     const attrs = Object.entries(this.attributes)
       .map(([k, v]) => ` ${k}="${v}"`)
       .join('');
-    const children = this.childNodes.map((c: any) => c.innerHTML || '').join('');
+    const children = this.childNodes.map((c: MockElement | MockTextNode) => c.innerHTML || '').join('');
     return `<${this.tagName.toLowerCase()}${attrs}>${children}</${this.tagName.toLowerCase()}>`;
   }
 
-  querySelector(selector: string): any {
+  querySelector(selector: string): MockElement | null {
     if (!selector.startsWith('.') && !selector.startsWith('[')) {
       if (this.tagName.toLowerCase() === selector.toLowerCase()) return this;
     }
@@ -114,21 +114,21 @@ class MockElement {
       if (this.className.split(' ').includes(cls)) return this;
     }
     for (const child of this.childNodes) {
-      if (child.querySelector) {
-        const found = child.querySelector(selector);
+      if ((child as MockElement).querySelector) {
+        const found = (child as MockElement).querySelector(selector);
         if (found) return found;
       }
     }
     return null;
   }
 
-  querySelectorAll(selector: string): any[] {
-    const results: any[] = [];
+  querySelectorAll(selector: string): MockElement[] {
+    const results: MockElement[] = [];
     this._collectAll(selector, results);
     return results;
   }
 
-  private _collectAll(selector: string, results: any[]) {
+  private _collectAll(selector: string, results: MockElement[]) {
     if (selector.startsWith('.')) {
       const cls = selector.slice(1);
       if (this.className.split(' ').includes(cls)) results.push(this);
@@ -144,8 +144,8 @@ class MockElement {
 class MockTextNode {
   nodeType = 3;
   nodeValue: string;
-  parentNode: any = null;
-  ownerDocument: any = null;
+  parentNode: MockElement | MockTextNode | null = null;
+  ownerDocument: MockElement | null = null;
 
   constructor(value: string) {
     this.nodeValue = value;
@@ -167,18 +167,18 @@ const mockDocument = {
     f.nodeType = 11;
     return f;
   },
-  body: null as any,
-  documentElement: null as any,
-  activeElement: null as any,
-  listeners: {} as Record<string, any>,
-  addEventListener(type: string, handler: any) { this.listeners[type] = handler; },
+  body: null as MockElement | null,
+  documentElement: null as MockElement | null,
+  activeElement: null as MockElement | null,
+  listeners: {} as Record<string, (...args: unknown[]) => void>,
+  addEventListener(type: string, handler: (...args: unknown[]) => void) { this.listeners[type] = handler; },
   removeEventListener(type: string) { delete this.listeners[type]; },
 };
 
 mockDocument.body = new MockElement('body');
 mockDocument.documentElement = new MockElement('html');
 mockDocument.body.parentNode = mockDocument.documentElement;
-mockDocument.documentElement.parentNode = mockDocument as any;
+mockDocument.documentElement.parentNode = mockDocument as unknown as MockElement;
 
 const mockWindow = {
   document: mockDocument,
@@ -191,25 +191,39 @@ const mockWindow = {
   HTMLTextAreaElement: MockElement,
   HTMLSelectElement: MockElement,
   MouseEvent: class {},
-  listeners: {} as Record<string, any>,
-  addEventListener(type: string, handler: any) { this.listeners[type] = handler; },
+  listeners: {} as Record<string, (...args: unknown[]) => void>,
+  addEventListener(type: string, handler: (...args: unknown[]) => void) { this.listeners[type] = handler; },
   removeEventListener(type: string) { delete this.listeners[type]; },
 };
 
-(global as any).window = mockWindow;
-(global as any).document = mockDocument;
-(global as any).navigator = mockWindow.navigator;
-(global as any).HTMLElement = MockElement;
-(global as any).HTMLDivElement = MockElement;
-(global as any).HTMLButtonElement = MockElement;
-(global as any).HTMLIFrameElement = MockElement;
-(global as any).HTMLInputElement = MockElement;
-(global as any).HTMLTextAreaElement = MockElement;
-(global as any).HTMLSelectElement = MockElement;
-(global as any).MouseEvent = mockWindow.MouseEvent;
-(global as any).requestAnimationFrame = (cb: any) => setTimeout(cb, 0);
-(global as any).cancelAnimationFrame = (id: any) => clearTimeout(id);
-(global as any).IS_REACT_ACT_ENVIRONMENT = true;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).window = mockWindow;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).document = mockDocument;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).navigator = mockWindow.navigator;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).HTMLElement = MockElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).HTMLDivElement = MockElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).HTMLButtonElement = MockElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).HTMLIFrameElement = MockElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).HTMLInputElement = MockElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).HTMLTextAreaElement = MockElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).HTMLSelectElement = MockElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).MouseEvent = mockWindow.MouseEvent;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).requestAnimationFrame = (cb: (...args: unknown[]) => void) => setTimeout(cb, 0);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).cancelAnimationFrame = (id: ReturnType<typeof setTimeout>) => clearTimeout(id);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = true;
 
 // Imports (after globals are set)
 import fs from 'node:fs';
@@ -223,7 +237,7 @@ import { MemoryPanel } from '../../../apps/zavorth-desktop/src/views/panels/Memo
 const iconsPath = path.resolve('apps/zavorth-desktop/src/icons');
 const mockIconsFn = () => {
   const R = React;
-  const Dummy = (p: any) => R.createElement('span', p);
+  const Dummy = (p: Record<string, unknown>) => R.createElement('span', p);
   return { AppWindow: Dummy, Folder: Dummy, Terminal: Dummy, ChevronDown: Dummy, File: Dummy };
 };
 jest.doMock(iconsPath, mockIconsFn);
@@ -235,9 +249,9 @@ describe('SettingsPanel and MemoryPanel Read-Only Rewrite', () => {
   let root: Root | null = null;
 
   beforeEach(() => {
-    container = mockDocument.createElement('div') as any;
+    container = mockDocument.createElement('div') as unknown as MockElement;
     mockDocument.body.appendChild(container);
-    root = createRoot(container as any);
+    root = createRoot(container as unknown as Element);
   });
 
   afterEach(() => {

@@ -37,7 +37,7 @@ const TRUE_ENV_VALUES = new Set(["1", "true", "yes", "on"]);
 // ── State (globalThis survives HMR re-evaluation) ───────────────────────
 
 declare global {
-  var __ZavorthGatewayLocalHC:
+  let __ZavorthGatewayLocalHC:
     | {
         initialized: boolean;
         sweepTimer: ReturnType<typeof setTimeout> | null;

@@ -71,6 +71,7 @@ export class ZavorthUserResponseRendererService {
       // Lazy require keeps renderer usable in minimal test contexts without presentation deps.
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { ZavorthPresentationAdapterService } =
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         require('./ZavorthPresentationAdapterService.js') as typeof import('./ZavorthPresentationAdapterService.js');
       return new ZavorthPresentationAdapterService().adaptMarkdownForChannel(text, String(channel || 'web'));
     } catch {

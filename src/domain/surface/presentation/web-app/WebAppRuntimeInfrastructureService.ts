@@ -89,7 +89,7 @@ export class WebAppRuntimeInfrastructureService {
   }
 
   public buildRealtimeInfrastructure(runtime: SharedSurfaceRuntime): WebAppRealtimeInfrastructure {
-    let realtime!: WebRealtimeService;
+    const realtime!: WebRealtimeService;
     const sessionLedger = new GatewaySessionLedgerService();
     const gatewaySessionStore = new GatewaySessionStoreService({
       createWebSession: () => realtime.createSession(),

@@ -1002,6 +1002,7 @@ function createDefaultSkillPromotionGateAdapter(): SkillPromotionGateAdapter | n
   try {
     // Lazy require keeps learning plane usable when skill evolution graph is unavailable.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const mod = require('./SkillPromotionGate.js') as {
       SkillPromotionGate?: new (runtime?: Record<string, unknown>) => {
         materializeCandidate: (input: Record<string, unknown>) => {

@@ -65,6 +65,7 @@ export class ZavorthControlObservabilityService {
   ) {}
 
   public getStats(): ServiceStats {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const MonitorModule = require('../../../../monitoring/Monitor.js').Monitor;
     const monitor = new MonitorModule(this.logRepo);
     let stats = null;

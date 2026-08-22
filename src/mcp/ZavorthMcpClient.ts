@@ -5,6 +5,12 @@ import { EventEmitter } from 'events';
 import { buildMcpChildEnv } from './McpClientManager.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
+interface McpTool {
+  name: string;
+  description?: string;
+  inputSchema?: Record<string, unknown>;
+}
+
 /**
  * Represents a registered external MCP server that the Zavorth can consume.
  * Think: GitHub MCP, SQLite MCP, Google Drive MCP, etc.
@@ -99,12 +105,6 @@ export class ZavorthMcpClient extends EventEmitter {
     );
 
     await client.connect(transport);
-
-    interface McpTool {
-  name: string;
-  description?: string;
-  inputSchema?: Record<string, unknown>;
-}
 
     const toolsResponse = await client.listTools();
     const tools: McpDiscoveredTool[] = (toolsResponse.tools || []).map((tool: McpTool) => ({

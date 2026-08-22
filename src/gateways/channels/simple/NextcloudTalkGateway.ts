@@ -22,7 +22,7 @@ interface NextcloudTalkWebhookPayload {
 export class NextcloudTalkGateway extends WebhookGateway {
   public readonly id = 'nextcloud-talk';
   public readonly name = 'Nextcloud Talk';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'webhook';
 
   constructor(options: WebhookGatewayOptions) {

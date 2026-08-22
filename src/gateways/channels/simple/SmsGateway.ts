@@ -22,7 +22,7 @@ interface SmsWebhookPayload {
 export class SmsGateway extends WebhookGateway {
   public readonly id = 'sms';
   public readonly name = 'SMS';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'bot-http';
 
   constructor(options: WebhookGatewayOptions) {

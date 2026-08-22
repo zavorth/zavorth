@@ -28,6 +28,7 @@ export type SurfaceAgentPlatformId =
   | 'whatsapp'
   | 'slack'
   | 'unknown'
+  // eslint-disable-next-line @typescript-eslint/ban-types
   | (string & {});
 
 export type SurfaceAgentRoutingKind =

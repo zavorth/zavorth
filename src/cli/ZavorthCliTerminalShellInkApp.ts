@@ -177,7 +177,6 @@ export async function runZavorthCliTerminalShellInk(
     await instance.waitUntilExit();
     return { rendered: true, exitCode: actionState.exitCode };
   } catch (error: unknown) {
-    const err = asErrorLike(error);
     if (process.env.ZAVORTH_TERMINAL_INK_DEBUG === '1') {
       console.error(asErrorLike(error).stack || errorMessage(error));
     }
@@ -286,7 +285,6 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
               }
               steerFailureNotice = result.notice;
             } catch (error: unknown) {
-              const err = asErrorLike(error);
               logger.warn('[Zavorth Cli Terminal Shell Ink App] filesystem check failed', error);
     steerFailureNotice = `Live steering unavailable: ${errorMessage(error)}`;
   }
@@ -423,7 +421,6 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
       ]);
       setNotice(result.ok ? 'Ready.' : 'Review the message above before continuing.');
     } catch (error: unknown) {
-      const err = asErrorLike(error);
       const message = errorMessage(error);
       setMessages((current) => [...current.slice(-6), { role: 'system', text: message }]);
       setCards((current) => [...current.slice(-4), {
@@ -482,7 +479,6 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
       ]);
       setNotice(result.notice);
     } catch (error: unknown) {
-      const err = asErrorLike(error);
       const message = errorMessage(error);
       setMessages((current) => [...current.slice(-6), { role: 'system', text: message }]);
       setCards((current) => [...current.slice(-4), {

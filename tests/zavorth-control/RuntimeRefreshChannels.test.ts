@@ -2,7 +2,7 @@ import { createRuntimeRefresh } from '../../apps/zavorth-control-vite-shell/src/
 
 describe('runtime channel refresh', () => {
   it('loads the canonical channel endpoint only after protected runtime access succeeds', async () => {
-    const state: Record<string, any> = {};
+    const state: Record<string, unknown> = {};
     const channelSnapshot = {
       generatedAt: '2026-07-16T12:00:00.000Z',
       summary: { total: 34 },
@@ -41,7 +41,7 @@ describe('runtime channel refresh', () => {
   });
 
   it('does not request the channel catalog before the runtime is unlocked', async () => {
-    const state: Record<string, any> = {};
+    const state: Record<string, unknown> = {};
     const readJson = jest.fn(async (path: string) => {
       if (path === '/api/auth/status') return { authenticated: false };
       return null;

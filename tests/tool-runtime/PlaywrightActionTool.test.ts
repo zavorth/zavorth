@@ -57,7 +57,7 @@ describe('PlaywrightActionTool', () => {
         },
       ])),
     };
-    jest.spyOn(tool as any, 'getSession').mockResolvedValue({
+    jest.spyOn(tool as unknown as { getSession: jest.Mock }, 'getSession').mockResolvedValue({
       browser: {},
       page,
       createdAt: '2026-04-18T12:00:00.000Z',

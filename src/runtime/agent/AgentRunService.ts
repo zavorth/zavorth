@@ -1,6 +1,4 @@
 import { ReplyPipeline } from '../reply/ReplyPipeline.js';
-import { GeminiManagedAgentExecutor } from '../../execution/GeminiManagedAgentExecutor.js';
-import { resolveZavorthArtifactPolicyFromMetadata, shouldPersistZavorthArtifacts } from '../../contracts/ZavorthResponseDecisionContract.js';
 import {
   DynamicHierarchySwarmService,
 } from '../../domain/execution/infrastructure/DynamicHierarchySwarmService.js';
@@ -12,9 +10,7 @@ import {
   AgentRunSteeringStream,
   type AgentRunSteeringStreamAction,
 } from './AgentRunSteeringStream.js';
-import { applyAgentRunLlmRuntimeRouteReceipt } from './AgentRunLlmRouteReceipt.js';
 import { AgentRunCorePipeline } from './AgentRunCorePipeline.js';
-import { promoteIntelligenceFabricDraftWorkspaceWrites } from './AgentRunIntelligenceFabricDraftPromotion.js';
 import {
   AgentRunEvidencePipeline,
   type AgentRunEvidenceCollectorId,
@@ -118,11 +114,9 @@ import { AgentRunPolicyKernel } from './AgentRunPolicyKernel.js';
 import { SkillMcpQuarantineService } from './SkillMcpQuarantineService.js';
 import { AgentRunAutomaticSkillInvocationService } from './AgentRunAutomaticSkillInvocationService.js';
 import { ToolExposurePolicy } from './ToolExposurePolicy.js';
-import { executionContextScope } from '../context/ExecutionContextScope.js';
-import type { ProfileRuntimeBundle } from '../../contracts/ProfileManifestContract.js';
 import type { ProfileManifestService } from '../../services/ProfileManifestService.js';
 import type { ZavorthIntelligenceFabricLearningService } from '../../services/ZavorthIntelligenceFabricLearningService.js';
-import type { ZavorthIntelligencePipelineService, ZavorthIntelligenceFabricService } from '../../services/ZavorthIntelligencePipelineService.js';
+import type { ZavorthIntelligenceFabricService } from '../../services/ZavorthIntelligencePipelineService.js';
 import type { ZavorthMutationPlaneService } from '../../services/ZavorthMutationPlaneService.js';
 import {
   CanonicalSessionContextAssembler,
@@ -137,7 +131,6 @@ import type {
   UniversalAgentRun,
   UniversalAgentRunResult,
   UniversalAgentSteeringEntry,
-  UniversalApprovalRequest,
 } from './UniversalAgentRuntimeTypes.js';
 import { asErrorLike } from '../../utils/errorLike.js';
 import { AgentRunLifecycleSupport } from './AgentRunLifecycleSupport.js';
@@ -282,74 +275,74 @@ export class AgentRunService {
   public readonly approvalGovernanceSupport: AgentRunApprovalGovernanceSupport;
   public readonly runtimeEventSupport: AgentRunRuntimeEventSupport;
   public readonly executionSupport: AgentRunExecutionSupport;
-  declare public applyProviderArena: Function;
-  declare public applyProviderMeshConsolidation: Function;
-  declare public applyArtifactMemory: Function;
-  declare public applyPersonalOpsAutopilot: Function;
-  declare public applyAgentTeamCompiler: Function;
-  declare public applyAskBeforeAssumptionPolicy: Function;
-  declare public applyCrossChannelContinuity: Function;
-  declare public applySelfingZavorthControl: Function;
-  declare public applyRunArtifactReceiptReplay: Function;
-  declare public applyProductizationEvidence: Function;
-  declare public applyProductEntryRuntime: Function;
-  declare public applyReleaseInstallerRollbackPath: Function;
-  declare public applyPublicSiteDocsDemoSync: Function;
-  declare public applyFeedbackTelemetryProductLoop: Function;
-  declare public applyPublicAdoptionPilotLoop: Function;
-  declare public applyIntegrationShowcasePartnerSurface: Function;
-  declare public applyReleaseAdoptionReadiness: Function;
-  declare public applyReleaseCandidatePreCanaryGate: Function;
-  declare public applyBlueprintCompletionGate: Function;
-  declare public resolveTrustSliderDecision: Function;
-  declare public serializeTrustSliderDecision: Function;
-  declare public resolveTrustSliderLevel: Function;
-  declare public resolveTrustSliderUserRole: Function;
-  declare public resolveBooleanFlag: Function;
-  declare public createUniversalPreviewResultIfRequested: Function;
-  declare public createCapabilityNegotiationProposalIfNeeded: Function;
-  declare public createCapabilityNegotiationBlockedResult: Function;
-  declare public createToolRehearsalProposalIfNeeded: Function;
-  declare public createToolRehearsalBlockedResult: Function;
-  declare public createSwarmEscalationProposalIfNeeded: Function;
-  declare public createSelfModificationPreviewIfNeeded: Function;
-  declare public createSelfModificationActionProposalIfNeeded: Function;
-  declare public canExecute: Function;
-  declare public shouldBypassCapabilityNegotiationForSpecializedFlow: Function;
-  declare public shouldProposeSwarmEscalation: Function;
-  declare public shouldCreateSelfModificationPreview: Function;
-  declare public shouldUseNaturalCapabilityDiscoveryWithoutNegotiation: Function;
-  declare public hasResolvedTool: Function;
-  declare public collectResolvedToolIds: Function;
-  declare public collectNaturalCapabilityToolIds: Function;
-  declare public serializeSelfModificationPreview: Function;
-  declare public buildSelfModificationPreviewReply: Function;
-  declare public buildUniversalPreviewReply: Function;
-  declare public buildCapabilityNegotiationReply: Function;
-  declare public buildToolRehearsalReply: Function;
-  declare public acknowledgeApprovedSelfModificationActionProposalIfNeeded: Function;
-  declare public createWatchModeVisualProposalIfNeeded: Function;
-  declare public acknowledgeApprovedWatchModeVisualProposalIfNeeded: Function;
-  declare public serializeWatchModeRun: Function;
-  declare public buildWatchModeVisualProposalReply: Function;
-  declare public resolveWatchModeVisualRequest: Function;
-  declare public resolveWatchModeTargetWindow: Function;
-  declare public isWatchModePolicyAllowlisted: Function;
-  declare public buildSelfModificationActionProposalReply: Function;
-  declare public resolveSelfModificationActionRequest: Function;
-  declare public resolveSelfModificationActionTargetId: Function;
-  declare public extractSelfModificationTargetIdFromText: Function;
-  declare public resolveSuggestedSubagents: Function;
-  declare public buildSwarmEscalationReply: Function;
-  declare public executeApprovedSwarmProposalIfNeeded: Function;
-  declare public serializeSwarmLaunchResult: Function;
-  declare public buildSwarmExecutionReply: Function;
-  declare public resolveSwarmScalePlan: Function;
-  declare public shouldUseSwarmScalePlane: Function;
-  declare public executeApprovedSwarmScaleProposal: Function;
-  declare public serializeSwarmScaleSnapshot: Function;
-  declare public buildSwarmScaleProposalReply: Function;
-  declare public buildSwarmScaleExecutionReply: Function;
+  declare public applyProviderArena: (...args: unknown[]) => unknown;
+  declare public applyProviderMeshConsolidation: (...args: unknown[]) => unknown;
+  declare public applyArtifactMemory: (...args: unknown[]) => unknown;
+  declare public applyPersonalOpsAutopilot: (...args: unknown[]) => unknown;
+  declare public applyAgentTeamCompiler: (...args: unknown[]) => unknown;
+  declare public applyAskBeforeAssumptionPolicy: (...args: unknown[]) => unknown;
+  declare public applyCrossChannelContinuity: (...args: unknown[]) => unknown;
+  declare public applySelfingZavorthControl: (...args: unknown[]) => unknown;
+  declare public applyRunArtifactReceiptReplay: (...args: unknown[]) => unknown;
+  declare public applyProductizationEvidence: (...args: unknown[]) => unknown;
+  declare public applyProductEntryRuntime: (...args: unknown[]) => unknown;
+  declare public applyReleaseInstallerRollbackPath: (...args: unknown[]) => unknown;
+  declare public applyPublicSiteDocsDemoSync: (...args: unknown[]) => unknown;
+  declare public applyFeedbackTelemetryProductLoop: (...args: unknown[]) => unknown;
+  declare public applyPublicAdoptionPilotLoop: (...args: unknown[]) => unknown;
+  declare public applyIntegrationShowcasePartnerSurface: (...args: unknown[]) => unknown;
+  declare public applyReleaseAdoptionReadiness: (...args: unknown[]) => unknown;
+  declare public applyReleaseCandidatePreCanaryGate: (...args: unknown[]) => unknown;
+  declare public applyBlueprintCompletionGate: (...args: unknown[]) => unknown;
+  declare public resolveTrustSliderDecision: (...args: unknown[]) => unknown;
+  declare public serializeTrustSliderDecision: (...args: unknown[]) => unknown;
+  declare public resolveTrustSliderLevel: (...args: unknown[]) => unknown;
+  declare public resolveTrustSliderUserRole: (...args: unknown[]) => unknown;
+  declare public resolveBooleanFlag: (...args: unknown[]) => unknown;
+  declare public createUniversalPreviewResultIfRequested: (...args: unknown[]) => unknown;
+  declare public createCapabilityNegotiationProposalIfNeeded: (...args: unknown[]) => unknown;
+  declare public createCapabilityNegotiationBlockedResult: (...args: unknown[]) => unknown;
+  declare public createToolRehearsalProposalIfNeeded: (...args: unknown[]) => unknown;
+  declare public createToolRehearsalBlockedResult: (...args: unknown[]) => unknown;
+  declare public createSwarmEscalationProposalIfNeeded: (...args: unknown[]) => unknown;
+  declare public createSelfModificationPreviewIfNeeded: (...args: unknown[]) => unknown;
+  declare public createSelfModificationActionProposalIfNeeded: (...args: unknown[]) => unknown;
+  declare public canExecute: (...args: unknown[]) => unknown;
+  declare public shouldBypassCapabilityNegotiationForSpecializedFlow: (...args: unknown[]) => unknown;
+  declare public shouldProposeSwarmEscalation: (...args: unknown[]) => unknown;
+  declare public shouldCreateSelfModificationPreview: (...args: unknown[]) => unknown;
+  declare public shouldUseNaturalCapabilityDiscoveryWithoutNegotiation: (...args: unknown[]) => unknown;
+  declare public hasResolvedTool: (...args: unknown[]) => unknown;
+  declare public collectResolvedToolIds: (...args: unknown[]) => unknown;
+  declare public collectNaturalCapabilityToolIds: (...args: unknown[]) => unknown;
+  declare public serializeSelfModificationPreview: (...args: unknown[]) => unknown;
+  declare public buildSelfModificationPreviewReply: (...args: unknown[]) => unknown;
+  declare public buildUniversalPreviewReply: (...args: unknown[]) => unknown;
+  declare public buildCapabilityNegotiationReply: (...args: unknown[]) => unknown;
+  declare public buildToolRehearsalReply: (...args: unknown[]) => unknown;
+  declare public acknowledgeApprovedSelfModificationActionProposalIfNeeded: (...args: unknown[]) => unknown;
+  declare public createWatchModeVisualProposalIfNeeded: (...args: unknown[]) => unknown;
+  declare public acknowledgeApprovedWatchModeVisualProposalIfNeeded: (...args: unknown[]) => unknown;
+  declare public serializeWatchModeRun: (...args: unknown[]) => unknown;
+  declare public buildWatchModeVisualProposalReply: (...args: unknown[]) => unknown;
+  declare public resolveWatchModeVisualRequest: (...args: unknown[]) => unknown;
+  declare public resolveWatchModeTargetWindow: (...args: unknown[]) => unknown;
+  declare public isWatchModePolicyAllowlisted: (...args: unknown[]) => unknown;
+  declare public buildSelfModificationActionProposalReply: (...args: unknown[]) => unknown;
+  declare public resolveSelfModificationActionRequest: (...args: unknown[]) => unknown;
+  declare public resolveSelfModificationActionTargetId: (...args: unknown[]) => unknown;
+  declare public extractSelfModificationTargetIdFromText: (...args: unknown[]) => unknown;
+  declare public resolveSuggestedSubagents: (...args: unknown[]) => unknown;
+  declare public buildSwarmEscalationReply: (...args: unknown[]) => unknown;
+  declare public executeApprovedSwarmProposalIfNeeded: (...args: unknown[]) => unknown;
+  declare public serializeSwarmLaunchResult: (...args: unknown[]) => unknown;
+  declare public buildSwarmExecutionReply: (...args: unknown[]) => unknown;
+  declare public resolveSwarmScalePlan: (...args: unknown[]) => unknown;
+  declare public shouldUseSwarmScalePlane: (...args: unknown[]) => unknown;
+  declare public executeApprovedSwarmScaleProposal: (...args: unknown[]) => unknown;
+  declare public serializeSwarmScaleSnapshot: (...args: unknown[]) => unknown;
+  declare public buildSwarmScaleProposalReply: (...args: unknown[]) => unknown;
+  declare public buildSwarmScaleExecutionReply: (...args: unknown[]) => unknown;
 
   readonly now: () => Date;
   readonly idFactory: (prefix: string) => string;
@@ -563,6 +556,7 @@ export class AgentRunService {
     this.nativeAutonomySpine = runtime.nativeAutonomySpine
       || (() => {
         try {
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
           const { ZavorthNativeAutonomySpineService } = require('../../services/ZavorthNativeAutonomySpineService.js');
           return new ZavorthNativeAutonomySpineService({ projectRoot: process.cwd() });
         } catch {

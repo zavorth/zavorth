@@ -6,7 +6,7 @@ import { asErrorLike } from '../../../utils/errorLike.js';
 export class SynologyChatGateway extends WebhookGateway {
   public readonly id = 'synology-chat';
   public readonly name = 'Synology Chat';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'webhook';
 
   constructor(options: WebhookGatewayOptions) {

@@ -180,10 +180,11 @@ export class SignalLiveClient {
       }),
     });
 
-    let payload: Record<string, any> | null = null;
+    let payload: Record<string, unknown> | null = null;
     try {
-      payload = await response.json() as Record<string, any>;
-    } catch (error: unknown) {payload = null;
+      payload = await response.json() as Record<string, unknown>;
+    } catch {
+      payload = null;
     }
 
     if (!response.ok) {

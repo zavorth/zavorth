@@ -76,17 +76,6 @@ export type MessageBusRuntime = {
   logger?: typeof logger;
 };
 
-type BusLifecycleEvent =
-  | 'message:published'
-  | 'message:delivered'
-  | 'message:acknowledged'
-  | 'message:failed'
-  | 'message:expired'
-  | 'message:dead-lettered'
-  | 'message:retried'
-  | 'subscription:added'
-  | 'subscription:removed';
-
 const PRIORITY_ORDER: Record<MessagePriority, number> = {
   critical: 0,
   high: 1,
@@ -315,7 +304,7 @@ export class MessageBus extends EventEmitter {
       results.push(sub);
     });
 
-    results.sort((a, b) => {
+    results.sort((_a, _b) => {
       const aIdx = PRIORITY_ORDER[message.priority] ?? 2;
       const bIdx = PRIORITY_ORDER[message.priority] ?? 2;
       return aIdx - bIdx;

@@ -87,7 +87,7 @@ export class SkillQuarantinePipelineService {
     const draftWritten = applyDraft || fs.existsSync(proposalPath);
     return {
       generatedAt,
-      status: Boolean(sandboxSnapshot.envelopePreview) ? 'ready' : 'partial',
+      status: sandboxSnapshot.envelopePreview ? 'ready' : 'partial',
       skillId,
       quarantinePath,
       proposalPath,

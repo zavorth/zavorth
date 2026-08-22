@@ -116,6 +116,7 @@ export class SkillSearchIndexService {
       .slice(0, Math.max(1, Math.min(50, limit)));
     try {
       const { getSkillHotPathCache } =
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         require('./SkillHotPathCacheService.js') as typeof import('./SkillHotPathCacheService.js');
       getSkillHotPathCache().recordSearchLatency(Date.now() - started);
     } catch {

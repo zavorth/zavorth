@@ -1,3 +1,8 @@
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
+import http from 'http';
+import https from 'https';
 import { asErrorLike } from '../utils/errorLike';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -180,30 +185,29 @@ export class ZavorthBrowserAutomationTool extends BaseTool {
 
     if (mirror && urlPath) {
       // Recreate directory structure from URL
-      const dirPath = require('path').dirname(urlPath);
-      return require('path').join(outputDir, 'mirror', dirPath, fileName);
+      const dirPath = path.dirname(urlPath);
+      return path.join(outputDir, 'mirror', dirPath, fileName);
     }
 
     // Auto-organize by type
-    return require('path').join(outputDir, category, fileName);
+    return path.join(outputDir, category, fileName);
   }
 
   /**
    * Generate unique filename to avoid overwrites
    */
   private async getUniqueFilePath(filePath: string): Promise<string> {
-    const fs = require('fs');
     if (!fs.existsSync(filePath)) return filePath;
 
-    const dir = require('path').dirname(filePath);
-    const ext = require('path').extname(filePath);
-    const base = require('path').basename(filePath, ext);
+    const dir = path.dirname(filePath);
+    const ext = path.extname(filePath);
+    const base = path.basename(filePath, ext);
     let counter = 1;
 
-    while (fs.existsSync(require('path').join(dir, `${base}_${counter}${ext}`))) {
+    while (fs.existsSync(path.join(dir, `${base}_${counter}${ext}`))) {
       counter++;
     }
-    return require('path').join(dir, `${base}_${counter}${ext}`);
+    return path.join(dir, `${base}_${counter}${ext}`);
   }
 
   public async execute(args: Record<string, unknown>): Promise<string> {
@@ -406,7 +410,6 @@ const { chromium } = require('playwright');
 
   private async manageCookies(args: Record<string, unknown>): Promise<string> {
     const url = String(args.url || '');
-    const cookieName = String(args.cookie_name || '');
     if (!url) return 'Error: "url" is required for cookies.';
 
     const urlLiteral = this.jsLiteral(url);
@@ -511,11 +514,6 @@ const { chromium } = require('playwright');
     const mirror = args.mirror === true;
 
     try {
-      const fs = require('fs');
-      const pathMod = require('path');
-      const crypto = require('crypto');
-      const https = require('https');
-      const http = require('http');
       const protocol = url.startsWith('https') ? https : http;
 
       return await new Promise<string>((resolve) => {
@@ -544,11 +542,11 @@ const { chromium } = require('playwright');
             fileName = dispositionMatch[1].replace(/['"]/g, '');
           } else {
             const urlObj = new URL(url);
-            fileName = pathMod.basename(decodeURIComponent(urlObj.pathname)) || 'download';
+            fileName = path.basename(decodeURIComponent(urlObj.pathname)) || 'download';
           }
 
           if (onlyTypes.length > 0) {
-            const ext = pathMod.extname(fileName).toLowerCase().replace('.', '');
+            const ext = path.extname(fileName).toLowerCase().replace('.', '');
             if (!onlyTypes.includes(ext)) { res.destroy(); resolve(`Filtered: ${fileName} (wrong type)`); return; }
           }
           if (maxSize > 0 && contentLength > maxSize) {
@@ -557,11 +555,11 @@ const { chromium } = require('playwright');
 
           const category = mirror ? 'mirror' : this.getMimeTypeCategory(contentType, fileName);
           const saveDir = mirror
-            ? pathMod.join(outputPath, 'mirror', new URL(url).pathname)
-            : pathMod.join(outputPath, category);
+            ? path.join(outputPath, 'mirror', new URL(url).pathname)
+            : path.join(outputPath, category);
           if (!fs.existsSync(saveDir)) fs.mkdirSync(saveDir, { recursive: true });
 
-          let savePath = pathMod.join(saveDir, fileName);
+          let savePath = path.join(saveDir, fileName);
           if (fs.existsSync(savePath)) {
             const existingSize = fs.statSync(savePath).size;
             if (contentLength > 0 && existingSize === contentLength) {
@@ -569,11 +567,11 @@ const { chromium } = require('playwright');
               resolve(`Skipped: ${fileName} (duplicate, ${existingSize} bytes)`);
               return;
             }
-            const ext = pathMod.extname(fileName);
-            const base = pathMod.basename(fileName, ext);
+            const ext = path.extname(fileName);
+            const base = path.basename(fileName, ext);
             let counter = 1;
-            while (fs.existsSync(pathMod.join(saveDir, `${base}_${counter}${ext}`))) counter++;
-            savePath = pathMod.join(saveDir, `${base}_${counter}${ext}`);
+            while (fs.existsSync(path.join(saveDir, `${base}_${counter}${ext}`))) counter++;
+            savePath = path.join(saveDir, `${base}_${counter}${ext}`);
           }
 
           const chunks: Buffer[] = [];
@@ -629,7 +627,6 @@ const { chromium } = require('playwright');
     const minSize = args.min_size ? Number(args.min_size) : 0;
     const maxSize = args.max_size ? Number(args.max_size) : Infinity;
     const onlyTypes = this.parseOnlyTypes(String(args.only_types || ''));
-    const mirror = args.mirror === true;
 
     // Step 1: Use Playwright to navigate and extract links
     const extractScript = `
@@ -693,6 +690,7 @@ const { chromium } = require('playwright');
 
     const results: string[] = [];
     let index = 0;
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     async function worker() {
       while (index < downloadQueue.length) {
@@ -726,15 +724,10 @@ const { chromium } = require('playwright');
    * Returns enriched link metadata (size, type, downloadable flag).
    */
   private async extractLinks(args: Record<string, unknown>): Promise<string> {
-    const selector = String(args.selector || 'a[href]').trim();
     const url = String(args.url || '');
-    const minSize = args.min_size ? Number(args.min_size) : 0;
-    const maxSize = args.max_size ? Number(args.max_size) : Infinity;
     const onlyTypes = this.parseOnlyTypes(String(args.only_types || ''));
 
     try {
-      const http = require('http');
-      const https = require('https');
       const protocol = url.startsWith('https') ? https : http;
 
       return await new Promise<string>((resolve) => {

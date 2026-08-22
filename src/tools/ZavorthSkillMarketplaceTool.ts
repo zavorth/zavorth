@@ -6,14 +6,10 @@ import { SkillLocalRegistry } from '../skills/marketplace/SkillLocalRegistry.js'
 import { SkillGitRegistry } from '../skills/marketplace/SkillGitRegistry.js';
 import { validateSkillPackage } from '../skills/marketplace/SkillPackageValidator.js';
 import {
-  scanSkillForSecurity,
-  getSkillPermissions,
-  recordAuditLog,
   signSkillPackage,
 } from '../skills/marketplace/SkillMarketplaceSecurity.js';
 import { SkillRollback } from '../skills/marketplace/SkillRollback.js';
 import { SkillDependencyResolver } from '../skills/marketplace/SkillDependencyResolver.js';
-import { detectSource, getSourceHint } from '../skills/marketplace/SkillSourceDetector.js';
 import { SkillUpdateChecker } from '../skills/marketplace/SkillUpdateChecker.js';
 import { detectConflicts } from '../skills/marketplace/SkillConflictDetector.js';
 import { SkillBundleManager } from '../skills/marketplace/SkillBundle.js';
@@ -313,7 +309,7 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
     return result.formatText();
   }
 
-  private list(args: Record<string, unknown>): string {
+  private list(_args: Record<string, unknown>): string {
     const entries = this.registry.listAll();
     if (entries.length === 0) return 'No skills registered in the marketplace.';
 

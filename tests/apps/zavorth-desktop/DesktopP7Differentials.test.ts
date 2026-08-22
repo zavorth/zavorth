@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import type { MemoryItem } from '../../../apps/zavorth-desktop/src/apiClient';
 import {
   importPremiumTheme,
   resolvePremiumFontForProfile,
@@ -161,8 +162,8 @@ describe('Desktop P7 Zavorth differentials', () => {
         sessionPreset: 'developer',
       },
       memoryItems: [
-        { id: 'm1', title: 'Prefers short summaries', kind: 'preference', content: 'Keep final answers concise.' },
-      ] as any,
+        { id: 'm1', title: 'Prefers short summaries', kind: 'preference', content: 'Keep final answers concise.' } as MemoryItem,
+      ],
     });
 
     expect(context.identityLabel).toContain('Zavorth');

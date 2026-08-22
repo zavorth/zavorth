@@ -17,6 +17,29 @@ import type {
   TokenUsage,
 } from '../LLMAdapterContract.js';
 
+interface AnthropicContentBlock {
+  type: 'text' | 'thinking' | 'tool_use';
+  text?: string;
+  thinking?: string;
+  id?: string;
+  name?: string;
+  input?: Record<string, unknown>;
+}
+
+interface AnthropicUsage {
+  input_tokens: number;
+  output_tokens: number;
+  cache_read_input_tokens?: number;
+  cache_creation_input_tokens?: number;
+}
+
+interface AnthropicResponse {
+  content: AnthropicContentBlock[];
+  stop_reason: string;
+  stop_sequence: string | null;
+  usage: AnthropicUsage;
+}
+
 export interface AnthropicAdapterConfig {
   apiKey?: string;
   baseUrl?: string;
@@ -70,7 +93,7 @@ export class AnthropicAdapter implements LLMAdapter {
         throw new Error(`HTTP ${response.status} from Anthropic: ${errorText}`);
       }
 
-      const data = (await response.json()) as Record<string, any>;
+      const data = (await response.json()) as AnthropicResponse;
       let textContent = '';
       let reasoningContent: string | undefined;
       const toolCalls: ToolCall[] = [];
@@ -118,7 +141,7 @@ export class AnthropicAdapter implements LLMAdapter {
         content: textContent,
         reasoningContent,
         toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
-        finishReason: data.stop_reason === 'tool_use' ? 'tool_calls' : 'stop',
+        finishReason: data.stop_reason === 'tool_use' ? 'tool_calls' : (data.stop_reason as 'stop' | 'length' | 'tool_calls' | 'content_filter' | 'error') || 'stop',
         usage,
         model,
         provider: this.name,
@@ -246,9 +269,9 @@ export class AnthropicAdapter implements LLMAdapter {
     return { valid: true };
   }
 
-  private formatMessages(messages: ChatMessage[]): { systemPrompt: string; anthropicMessages: any[] } {
+  private formatMessages(messages: ChatMessage[]): { systemPrompt: string; anthropicMessages: Array<Record<string, unknown>> } {
     let systemPrompt = '';
-    const anthropicMessages: any[] = [];
+    const anthropicMessages: Array<Record<string, unknown>> = [];
 
     for (const m of messages) {
       if (m.role === 'system') {
@@ -265,7 +288,7 @@ export class AnthropicAdapter implements LLMAdapter {
           ],
         });
       } else if (m.role === 'assistant') {
-        const blocks: any[] = [];
+        const blocks: Array<Record<string, unknown>> = [];
         if (m.thought) {
           blocks.push({ type: 'thinking', thinking: m.thought, signature: '' });
         }
@@ -299,7 +322,7 @@ export class AnthropicAdapter implements LLMAdapter {
 
   private buildRequestBody(
     systemPrompt: string,
-    messages: any[],
+    messages: Array<Record<string, unknown>>,
     options: CompletionOptions,
     stream: boolean
   ): Record<string, unknown> {

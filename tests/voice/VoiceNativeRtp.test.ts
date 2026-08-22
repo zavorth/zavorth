@@ -1,4 +1,5 @@
 import { pcmInt16ToWav, pcmRms } from '../../src/services/voice/VoicePcmWav.js';
+import { AudioTranscriptionService } from '../../src/services/AudioTranscriptionService.js';
 import {
   VoiceNativeRtpBridge,
   resetVoiceNativeRtpBridgeForTests,
@@ -110,7 +111,7 @@ describe('Voice native RTP + PCM→WAV→STT path', () => {
     const bridge = new VoiceNativeRtpBridge({
       duplex,
       signaling,
-      stt: stt as any,
+      stt: stt as unknown as AudioTranscriptionService,
       silenceMs: 50,
     });
 

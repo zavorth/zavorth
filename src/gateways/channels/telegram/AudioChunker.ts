@@ -26,6 +26,7 @@ export class AudioChunker {
     this.ensureTmpDir();
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const loaded = require('ffmpeg-static');
       this.ffmpegPath = typeof loaded === 'string' && loaded ? loaded : null;
     } catch (error: unknown) {this.ffmpegPath = null;

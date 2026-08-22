@@ -8,19 +8,9 @@ import {
   isZavorthLiveNamespaceCommand,
   runZavorthLiveNamespaceCommand,
 } from './cli/ZavorthCliLiveNamespaces.js';
-import { asErrorLike } from './utils/errorLike';
-import { spawn } from 'child_process';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import path from 'path';
-import { formatCliHelp, resolveCliHelpTopic } from './cli/ZavorthCliSurfaceHelpers.js';
-import { getCommandAliases } from './cli/locales/localeManager.js';
-import {
-  resolveZavorthSimpleCommand,
-  type ZavorthSimpleCommandPlan,
-} from './cli/SimpleCommandRouter.js';
 
-
-import type { DiskMutationGateRequestedOperation } from './contracts/DiskMutationGateContract.js';
 import { runDiskMutationGateCommand } from './cli/disk/ZavorthCliDiskMutationNamespace.js';
 import { runProjectConstitutionCommand } from './cli/constitution/ZavorthCliConstitutionNamespace.js';
 import { runMigrationUX } from './cli/MigrationCli.js';
@@ -47,14 +37,10 @@ import {
   npmInherited,
   printBuiltinHelp,
   printCliPanel,
-  printGeneralHelp,
   projectRoot,
   readDurationMsFlag,
-  readFlexibleStringFlag,
   readNumberFlag,
   readStringFlag,
-  readStringListFlag,
-  readTaskPositional,
   runningFromDist,
   simpleCommandPlan,
   spawnInherited,
@@ -67,12 +53,10 @@ import {
   runDiagnosticsExport,
   runPremiumHome,
   runZavorthHomeCommand,
-  writeZavorthHomeEnvSelection,
   runZavorthEchoWakeCommand,
   runZavorthTasksCommand,
   runZavorthFriendlyWorkCommand,
   runPremiumHatch,
-  runPremiumQuickStart,
   runPremiumApprovalDiff,
   runPremiumHud,
   resolveDailyHudArgs,
@@ -85,7 +69,6 @@ import {
   runPromotedScript,
 } from './cli/ZavorthCliSystemCommands.js';
 import {
-  buildQuickSandboxHostReadiness,
   runProductizationProtectedRuntime,
   runExperienceProfiles,
   runConversationalSetup,
@@ -119,21 +102,14 @@ import {
   runProviderCapabilityMatrix,
   runNativeIntegrations,
   runProviderChannelWizard,
-  runChannelCapabilityCatalog,
   runChannelCapabilityAtlas,
   runChannelDeepening,
   runNativeLearningLoop,
   runZavorthConvergenceDoctor,
   runZavorthProductHardeningDoctor,
-  silenceConsoleLogToStderr,
-  runGatewayMatrix,
   runExecutionBackends,
   runSkillEcosystem,
   runAcp,
-  buildAcpGenericChannelFrame,
-  runRuntimeGuidedFixes,
-  runRuntimeReadinessFix,
-  runRuntimeReadinessFixProvider,
 } from './cli/ZavorthCliExperienceCommands.js';
 import {
   runCliExperienceConsistency,
@@ -144,13 +120,11 @@ import {
   runProviderReadiness,
   runDynamicWorkflows,
   runEffortControl,
-  collectEffortControlPositionals,
   runProviderLongTailActivation,
   runChannelLongTailActivation,
   normalizeMeshActivationArgs,
   resolveProductizationView,
   runInstanceCommand,
-  writeInstanceEnv,
 } from './cli/ZavorthCliRuntimeCommands.js';
 async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   const command = String(rawArgs[0] || '').trim().toLowerCase();

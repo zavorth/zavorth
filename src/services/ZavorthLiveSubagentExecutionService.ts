@@ -295,7 +295,7 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
     };
 
     budget = applySubagentBudgetUsage(budget, { elapsedMs: Math.max(0, this.now().getTime() - startedMs) });
-    let preflight = evaluateSubagentBudget(budget);
+    const preflight = evaluateSubagentBudget(budget);
     if (!preflight.ok && preflight.exceeded) {
       return stopForBudget(preflight.exceeded, preflight);
     }

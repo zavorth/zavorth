@@ -33,10 +33,10 @@ describe('HomeAssistantBridge', () => {
   it('returns canonical lifecycle, artifact, policy, and correlation metadata on successful local control', async () => {
     process.env.HOME_ASSISTANT_URL = 'http://homeassistant.local:8123';
     process.env.HOME_ASSISTANT_TOKEN = 'test-token';
-    const fetchSpy = jest.spyOn(global, 'fetch' as any).mockResolvedValue({
+    const fetchSpy = jest.spyOn(global, 'fetch' as unknown as jest.SpyInstance).mockResolvedValue({
       ok: true,
       text: async () => '',
-    } as any);
+    } as unknown as Response);
 
     const result = await new HomeAssistantBridge().execute(
       {
@@ -106,7 +106,7 @@ describe('HomeAssistantBridge', () => {
   it('returns blocked policy metadata before any external network call', async () => {
     process.env.HOME_ASSISTANT_URL = 'https://example.com';
     process.env.HOME_ASSISTANT_TOKEN = 'test-token';
-    const fetchSpy = jest.spyOn(global, 'fetch' as any);
+    const fetchSpy = jest.spyOn(global, 'fetch' as unknown as jest.SpyInstance);
 
     const result = await new HomeAssistantBridge().execute({
       entity_id: 'light.sala',
@@ -133,10 +133,10 @@ describe('HomeAssistantBridge', () => {
     process.env.HOME_ASSISTANT_URL = 'http://homeassistant.local:8123';
     process.env.HOME_ASSISTANT_TOKEN = 'test-token';
     process.env.ZAVORTH_PUBLIC_BASE_URL = 'https://zavorth.example';
-    const fetchSpy = jest.spyOn(global, 'fetch' as any).mockResolvedValue({
+    const fetchSpy = jest.spyOn(global, 'fetch' as unknown as jest.SpyInstance).mockResolvedValue({
       ok: true,
       text: async () => '',
-    } as any);
+    } as unknown as Response);
     const assetStore = new EchoVoiceAssetStoreService({
       now: () => 1_700_000_000_000,
       defaultTtlMs: 60_000,
@@ -217,7 +217,7 @@ describe('HomeAssistantBridge', () => {
 
   it('stores recent physical events for cross-surface feedback', async () => {
     jest.spyOn(MemoryService.prototype, 'remember').mockResolvedValue(undefined);
-    const bridge = new HomeAssistantBridge() as any;
+    const bridge = new HomeAssistantBridge() as unknown as HomeAssistantBridge & { handlePhysicalEvent: (event: unknown) => Promise<void> };
 
     await bridge.handlePhysicalEvent({
       entity_id: 'lock.front_door',

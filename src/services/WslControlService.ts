@@ -194,6 +194,7 @@ export class WslControlService {
   }
 
   private parseDistroList(stdout: string): WslDistroInfo[] {
+  // eslint-disable-next-line no-control-regex
     const cleaned = stdout.replace(/\u0000/g, '');
     const lines = cleaned
       .split(/\r?\n/)

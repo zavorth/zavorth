@@ -6,7 +6,7 @@ import {
 } from "./legacyDbSingletonCompat";
 
 declare global {
-  var __ZavorthDb: SqliteDatabase | undefined;
+  let __ZavorthDb: SqliteDatabase | undefined;
 }
 
 export function getStoredDb(): SqliteDatabase | null {

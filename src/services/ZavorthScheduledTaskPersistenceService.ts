@@ -104,7 +104,7 @@ export class ZavorthScheduledTaskPersistenceService {
       taskPersisted: Boolean(task && actionResult.persistencePerformed),
       taskGoverned: Boolean(governedMetadata),
       approvalFresh: runtime.registry.approvalVerification.ok,
-      executionPerformed: false as false,
+      executionPerformed: false as const,
     };
 
     return {

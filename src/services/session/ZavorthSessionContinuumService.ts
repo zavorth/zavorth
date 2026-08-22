@@ -77,7 +77,7 @@ export class ZavorthSessionContinuumService {
         try {
           const content = fs.readFileSync(path.join(this.storageDir, file), 'utf8');
           snapshots.push(JSON.parse(content) as SessionContinuumSnapshot);
-        } catch {}
+        } catch {/* empty */}
       }
 
       return snapshots.sort((a, b) => b.updatedAt - a.updatedAt);
@@ -109,6 +109,6 @@ export class ZavorthSessionContinuumService {
           this.deleteSnapshot(item.sessionId);
         }
       }
-    } catch {}
+    } catch {/* empty */}
   }
 }

@@ -6,7 +6,7 @@ import { PublicApiRouter } from '../../../api/public/PublicApiRouter';
 export class WebChannelAdapter implements GatewayChannelAdapter {
   id = 'web';
   name = 'REST/SSE/WS Web App';
-  type: 'duplex' = 'duplex';
+  type = 'duplex' as const;
 
   constructor(
     private eventBus: GatewayEventBus,

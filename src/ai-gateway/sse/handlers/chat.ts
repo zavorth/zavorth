@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import type { ComboConfigDef } from "@zavorth/ai-gateway/open-sse/services/combo";
 import {
   getProviderCredentials,
@@ -77,17 +76,6 @@ interface ClientRawRequest {
   headers?: Record<string, string>;
 }
 
-/** Combo configuration from getComboForModel(). */
-interface ComboConfig {
-  id?: string;
-  name: string;
-  models: Array<string | { model: string; weight?: number; priority?: number }>;
-  strategy: string;
-  config?: Record<string, unknown>;
-  isHidden?: boolean;
-  [key: string]: unknown;
-}
-
 /** Application settings from getSettings(). */
 interface AppSettings extends Record<string, unknown> {
   globalFallbackModel?: string;
@@ -101,27 +89,6 @@ interface ResponsePayload {
   [key: string]: unknown;
 }
 
-/** Provider credentials returned by getProviderCredentials(). */
-interface ProviderCredentials {
-  apiKey: string | null;
-  accessToken: string | null;
-  refreshToken: string | null;
-  expiresAt: string | null;
-  projectId: string | null;
-  copilotToken: string | null;
-  providerSpecificData: Record<string, unknown>;
-  connectionId: string;
-  testStatus: string | null;
-  lastError: string | null;
-  lastErrorType: string | null;
-  lastErrorSource: string | null;
-  errorCode: string | number | null;
-  rateLimitedUntil: string | null;
-  allRateLimited?: boolean;
-  retryAfter?: string;
-  retryAfterHuman?: string;
-}
-
 // Pipeline integration — wired modules
 import { getCircuitBreaker } from "../../shared/utils/circuitBreaker";
 import {
@@ -132,7 +99,6 @@ import {
 
 import { RequestTelemetry, recordTelemetry } from "../../shared/utils/requestTelemetry";
 import { generateRequestId } from "../../shared/utils/requestId";
-import { logAuditEvent } from "../../lib/compliance/index";
 import { enforceApiKeyPolicy, type ApiKeyMetadata } from "../../shared/utils/apiKeyPolicy";
 import { cloneLogPayload } from "@/lib/logPayloads";
 import {
@@ -303,7 +269,6 @@ export async function handleChat(request: Request, clientRawRequest: ClientRawRe
   // T05 — Task-Aware Smart Routing
   // Detect the semantic task type and optionally route to the optimal model
   let resolvedModelStr = modelStr;
-  let taskRouteInfo: { taskType: string; wasRouted: boolean } | null = null;
   if (getTaskRoutingConfig().enabled) {
     telemetry.startPhase("task-route");
     const tr = applyTaskAwareRouting(modelStr, body);
@@ -317,7 +282,6 @@ export async function handleChat(request: Request, clientRawRequest: ClientRawRe
     } else if (tr.taskType !== "chat") {
       log.debug("T05", `Task-Aware: detected="${tr.taskType}" (no override configured)`);
     }
-    taskRouteInfo = { taskType: tr.taskType, wasRouted: tr.wasRouted };
     telemetry.endPhase();
   }
 
@@ -606,7 +570,7 @@ async function handleSingleModelChat(
   let lastStatus = null;
   let lastCooldownMs = 0;
 
-  while (true) {
+  for (;;) {
     const credentials = await getProviderCredentials(
       provider,
       excludeConnectionId,

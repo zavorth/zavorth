@@ -8,11 +8,11 @@ describe('SandboxExecutionTool', () => {
   const originalEnabled = config.wasmSandboxEnabled;
 
   afterEach(() => {
-    (config as any).wasmSandboxEnabled = originalEnabled;
+    (config as Record<string, unknown>).wasmSandboxEnabled = originalEnabled;
   });
 
   it('executes a wasm module through the wasm path', async () => {
-    (config as any).wasmSandboxEnabled = true;
+    (config as Record<string, unknown>).wasmSandboxEnabled = true;
     const tool = new SandboxExecutionTool();
 
     const output = await tool.execute({
@@ -30,7 +30,7 @@ describe('SandboxExecutionTool', () => {
   });
 
   it('rejects invalid wasm args_json before execution', async () => {
-    (config as any).wasmSandboxEnabled = true;
+    (config as Record<string, unknown>).wasmSandboxEnabled = true;
     const tool = new SandboxExecutionTool();
 
     const output = await tool.execute({

@@ -100,7 +100,7 @@ export class ApprovalLeaseFeedbackFixSelection {
       severity,
       followUpCategory: overrides.followUpCategory || triageRecord.followUpCategory,
       safeFailureReasonCode: triageRecord.safeFailureReasonCode,
-      recommendedAction: recommendedAction as any,
+      recommendedAction,
       selectedForFix,
       selectionReason,
       fixPriority,

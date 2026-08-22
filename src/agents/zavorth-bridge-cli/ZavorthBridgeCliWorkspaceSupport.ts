@@ -186,7 +186,7 @@ export async function isWindowSurfaceCompatible(input: {
   }
 
   const focusedWindow = await input.windowAutomator.focusWindow(0).catch(() => null);
-  const visibleWindowTitle = String((focusedWindow as any)?.windowTitle || '')
+  const visibleWindowTitle = String((focusedWindow as Record<string, unknown> | null)?.windowTitle || '')
     .trim()
     .toLowerCase();
 

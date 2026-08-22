@@ -123,7 +123,7 @@ export class ZavorthAutonomyHarnessService {
       if (fs.existsSync(historyPath)) {
         try {
           history = JSON.parse(fs.readFileSync(historyPath, 'utf8')) as BenchmarkSuiteResult[];
-        } catch {}
+        } catch {/* empty */}
       }
 
       history.unshift(result);

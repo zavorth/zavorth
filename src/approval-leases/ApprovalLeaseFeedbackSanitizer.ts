@@ -53,7 +53,7 @@ export class ApprovalLeaseFeedbackSanitizer {
     }
 
     // 4. Sanitize Notes
-    let notes = sanitizeLeaseFeedback(raw.sanitizedNotes || '');
+    const notes = sanitizeLeaseFeedback(raw.sanitizedNotes || '');
 
     // Double check that no raw forbidden patterns escaped
     const forbiddenPatterns = [

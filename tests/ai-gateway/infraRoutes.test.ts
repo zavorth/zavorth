@@ -49,7 +49,7 @@ describe('Infra API Routes', () => {
   });
 
   it('POST /api/infra/drain triggers SIGTERM on correct epoch', async () => {
-    const killSpy = jest.spyOn(process, 'kill').mockImplementation((() => {}) as any);
+    const killSpy = jest.spyOn(process, 'kill').mockImplementation(((_pid: number, _signal?: string | number) => {}) as unknown as (pid: number, signal?: string | number) => boolean);
     
     const req = new Request('http://localhost/api/infra/drain', {
       method: 'POST',

@@ -1,8 +1,53 @@
 import { TelegramOpsInsightService } from '../../../src/telegram/controllers/TelegramOpsInsightService';
 
+interface MockCapabilityLifecycleService {
+  enableCapability: jest.Mock;
+  buildApprovalRequest: jest.Mock;
+  buildSnapshot: jest.Mock;
+}
+
+interface MockZavorthBridgePreferenceStore {
+  getPreferredModel: jest.Mock;
+}
+
+interface MockDemoModeService {
+  isEnabled: jest.Mock;
+}
+
+interface MockIntegrationHubService {
+  [key: string]: unknown;
+}
+
+interface MockOperatorModeService {
+  isEnabled: jest.Mock;
+}
+
+interface MockPresentationModeService {
+  isEnabled: jest.Mock;
+}
+
+interface MockProductObservabilityService {
+  buildSnapshot: jest.Mock;
+}
+
+interface MockRuntimeDiagnostics {
+  writeSnapshot: jest.Mock;
+}
+
+interface MockControllerDeps {
+  capabilityLifecycleService?: MockCapabilityLifecycleService;
+  zavorthBridgePreferenceStore?: MockZavorthBridgePreferenceStore;
+  demoModeService?: MockDemoModeService;
+  integrationHubService?: MockIntegrationHubService;
+  operatorModeService?: MockOperatorModeService;
+  presentationModeService?: MockPresentationModeService;
+  productObservabilityService?: MockProductObservabilityService;
+  runtimeDiagnostics?: MockRuntimeDiagnostics;
+}
+
 describe('TelegramOpsInsightService', () => {
   function createService() {
-    const capabilityLifecycleService = {
+    const capabilityLifecycleService: MockCapabilityLifecycleService = {
       enableCapability: jest.fn().mockReturnValue({
         capabilityId: 'media',
         state: 'ready',
@@ -27,15 +72,15 @@ describe('TelegramOpsInsightService', () => {
         summary: { total: 1, active: 1, dormant: 0 },
         capabilities: [],
       }),
-    } as any;
+    };
 
     const service = new TelegramOpsInsightService({
-      zavorthBridgePreferenceStore: { getPreferredModel: jest.fn().mockResolvedValue('gemini-2.5-pro') } as any,
-      demoModeService: { isEnabled: () => false } as any,
-      integrationHubService: {} as any,
-      operatorModeService: { isEnabled: () => false } as any,
-      presentationModeService: { isEnabled: () => false } as any,
-      productObservabilityService: { buildSnapshot: jest.fn().mockResolvedValue(null) } as any,
+      zavorthBridgePreferenceStore: { getPreferredModel: jest.fn().mockResolvedValue('gemini-2.5-pro') },
+      demoModeService: { isEnabled: () => false },
+      integrationHubService: {},
+      operatorModeService: { isEnabled: () => false },
+      presentationModeService: { isEnabled: () => false },
+      productObservabilityService: { buildSnapshot: jest.fn().mockResolvedValue(null) },
       runtimeDiagnostics: {
         writeSnapshot: jest.fn().mockReturnValue({
           process: {
@@ -56,7 +101,7 @@ describe('TelegramOpsInsightService', () => {
             recentFailures: [],
           },
         }),
-      } as any,
+      },
       capabilityLifecycleService,
     });
 
@@ -67,10 +112,10 @@ describe('TelegramOpsInsightService', () => {
     const ctx = {
       from: { id: 42 },
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as { from: { id: number }; reply: jest.Mock };
     const { service, capabilityLifecycleService } = createService();
 
-    await service.handleEnable(ctx, 'media');
+    await service.handleEnable(ctx as Parameters<typeof service.handleEnable>[0], 'media');
 
     expect(capabilityLifecycleService.enableCapability).toHaveBeenCalledWith('media', '42', 'once');
   });
@@ -79,10 +124,10 @@ describe('TelegramOpsInsightService', () => {
     const ctx = {
       from: { id: 42 },
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as { from: { id: number }; reply: jest.Mock };
     const { service, capabilityLifecycleService } = createService();
 
-    await service.handleEnable(ctx, 'media host');
+    await service.handleEnable(ctx as Parameters<typeof service.handleEnable>[0], 'media host');
 
     expect(capabilityLifecycleService.enableCapability).toHaveBeenCalledWith('media', '42', 'host');
   });
@@ -90,10 +135,10 @@ describe('TelegramOpsInsightService', () => {
   it('renders /models through the Surface Response Telegram renderer', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as { reply: jest.Mock };
     const { service } = createService();
 
-    await service.handleModels(ctx);
+    await service.handleModels(ctx as Parameters<typeof service.handleModels>[0]);
 
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth Models And Providers');
     expect(ctx.reply.mock.calls[0]?.[1]).toEqual(
@@ -117,10 +162,10 @@ describe('TelegramOpsInsightService', () => {
   it('renders /status through the Surface Response Telegram renderer', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as { reply: jest.Mock };
     const { service } = createService();
 
-    await service.handleStatus(ctx);
+    await service.handleStatus(ctx as Parameters<typeof service.handleStatus>[0]);
 
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth overview');
     expect(ctx.reply.mock.calls[0]?.[1]).toEqual(

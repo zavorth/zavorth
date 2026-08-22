@@ -12,7 +12,7 @@ describe('EchoHandsTool', () => {
         approvalRequired: false,
       }),
     };
-    const tool = new EchoHandsTool(service as any);
+    const tool = new EchoHandsTool(service as unknown as import('../../src/services/ToolRuntimeHandsService').EchoHandsService);
 
     const result = JSON.parse(await tool.execute({
       action: 'open_app',

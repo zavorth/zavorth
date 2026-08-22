@@ -26,12 +26,14 @@ export class YtDlpFallback {
     this.ensureTmpDir();
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const loaded = require('youtube-dl-exec');
       this.ytDlpExec = typeof loaded === 'function' ? loaded : loaded?.default || null;
     } catch (error: unknown) {this.ytDlpExec = null;
     }
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const loaded = require('ffmpeg-static');
       if (typeof loaded === 'string' && loaded) {
         fs.copyFileSync(loaded, LOCAL_FFMPEG_PATH);

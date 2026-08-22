@@ -17,6 +17,8 @@ import type {
   ZavorthProviderReasoningEffort,
 } from '../../contracts/runtime/ZavorthEffortControlContract.js';
 import { resolveCheapUserStackHop } from '../../services/llm/UserStackCostRoute.js';
+import { LlmRoleRoutingService } from '../../services/llm/LlmRoleRoutingService.js';
+import { resolveLlmRoleScopeId } from '../../contracts/runtime/LlmRoleRoutingContract.js';
 
 export type AgentRunCostRouteClass = 'premium' | 'standard' | 'background';
 
@@ -74,10 +76,6 @@ export function classifyAgentRunCostEffortRoute(
 
   if (routeClass === 'premium' && !userModelPinned) {
     try {
-      const { LlmRoleRoutingService } =
-        require('../../services/llm/LlmRoleRoutingService.js') as typeof import('../../services/llm/LlmRoleRoutingService.js');
-      const { resolveLlmRoleScopeId } =
-        require('../../contracts/runtime/LlmRoleRoutingContract.js') as typeof import('../../contracts/runtime/LlmRoleRoutingContract.js');
       const meta = mergeMeta(run, request);
       const userId = String(meta.userId || (run.metadata as { userId?: string } | undefined)?.userId || '').trim();
       const surface = String(

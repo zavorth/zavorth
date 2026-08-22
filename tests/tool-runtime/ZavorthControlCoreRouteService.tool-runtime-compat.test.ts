@@ -2,7 +2,7 @@ import * as http from 'http';
 import { ZavorthControlCoreRouteService } from '../../src/services/ZavorthControlCoreRouteService.js';
 
 type WriteCall = {
-  body: any;
+  body: unknown;
   statusCode: number;
 };
 

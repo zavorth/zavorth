@@ -24,7 +24,7 @@ interface QQWebhookPayload {
 export class QQGateway extends WebhookGateway {
   public readonly id = 'qq';
   public readonly name = 'QQ Bot';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'bot-http';
 
   constructor(options: WebhookGatewayOptions) {

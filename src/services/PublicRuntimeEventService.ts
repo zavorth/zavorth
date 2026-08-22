@@ -283,6 +283,7 @@ export class PublicRuntimeEventService {
 }
 
 function sanitizeText(value: unknown): string {
+  // eslint-disable-next-line no-control-regex
   return String(value ?? '').replace(/\u0000/g, '').trim().slice(0, 4000);
 }
 

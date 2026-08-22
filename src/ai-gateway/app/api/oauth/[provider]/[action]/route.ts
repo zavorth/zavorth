@@ -7,7 +7,6 @@ import {
   requestDeviceCode,
   pollForToken,
 } from "@/lib/oauth/providers";
-import type { ZavorthProviderAuthHandler } from "@/lib/oauth/authPlane";
 import {
   createProviderConnection,
   updateProviderConnection,
@@ -52,17 +51,6 @@ interface OAuthDeviceData {
   expires_in?: number;
   interval?: number;
   [key: string]: unknown;
-}
-
-interface OAuthAuthData {
-  authUrl: string | null;
-  state: string;
-  codeVerifier: string;
-  codeChallenge: string;
-  redirectUri: string | null;
-  flowType: string;
-  fixedPort?: number;
-  callbackPath?: string;
 }
 
 interface OAuthPollResult {
@@ -255,7 +243,7 @@ export async function GET(
  * Start Codex callback server on port 1455
  * Returns the auth URL and stores codeVerifier for later exchange
  */
-async function handleStartCallbackServer(provider: string, searchParams: URLSearchParams) {
+async function handleStartCallbackServer(provider: string, _searchParams: URLSearchParams) {
   if (provider !== "codex") {
     return NextResponse.json(
       { error: "Callback server only supported for codex" },

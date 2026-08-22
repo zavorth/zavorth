@@ -30,7 +30,7 @@ describe('NodeMeshTool', () => {
       secureStorageService: {
         encryptString: jest.fn((value: string) => `enc:${value}`),
         decryptString: jest.fn((value: string) => value.replace(/^enc:/, '')),
-      } as any,
+      } as unknown as import('../../src/services/SecureStorageService').SecureStorageService,
     });
     registryService.upsertNode({
       id: 'desktop-node',

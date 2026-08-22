@@ -121,7 +121,7 @@ export function resolveDirectoryHint(hint: string, workspacePath: string): strin
 export function listAncestorDirectories(startPath: string): string[] {
   const ancestors: string[] = [];
   let current = path.resolve(startPath);
-  while (true) {
+  for (;;) {
     ancestors.push(current);
     const parent = path.dirname(current);
     if (parent === current) {

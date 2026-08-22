@@ -96,7 +96,7 @@ export async function runZavorthCliRepl(params: {
 
   try {
     let currentFlags = { ...flags };
-    while (true) {
+    for (;;) {
       const line = await readCliReplQuestion(rl, formatCliReplPrompt(currentFlags));
       if (line === null) {
         if (interrupted) {

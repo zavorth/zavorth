@@ -120,9 +120,9 @@ export function translateRequest(
   targetFormat: string,
   model: string,
   body: unknown,
-  direct = true,
-  connectionId: string | null = null,
-  provider: string | null = null
+  _direct = true,
+  _connectionId: string | null = null,
+  _provider: string | null = null
 ): JsonRecord {
   const record = body && typeof body === "object" && !Array.isArray(body) ? (body as JsonRecord) : {};
 

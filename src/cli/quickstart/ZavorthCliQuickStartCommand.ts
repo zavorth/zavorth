@@ -284,6 +284,7 @@ function detectSystemLocale(): string {
 
 function sanitizeEnvValue(value: string): string {
   // Remove newlines, carriage returns, and null bytes to prevent injection
+  // eslint-disable-next-line no-control-regex
   return value.replace(/[\n\r\x00]/g, '').trim();
 }
 

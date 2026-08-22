@@ -139,10 +139,10 @@ export async function executeChatWithBreaker({
   isCombo,
   extendedContext,
 }): Promise<{ result: unknown; tlsFingerprintUsed: boolean }> {
-  let tlsFingerprintUsed = false;
+  const tlsFingerprintUsed = false;
 
   try {
-    const chatFn: () => Promise<any> = () =>
+    const chatFn: () => Promise<unknown> = () =>
       runWithProxyContext(proxyInfo?.proxy || null, () =>
         handleChatCore({
           body: { ...body, model: `${provider}/${model}` },

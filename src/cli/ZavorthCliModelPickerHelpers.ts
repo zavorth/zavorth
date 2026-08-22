@@ -76,7 +76,9 @@ export function renderCliModelCatalogCards(params: {
   estimatedTokens?: number;
   requiresHighReasoning?: boolean;
 } = {}): string {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { ZavorthTerminalCanvasFX } = require('../services/tui/ZavorthTerminalCanvasFX.js');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { ModelCatalogCardPickerRenderer } = require('./components/ModelCatalogCardPicker.js');
 
   const canvasFx = new ZavorthTerminalCanvasFX();

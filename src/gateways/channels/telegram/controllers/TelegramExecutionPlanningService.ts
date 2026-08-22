@@ -28,6 +28,7 @@ export class TelegramExecutionPlanningService {
 
   public async handlePlan(ctx: Context, task: Task): Promise<void> {
     this.deps.taskManager.advanceState(task, 'planned');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const Fallback = require('../../agents/FallbackRouter.js').FallbackRouter;
 
     try {

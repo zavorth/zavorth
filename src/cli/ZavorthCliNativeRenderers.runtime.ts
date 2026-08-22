@@ -5,8 +5,7 @@ import type { RuntimeAccessReadinessReport, RuntimeAccessReadinessInput } from '
 import type { RuntimeBootstrapReport } from '../runtime/access/RuntimeBootstrapService.js';
 import type { RuntimeBootstrapRepairReport } from '../runtime/access/RuntimeBootstrapRepairService.js';
 import type { ZavorthPlatformRegistrySnapshot, ZavorthPlatformRegistryStatusSummarySnapshot, ZavorthPlatformRegistrySummarySnapshot } from '../services/ZavorthPlatformRegistryService.js';
-import type { ZavorthSessionPlaneSnapshot, ZavorthSessionPlaneStatusSummarySnapshot } from '../services/ZavorthSessionPlaneService.js';
-import type { OperationsDashboardSnapshot, OperationsCockpitSnapshot } from '../services/OperationsDashboardService.js';
+import type { OperationsCockpitSnapshot } from '../services/OperationsDashboardService.js';
 import type { OperationsActionExecution, OperationsActionService } from '../services/OperationsActionService.js';
 import type { OperatorBriefSnapshot } from '../observability/OperatorBriefService.js';
 import type { OpsQualityDTO } from '../contracts/public/rest/platform-ops-dto.js';
@@ -491,10 +490,6 @@ function normalizeKnownRuntimeLine(value: string): string {
     if (lower === 'sidecars' || lower === 'sidecars...') return 'local components';
     return token;
   }).join(' ');
-}
-
-function containsText(value: string, needle: string): boolean {
-  return value.indexOf(needle) >= 0;
 }
 
 function firstCompleteSentence(value: string): string | null {

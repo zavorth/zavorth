@@ -14,23 +14,20 @@ import { SwarmTreeRenderer } from '../presentation/SwarmTreeRenderer.js';
 import { EmbeddedLspManager } from '../../services/lsp/EmbeddedLspManager.js';
 import { FastBm25SearchEngine } from '../../services/search/FastBm25SearchEngine.js';
 import { WorkflowMacroService } from '../../services/workflow/WorkflowMacroService.js';
-import { SessionCheckpointRecoveryService } from '../../storage/SessionCheckpointRecoveryService.js';
 import { IntraTurnCompactor } from '../../runtime/agent/IntraTurnCompactor.js';
 import { InterjectionQueue } from '../../runtime/agent/InterjectionQueue.js';
 import { BackgroundSwarmManager } from '../../agents/swarm/BackgroundSwarmManager.js';
-import { loadConfig, getConfig } from '../../core/config/index.js';
+import { getConfig } from '../../core/config/index.js';
 import { TerminalTheme } from '../presentation/TerminalTheme.js';
 import { normalizeEffort } from '../../providers/reasoningEffortPayload.js';
 import { ShadowCheckpointStoreService } from '../../services/snapshot/ShadowCheckpointStoreService.js';
 import { SessionTimelineNavigatorService } from '../../runtime/sessions/SessionTimelineNavigatorService.js';
 import { TerminalMermaidRendererService } from '../../services/tui/TerminalMermaidRendererService.js';
 import { CrossSurfaceSatelliteBridgeService } from '../../domain/surface/infrastructure/CrossSurfaceSatelliteBridgeService.js';
-import { WatchdogSupervisionOrchestratorService } from '../../services/supervision/WatchdogSupervisionOrchestratorService.js';
 import { globalCommandRegistry, initializeBuiltinCommands } from '../../domain/commands/index.js';
 import type { ZavorthCliRuntime, ZavorthCliFlags, CliExecutionResult, CliWriter } from '../ZavorthCliContract.js';
 
 const globalSatelliteBridge = new CrossSurfaceSatelliteBridgeService();
-const globalWatchdogOrchestrator = new WatchdogSupervisionOrchestratorService();
 
 let globalThinkingExpanded: boolean = true;
 let globalActiveVariant: string = 'medium';
@@ -323,7 +320,7 @@ export class UnifiedSlashCommandHandler {
             writer.error(err);
             return { ok: false, handled: true, output: [err], error: err };
           }
-          const todo = SessionPersistenceService.addTodo(currentSessionId, content);
+          SessionPersistenceService.addTodo(currentSessionId, content);
           const output = `${TerminalTheme.symbols.check} Added todo: ${content}`;
           writer.line(output);
           return { ok: true, handled: true, output: [output], error: null };
@@ -354,7 +351,7 @@ export class UnifiedSlashCommandHandler {
         if (todos.length === 0) {
           lines.push(TerminalTheme.colors.dim('  No todos recorded for this session. Use /todo add <task>'));
         } else {
-          todos.forEach((t, i) => {
+          todos.forEach((t) => {
             const marker = t.status === 'completed'
               ? TerminalTheme.colors.success(`[✓] ${t.content}`)
               : t.status === 'in_progress'

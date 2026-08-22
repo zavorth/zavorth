@@ -29,7 +29,7 @@ export class ConversationalPermissionService {
   }
 
   public requiresPermission(input: UniversalIntentInput, classification: UniversalIntentSafetyClassification): boolean {
-    if (Boolean(input.riskHints?.approvalRequired)) {
+    if (input.riskHints?.approvalRequired) {
       return true;
     }
     if (classification.risk === 'danger') {

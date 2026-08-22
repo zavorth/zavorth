@@ -22,7 +22,7 @@ type SlackChannelAdapterRuntime = {
 export class SlackChannelAdapter implements GatewayChannelAdapter {
   id = 'slack';
   name = 'Slack Enterprise Grid / Workspace';
-  type: 'async' = 'async';
+  type = 'async' as const;
   private readonly outboxDir: string;
   private readonly now: () => Date;
 

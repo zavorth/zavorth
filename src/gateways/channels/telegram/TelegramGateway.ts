@@ -5,7 +5,7 @@ import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } f
 export class TelegramGateway extends WebhookGateway {
   public readonly id = 'telegram';
   public readonly name = 'Telegram';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'bot-http';
 
   constructor(options: WebhookGatewayOptions | Record<string, unknown>) {

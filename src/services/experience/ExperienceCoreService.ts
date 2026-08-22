@@ -1,5 +1,4 @@
 import { ActionCardService } from './ActionCardService.js';
-import { defaultZavorthSpeculativeAutonomyCancellationRegistry } from '../../autonomy/ZavorthSpeculativeAutonomyService.js';
 import { ZavorthRuntimeStateBusService } from '../ZavorthRuntimeStateBusService.js';
 import {
   ZavorthRuntimeCapabilitiesService,
@@ -16,9 +15,7 @@ import { logger } from '../../logger.js';
 import { tService } from '../../i18n/services.js';
 import {
   EXPERIENCE_COMMAND_CONTRACT_VERSION,
-  EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
   EXPERIENCE_SNAPSHOT_CONTRACT_VERSION,
-  LEARNING_CANDIDATE_CONTRACT_VERSION,
   type ExperienceAction,
   type ExperienceActionCard,
   type ExperienceApproval,
@@ -34,8 +31,6 @@ import {
   type ExperienceSurface,
   type ExperienceTimelineItem,
 } from './ExperienceContracts.js';
-import { projectResponseForChannel } from '../../domain/surface/application/surface-projection/projectors/SurfaceProjectorRegistry.js';
-import { buildAgentPermissionApprovalResponse } from '../permission/AgentPermissionApprovalPresentation.js';
 
 import { AutoHealingProjectionService } from './AutoHealingProjectionService.js';
 import { ContextRecoveryService } from './ContextRecoveryService.js';
@@ -82,7 +77,7 @@ import type {
   ZavorthRuntimeStateBusDispatchResult,
   ZavorthRuntimeStateBusSnapshot,
 } from '../../contracts/ZavorthRuntimeStateBusContract.js';
-import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
+import { errorMessage } from '../../utils/errorLike.js';
 import { ExperienceProjectionSupport } from './ExperienceProjectionSupport.js';
 import { ExperienceContinuitySupport } from './ExperienceContinuitySupport.js';
 import { ExperienceActionDecisionSupport } from './ExperienceActionDecisionSupport.js';
@@ -178,28 +173,6 @@ function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
     logger.warn(`[ExperienceCore] Intl.DateTimeFormat failed for timezone ${timeZone}:`, error);
     return `It is now ${now.toLocaleString('en-US')} in the system local timezone.`;
   }
-}
-
-function action(input: {
-  id: string;
-  label: string;
-  kind: ExperienceAction['kind'];
-  reason: string;
-  command?: string | null;
-  route?: string | null;
-  risk?: ExperienceAction['risk'];
-  requiresApproval?: boolean;
-}): ExperienceAction {
-  return {
-    id: input.id,
-    label: input.label,
-    kind: input.kind,
-    command: input.command ?? null,
-    route: input.route ?? null,
-    risk: input.risk || 'safe',
-    requiresApproval: input.requiresApproval === true,
-    reason: input.reason,
-  };
 }
 
 export class ExperienceCoreService {
@@ -1370,20 +1343,3 @@ export class ExperienceCoreService {
   }
 }
 
-function normalizeKey(value: unknown): string {
-  return String(value || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-function isProviderHealingIssue(issue: string): boolean {
-  return (
-    issue === 'provider_auth' ||
-    issue === 'provider_quota' ||
-    issue === 'provider_timeout' ||
-    issue === 'provider_unavailable'
-  );
-}

@@ -9,30 +9,7 @@ import type {
 } from './ZavorthSpeculativeAutonomyService.js';
 
 
-const MAX_VALIDATION_COMMANDS = 3;
 const MAX_AST_FILES = 80;
-const MAX_DIFF_CHARS = 100000;
-const MAX_STDIO_CHARS = 12000;
-const MAX_EDIT_BYTES = 1024 * 1024;
-
-const IGNORED_DIR_NAMES = new Set([
-  '.git',
-  'node_modules',
-  'dist',
-  'dist-ops',
-  'build',
-  'coverage',
-  '.next',
-  '.turbo',
-  '.cache',
-  '.tmp',
-  'tmp',
-]);
-
-const IGNORED_RELATIVE_PREFIXES = [
-  'data/runtime/',
-  'data\\runtime\\',
-];
 
 const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mts', '.cts'];
 
@@ -43,29 +20,6 @@ function normalizeText(value: unknown, fallback = ''): string {
 
 function normalizePortablePath(value: string): string {
   return value.replace(/\\/g, '/').replace(/\//g, '/');
-}
-
-function looksLikeSecret(value: string): boolean {
-  return /\b(?:\.env|id_rsa|credentials\.json|secrets.*\.json|token|secret|password|api[_-]?key|sk-[a-z0-9_-]{12,})\b/i.test(value);
-}
-
-function clampText(value: unknown, maxChars = MAX_STDIO_CHARS): string {
-  const text = String(value ?? '');
-  return text.length <= maxChars ? text : text.slice(0, maxChars - 20) + '\n[truncated]';
-}
-
-function normalizeSandboxIsolation(value: unknown): 'container' | 'local-copy' | 'microvm' | 'auto' {
-  const text = normalizeText(value).toLowerCase();
-  if (text === 'container' || text === 'docker') {
-    return 'container';
-  }
-  if (text === 'host' || text === 'local' || text === 'local-copy') {
-    return 'local-copy';
-  }
-  if (text === 'microvm' || text === 'firecracker') {
-    return 'microvm';
-  }
-  return 'auto';
 }
 
 

@@ -17,7 +17,7 @@ describe('LocaleTranslationTool', () => {
     expect(result.ok).toBe(true);
     expect(result.supportedCount).toBeGreaterThanOrEqual(17);
     expect(Array.isArray(result.locales)).toBe(true);
-    const arabic = result.locales.find((l: any) => l.code === 'ar');
+    const arabic = result.locales.find((l: { code: string; isRtl?: boolean }) => l.code === 'ar');
     expect(arabic.isRtl).toBe(true);
   });
 

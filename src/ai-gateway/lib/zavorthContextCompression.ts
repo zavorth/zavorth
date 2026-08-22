@@ -52,7 +52,7 @@ function collapseNoisyBlocks(text: string): string {
   const lines = text.replace(/\r\n/g, "\n").split("\n");
   const kept: string[] = [];
   let omitted = 0;
-  const noisy = /(node_modules|^\s*at\s+\S+\s+\(|webpack-internal|^\s*[\[{].{200,}$|base64,|data:image\/|Traceback \(most recent call last\)|^\s*\d{4}-\d{2}-\d{2}T.*\b(debug|trace)\b)/i;
+  const noisy = /(node_modules|^\s*at\s+\S+\s+\(|webpack-internal|^\s*[[{].{200,}$|base64,|data:image\/|Traceback \(most recent call last\)|^\s*\d{4}-\d{2}-\d{2}T.*\b(debug|trace)\b)/i;
   for (const line of lines) {
     if (noisy.test(line) || line.length > 1200) {
       omitted += 1;
@@ -109,7 +109,7 @@ export function applyZavorthContextCompression(inputBody: unknown): CompressionR
   const originalBytes = Buffer.byteLength(JSON.stringify(body));
   const requested =
     body.zavorth_compression === true ||
-    (body.zavorth && typeof body.zavorth === "object" && (body.zavorth as any).compression === true);
+    (body.zavorth && typeof body.zavorth === "object" && (body.zavorth as Record<string, unknown>).compression === true);
   const enabled = boolEnv("ZAVORTH_GATEWAY_CONTEXT_COMPRESSION", true);
   if (!enabled && !requested) {
     return { body, applied: false, originalBytes, compressedBytes: originalBytes, ratio: 1, mode: "off" };

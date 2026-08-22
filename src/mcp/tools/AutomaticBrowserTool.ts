@@ -214,9 +214,9 @@ export class AutomaticBrowserTool {
         default:
           return this.errorResponse(`Tool ${name} not supported by AutomaticBrowserTool.`);
       }
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
       return this.errorResponse(
-        error instanceof Error ? err.message : String(error),
+        error instanceof Error ? asErrorLike(error).message : String(error),
       );
     }
   }
@@ -232,19 +232,19 @@ export class AutomaticBrowserTool {
 
     try {
       await page?.close?.();
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch {
       // noop
     }
 
     try {
       await context?.close?.();
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch {
       // noop
     }
 
     try {
       await browser?.close?.();
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch {
       // noop
     }
   }
@@ -286,8 +286,8 @@ export class AutomaticBrowserTool {
             'The browser stack is ready for AutomaticBrowserTool.',
           ],
         };
-      } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-        const message = error instanceof Error ? err.message : String(error);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? asErrorLike(error).message : String(error);
         return {
           checkedAt,
           ok: false,
@@ -298,8 +298,8 @@ export class AutomaticBrowserTool {
           recommendations: this.buildDoctorRecommendations(message),
         };
       }
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-      const message = error instanceof Error ? err.message : String(error);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? asErrorLike(error).message : String(error);
       return {
         checkedAt,
         ok: false,
@@ -312,7 +312,7 @@ export class AutomaticBrowserTool {
     } finally {
       try {
         await browser?.close?.();
-      } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+      } catch {
         // noop
       }
     }
@@ -704,14 +704,17 @@ export class AutomaticBrowserTool {
     try {
       return {
         moduleName: 'playwright-core',
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         playwright: require('playwright-core') as PlaywrightModuleLike,
       };
-    } catch (coreError: unknown) {try {
+    } catch (coreError: unknown) {
+      try {
         return {
           moduleName: 'playwright',
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
           playwright: require('playwright') as PlaywrightModuleLike,
         };
-      } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+      } catch (error: unknown) {
         const detail = coreError instanceof Error ? ` (${coreError.message})` : '';
         throw new Error(
           `AutomaticBrowserTool requires playwright-core or provisioned playwright for real navigation${detail}.`,
@@ -748,7 +751,7 @@ export class AutomaticBrowserTool {
     try {
       const parsed = await this.validateNavigationUrl(url);
       return parsed.toString();
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch {
       throw new Error(`Invalid URL for browser_navigate: "${url}".`);
     }
   }

@@ -9,18 +9,36 @@ import type {
   ToolDefinition,
 } from '../../providers/ILlmProvider.js';
 
+interface AnthropicMessageDeltaEvent {
+  type: 'message_delta';
+  delta: {
+    stop_reason: string | null;
+  };
+}
+
+interface AnthropicContentBlockDeltaEvent {
+  type: 'content_block_delta';
+  delta: {
+    type: 'text_delta' | 'thinking_delta' | 'input_json_delta';
+    text?: string;
+  };
+}
+
+type AnthropicStreamEvent = AnthropicMessageDeltaEvent | AnthropicContentBlockDeltaEvent;
+
+type AnthropicLikeClient = {
+  messages: {
+    create(input: Record<string, unknown>, options?: Record<string, unknown>): Promise<Record<string, unknown>>;
+    create(input: { stream: true } & Record<string, unknown>, options?: Record<string, unknown>): AsyncIterable<AnthropicStreamEvent>;
+  };
+};
+
 export type AnthropicDirectProviderAdapterOptions = {
   apiKey?: string | null;
   baseUrl?: string | null;
   modelName?: string | null;
   anthropicVersion?: string | null;
   client?: AnthropicLikeClient;
-};
-
-type AnthropicLikeClient = {
-  messages: {
-    create(input: Record<string, unknown>, options?: Record<string, unknown>): Promise<any>;
-  };
 };
 
 export class AnthropicDirectProviderAdapter implements ILlmProvider {
@@ -84,7 +102,7 @@ export class AnthropicDirectProviderAdapter implements ILlmProvider {
       messages: toAnthropicMessages(messages),
       tools: tools && tools.length > 0 ? tools.map(toAnthropicTool) : undefined,
       stream: true,
-    }, options?.signal ? { signal: options.signal } : undefined) as AsyncIterable<Record<string, any>>;
+    }, options?.signal ? { signal: options.signal } : undefined) as unknown as AsyncIterable<AnthropicStreamEvent>;
 
     yield {
       type: 'start',
@@ -98,10 +116,10 @@ export class AnthropicDirectProviderAdapter implements ILlmProvider {
     let finishReason = 'stop';
 
     for await (const event of stream) {
-      if (event?.type === 'message_delta' && event.delta?.stop_reason) {
+      if (event.type === 'message_delta' && event.delta?.stop_reason) {
         finishReason = String(event.delta.stop_reason || finishReason);
       }
-      const deltaText = event?.type === 'content_block_delta' && event.delta?.type === 'text_delta'
+      const deltaText = event.type === 'content_block_delta' && event.delta?.type === 'text_delta'
         ? String(event.delta.text || '')
         : '';
       if (!deltaText) {

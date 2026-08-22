@@ -1,14 +1,26 @@
 import { TelegramSchedulerController } from '../../../src/telegram/controllers/TelegramSchedulerController';
 import { ZavorthScheduledTaskSurfaceService } from '../../../src/services/ZavorthScheduledTaskSurfaceService';
 
+interface MockSchedulerService {
+  scheduleTask: jest.Mock;
+}
+
+interface MockAutomationActionService {
+  execute: jest.Mock;
+}
+
+interface MockContext {
+  from?: { id: number };
+  reply: jest.Mock;
+}
 
 jest.mock('../../../src/services/ZavorthScheduledTaskSurfaceService');
 
 describe('TelegramSchedulerController', () => {
   it('guards against scheduler access before initialization', async () => {
-    const ctx = {
+    const ctx: MockContext = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    };
     const controller = new TelegramSchedulerController(() => undefined);
 
     await controller.handleSchedule(ctx, 'every 1h /wsl status');
@@ -17,11 +29,11 @@ describe('TelegramSchedulerController', () => {
   });
 
   it('creates a report schedule through the scheduler service', async () => {
-    const ctx = {
+    const ctx: MockContext = {
       from: { id: 99 },
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
-    const schedulerService = {
+    };
+    const schedulerService: MockSchedulerService = {
       scheduleTask: jest.fn().mockReturnValue({
         id: 'abcd1234-zz',
         command: '/deepresearch noticias de IA',
@@ -39,7 +51,7 @@ describe('TelegramSchedulerController', () => {
         budget_json: '{}',
         guardrail_json: JSON.stringify({
           governedScheduledTask: {
-          gate: 'persisted-scheduled-task-registration',
+            gate: 'persisted-scheduled-task-registration',
             approvalId: 'telegram-report-99',
             approvedScope: {
               intent: 'Relatorio recorrente: noticias de IA',
@@ -53,7 +65,7 @@ describe('TelegramSchedulerController', () => {
           },
         }),
       }),
-    } as any;
+    } as unknown as MockSchedulerService;
 
     const mockRegister = jest.fn().mockResolvedValue({
       ok: true,
@@ -77,9 +89,9 @@ describe('TelegramSchedulerController', () => {
   });
 
   it('creates automations from natural language through the automation action service', async () => {
-    const ctx = {
+    const ctx: MockContext = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    };
     const execute = jest.fn(async () => ({
       ok: true,
       actionId: 'create',
@@ -94,8 +106,8 @@ describe('TelegramSchedulerController', () => {
     }));
     const controller = new TelegramSchedulerController(() => ({
       scheduleTask: jest.fn(),
-    } as any));
-    (controller as any).automationActionService = { execute };
+    } as unknown as MockSchedulerService));
+    (controller as unknown as { automationActionService: MockAutomationActionService }).automationActionService = { execute };
 
     await controller.handleAutomations(ctx, 'todo dia as 9h verifique meus canais no app', '99');
 
@@ -111,9 +123,9 @@ describe('TelegramSchedulerController', () => {
   });
 
   it('runs maintenance actions through the automation action service', async () => {
-    const ctx = {
+    const ctx: MockContext = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    };
     const execute = jest.fn(async () => ({
       ok: true,
       actionId: 'maintenance-on',
@@ -128,8 +140,8 @@ describe('TelegramSchedulerController', () => {
     }));
     const controller = new TelegramSchedulerController(() => ({
       scheduleTask: jest.fn(),
-    } as any));
-    (controller as any).automationActionService = { execute };
+    } as unknown as MockSchedulerService));
+    (controller as unknown as { automationActionService: MockAutomationActionService }).automationActionService = { execute };
 
     await controller.handleAutomations(ctx, 'maintenance on', '99');
 

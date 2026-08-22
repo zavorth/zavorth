@@ -361,6 +361,7 @@ export function initializeBotGatewayControllers(
   });
   gateway.pipelineController = new TelegramPipelineController(
     () =>
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       new (require('../../runtime/workflows/MultiAgentPipeline.js').MultiAgentPipeline)(
         gateway.executionGateway,
         {
@@ -406,6 +407,7 @@ export function initializeBotGatewayControllers(
     isPresentationModeEnabled: () =>
       gateway.presentationModeService.isEnabled(),
     getHealthStats: () => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const MonitorModule = require('../../monitoring/Monitor.js').Monitor;
       const monitor = new MonitorModule(logRepo);
       return monitor.getHealthStats();

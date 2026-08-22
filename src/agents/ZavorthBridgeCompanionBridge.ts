@@ -161,7 +161,7 @@ export class ZavorthBridgeCompanionBridge {
 
   public async executeCommand(
     command: string,
-    args: any[] = [],
+    args: unknown[] = [],
     taskId?: string,
     timeoutMs = 8000,
     targetInstanceId?: string,
@@ -206,7 +206,7 @@ export class ZavorthBridgeCompanionBridge {
   private async sendRequest(
     command: CompanionCommand,
     taskId?: string,
-    payload: Record<string, any> = {},
+    payload: Record<string, unknown> = {},
     timeoutMs = 8000,
     targetInstanceId?: string,
   ): Promise<CompanionResult> {

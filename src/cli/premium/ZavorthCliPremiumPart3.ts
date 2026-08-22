@@ -1,46 +1,13 @@
-import { spawn } from 'child_process';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import path from 'path';
-import { formatCliHelp, resolveCliHelpTopic } from '../ZavorthCliSurfaceHelpers.js';
-import { getCommandAliases } from '../locales/localeManager.js';
-import { resolveZavorthSimpleCommand, type ZavorthSimpleCommandPlan } from '../SimpleCommandRouter.js';
-import {
-  formatZavorthCertificationHelp,
-  formatZavorthConsistencyPreparedNotice,
-  isZavorthConsistencyStubCommand,
-} from '../ZavorthCliCertificationCommands.js';
-import {
-  isZavorthLiveNamespaceCommand,
-  runZavorthLiveNamespaceCommand,
-} from '../ZavorthCliLiveNamespaces.js';
-import { runDiskMutationGateCommand } from '../disk/ZavorthCliDiskMutationNamespace.js';
-
-
-import { runProjectConstitutionCommand } from '../constitution/ZavorthCliConstitutionNamespace.js';
-
-// Shared infrastructure imports
 import {
   projectRoot,
   logCliError,
   printCliPanel,
-  spawnInherited,
   npmInherited,
-  resolveNpmCli,
-  printBuiltinHelp,
-  printGeneralHelp,
-  readNumberFlag,
-  readStringFlag,
   readFlexibleStringFlag,
   readStringListFlag,
-  readTaskPositional,
-  readDurationMsFlag,
-  runningFromDist
 } from '../ZavorthCliCommonInfrastructure.js';
-
-// Types
-import type { DiskMutationGateRequestedOperation } from '../../contracts/DiskMutationGateContract.js';
-
-type JsonObject = Record<string, unknown>;
 
 
 export async function runAcp(rawArgs: string[] = []): Promise<number> {

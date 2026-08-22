@@ -81,6 +81,7 @@ export class SystemMediaTool implements IZavorthTool {
                 description = 'Volume reduced by about 10%.';
                 break;
             case 'volume_set':
+  // eslint-disable-next-line no-case-declarations
                 const nircmdVolume = Math.round((params.value || 50) / 100 * 65535);
                 command = `nircmd.exe setsysvolume ${nircmdVolume}`;
                 description = `Volume set to ${params.value || 50}%.`;
@@ -137,6 +138,7 @@ export class SystemMediaTool implements IZavorthTool {
             case 'volume_down':
             case 'volume_set':
             case 'mute':
+  // eslint-disable-next-line no-case-declarations
                 const volumeScript = params.action === 'mute'
                     ? `$wshShell = New-Object -ComObject WScript.Shell; $wshShell.SendKeys([char]173)`
                     : params.action === 'volume_up'

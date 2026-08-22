@@ -28,6 +28,8 @@ type AcpJsonRpcResponse = {
   params?: Record<string, unknown>;
 };
 
+type AcpJsonRpcMessage = AcpJsonRpcRequest | AcpJsonRpcResponse;
+
 type AcpServerSession = {
   id: string;
   cwd: string;
@@ -66,7 +68,7 @@ export class ZavorthAcpServer {
   private readonly tools: Map<string, AcpServerToolDef> = new Map();
   private readonly pendingRequests = new Map<
     string | number,
-    { resolve: (val: any) => void; reject: (err: any) => void }
+    { resolve: (val: unknown) => void; reject: (err: unknown) => void }
   >();
   private status: AcpServerSnapshot['status'] = 'starting';
   private totalSessions = 0;
@@ -133,7 +135,7 @@ export class ZavorthAcpServer {
     }
   }
 
-  async sendRequest(method: string, params: unknown): Promise<any> {
+  async sendRequest(method: string, params: unknown): Promise<unknown> {
     const id = randomUUID();
     const request = {
       jsonrpc: '2.0',
@@ -160,7 +162,7 @@ export class ZavorthAcpServer {
         message,
         metadata,
       });
-      return response && response.approved === true;
+      return Boolean(response && typeof response === 'object' && 'approved' in response && (response as Record<string, unknown>).approved === true);
     } catch (error: unknown) {
       const err = asErrorLike(error);
       this.log(`Elevated approval request failed: ${err instanceof Error ? err.message : String(err)}`);
@@ -198,9 +200,9 @@ export class ZavorthAcpServer {
         continue;
       }
 
-      let msg: any;
+      let msg: AcpJsonRpcMessage;
       try {
-        msg = JSON.parse(trimmed);
+        msg = JSON.parse(trimmed) as AcpJsonRpcMessage;
       } catch (error: unknown) {
         this.sendError(null, JSONRPC_PARSE_ERROR, 'Parse error');
         continue;
@@ -210,18 +212,20 @@ export class ZavorthAcpServer {
       if (
         msg &&
         typeof msg === 'object' &&
+        'id' in msg &&
         msg.id !== undefined &&
         msg.id !== null &&
         ('result' in msg || 'error' in msg) &&
         !('method' in msg)
       ) {
-        if (this.pendingRequests.has(msg.id)) {
-          const pending = this.pendingRequests.get(msg.id)!;
-          this.pendingRequests.delete(msg.id);
-          if (msg.error) {
-            pending.reject(new Error(msg.error.message || 'JSON-RPC request failed'));
+        const responseMsg = msg as AcpJsonRpcResponse;
+        if (this.pendingRequests.has(responseMsg.id)) {
+          const pending = this.pendingRequests.get(responseMsg.id)!;
+          this.pendingRequests.delete(responseMsg.id);
+          if (responseMsg.error) {
+            pending.reject(new Error(responseMsg.error.message || 'JSON-RPC request failed'));
           } else {
-            pending.resolve(msg.result);
+            pending.resolve(responseMsg.result);
           }
           continue;
         }

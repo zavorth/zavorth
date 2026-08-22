@@ -152,7 +152,7 @@ export function listPlugins(): Array<{
 export async function runOnRequest(
   ctx: PluginContext
 ): Promise<{ blocked: boolean; response?: ChatResponse; ctx: PluginContext }> {
-  let currentCtx = { ...ctx };
+  const currentCtx = { ...ctx };
 
   for (const plugin of _plugins) {
     if (!plugin.enabled || !plugin.onRequest) continue;
@@ -169,7 +169,7 @@ export async function runOnRequest(
           currentCtx.metadata = { ...currentCtx.metadata, ...result.metadata };
         }
       }
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) { const err = asErrorLike(error);
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[Plugins] onRequest error in "${plugin.name}": ${message}`);
       // Plugin errors don't block the pipeline by default
@@ -193,7 +193,7 @@ export async function runOnResponse(ctx: PluginContext, response: ChatResponse):
       if (modified !== undefined && modified !== null) {
         currentResponse = modified as ChatResponse;
       }
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) { const err = asErrorLike(error);
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[Plugins] onResponse error in "${plugin.name}": ${message}`);
     }
@@ -216,7 +216,7 @@ export async function runOnError(ctx: PluginContext, error: Error): Promise<Chat
         console.log(`[Plugins] Error recovered by "${plugin.name}"`);
         return recovery as ChatResponse;
       }
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) { const err = asErrorLike(error);
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[Plugins] onError error in "${plugin.name}": ${message}`);
     }

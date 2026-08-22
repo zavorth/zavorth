@@ -381,7 +381,7 @@ export class SkillLoader {
   ): SkillProvenanceMetadata {
     let licensePolicy = provenance.licensePolicy || this.buildFallbackLicensePolicy(provenance.license);
     let risk = provenance.risk || this.buildFallbackRisk(source, provenance, licensePolicy);
-    let audit = provenance.audit || this.buildFallbackAudit(source, provenance);
+    const audit = provenance.audit || this.buildFallbackAudit(source, provenance);
 
     if (
       config.skillsGovernanceMode === 'casual'

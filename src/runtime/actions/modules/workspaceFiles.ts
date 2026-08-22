@@ -148,6 +148,7 @@ async function workspaceSearchFiles(input: ZavorthActionHandlerInput): Promise<Z
   try {
     const resolved = policy(input.root).resolveListPath(dirPath);
     const matches: Array<{ filepath: string; line: number; text: string }> = [];
+  // eslint-disable-next-line no-inner-declarations
     async function walk(dir: string): Promise<void> {
       if (matches.length >= maxResults) return;
       const entries = await fsp.readdir(dir, { withFileTypes: true });

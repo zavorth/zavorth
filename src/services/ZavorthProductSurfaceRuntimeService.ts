@@ -81,8 +81,7 @@ export class ZavorthProductSurfaceRuntimeService {
         });
         const block = hub.formatContextBlock();
         if (block) blocks.push(block);
-      } catch {
-      }
+      } catch { /* intentionally ignored */ }
     }
     if (includeSuperpowers) {
       try {
@@ -92,8 +91,7 @@ export class ZavorthProductSurfaceRuntimeService {
           userId,
         }).formatPromptBlock(undefined, { includeLearned });
         if (block) blocks.push(block);
-      } catch {
-      }
+      } catch { /* intentionally ignored */ }
     }
     if (includeReach) {
       try {
@@ -101,8 +99,7 @@ export class ZavorthProductSurfaceRuntimeService {
           projectRoot: this.projectRoot,
         }).formatPromptBlock();
         if (block) blocks.push(block);
-      } catch {
-      }
+      } catch { /* intentionally ignored */ }
     }
     return blocks.join('\n\n');
   }

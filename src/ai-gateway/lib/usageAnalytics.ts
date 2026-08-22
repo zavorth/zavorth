@@ -75,8 +75,19 @@ function shortModelName(model: string) {
  * @param {Object} connectionMap - Map of connectionId → account name
  * @returns {Object} Analytics data
  */
+export interface UsageHistoryEntry {
+  timestamp: string;
+  tokens?: { input?: number; output?: number; prompt_tokens?: number; completion_tokens?: number };
+  model?: string;
+  provider?: string;
+  connectionId?: string;
+  apiKeyId?: string;
+  apiKeyName?: string;
+  [key: string]: unknown;
+}
+
 export async function computeAnalytics(
-  history: any[],
+  history: UsageHistoryEntry[],
   range = "30d",
   connectionMap: Record<string, string> = {}
 ) {
@@ -98,17 +109,63 @@ export async function computeAnalytics(
     uniqueApiKeys: new Set<string>(),
   };
 
-  const dailyMap: Record<string, any> = {}; // "YYYY-MM-DD" → { requests, promptTokens, completionTokens, cost }
+  interface DailyAggregate {
+  date: string;
+  requests: number;
+  promptTokens: number;
+  completionTokens: number;
+  cost: number;
+}
+
+const dailyMap: Record<string, DailyAggregate> = {};
   const dailyByModelMap: Record<string, Record<string, number>> = {}; // "YYYY-MM-DD" → { modelShort → tokens }
 
   const heatmapStart = new Date();
   heatmapStart.setDate(heatmapStart.getDate() - 364);
   const activityMap: Record<string, number> = {};
 
-  const byModelMap: Record<string, any> = {};
-  const byAccountMap: Record<string, any> = {};
-  const byProviderMap: Record<string, any> = {};
-  const byApiKeyMap: Record<string, any> = {};
+  interface ModelAggregate {
+  model: string;
+  provider: string;
+  requests: number;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  cost: number;
+  pct?: string;
+}
+
+interface AccountAggregate {
+  account: string;
+  totalTokens: number;
+  requests: number;
+  cost: number;
+}
+
+interface ProviderAggregate {
+  provider: string;
+  requests: number;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  cost: number;
+}
+
+interface ApiKeyAggregate {
+  apiKey: string;
+  apiKeyId: string | null;
+  apiKeyName: string;
+  requests: number;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  cost: number;
+}
+
+const byModelMap: Record<string, ModelAggregate> = {};
+const byAccountMap: Record<string, AccountAggregate> = {};
+const byProviderMap: Record<string, ProviderAggregate> = {};
+const byApiKeyMap: Record<string, ApiKeyAggregate> = {};
 
   const weeklyTokens = [0, 0, 0, 0, 0, 0, 0];
   const weeklyCounts = [0, 0, 0, 0, 0, 0, 0];

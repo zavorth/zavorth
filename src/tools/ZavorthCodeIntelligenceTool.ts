@@ -291,6 +291,7 @@ export class ZavorthCodeIntelligenceTool extends BaseTool {
 
   private showDiff(filePath: string): string {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { execFileSync } = require('child_process');
       const result = execFileSync('git', ['diff', '--stat', filePath], { timeout: 10000 }).toString();
       if (!result.trim()) return `No changes in ${filePath}.`;

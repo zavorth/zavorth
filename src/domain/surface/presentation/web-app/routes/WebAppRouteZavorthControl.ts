@@ -1,40 +1,8 @@
 import * as http from 'http';
-import fs from 'fs';
-import path from 'path';
-import { timingSafeEqual } from 'node:crypto';
-import { GATEWAY_SESSION_ROUTE_PATHS } from '../../../../../contracts/GatewayContract.js';
-import type {
-  HybridMemoryRecallInput,
-  HybridMemoryRecallResult,
-  HybridMemorySourcesResult,
-} from '../../../../../contracts/HybridMemoryContract.js';
-import { config } from '../../../../../config/index.js';
+import { ZavorthDailyUseGuiCertificationService } from '../../../../../services/ZavorthDailyUseGuiCertificationService.js';
 
 import type { WebAppRuntimeRouteDeps } from '../WebAppRuntimeRouteService.js';
-import { defaultLlmRuntimeTelemetryService } from '../../../../../services/llm/LlmRuntimeTelemetryService.js';
-import { ZavorthActiveMissionUxService } from '../../../../../services/ZavorthActiveMissionUxService.js';
-import { ZavorthApprovalActionCardsUxService } from '../../../../../services/ZavorthApprovalActionCardsUxService.js';
-import { ZavorthControlProviderCockpitService } from '../../../../../services/ZavorthControlProviderCockpitService.js';
-import { ZavorthProviderActivationService } from '../../../../../services/ZavorthProviderActivationService.js';
-import { ZavorthProviderModelCatalogService } from '../../../../../services/ZavorthProviderModelCatalogService.js';
-import { ZavorthProviderPreferencePersistenceService } from '../../../../../services/ZavorthProviderPreferencePersistenceService.js';
-import { ZavorthProviderSelectionUxService } from '../../../../../services/ZavorthProviderSelectionUxService.js';
-import { ZavorthSensitiveActionFlowUxService } from '../../../../../services/ZavorthSensitiveActionFlowUxService.js';
-import { ZavorthRuntimeReadinessService } from '../../../../../services/ZavorthRuntimeReadinessService.js';
-import { ZavorthRuntimeGuidedFixesService } from '../../../../../services/ZavorthRuntimeGuidedFixesService.js';
-import { ZavorthRuntimeReadinessUxService } from '../../../../../services/ZavorthRuntimeReadinessUxService.js';
-import { ZavorthReadyToGoService } from '../../../../../services/ZavorthReadyToGoService.js';
-import { ZavorthStayOnlineService } from '../../../../../services/ZavorthStayOnlineService.js';
-import { ZavorthExternalAgentOnboardingService } from '../../../../../services/ZavorthExternalAgentOnboardingService.js';
-import { ZavorthExternalAgentGatewayService } from '../../../../../services/ZavorthExternalAgentGatewayService.js';
-import { ZavorthCapabilityMeshService } from '../../../../../services/ZavorthCapabilityMeshService.js';
-import { ZavorthVisualReceiptUxService } from '../../../../../services/ZavorthVisualReceiptUxService.js';
-import { ZavorthControlContractAdapterService } from '../../../../../services/ZavorthControlContractAdapterService.js';
-import { ZavorthDailyUseGuiCertificationService } from '../../../../../services/ZavorthDailyUseGuiCertificationService.js';
-import type { ZavorthSensitiveActionFlowDecision } from '../../../../../contracts/ZavorthSensitiveActionFlowContract.js';
-
-import type { WebAppRuntimeStateRouteService, WebAppRuntimeStateRouteHelpers, RuntimeRecord } from '../WebAppRuntimeStateRouteService.js';
-import { asRecord, text, isExternalAgentApiApprovalRequested, isExternalAgentApiApprovalAccepted, readHeaderValue, safeTokenEquals } from '../WebAppRuntimeStateRouteService.js';
+import type { WebAppRuntimeStateRouteService, WebAppRuntimeStateRouteHelpers } from '../WebAppRuntimeStateRouteService.js';
 
 export async function handleZavorthControlRoutes(
   service: WebAppRuntimeStateRouteService,

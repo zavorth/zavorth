@@ -71,7 +71,7 @@ const SECRET_PATTERNS: RegExp[] = [
   /\bsk-[A-Za-z0-9_-]{16,}\b/g,
   /\bhf_[A-Za-z0-9]{16,}\b/g,
   /\bAIza[0-9A-Za-z_-]{20,}\b/g,
-  /\b(?:api[_-]?key|token|secret|password)\s*[:=]\s*["']?[A-Za-z0-9_\-]{8,}/gi,
+  /\b(?:api[_-]?key|token|secret|password)\s*[:=]\s*["']?[A-Za-z0-9_-]{8,}/gi,
 ];
 
 function normalizeDate(value: string | Date | null | undefined): Date | null {

@@ -1,4 +1,5 @@
 import { TelegramCapabilityController } from '../../../src/telegram/controllers/TelegramCapabilityController';
+import type { Context } from 'grammy';
 
 describe('TelegramCapabilityController', () => {
   function createController() {
@@ -24,7 +25,7 @@ describe('TelegramCapabilityController', () => {
         handleCapabilities: jest.fn().mockResolvedValue(undefined),
         handleDashboard: jest.fn().mockResolvedValue(undefined),
       },
-    } as any;
+    } as unknown as ConstructorParameters<typeof TelegramCapabilityController>[0];
 
     return {
       controller: new TelegramCapabilityController(deps),
@@ -34,7 +35,7 @@ describe('TelegramCapabilityController', () => {
 
   it('dispatches research queue commands by mode', async () => {
     const { controller, deps } = createController();
-    const ctx = {} as any;
+    const ctx = {} as Context;
 
     const handledResearch = await controller.handleCommand(
       ctx,
@@ -86,7 +87,7 @@ describe('TelegramCapabilityController', () => {
 
   it('dispatches workflow and file handlers', async () => {
     const { controller, deps } = createController();
-    const ctx = {} as any;
+    const ctx = {} as Context;
 
     await controller.handleCommand(
       ctx,
@@ -244,7 +245,7 @@ describe('TelegramCapabilityController', () => {
 
   it('dispatches ops handlers', async () => {
     const { controller, deps } = createController();
-    const ctx = {} as any;
+    const ctx = {} as Context;
 
     await controller.handleCommand(
       ctx,
@@ -293,7 +294,7 @@ describe('TelegramCapabilityController', () => {
   it('returns false for unsupported actions', async () => {
     const { controller } = createController();
     const handled = await controller.handleCommand(
-      {} as any,
+      {} as Context,
       {
         id: 'noop',
         label: 'Noop',

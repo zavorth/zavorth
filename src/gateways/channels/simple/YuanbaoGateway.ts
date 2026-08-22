@@ -5,7 +5,7 @@ import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } f
 export class YuanbaoGateway extends WebhookGateway {
   public readonly id = 'yuanbao';
   public readonly name = 'Yuanbao';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'local-bridge';
 
   constructor(options: WebhookGatewayOptions) {

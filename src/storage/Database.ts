@@ -61,6 +61,7 @@ function resolveSqliteConstructor(mode: string, driverPackages: string[]): {
   }
   for (const packageName of driverPackages) {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const module = require(packageName);
       const constructorRef = (module.default || module.Database || module) as SqliteDriver | null;
       if (typeof constructorRef === 'function') {

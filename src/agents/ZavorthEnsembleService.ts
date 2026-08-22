@@ -23,7 +23,6 @@ import { CanonicalExecutionPipelineService } from '@zavorth/services/CanonicalEx
 
 import { logger } from '../logger.js';
 import { tService } from '../i18n/services.js';
-import { asErrorLike } from '../utils/errorLike';
 import {
   ZAVORTH_ENSEMBLE_OFFICIAL_CONTRACT_VERSION,
   type LlmRuntimeChatOptions,
@@ -31,7 +30,6 @@ import {
   type SwarmRoleDataEvent,
   type SwarmRoleFinishedEvent,
   type SwarmRoleStartedEvent,
-  type ToolSpecRawInput,
   type ZavorthEnsembleBenchmarkSnapshot,
   type ZavorthEnsembleBatchSnapshot,
   type ZavorthEnsembleCreateInput,
@@ -43,8 +41,6 @@ import {
   type ZavorthEnsembleReplayInsights,
   type ZavorthEnsembleRoleLibraryEntry,
   type ZavorthEnsembleRoleSelectionSnapshot,
-  type ZavorthEnsembleTokenBudgetInput,
-  type ZavorthEnsembleTokenBudgetSnapshot,
   type ZavorthEnsembleToolSpec,
   type ZavorthEnsembleTrackedSnapshot,
 } from './ZavorthEnsembleTypes.js';
@@ -1062,8 +1058,6 @@ export class ZavorthEnsembleService {
       );
       return response.content?.trim() || deterministic;
     } catch (error: unknown) {
-      const err = asErrorLike(error);
-      const e = err;
       this.pushReplay(state, 'swarm.failed', 'LLM synthesis failed; deterministic synthesis was used.', {
         error: this.getErrorMessage(error).slice(0, 240),
       });
@@ -1144,8 +1138,6 @@ export class ZavorthEnsembleService {
         rationale: String(parsed?.rationale || 'LLM selected roles from the persistent role library.').slice(0, 400),
       };
     } catch (error: unknown) {
-      const err = asErrorLike(error);
-      const e = err;
       logger.warn('[Zavorth Ensemble] parsing failed', error);
       return fallback;
     }
@@ -1357,8 +1349,6 @@ export class ZavorthEnsembleService {
           .filter(Boolean) as ZavorthEnsembleRoleLibraryEntry[];
       }
     } catch (error: unknown) {
-      const err = asErrorLike(error);
-      const e = err;
       // fall through to defaults
       logger.warn('[Zavorth Ensemble] JSON parse failed', error);
     }

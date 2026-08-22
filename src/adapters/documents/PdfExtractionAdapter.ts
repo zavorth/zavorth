@@ -105,6 +105,7 @@ function decodePdfString(value: string): string {
 
 function cleanText(value: string): string {
   return String(value || '')
+  // eslint-disable-next-line no-control-regex
     .replace(/\u0000/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();

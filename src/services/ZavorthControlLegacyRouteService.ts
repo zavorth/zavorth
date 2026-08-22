@@ -300,6 +300,7 @@ export class ZavorthControlLegacyRouteService {
 
     if (pathname === '/api/bridge/schema' && req.method === 'GET') {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const schema = require('../contracts/BridgeProtocolSchema.js');
         deps.writeJson(
           res,

@@ -27,7 +27,6 @@ import type {
   AutonomousMissionProgressInput,
   AutonomousMissionProgressResult,
   AutonomousMissionRecord,
-  AutonomousMissionStatus,
   AutonomousMissionUsage,
   AutonomousPartnerAuditEntry,
   AutonomousPartnerSnapshot,
@@ -38,7 +37,6 @@ import type {
   ZavorthAutonomyLevel,
 } from '../contracts/AutonomousEngineeringPartnerContract.js';
 import {
-  AUTONOMY_LEVELS,
   buildAuditId,
   buildEvidenceId,
   buildMissionId,
@@ -47,7 +45,6 @@ import {
   infersMutableMission,
   nonNegative,
   normalizeAutonomyLevel,
-  normalizeBudgetScope,
   normalizeCheckpointStatus,
   normalizeEvidenceKind,
   normalizeEvidenceStatus,
@@ -57,12 +54,10 @@ import {
   normalizeRisk,
   normalizeSuccessCriteria,
   nullableText,
-  positiveNumber,
   riskRank,
   statusFromPosture,
 } from './autonomous-partner/AutonomousPartnerUtils.js';
 import {
-  defaultBudgetFor,
   evaluateAutonomyBudget,
   normalizeAutonomyBudget,
 } from './autonomous-partner/AutonomousPartnerBudget.js';

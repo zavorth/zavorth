@@ -71,7 +71,7 @@ export function buildStructuredStitchBrief(
 }
 
 export function extractFirstStitchName(prompt: string): string | null {
-  const match = String(prompt || '').match(/\b([A-Z][A-Za-z0-9_-]{2,30})\s*[:\-]/);
+  const match = String(prompt || '').match(/\b([A-Z][A-Za-z0-9_-]{2,30})\s*[:-]/);
   return match?.[1]?.trim() || null;
 }
 

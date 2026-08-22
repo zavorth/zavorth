@@ -1,46 +1,19 @@
-import { spawn } from 'child_process';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { runPromotedScript } from './ZavorthCliPremiumPart2.js';
-import { formatCliHelp, resolveCliHelpTopic } from '../ZavorthCliSurfaceHelpers.js';
-import { getCommandAliases } from '../locales/localeManager.js';
-import { resolveZavorthSimpleCommand, type ZavorthSimpleCommandPlan } from '../SimpleCommandRouter.js';
-import {
-  formatZavorthCertificationHelp,
-  formatZavorthConsistencyPreparedNotice,
-  isZavorthConsistencyStubCommand,
-} from '../ZavorthCliCertificationCommands.js';
-import {
-  isZavorthLiveNamespaceCommand,
-  runZavorthLiveNamespaceCommand,
-} from '../ZavorthCliLiveNamespaces.js';
-import { runDiskMutationGateCommand } from '../disk/ZavorthCliDiskMutationNamespace.js';
-
-import { runProjectConstitutionCommand } from '../constitution/ZavorthCliConstitutionNamespace.js';
 // Shared infrastructure imports
 import {
   projectRoot,
   logCliError,
   printCliPanel,
-  spawnInherited,
-  npmInherited,
-  resolveNpmCli,
-  printBuiltinHelp,
-  printGeneralHelp,
-  readNumberFlag,
-  readStringFlag,
   readFlexibleStringFlag,
-  readStringListFlag,
   readTaskPositional,
   readDurationMsFlag,
-  runningFromDist
+  readNumberFlag,
 } from '../ZavorthCliCommonInfrastructure.js';
 
-// Types
-import type { DiskMutationGateRequestedOperation } from '../../contracts/DiskMutationGateContract.js';
 import { logger } from '../../logger.js';
-import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
-type JsonObject = Record<string, unknown>;
+import { errorMessage } from '../../utils/errorLike.js';
 
 export async function runRuntimeResourceDoctor(rawArgs: string[], strict: boolean): Promise<number> {
   const { RuntimeResourceBudgetService } = await import('../../services/RuntimeResourceBudgetService.js');
@@ -144,7 +117,6 @@ export async function runDiagnosticsExport(rawArgs: string[]): Promise<number> {
     }
     return 0;
   } catch (error: unknown) {
-    const err = asErrorLike(error);
     await logCliError(`Failed to export diagnostics: ${errorMessage(error)}`, 'Export Failed');
     return 1;
   }

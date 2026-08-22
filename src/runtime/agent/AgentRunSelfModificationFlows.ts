@@ -1,11 +1,5 @@
-import type { DynamicHierarchyLaunchResult } from '../../domain/execution/infrastructure/DynamicHierarchySwarmService.js';
-import type { SelfModificationPreviewResult } from '../../services/SelfModificationCommandService.js';
-import type { WatchModeRunSnapshot } from '../../services/ComputerUseWatchModeService.js';
-import type { TrustSliderLevel, TrustSliderPolicyDecision, UniversalIntentUserRole } from '../uni/UniversalIntentContracts.js';
-import type { CapabilityNegotiationSnapshot } from './CapabilityNegotiationService.js';
-import type { ToolRehearsalSnapshot } from './ToolRehearsalService.js';
-import type { UniversalAgentExecutor, UniversalAgentRequest, UniversalAgentRun, UniversalAgentRunResult, UniversalApprovalRequest } from './UniversalAgentRuntimeTypes.js';
-import { type AgentRunFlowHost, hasRequestedTool, normalizeStringList, normalizeText, recordOrNull, type SelfModificationActionOperation, type SelfModificationActionRequest } from './AgentRunSpecializedFlowUtils.js';
+import type { UniversalAgentRequest, UniversalAgentRun, UniversalAgentRunResult, UniversalApprovalRequest } from './UniversalAgentRuntimeTypes.js';
+import { type AgentRunFlowHost, normalizeText, recordOrNull, type SelfModificationActionOperation, type SelfModificationActionRequest } from './AgentRunSpecializedFlowUtils.js';
 
 export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { prototype: AgentRunFlowHost }): void {
   const proto = AgentRunServiceClass.prototype;

@@ -17,6 +17,49 @@ import type {
   TokenUsage,
 } from '../LLMAdapterContract.js';
 
+interface GoogleGenAiCandidate {
+  content: {
+    parts: Array<{
+      text?: string;
+      thought?: string;
+      functionCall?: {
+        name: string;
+        args: Record<string, unknown>;
+      };
+    }>;
+  };
+  finishReason?: string;
+}
+
+interface GoogleGenAiUsageMetadata {
+  promptTokenCount: number;
+  candidatesTokenCount: number;
+  totalTokenCount: number;
+  cachedContentTokenCount?: number;
+}
+
+interface GoogleGenAiResponse {
+  candidates: GoogleGenAiCandidate[];
+  usageMetadata?: GoogleGenAiUsageMetadata;
+}
+
+interface GoogleGenAiStreamCandidate {
+  content: {
+    parts: Array<{
+      text?: string;
+      thought?: string;
+      functionCall?: {
+        name: string;
+        args: Record<string, unknown>;
+      };
+    }>;
+  };
+}
+
+interface GoogleGenAiStreamResponse {
+  candidates: GoogleGenAiStreamCandidate[];
+}
+
 export interface GoogleGenAiAdapterConfig {
   apiKey?: string;
   baseUrl?: string;
@@ -68,9 +111,12 @@ export class GoogleGenAiAdapter implements LLMAdapter {
         throw new Error(`HTTP ${response.status} from Google Gemini: ${errorText}`);
       }
 
-      const data = (await response.json()) as Record<string, any>;
-      const candidate = data.candidates?.[0] || {};
-      const parts = candidate.content?.parts || [];
+      const data = (await response.json()) as GoogleGenAiResponse;
+      const candidate = data.candidates?.[0] ?? {
+        content: { parts: [] },
+        finishReason: 'STOP',
+      };
+      const parts = candidate.content.parts || [];
 
       let textContent = '';
       let reasoningContent: string | undefined;
@@ -118,7 +164,7 @@ export class GoogleGenAiAdapter implements LLMAdapter {
         content: textContent,
         reasoningContent,
         toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
-        finishReason: candidate.finishReason === 'STOP' ? 'stop' : candidate.finishReason?.toLowerCase() || 'stop',
+        finishReason: (candidate.finishReason === 'STOP' ? 'stop' : candidate.finishReason?.toLowerCase()) as 'stop' | 'length' | 'tool_calls' | 'content_filter' | 'error' || 'stop',
         usage,
         model,
         provider: this.name,
@@ -178,11 +224,11 @@ export class GoogleGenAiAdapter implements LLMAdapter {
           if (dataStr === '[DONE]') return;
 
           try {
-            const data = JSON.parse(dataStr);
+            const data = JSON.parse(dataStr) as GoogleGenAiStreamResponse;
             const candidate = data.candidates?.[0];
             if (!candidate) continue;
 
-            const parts = candidate.content?.parts || [];
+            const parts = candidate.content.parts || [];
             for (const part of parts) {
               if (part.text) {
                 yield { deltaText: part.text };
@@ -246,8 +292,8 @@ export class GoogleGenAiAdapter implements LLMAdapter {
   }
 
   private buildRequestBody(messages: ChatMessage[], options: CompletionOptions): Record<string, unknown> {
-    const contents: any[] = [];
-    let systemInstruction: any = undefined;
+    const contents: Array<Record<string, unknown>> = [];
+    let systemInstruction: Record<string, unknown> | undefined = undefined;
 
     for (const m of messages) {
       if (m.role === 'system') {
@@ -267,7 +313,7 @@ export class GoogleGenAiAdapter implements LLMAdapter {
           ],
         });
       } else {
-        const parts: any[] = [];
+        const parts: Array<Record<string, unknown>> = [];
         if (m.content) parts.push({ text: m.content });
         if (m.toolCalls) {
           for (const tc of m.toolCalls) {

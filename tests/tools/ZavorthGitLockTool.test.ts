@@ -18,7 +18,7 @@ describe('ZavorthGitLockTool', () => {
 
   beforeEach(async () => {
     Database.instance = null;
-    (Database as any).initPromise = null;
+    (Database as unknown as { initPromise: Promise<void> | null }).initPromise = null;
 
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-lock-test-'));
     tmpDirs.push(tempDir);
@@ -35,7 +35,7 @@ describe('ZavorthGitLockTool', () => {
       // Ignore
     }
     Database.instance = null;
-    (Database as any).initPromise = null;
+    (Database as unknown as { initPromise: Promise<void> | null }).initPromise = null;
 
     config.dbPath = originalDbPath;
     process.chdir(originalCwd);

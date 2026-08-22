@@ -55,6 +55,7 @@ export class MemoryVectorStore {
 
     try {
       // Try to load better-sqlite3 dynamically
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const Database = require('better-sqlite3');
       this.db = new Database(this.dbPath) as SqliteDatabase;
       this.db.exec(`

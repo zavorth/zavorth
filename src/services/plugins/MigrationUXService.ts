@@ -44,7 +44,7 @@ export interface MigrationItem {
 }
 
 const PROFILE_ALIASES: Record<string, UniversalWorkspaceProfileId | 'auto'> = {
-  auto: 'auto' as 'auto',
+  auto: 'auto' as const,
   generic: 'mixed-agent-home',
   mixed: 'mixed-agent-home',
   'mixed-agent-home': 'mixed-agent-home',

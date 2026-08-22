@@ -15,6 +15,9 @@ import {
 } from './AgentRunCostEffortRouting.js';
 import { SessionModelRouteService } from '../../services/SessionModelRouteService.js';
 import { softInjectPluginOsPrompt } from '../../services/PluginOsPromptInjectionService.js';
+import { formatCredentialReadinessBlock } from '../../services/AgentHarnessCredentialHints.js';
+import { formatAgentToolModelGuidance } from '../../services/AgentToolModelGuidance.js';
+import { getProductSurfaceRuntime } from '../../services/ZavorthProductSurfaceRuntimeService.js';
 
 export type AgentRunLlmRequestBuilderRuntime = {
   hallucinationInstruction: () => string;
@@ -114,14 +117,12 @@ export class AgentRunLlmRequestBuilder {
     });
     // P1: clear credential readiness (presence only — never secret values).
     try {
-      const { formatCredentialReadinessBlock } = require('../../services/AgentHarnessCredentialHints.js');
       systemPrompt = `${systemPrompt}\n\n${formatCredentialReadinessBlock()}`;
     } catch {
       /* soft */
     }
     // P2: unify direct tools vs zavorth_action mental model.
     try {
-      const { formatAgentToolModelGuidance } = require('../../services/AgentToolModelGuidance.js');
       systemPrompt = `${systemPrompt}\n\n${formatAgentToolModelGuidance()}`;
     } catch {
       /* soft */
@@ -168,7 +169,6 @@ export class AgentRunLlmRequestBuilder {
     try {
       const fromMetadata = normalizeText(metadata.productSurfacePrompt);
       if (fromMetadata) return safeContextText(fromMetadata);
-      const { getProductSurfaceRuntime } = require('../../services/ZavorthProductSurfaceRuntimeService.js') as typeof import('../../services/ZavorthProductSurfaceRuntimeService.js');
       const projectRoot = resolvePluginOsProjectRoot(metadata);
       const userId = normalizeText(
         runUserId,

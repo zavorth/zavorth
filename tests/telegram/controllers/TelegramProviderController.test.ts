@@ -9,17 +9,17 @@ describe('TelegramProviderController', () => {
   const originalGemmaModel = config.gemmaModel;
 
   afterEach(() => {
-    (config as any).llmProvider = originalProvider;
-    (config as any).geminiModel = originalGeminiModel;
-    (config as any).geminiDefaultModel = originalGeminiDefaultModel;
-    (config as any).gemmaModel = originalGemmaModel;
+    (config as unknown as Record<string, unknown>).llmProvider = originalProvider;
+    (config as unknown as Record<string, unknown>).geminiModel = originalGeminiModel;
+    (config as unknown as Record<string, unknown>).geminiDefaultModel = originalGeminiDefaultModel;
+    (config as unknown as Record<string, unknown>).gemmaModel = originalGemmaModel;
     jest.restoreAllMocks();
   });
 
   it('switches providers and normalizes the puter alias to qwen', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { reply: jest.Mock };
     const clearCache = jest.spyOn(ProviderFactory, 'clearCache').mockImplementation(() => {});
     const controller = new TelegramProviderController();
 
@@ -33,7 +33,7 @@ describe('TelegramProviderController', () => {
   it('rejects unknown providers without changing config', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { reply: jest.Mock };
     const controller = new TelegramProviderController();
 
     await controller.handleModel(ctx, 'claude');
@@ -47,7 +47,7 @@ describe('TelegramProviderController', () => {
   it('shows usage when no provider name is supplied', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { reply: jest.Mock };
     const controller = new TelegramProviderController();
 
     await controller.handleModel(ctx, '');
@@ -61,8 +61,8 @@ describe('TelegramProviderController', () => {
   it('switches to Gemma 2 through the Gemini provider alias', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
-    (config as any).gemmaModel = 'gemma-2-27b-it';
+    } as unknown as { reply: jest.Mock };
+    (config as unknown as Record<string, unknown>).gemmaModel = 'gemma-2-27b-it';
     const clearCache = jest.spyOn(ProviderFactory, 'clearCache').mockImplementation(() => {});
     const controller = new TelegramProviderController();
 
@@ -80,7 +80,7 @@ describe('TelegramProviderController', () => {
   it('accepts a direct Gemma model id and keeps the Gemini provider', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { reply: jest.Mock };
     const clearCache = jest.spyOn(ProviderFactory, 'clearCache').mockImplementation(() => {});
     const controller = new TelegramProviderController();
 

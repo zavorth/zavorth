@@ -9,13 +9,11 @@ import {
   readFlag,
   readFlags,
   stateDir,
-  readArray,
   readJson,
   writeJson,
   appendJsonArray,
   idWithTime,
   render,
-  splitList,
   ensureDir,
   walkFiles,
   listAnyFiles,
@@ -89,7 +87,7 @@ export async function runBackup(root: string, args: string[]) {
         'Restore preview only. Add --yes to write files.',
         'Secrets are excluded unless --include-secrets is provided.',
         ...safeRestorable.map((file) => `- ${String(file.file)} (${String(file.bytes || 0)} bytes)`),
-      ], { dryRun: true, files: safeRestorable.map(({ contentBase64, ...file }) => file) });
+      ], { dryRun: true, files: safeRestorable.map(({ contentBase64: _contentBase64, ...file }) => file) });
     }
     for (const file of safeRestorable) {
       const relative = String(file.file);
@@ -151,7 +149,7 @@ function backupSidecar(manifest: JsonObject, archive: string, encrypted: boolean
     ...manifest,
     encrypted,
     archive,
-    files: files.map(({ contentBase64, ...file }) => file),
+    files: files.map(({ contentBase64: _contentBase64, ...file }) => file),
   };
 }
 

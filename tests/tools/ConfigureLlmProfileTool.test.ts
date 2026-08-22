@@ -18,9 +18,9 @@ describe('ConfigureLlmProfileTool', () => {
   });
 
   afterEach(() => {
-    (config as any).llmProvider = originalProvider;
-    (config as any).openCodeModel = originalOpenCodeModel;
-    (config as any).openCodeApiKey = originalOpenCodeApiKey;
+    (config as Record<string, unknown>).llmProvider = originalProvider;
+    (config as Record<string, unknown>).openCodeModel = originalOpenCodeModel;
+    (config as Record<string, unknown>).openCodeApiKey = originalOpenCodeApiKey;
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
@@ -35,7 +35,7 @@ describe('ConfigureLlmProfileTool', () => {
   });
 
   it('persists a valid OpenCode selection to the configured env file', async () => {
-    (config as any).openCodeApiKey = 'test-opencode-key';
+    (config as Record<string, unknown>).openCodeApiKey = 'test-opencode-key';
     const clearProviderCache = jest.fn();
     const tool = new ConfigureLlmProfileTool({ envFilePath, clearProviderCache });
 
@@ -67,7 +67,7 @@ describe('ConfigureLlmProfileTool', () => {
   });
 
   it('rejects unavailable providers unless explicitly allowed', async () => {
-    (config as any).openCodeApiKey = '';
+    (config as Record<string, unknown>).openCodeApiKey = '';
     const tool = new ConfigureLlmProfileTool({ envFilePath });
 
     await expect(tool.execute({

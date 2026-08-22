@@ -8,11 +8,8 @@ import {
   type ZavorthRuntimeStateBusDispatchResult,
   type ZavorthRuntimeStateBusSnapshot,
   type ZavorthRuntimeStateBusState,
-  type ZavorthRuntimeCapabilitiesProjection,
   type ZavorthRuntimeDynamicRoute,
   type ZavorthRuntimeMcpTrustServer,
-  type ZavorthRuntimeModelSpec,
-  type ZavorthRuntimePermissionsMatrix,
   type ZavorthRuntimePersonalConnector,
   type ZavorthRuntimeProviderConnection,
   type ZavorthRuntimeSkillHistoryEntry,
@@ -23,11 +20,7 @@ import {
   type ZavorthRuntimeStateReceipt,
   type ZavorthRuntimeStateReceiptStatus,
   type ZavorthRuntimeStateSkill,
-  type ZavorthRuntimeStateStatus,
   type ZavorthRuntimeStateWorkspace,
-  type ZavorthRuntimeWorkboardState,
-  type ZavorthRuntimeWorkboardTask,
-  type ZavorthRuntimeWorkboardTaskStatus,
 } from '../contracts/ZavorthRuntimeStateBusContract.js';
 
 import { logger } from '../logger.js';

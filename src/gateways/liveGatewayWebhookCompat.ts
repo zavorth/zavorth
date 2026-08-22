@@ -219,11 +219,11 @@ export function applyLiveGatewayWebhookCompat(
   }
 
   if (typeof gateway.doctorSnapshot === 'function') {
-    const originalDoctor = (gateway.doctorSnapshot as Function).bind(gateway);
+    const originalDoctor = (gateway.doctorSnapshot as (...args: unknown[]) => unknown).bind(gateway);
     gateway.doctorSnapshot = function (this: Record<string, unknown>) {
       const result = originalDoctor() as Record<string, unknown>;
       if (result && typeof result === 'object' && !result.completeness) {
-        result.completeness = (this.completenessReport as Function)();
+        result.completeness = (this.completenessReport as (...args: unknown[]) => unknown)();
       }
       return result;
     };
@@ -246,7 +246,7 @@ export function applyLiveGatewayWebhookCompat(
         secretsRedacted: true,
         doctorCommand: `/channels doctor ${platform}`,
         installHint: `Configure credentials for ${platform}.`,
-        completeness: (gateway.completenessReport as Function)(),
+        completeness: (gateway.completenessReport as (...args: unknown[]) => unknown)(),
       };
     };
   }
@@ -270,7 +270,7 @@ export function applyLiveGatewayWebhookCompat(
       chatId?: string | null,
     ) {
       const target = chatId || `${platform}-local`;
-      return (this.sendMessage as Function)({
+      return (this.sendMessage as (...args: unknown[]) => unknown)({
         text,
         chatId: target,
         recipients: [target],

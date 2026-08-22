@@ -1,6 +1,4 @@
 import * as http from 'http';
-import fs from 'fs';
-import path from 'path';
 import { timingSafeEqual } from 'node:crypto';
 import { GATEWAY_SESSION_ROUTE_PATHS } from '../../../../contracts/GatewayContract.js';
 import type {
@@ -11,15 +9,6 @@ import type {
 import { config } from '../../../../config/index.js';
 
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
-import { defaultLlmRuntimeTelemetryService } from '../../../../services/llm/LlmRuntimeTelemetryService.js';
-import { ZavorthActiveMissionUxService } from '../../../../services/ZavorthActiveMissionUxService.js';
-import { ZavorthApprovalActionCardsUxService } from '../../../../services/ZavorthApprovalActionCardsUxService.js';
-import { ZavorthControlProviderCockpitService } from '../../../../services/ZavorthControlProviderCockpitService.js';
-import { ZavorthProviderActivationService } from '../../../../services/ZavorthProviderActivationService.js';
-import { ZavorthProviderModelCatalogService } from '../../../../services/ZavorthProviderModelCatalogService.js';
-import { ZavorthProviderPreferencePersistenceService } from '../../../../services/ZavorthProviderPreferencePersistenceService.js';
-import { ZavorthProviderSelectionUxService } from '../../../../services/ZavorthProviderSelectionUxService.js';
-import { ZavorthSensitiveActionFlowUxService } from '../../../../services/ZavorthSensitiveActionFlowUxService.js';
 import { ZavorthRuntimeReadinessService } from '../../../../services/ZavorthRuntimeReadinessService.js';
 import { ZavorthRuntimeGuidedFixesService } from '../../../../services/ZavorthRuntimeGuidedFixesService.js';
 import { ZavorthRuntimeReadinessUxService } from '../../../../services/ZavorthRuntimeReadinessUxService.js';
@@ -28,11 +17,21 @@ import { ZavorthStayOnlineService } from '../../../../services/ZavorthStayOnline
 import { ZavorthExternalAgentOnboardingService } from '../../../../services/ZavorthExternalAgentOnboardingService.js';
 import { ZavorthExternalAgentGatewayService } from '../../../../services/ZavorthExternalAgentGatewayService.js';
 import { ZavorthCapabilityMeshService } from '../../../../services/ZavorthCapabilityMeshService.js';
-import { ZavorthVisualReceiptUxService } from '../../../../services/ZavorthVisualReceiptUxService.js';
-import { ZavorthControlContractAdapterService } from '../../../../services/ZavorthControlContractAdapterService.js';
 import { ZavorthDailyUseGuiCertificationService } from '../../../../services/ZavorthDailyUseGuiCertificationService.js';
 import type { ZavorthSensitiveActionFlowDecision } from '../../../../contracts/ZavorthSensitiveActionFlowContract.js';
 import { logger } from '../../../../logger';
+import { isLoopbackRemoteAddress, resolveLearningLoopApiUserId, isLearningWriteAllowed } from '../../../../services/ZavorthLearningWriteAuth.js';
+import { buildLearnedKnowledgeHub } from '../../../../services/learned-knowledge/LearnedKnowledgeHub.js';
+import { buildLearnedKnowledgeStory } from '../../../../services/learned-knowledge/LearnedKnowledgeStoryService.js';
+import { buildLearnedKnowledgeAdvanced } from '../../../../services/learned-knowledge/LearnedKnowledgeAdvanced.js';
+import { LearnedKnowledgePlaneService } from '../../../../services/learned-knowledge/LearnedKnowledgePlaneService.js';
+import { AboutYouService } from '../../../../services/learned-knowledge/AboutYouService.js';
+import { queryKnowledgeFacts, previewKnowledgeConsolidate } from '../../../../services/learned-knowledge/KnowledgeFactsRecall.js';
+import { ExperienceSkillLearningLoopService } from '../../../../services/ExperienceSkillLearningLoopService.js';
+import { LlmRoleRoutingService } from '../../../../services/llm/LlmRoleRoutingService.js';
+import { normalizeRoleSurface, resolveLlmRoleScopeId } from '../../../../contracts/runtime/LlmRoleRoutingContract.js';
+import { LlmRoleSurfaceCommands } from '../../../../services/llm/LlmRoleSurfaceCommands.js';
+import { LlmRuntimeService } from '../../../../services/llm/LlmRuntimeService.js';
 import type {
   ZavorthExternalAgentAdapterKind,
   ZavorthExternalAgentIsolationKind,
@@ -56,17 +55,6 @@ type UiSurfaceHintsInput = {
   discordReady: boolean;
   cliReady: boolean;
 };
-
-const AGENT_RUN_STATUS_VALUES = new Set([
-  'idle',
-  'queued',
-  'thinking',
-  'running',
-  'waiting_approval',
-  'completed',
-  'failed',
-  'cancelled',
-]);
 
 const EXTERNAL_AGENT_ADAPTERS = new Set<ZavorthExternalAgentAdapterKind>(['cli', 'http', 'acp', 'mcp']);
 const EXTERNAL_AGENT_PROMPT_MODES = new Set(['stdin', 'arg', 'json']);
@@ -724,10 +712,6 @@ export class WebAppRuntimeStateRouteService {
 
     if (pathname === '/api/knowledge/hub' && req.method === 'GET') {
       try {
-        const { isLoopbackRemoteAddress, resolveLearningLoopApiUserId } =
-          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
-        const { buildLearnedKnowledgeHub } =
-          require('../../../../services/learned-knowledge/LearnedKnowledgeHub.js') as typeof import('../../../../services/learned-knowledge/LearnedKnowledgeHub.js');
         const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
         const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
         const authUserId = authIdentity ? String(authIdentity.userId || '').trim() : '';
@@ -764,10 +748,6 @@ export class WebAppRuntimeStateRouteService {
 
     if (pathname === '/api/knowledge/story' && req.method === 'GET') {
       try {
-        const { isLoopbackRemoteAddress, resolveLearningLoopApiUserId } =
-          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
-        const { buildLearnedKnowledgeStory } =
-          require('../../../../services/learned-knowledge/LearnedKnowledgeStoryService.js') as typeof import('../../../../services/learned-knowledge/LearnedKnowledgeStoryService.js');
         const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
         const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
         const authUserId = authIdentity ? String(authIdentity.userId || '').trim() : '';
@@ -807,10 +787,6 @@ export class WebAppRuntimeStateRouteService {
 
     if (pathname === '/api/knowledge/advanced' && req.method === 'GET') {
       try {
-        const { isLoopbackRemoteAddress } =
-          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
-        const { buildLearnedKnowledgeAdvanced } =
-          require('../../../../services/learned-knowledge/LearnedKnowledgeAdvanced.js') as typeof import('../../../../services/learned-knowledge/LearnedKnowledgeAdvanced.js');
         const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
         const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
         if (!isLoopback && !authIdentity) {
@@ -843,10 +819,6 @@ export class WebAppRuntimeStateRouteService {
 
     if (pathname === '/api/knowledge/pack' && req.method === 'GET') {
       try {
-        const { isLoopbackRemoteAddress, resolveLearningLoopApiUserId } =
-          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
-        const { LearnedKnowledgePlaneService } =
-          require('../../../../services/learned-knowledge/LearnedKnowledgePlaneService.js') as typeof import('../../../../services/learned-knowledge/LearnedKnowledgePlaneService.js');
         const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
         const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
         const authUserId = authIdentity ? String(authIdentity.userId || '').trim() : '';
@@ -887,10 +859,6 @@ export class WebAppRuntimeStateRouteService {
 
     if (pathname === '/api/knowledge/about' && (req.method === 'GET' || req.method === 'POST')) {
       try {
-        const { isLoopbackRemoteAddress, resolveLearningLoopApiUserId } =
-          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
-        const { AboutYouService } =
-          require('../../../../services/learned-knowledge/AboutYouService.js') as typeof import('../../../../services/learned-knowledge/AboutYouService.js');
         const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
         const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
         const authUserId = authIdentity ? String(authIdentity.userId || '').trim() : '';
@@ -973,8 +941,6 @@ export class WebAppRuntimeStateRouteService {
 
     if (pathname === '/api/knowledge/facts' && req.method === 'GET') {
       try {
-        const { isLoopbackRemoteAddress } =
-          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
         const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
         const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
         if (!isLoopback && !authIdentity) {
@@ -996,8 +962,6 @@ export class WebAppRuntimeStateRouteService {
         }
         const topK = Math.min(20, Math.max(1, Number(url.searchParams.get('topK') || 6) || 6));
         const budget = Math.min(6000, Math.max(256, Number(url.searchParams.get('budget') || 1800) || 1800));
-        const { queryKnowledgeFacts } =
-          require('../../../../services/learned-knowledge/KnowledgeFactsRecall.js') as typeof import('../../../../services/learned-knowledge/KnowledgeFactsRecall.js');
         const result = queryKnowledgeFacts({
           query,
           topK,
@@ -1031,8 +995,6 @@ export class WebAppRuntimeStateRouteService {
 
     if (pathname === '/api/knowledge/consolidate' && req.method === 'GET') {
       try {
-        const { isLoopbackRemoteAddress } =
-          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
         const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
         const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
         if (!isLoopback && !authIdentity) {
@@ -1047,8 +1009,6 @@ export class WebAppRuntimeStateRouteService {
           );
           return true;
         }
-        const { previewKnowledgeConsolidate } =
-          require('../../../../services/learned-knowledge/KnowledgeFactsRecall.js') as typeof import('../../../../services/learned-knowledge/KnowledgeFactsRecall.js');
         const preview = previewKnowledgeConsolidate({
           projectRoot: process.cwd(),
           sessionSummary: String(url.searchParams.get('summary') || '').trim() || null,
@@ -1070,10 +1030,6 @@ export class WebAppRuntimeStateRouteService {
 
     if (pathname === '/api/learning-loop' && req.method === 'GET') {
       try {
-        const { ExperienceSkillLearningLoopService } =
-          require('../../../../services/ExperienceSkillLearningLoopService.js') as typeof import('../../../../services/ExperienceSkillLearningLoopService.js');
-        const { resolveLearningLoopApiUserId, isLoopbackRemoteAddress } =
-          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
         // Prefer session identity. local UI ids (control/desktop) only on loopback socket peer.
         const requestedUserId = String(url.searchParams.get('userId') || '').trim();
         const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
@@ -1142,10 +1098,6 @@ export class WebAppRuntimeStateRouteService {
     // One-click promote for Control/Desktop skill drafts (/learn promote N — not /learning candidates).
     if (pathname === '/api/learning-loop/promote' && req.method === 'POST') {
       try {
-        const { ExperienceSkillLearningLoopService } =
-          require('../../../../services/ExperienceSkillLearningLoopService.js') as typeof import('../../../../services/ExperienceSkillLearningLoopService.js');
-        const { resolveLearningLoopApiUserId, isLoopbackRemoteAddress, isLearningWriteAllowed } =
-          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
         const body = (await deps.readJsonBody(req).catch(() => ({}))) as Record<string, unknown>;
         const requestedUserId = String(body?.userId || url.searchParams.get('userId') || '').trim();
         const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
@@ -1272,16 +1224,6 @@ export class WebAppRuntimeStateRouteService {
 
     if (pathname === '/api/llm-roles' && (req.method === 'GET' || req.method === 'POST')) {
       try {
-        const { LlmRoleRoutingService } =
-          require('../../../../services/llm/LlmRoleRoutingService.js') as typeof import('../../../../services/llm/LlmRoleRoutingService.js');
-        const { normalizeRoleSurface, resolveLlmRoleScopeId } =
-          require('../../../../contracts/runtime/LlmRoleRoutingContract.js') as typeof import('../../../../contracts/runtime/LlmRoleRoutingContract.js');
-        const { LlmRoleSurfaceCommands } =
-          require('../../../../services/llm/LlmRoleSurfaceCommands.js') as typeof import('../../../../services/llm/LlmRoleSurfaceCommands.js');
-        const { LlmRuntimeService } =
-          require('../../../../services/llm/LlmRuntimeService.js') as typeof import('../../../../services/llm/LlmRuntimeService.js');
-        const { resolveLearningLoopApiUserId, isLoopbackRemoteAddress } =
-          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
         const roleService = new LlmRoleRoutingService();
         const surfaceCommands = new LlmRoleSurfaceCommands(roleService);
         const runtime = new LlmRuntimeService();

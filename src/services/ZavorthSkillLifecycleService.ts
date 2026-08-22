@@ -119,7 +119,7 @@ export class ZavorthSkillLifecycleService {
       status: sandboxSnapshot.envelopePreview && scanResult.status === 'passed' ? 'passed' as const : 'blocked' as const,
       posture: sandboxSnapshot.summary.posture,
       command: `node -e "logger.info('skill:${skillId}:smoke')"`,
-      hostExecutionPerformed: false as false,
+      hostExecutionPerformed: false as const,
     };
     const evidenceRefs = [
       `source:${source.kind}:${source.ref}`,

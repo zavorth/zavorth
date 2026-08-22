@@ -37,6 +37,7 @@ export class AnthropicTransport implements TransportAdapter {
       throw new Error('At least one Anthropic API key is required');
     }
     this.clients = apiKeys.map((key) => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const AnthropicSdk = require('@anthropic-ai/sdk').default;
       return new AnthropicSdk({ apiKey: key });
     });

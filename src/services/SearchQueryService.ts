@@ -328,7 +328,7 @@ export class SearchQueryService {
       }
     }
 
-    let ddgAdapter = (mode === 'grounded' ? null : this.findAdapterForMode(mode, requestedProvider))
+    const ddgAdapter = (mode === 'grounded' ? null : this.findAdapterForMode(mode, requestedProvider))
       || this.findAdapterForMode('quick', requestedProvider)
       || this.findAdapterForMode('deep', requestedProvider)
       || this.findAdapterForMode('quick')

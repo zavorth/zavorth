@@ -165,6 +165,7 @@ export class CodexTransport implements TransportAdapter {
       }
 
       if (event.type === 'response.output_text.done' && event.delta?.summary) {
+        /* intentionally empty */
       }
 
       if (event.type === 'response.function_call_arguments.delta' && event.delta?.arguments) {

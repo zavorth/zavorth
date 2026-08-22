@@ -11,7 +11,7 @@ import { resolveZavorthGatewayBaseUrl } from "@/shared/utils/resolveGatewayBaseU
 const ZavorthGateway_BASE_URL = resolveZavorthGatewayBaseUrl();
 const ZavorthGateway_API_KEY = process.env.ZavorthGateway_API_KEY || "";
 
-async function routeFetch(path: string, options: RequestInit = {}): Promise<any> {
+async function routeFetch(path: string, options: RequestInit = {}): Promise<Record<string, unknown>> {
   const url = `${ZavorthGateway_BASE_URL}${path}`;
   const headers: Record<string, string> = {
     "Content-Type": "application/json",

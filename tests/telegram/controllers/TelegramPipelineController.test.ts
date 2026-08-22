@@ -1,12 +1,20 @@
 import { TelegramPipelineController } from '../../../src/telegram/controllers/TelegramPipelineController';
 
+interface MockPipelineService {
+  runReviewPipeline: jest.Mock;
+  runWorkflow: jest.Mock;
+  runSddLoop: jest.Mock;
+  resumeWorkflow: jest.Mock;
+  closeWorkflowRun?: jest.Mock;
+}
+
 describe('TelegramPipelineController', () => {
-it('routes ExternalExecutor review through the shared review pipeline', async () => {
-    const ctx = {} as any;
+  it('routes ExternalExecutor review through the shared review pipeline', async () => {
+    const ctx = {} as unknown as never;
     const runReviewPipeline = jest.fn().mockResolvedValue(undefined);
     const getDefaultWorkspace = jest.fn().mockReturnValue('C:/repo');
     const controller = new TelegramPipelineController(
-      () => ({ runReviewPipeline } as any),
+      () => ({ runReviewPipeline } as unknown as MockPipelineService),
       getDefaultWorkspace,
     );
 
@@ -19,13 +27,13 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
   it('routes /workflow ship through the shared workflow pipeline', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { reply: jest.Mock };
     const runWorkflow = jest.fn().mockResolvedValue(undefined);
     const runSddLoop = jest.fn().mockResolvedValue(undefined);
     const resumeWorkflow = jest.fn().mockResolvedValue(undefined);
     const getDefaultWorkspace = jest.fn().mockReturnValue('C:/repo');
     const controller = new TelegramPipelineController(
-      () => ({ runReviewPipeline: jest.fn(), runWorkflow, runSddLoop, resumeWorkflow } as any),
+      () => ({ runReviewPipeline: jest.fn(), runWorkflow, runSddLoop, resumeWorkflow } as unknown as MockPipelineService),
       getDefaultWorkspace,
     );
 
@@ -38,13 +46,13 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
   it('routes /workflow sdd through the native SDD loop pipeline', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { reply: jest.Mock };
     const runWorkflow = jest.fn().mockResolvedValue(undefined);
     const runSddLoop = jest.fn().mockResolvedValue(undefined);
     const resumeWorkflow = jest.fn().mockResolvedValue(undefined);
     const getDefaultWorkspace = jest.fn().mockReturnValue('C:/repo');
     const controller = new TelegramPipelineController(
-      () => ({ runReviewPipeline: jest.fn(), runWorkflow, runSddLoop, resumeWorkflow } as any),
+      () => ({ runReviewPipeline: jest.fn(), runWorkflow, runSddLoop, resumeWorkflow } as unknown as MockPipelineService),
       getDefaultWorkspace,
     );
 
@@ -58,12 +66,12 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
   it('routes /workflow resume through the shared workflow pipeline', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { reply: jest.Mock };
     const runWorkflow = jest.fn().mockResolvedValue(undefined);
     const runSddLoop = jest.fn().mockResolvedValue(undefined);
     const resumeWorkflow = jest.fn().mockResolvedValue(undefined);
     const controller = new TelegramPipelineController(
-      () => ({ runReviewPipeline: jest.fn(), runWorkflow, runSddLoop, resumeWorkflow } as any),
+      () => ({ runReviewPipeline: jest.fn(), runWorkflow, runSddLoop, resumeWorkflow } as unknown as MockPipelineService),
       jest.fn().mockReturnValue('C:/repo'),
     );
 
@@ -76,12 +84,12 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
   it('routes /workflow resume with a specific stage through the shared workflow pipeline', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { reply: jest.Mock };
     const runWorkflow = jest.fn().mockResolvedValue(undefined);
     const runSddLoop = jest.fn().mockResolvedValue(undefined);
     const resumeWorkflow = jest.fn().mockResolvedValue(undefined);
     const controller = new TelegramPipelineController(
-      () => ({ runReviewPipeline: jest.fn(), runWorkflow, runSddLoop, resumeWorkflow } as any),
+      () => ({ runReviewPipeline: jest.fn(), runWorkflow, runSddLoop, resumeWorkflow } as unknown as MockPipelineService),
       jest.fn().mockReturnValue('C:/repo'),
     );
 
@@ -94,12 +102,12 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
   it('routes /workflow restart-stage with a specific stage through the shared workflow pipeline', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { reply: jest.Mock };
     const runWorkflow = jest.fn().mockResolvedValue(undefined);
     const runSddLoop = jest.fn().mockResolvedValue(undefined);
     const resumeWorkflow = jest.fn().mockResolvedValue(undefined);
     const controller = new TelegramPipelineController(
-      () => ({ runReviewPipeline: jest.fn(), runWorkflow, runSddLoop, resumeWorkflow } as any),
+      () => ({ runReviewPipeline: jest.fn(), runWorkflow, runSddLoop, resumeWorkflow } as unknown as MockPipelineService),
       jest.fn().mockReturnValue('C:/repo'),
     );
 
@@ -112,13 +120,13 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
   it('routes /workflow close through the shared workflow pipeline', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { reply: jest.Mock };
     const runWorkflow = jest.fn().mockResolvedValue(undefined);
     const runSddLoop = jest.fn().mockResolvedValue(undefined);
     const resumeWorkflow = jest.fn().mockResolvedValue(undefined);
     const closeWorkflowRun = jest.fn().mockResolvedValue(undefined);
     const controller = new TelegramPipelineController(
-      () => ({ runReviewPipeline: jest.fn(), runWorkflow, runSddLoop, resumeWorkflow, closeWorkflowRun } as any),
+      () => ({ runReviewPipeline: jest.fn(), runWorkflow, runSddLoop, resumeWorkflow, closeWorkflowRun } as unknown as MockPipelineService),
       jest.fn().mockReturnValue('C:/repo'),
     );
 
@@ -131,9 +139,9 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
   it('guides the user when /workflow is missing type or objective', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { reply: jest.Mock };
     const controller = new TelegramPipelineController(
-      () => ({ runReviewPipeline: jest.fn(), runWorkflow: jest.fn(), runSddLoop: jest.fn(), resumeWorkflow: jest.fn() } as any),
+      () => ({ runReviewPipeline: jest.fn(), runWorkflow: jest.fn(), runSddLoop: jest.fn(), resumeWorkflow: jest.fn() } as unknown as MockPipelineService),
       jest.fn().mockReturnValue('C:/repo'),
     );
 
@@ -151,9 +159,9 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
   it('guides the user when /workflow resume is missing a run id', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { reply: jest.Mock };
     const controller = new TelegramPipelineController(
-      () => ({ runReviewPipeline: jest.fn(), runWorkflow: jest.fn(), runSddLoop: jest.fn(), resumeWorkflow: jest.fn() } as any),
+      () => ({ runReviewPipeline: jest.fn(), runWorkflow: jest.fn(), runSddLoop: jest.fn(), resumeWorkflow: jest.fn() } as unknown as MockPipelineService),
       jest.fn().mockReturnValue('C:/repo'),
     );
 
@@ -165,9 +173,9 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
   it('guides the user when /workflow restart-stage is missing the stage', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { reply: jest.Mock };
     const controller = new TelegramPipelineController(
-      () => ({ runReviewPipeline: jest.fn(), runWorkflow: jest.fn(), runSddLoop: jest.fn(), resumeWorkflow: jest.fn() } as any),
+      () => ({ runReviewPipeline: jest.fn(), runWorkflow: jest.fn(), runSddLoop: jest.fn(), resumeWorkflow: jest.fn() } as unknown as MockPipelineService),
       jest.fn().mockReturnValue('C:/repo'),
     );
 
@@ -179,7 +187,7 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
   it('guides the user when /workflow close is missing a run id', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { reply: jest.Mock };
     const controller = new TelegramPipelineController(
       () => ({
         runReviewPipeline: jest.fn(),
@@ -187,7 +195,7 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
         runSddLoop: jest.fn(),
         resumeWorkflow: jest.fn(),
         closeWorkflowRun: jest.fn(),
-      } as any),
+      } as unknown as MockPipelineService),
       jest.fn().mockReturnValue('C:/repo'),
     );
 

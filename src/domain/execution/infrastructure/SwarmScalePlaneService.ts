@@ -596,7 +596,7 @@ export class SwarmScalePlaneService {
           instruction: `${template.instruction}\nShard: ${index + 1}/${input.desiredAgents}.`,
         });
       });
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[Swarm Scale Plane] creation failed', error); return []; }
+    } catch (error: unknown) { logger.warn('[Swarm Scale Plane] creation failed', error); return []; }
   }
 
   private normalizePlannerTasks(
@@ -789,7 +789,7 @@ export class SwarmScalePlaneService {
           ...(result.metadata || {}),
         },
       };
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) { const err = asErrorLike(error);
     logger.warn('[Swarm Scale Plane] filesystem check failed', error);
     return {
         ...task,
@@ -928,7 +928,7 @@ export class SwarmScalePlaneService {
             toolName: toolCall.name,
             content: clampText(toolOutput, 6000),
           });
-        } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+        } catch (error: unknown) { const err = asErrorLike(error);
           this.completeStep(toolStep, 'failed', `${toolCall.name} failed.`, null);
           toolMessages.push({
             role: 'tool',
@@ -1200,7 +1200,7 @@ export class SwarmScalePlaneService {
       return {
         runs: Array.isArray(parsed?.runs) ? parsed.runs : [],
       };
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
     logger.warn('[Swarm Scale Plane] JSON parse failed', error);
     return { runs: [] };
   }
@@ -1238,12 +1238,12 @@ function parseJsonObject(value: string): Record<string, unknown> | null {
   if (!trimmed) return null;
   try {
     return JSON.parse(trimmed);
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) {
     const match = trimmed.match(/\{[\s\S]*\}/);
     if (!match) return null;
     try {
       return JSON.parse(match[0]);
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[Swarm Scale Plane] JSON parse failed', error); return null; }
+    } catch (error: unknown) { logger.warn('[Swarm Scale Plane] JSON parse failed', error); return null; }
   }
 }
 

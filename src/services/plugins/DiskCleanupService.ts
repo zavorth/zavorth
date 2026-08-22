@@ -40,6 +40,7 @@ export class DiskCleanupService {
 
   private initDefaultRules(): void {
     this.rules = [
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       { id: 'temp_files', name: 'Temporary files', pattern: '*.tmp,*.temp,*.bak', max_age_days: 7, max_size_mb: 100, directories: [path.join(process.cwd(), 'data', 'runtime', 'temp'), require('os').tmpdir()], dry_run: false, enabled: true },
       { id: 'screenshots', name: 'Old screenshots', pattern: 'screenshot_*.png', max_age_days: 30, max_size_mb: 500, directories: [path.join(process.cwd(), 'data', 'runtime', 'playwright'), path.join(process.cwd(), 'data', 'runtime', 'computer-use')], dry_run: false, enabled: true },
       { id: 'logs_old', name: 'Old logs', pattern: '*.log', max_age_days: 14, max_size_mb: 200, directories: [path.join(process.cwd(), 'data', 'runtime', 'logs')], dry_run: false, enabled: true },

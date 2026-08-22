@@ -2,13 +2,14 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { EventEmitter } from 'events';
+import { type ChildProcess, spawn } from 'child_process';
 import { LocalVoiceDictation } from '../../src/voice/LocalVoiceDictation';
 import { VoiceConsentService } from '../../src/voice/VoiceConsentService';
 import { VoiceProvisioningService } from '../../src/voice/VoiceProvisioningService';
 import { VoiceStatusService } from '../../src/voice/VoiceStatusService';
 
 function createFakeChild() {
-  const child = new EventEmitter() as any;
+  const child = new EventEmitter() as unknown as ChildProcess;
   child.stdout = new EventEmitter();
   child.stderr = new EventEmitter();
   child.stdout.setEncoding = jest.fn();
@@ -84,19 +85,19 @@ describe('Voice Pipeline E2E', () => {
     expect(provisioningService.hasProvisionedDevice()).toBe(true);
     statusService.setHasDevice(true);
 
-    const spawn = jest.fn((command: string, args: string[]) => {
+    const spawnMock = jest.fn((command: string, args: string[]) => {
       const child = createFakeChild();
       process.nextTick(() => {
         const outputBase = String(args[args.indexOf('-of') + 1] || '').trim();
-        fs.writeFileSync(`${outputBase}.txt`, 'hello zavorth\n', 'utf8');
+        fs.writeFileSync(`${outputBase}.txt`, 'hello zavorth\n`, 'utf8');
         child.emit('close', 0);
       });
       return child;
-    }) as any;
+    }) as unknown as typeof spawn;
 
     const dictation = new LocalVoiceDictation(
       { modelPath, binaryPath, tempDir: root },
-      { spawn },
+      { spawn: spawnMock },
     );
 
     statusService.setRecording(true);

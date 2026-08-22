@@ -17,7 +17,7 @@ interface ZaloWebhookPayload extends Record<string, unknown> {
 export class ZaloGateway extends WebhookGateway {
   public readonly id = 'zalo';
   public readonly name = 'Zalo';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'bot-http';
 
   constructor(options: WebhookGatewayOptions) {

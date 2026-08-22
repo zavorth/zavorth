@@ -119,6 +119,7 @@ export class DynamicSystemPromptService {
     // Soft-inject Plugin OS surface on standard/full tiers (not minimal greetings).
     if (tier !== 'minimal') {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const { softInjectPluginOsPrompt } = require('./PluginOsPromptInjectionService.js') as {
           softInjectPluginOsPrompt: (systemPrompt: string) => string;
         };

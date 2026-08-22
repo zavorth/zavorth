@@ -47,13 +47,13 @@ export class ToolCallRepairService {
     workingContent = workingContent.replace(xmlToolCallRegex, '').trim();
 
     // 2. Scan for OpenCode / Harmony XML tags: <function=tool_name><parameter=key>value</parameter></function>
-    const functionTagRegex = /<function=([a-zA-Z0-9_\-]+)>([\s\S]*?)<\/function>/gi;
+    const functionTagRegex = /<function=([a-zA-Z0-9_-]+)>([\s\S]*?)<\/function>/gi;
     while ((match = functionTagRegex.exec(rawContent)) !== null) {
       const toolName = match[1];
       const paramsBody = match[2];
       const argsObj: Record<string, string> = {};
 
-      const paramRegex = /<parameter=([a-zA-Z0-9_\-]+)>([\s\S]*?)<\/parameter>/gi;
+      const paramRegex = /<parameter=([a-zA-Z0-9_-]+)>([\s\S]*?)<\/parameter>/gi;
       let paramMatch: RegExpExecArray | null;
       while ((paramMatch = paramRegex.exec(paramsBody)) !== null) {
         argsObj[paramMatch[1]] = paramMatch[2].trim();
@@ -71,7 +71,7 @@ export class ToolCallRepairService {
     workingContent = workingContent.replace(functionTagRegex, '').trim();
 
     // 3. Scan for ReAct format: Action: tool_name\nAction Input: {...}
-    const reactRegex = /Action:\s*([a-zA-Z0-9_\-]+)\s*\nAction Input:\s*(\{[\s\S]*?\}|\[[\s\S]*?\]|".*?"|\d+)/gi;
+    const reactRegex = /Action:\s*([a-zA-Z0-9_-]+)\s*\nAction Input:\s*(\{[\s\S]*?\}|\[[\s\S]*?\]|".*?"|\d+)/gi;
     while ((match = reactRegex.exec(rawContent)) !== null) {
       const toolName = match[1];
       const rawInput = match[2].trim();
@@ -100,7 +100,7 @@ export class ToolCallRepairService {
     workingContent = workingContent.replace(reactRegex, '').trim();
 
     // 4. Scan for Markdown JSON tool code blocks if standalone: ```json {"tool": "...", "parameters": {...}} ```
-    const markdownJsonRegex = /```(?:json)?\s*\{\s*"tool"\s*:\s*"([a-zA-Z0-9_\-]+)"\s*,\s*"(?:parameters|arguments|args)"\s*:\s*(\{[\s\S]*?\})\s*\}\s*```/gi;
+    const markdownJsonRegex = /```(?:json)?\s*\{\s*"tool"\s*:\s*"([a-zA-Z0-9_-]+)"\s*,\s*"(?:parameters|arguments|args)"\s*:\s*(\{[\s\S]*?\})\s*\}\s*```/gi;
     while ((match = markdownJsonRegex.exec(rawContent)) !== null) {
       const toolName = match[1];
       const argsBody = match[2];

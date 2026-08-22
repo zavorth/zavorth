@@ -3,7 +3,41 @@ import type {
   IMediaGenerationAdapter,
   MediaGenerationModality,
   MediaGenerationRequest,
-} from '../../contracts/MediaGenerationContract.js';type FetchRuntime = {
+} from '../../contracts/MediaGenerationContract.js';
+
+interface MediaGenerationItem {
+  url?: string;
+  sourceUrl?: string;
+  video_url?: string;
+  image_url?: string;
+  output?: string;
+  b64_json?: string;
+  base64?: string;
+  data_base64?: string;
+  contentType?: string;
+  mime_type?: string;
+  id?: string;
+  job_id?: string;
+}
+
+interface MediaGenerationPayload {
+  data?: MediaGenerationItem[];
+  outputs?: MediaGenerationItem[];
+  images?: MediaGenerationItem[];
+  videos?: MediaGenerationItem[];
+  url?: string;
+  b64_json?: string;
+  base64?: string;
+  output?: string;
+  job_id?: string;
+  request_id?: string;
+  error?: {
+    message?: string;
+  };
+  message?: string;
+}
+
+type FetchRuntime = {
   fetchImpl?: typeof fetch;
   now?: () => Date;
   sleepMs?: (ms: number) => Promise<void>;
@@ -232,7 +266,7 @@ export class AsyncMediaJobGenerationLiveAdapter implements IMediaGenerationAdapt
     };
   }
 
-  private async fetchJson(url: string, method: 'GET' | 'POST', body?: Record<string, unknown>): Promise<any> {
+  private async fetchJson(url: string, method: 'GET' | 'POST', body?: Record<string, unknown>): Promise<MediaGenerationPayload | null> {
     if (!this.fetchImpl) {
       throw new Error(`${this.adapterId} requires fetch in the runtime.`);
     }
@@ -263,7 +297,7 @@ export class AsyncMediaJobGenerationLiveAdapter implements IMediaGenerationAdapt
   }
 }
 
-function normalizeMediaOutputs(payload: any, input: {
+function normalizeMediaOutputs(payload: MediaGenerationPayload, input: {
   providerId: string;
   modelId: string | null;
   modality: MediaGenerationModality;
@@ -284,7 +318,7 @@ function normalizeMediaOutputs(payload: any, input: {
               : [];
 
   const outputs: Array<AdapterGenerationOutput | null> = items
-    .map((item: any) => {
+    .map((item: MediaGenerationItem) => {
       const base64 = stringOrNull(item?.b64_json || item?.base64 || item?.data_base64);
       const sourceUrl = stringOrNull(item?.url || item?.sourceUrl || item?.video_url || item?.image_url || item?.output);
       if (!base64 && !sourceUrl) {
@@ -311,22 +345,29 @@ function normalizeMediaOutputs(payload: any, input: {
   return outputs.filter((item: AdapterGenerationOutput | null): item is AdapterGenerationOutput => Boolean(item));
 }
 
-async function readJson(response: Response): Promise<any> {
+async function readJson(response: Response): Promise<MediaGenerationPayload | null> {
   try {
     return await response.json();
   } catch (error: unknown) {return null;
   }
 }
 
-function readError(payload: any, status: number): string {
-  return String(payload?.error?.message || payload?.message || payload?.error || `HTTP ${status}`);
+function readError(payload: MediaGenerationPayload | null, status: number): string {
+  if (!payload) return `HTTP ${status}`;
+  if ('error' in payload && payload.error && typeof payload.error === 'object' && 'message' in payload.error) {
+    return String(payload.error.message);
+  }
+  if ('message' in payload && typeof payload.message === 'string') {
+    return payload.message;
+  }
+  return `HTTP ${status}`;
 }
 
-function readPath(payload: any, path: string): any {
+function readPath(payload: MediaGenerationPayload | unknown, path: string): unknown {
   return String(path || '')
     .split('.')
     .filter(Boolean)
-    .reduce((current, part) => current?.[part], payload);
+    .reduce((current, part) => (current as Record<string, unknown> | undefined)?.[part], payload);
 }
 
 function normalizeStatus(value: unknown): string {

@@ -199,7 +199,7 @@ export class ZavorthSkillEvolutionService {
       trustedLocal: records.filter((entry) => entry.status === 'trusted_local').length,
       blocked,
       procedureOnly: records.filter((entry) => entry.status === 'procedure_only').length,
-      heavyRuntimesStarted: false as false,
+      heavyRuntimesStarted: false as const,
     };
     return {
       generatedAt: this.now().toISOString(),

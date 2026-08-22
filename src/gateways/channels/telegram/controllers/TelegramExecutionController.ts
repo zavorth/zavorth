@@ -150,6 +150,7 @@ export class TelegramExecutionController {
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const RollbackManager = require('../../execution/RollbackManager.js').RollbackManager;
     const rollbackManager = new RollbackManager(this.deps.taskManager);
 

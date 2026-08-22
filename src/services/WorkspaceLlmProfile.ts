@@ -1,6 +1,7 @@
 import { config } from '../config/index.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import type { WorkspaceTaskKind, WorkspaceTaskSubtype } from './WorkspaceTaskKind.js';
+import { LlmRoleRoutingService, formatRoleTelemetry } from './llm/LlmRoleRoutingService.js';
 
 export type WorkspaceLlmStrategy = {
   providerName: string;
@@ -73,8 +74,6 @@ export function resolveWorkspaceLlmStrategy(
   let roleReason = 'configured_stack';
 
   try {
-    const { LlmRoleRoutingService, formatRoleTelemetry } =
-      require('./llm/LlmRoleRoutingService.js') as typeof import('./llm/LlmRoleRoutingService.js');
     const roleService = new LlmRoleRoutingService();
     const scopeId = String(options.roleScopeId || 'global').trim() || 'global';
     const resolved = roleService.resolveRole(

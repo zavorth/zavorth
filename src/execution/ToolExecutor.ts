@@ -442,11 +442,13 @@ Return only the corrected TypeScript file content.`;
 
                     this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Corrected code successfully validated and applied.`);
 
+                    // eslint-disable-next-line @typescript-eslint/no-var-requires
                     const resolvedPath = require.resolve(toolFilePath);
                     delete require.cache[resolvedPath];
 
                     let loadedModulePath = resolvedPath;
                     const normalizedClassFilename = className.toLowerCase();
+                    // eslint-disable-next-line @typescript-eslint/no-var-requires
                     for (const key of Object.keys(require.cache)) {
                       const lowerKey = key.toLowerCase();
                       if (
@@ -460,6 +462,7 @@ Return only the corrected TypeScript file content.`;
                     }
 
                     this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Reloading module for ${className}`);
+                    // eslint-disable-next-line @typescript-eslint/no-var-requires
                     const moduleExports = require(loadedModulePath);
                     const NewClass = moduleExports[className];
 

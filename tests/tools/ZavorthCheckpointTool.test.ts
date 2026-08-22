@@ -30,7 +30,7 @@ describe('ZavorthCheckpointTool (Session Step Recovery Tool)', () => {
     // 3. List checkpoints
     const listRes = JSON.parse(await tool.execute({ action: 'list' }));
     expect(listRes.success).toBe(true);
-    expect(listRes.checkpoints.some((c: any) => c.sessionId === sessionId)).toBe(true);
+    expect(listRes.checkpoints.some((c: { sessionId?: string }) => c.sessionId === sessionId)).toBe(true);
 
     // 4. Clear checkpoint
     const clearRes = JSON.parse(await tool.execute({ action: 'clear', sessionId }));

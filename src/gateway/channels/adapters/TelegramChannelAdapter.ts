@@ -5,7 +5,7 @@ import { logger } from '../../../logger.js';
 export class TelegramChannelAdapter implements GatewayChannelAdapter {
   id = 'telegram';
   name = 'Telegram Bot API';
-  type: 'async' = 'async';
+  type = 'async' as const;
   private initialized = false;
 
   constructor(private eventBus: GatewayEventBus, private botToken: string) {}

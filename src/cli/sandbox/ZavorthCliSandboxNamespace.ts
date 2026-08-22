@@ -224,6 +224,7 @@ async function createSandboxSnapshot(root: string, sandbox: JsonObject): Promise
   }));
   const manifest = { id, sandboxId: sandbox.id, createdAt: new Date().toISOString(), files };
   const archive = path.join(snapshotDir, `${id}.zavsandbox.gz`);
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   await fs.writeFile(archive, await require('zlib').gzipSync(Buffer.from(JSON.stringify(manifest), 'utf8')));
   await appendJsonArray(path.join(stateDir(root), 'logs', 'sandbox.json'), { id: idWithTime('sandbox-log'), sandboxId: sandbox.id, action: 'snapshot', status: 'completed', archive, files: files.length, createdAt: new Date().toISOString() });
   return { id, archive, filesCount: files.length, sandboxId: sandbox.id };
@@ -236,6 +237,7 @@ async function restoreSandboxSnapshot(root: string, sandbox: JsonObject, snapsho
     ? (path.isAbsolute(snapshotPath) ? snapshotPath : path.join(snapshotDir, snapshotPath))
     : (await listAnyFiles(snapshotDir)).filter((file) => file.endsWith('.zavsandbox.gz')).sort().at(-1) || '';
   if (!archive || !existsSync(archive)) return { files: 0 };
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const manifest = JSON.parse((await require('zlib').gunzipSync(await fs.readFile(archive))).toString('utf8')) as { files?: Array<JsonObject> };
   let restored = 0;
   for (const file of manifest.files || []) {

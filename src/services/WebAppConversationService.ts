@@ -35,17 +35,14 @@ import { AttachmentIntelligenceService, type AttachmentTextProfile } from './Att
 import { ZavorthUserResponseRendererService } from './ZavorthUserResponseRendererService.js';
 import { MediaUnderstandingService } from './MediaUnderstandingService.js';
 import type { WebComposerAttachment } from '../contracts/WebComposer.js';
-import type { MediaAnalysisType } from '../contracts/MediaUnderstandingContract.js';
 import { AudioTranscriptionService } from './AudioTranscriptionService.js';
-import type { ExecutionEngineDecision, ExecutionEngineId } from '../contracts/ExecutionEngineContract.js';
+import type { ExecutionEngineDecision } from '../contracts/ExecutionEngineContract.js';
 import type { ExecutionEngineRouteOperation, ExecutionEngineRouterService } from './ExecutionEngineRouterService.js';
 
 import { resolveComposerModelRouteOverride } from './WebAppComposerModelRoute.js';
 import {
   buildInlineDataFromAttachments,
   extractInlineDataFromComposerPayload,
-  getReadyMediaAttachments,
-  resolveReadyMediaAttachment,
 } from './WebAppConversationInlineData.js';
 
 import { ZavorthFirstBootDetectionService } from './ZavorthFirstBootDetectionService.js';
@@ -54,7 +51,6 @@ import { ZavorthContextualTipsService, CONTEXTUAL_TIP_FLAGS } from './ZavorthCon
 import type { ChatMessage } from '../providers/ILlmProvider.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 import { logger } from '../logger.js';
-import { asErrorLike } from '../utils/errorLike.js';
 import { WebAppConversationMediaSupport } from './WebAppConversationMediaSupport.js';
 import {
   firstAttachmentText,
@@ -1245,6 +1241,7 @@ private readonly audioTranscription = new AudioTranscriptionService({
     let body: string;
     try {
       const { buildModeEscalationPendingCard } =
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         require('./ModeEscalationPresentation.js') as typeof import('./ModeEscalationPresentation.js');
       const card = buildModeEscalationPendingCard({
         request: request as any,

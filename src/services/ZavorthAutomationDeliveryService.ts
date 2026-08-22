@@ -1,4 +1,3 @@
-import { asErrorLike } from '../utils/errorLike';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -177,7 +176,6 @@ export class ZavorthAutomationDeliveryService {
         .slice(-Math.max(0, limit))
         .reverse();
     } catch (error: unknown) {
-      const err = asErrorLike(error);
       logger.warn('Failed to read recent delivery records.', { err: error });
       return [];
     }
@@ -354,14 +352,12 @@ export class ZavorthAutomationDeliveryService {
           try {
             return JSON.parse(line) as AutomationDeliveryRecord;
           } catch (error: unknown) {
-            const err = asErrorLike(error);
             logger.warn('Invalid JSON line in automation file.', { err: error });
             return null;
           }
         })
         .filter((entry): entry is AutomationDeliveryRecord => Boolean(entry));
     } catch (error: unknown) {
-      const err = asErrorLike(error);
       logger.warn('Failed to read automation JSONL records.', { err: error });
       return [];
     }
@@ -378,14 +374,12 @@ export class ZavorthAutomationDeliveryService {
           try {
             return JSON.parse(this.readFileSync(path.join(config.emailOutboxDir, entry), 'utf8')) as AutomationEmailEnvelope;
           } catch (error: unknown) {
-            const err = asErrorLike(error);
             logger.warn('Invalid email envelope in outbox.', { err: error });
             return null;
           }
         })
         .filter((entry): entry is AutomationEmailEnvelope => Boolean(entry));
     } catch (error: unknown) {
-      const err = asErrorLike(error);
       logger.warn('Failed to read email envelopes from outbox.', { err: error });
       return [];
     }

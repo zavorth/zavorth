@@ -13,6 +13,7 @@ import {
 import { McpToolPolicyFileService } from '../services/McpToolPolicyFileService.js';
 
 import { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
+import { type AgentToolSecurityDefinition } from '../security/AgentSecurityPolicyEngine.js';
 import {
   McpToolPolicy,
   type McpToolPolicyDocument,
@@ -578,6 +579,7 @@ ${getErrorMessage(error)}`,
 
   private normalizeToolDescription(description: unknown): string {
     return String(description || '')
+  // eslint-disable-next-line no-control-regex
       .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
       .replace(/\s+/g, ' ')
       .trim()
@@ -632,7 +634,7 @@ ${getErrorMessage(error)}`,
   private resolveDiscoveredTools(
     discovered: DiscoveredMcpTool[],
     allActiveNamespacedTools: string[],
-    policyDoc: any,
+    policyDoc: McpToolPolicyDocument,
     globalPolicy: McpToolPolicy,
     serverId: string,
   ): { registeredNames: string[]; changed: boolean } {
@@ -760,10 +762,10 @@ ${getErrorMessage(error)}`,
 
       // Register under the namespaced name
       const namespacedTool = new NamespacedMcpTool(tool, namespacedName);
-      const finalSecurityDef = securityDefinition
-        ? { ...securityDefinition, toolName: namespacedName }
+      const finalSecurityDef: AgentToolSecurityDefinition | undefined = securityDefinition
+        ? { ...securityDefinition, toolName: namespacedName } as AgentToolSecurityDefinition
         : undefined;
-      this.registry.register(namespacedTool, finalSecurityDef as any);
+      this.registry.register(namespacedTool, finalSecurityDef);
       registeredNames.push(namespacedName);
       this.auditLogger.logMcpRuntimeEvent({
         event: 'mcp_tool_registered',

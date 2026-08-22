@@ -2,6 +2,28 @@ import type { Task } from '../../../src/contracts/TaskContract';
 import { config } from '../../../src/config/index';
 import { TelegramSelfModificationController } from '../../../src/telegram/controllers/TelegramSelfModificationController';
 
+interface MockSelfModificationService {
+  createPreview: jest.Mock;
+  applyPreview: jest.Mock;
+  createGoalPreview?: jest.Mock;
+  rollbackChangeSet?: jest.Mock;
+}
+
+interface MockDeps {
+  taskManager: {
+    createPendingTask: jest.Mock;
+    advanceState: jest.Mock;
+  };
+  executionGateway: {
+    getModeManager: jest.Mock;
+  };
+  auditLogger: {
+    logEvent: jest.Mock;
+  };
+  persistTask: jest.Mock;
+  selfModificationService: MockSelfModificationService;
+}
+
 jest.setTimeout(15000);
 
 function createTask(overrides: Partial<Task> = {}): Task {
@@ -45,8 +67,8 @@ function createTask(overrides: Partial<Task> = {}): Task {
 describe('TelegramSelfModificationController', () => {
   const originalTelegramUserRoles = config.telegramUserRoles;
 
-  function createController(task = createTask(), overrides: Record<string, any> = {}) {
-    const deps = {
+  function createController(task = createTask(), overrides: Record<string, unknown> = {}) {
+    const deps: MockDeps = {
       taskManager: {
         createPendingTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((currentTask: Task, status: Task['status']) => {
@@ -78,9 +100,9 @@ describe('TelegramSelfModificationController', () => {
           summary: 'Aplicado com sucesso.',
           diffSummary: '@@ -1 +1 @@\n-export const value = 1;\n+export const value = 2;',
         }),
+        ...(overrides.selfModificationService as MockSelfModificationService),
       },
-      ...overrides,
-    } as any;
+    } as unknown as MockDeps;
 
     return {
       controller: new TelegramSelfModificationController(deps),
@@ -132,7 +154,7 @@ describe('TelegramSelfModificationController', () => {
       chat: { id: 42, type: 'group' },
       from: { id: 42 },
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { chat: { id: number; type: string }; from: { id: number }; reply: jest.Mock };
     const { controller, deps } = createController();
 
     await controller.handleCommand(ctx, 'src/sample.ts -- ajuste o guard');
@@ -146,7 +168,7 @@ describe('TelegramSelfModificationController', () => {
       chat: { id: 42, type: 'private' },
       from: { id: 42 },
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { chat: { id: number; type: string }; from: { id: number }; reply: jest.Mock };
     const { controller, deps } = createController(createTask(), {
       executionGateway: {
         getModeManager: jest.fn().mockReturnValue({
@@ -167,7 +189,7 @@ describe('TelegramSelfModificationController', () => {
       chat: { id: 42, type: 'private' },
       from: { id: 42 },
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { chat: { id: number; type: string }; from: { id: number }; reply: jest.Mock };
     const { controller, deps, task } = createController();
 
     await controller.handleCommand(ctx, 'src/sample.ts -- ajuste o guard');
@@ -184,7 +206,7 @@ describe('TelegramSelfModificationController', () => {
       chat: { id: 42, type: 'private' },
       from: { id: 42 },
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { chat: { id: number; type: string }; from: { id: number }; reply: jest.Mock };
     const { controller, deps, task } = createController(
       createTask({
         raw_message: '/selfmod apply preview-1',
@@ -208,7 +230,7 @@ describe('TelegramSelfModificationController', () => {
       chat: { id: 42, type: 'private' },
       from: { id: 42 },
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { chat: { id: number; type: string }; from: { id: number }; reply: jest.Mock };
     const { controller, deps } = createController(
       createTask({
         raw_message: '/selfmod apply preview-1',
@@ -232,7 +254,7 @@ describe('TelegramSelfModificationController', () => {
       chat: { id: 42, type: 'private' },
       from: { id: 42 },
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { chat: { id: number; type: string }; from: { id: number }; reply: jest.Mock };
     const { controller, deps } = createController(createTask(), {
       selfModificationService: {
         createPreview: jest.fn(),
@@ -267,7 +289,7 @@ describe('TelegramSelfModificationController', () => {
       chat: { id: 42, type: 'private' },
       from: { id: 42 },
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as { chat: { id: number; type: string }; from: { id: number }; reply: jest.Mock };
     const { controller, deps, task } = createController(createTask(), {
       selfModificationService: {
         createPreview: jest.fn().mockResolvedValue({

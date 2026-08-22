@@ -111,6 +111,7 @@ export class LocalEmbeddingService {
         // Optional dependency — not required for install. Dynamic import keeps core lean.
         // eslint-disable-next-line @typescript-eslint/no-implied-eval
         const mod = await import(/* webpackIgnore: true */ '@xenova/transformers' as string);
+  // eslint-disable-next-line @typescript-eslint/ban-types
         const pipeline = (mod as { pipeline?: Function }).pipeline;
         if (typeof pipeline !== 'function') return null;
         const model = process.env.ZAVORTH_LOCAL_EMBEDDING_MODEL || 'Xenova/all-MiniLM-L6-v2';

@@ -219,7 +219,7 @@ export function cleanUserId(userId?: string | null): string {
   const raw = String(userId || '').trim();
   if (!raw) return 'local-user';
   // Allow only safe path segment chars; strip traversal / relative segments.
-  let cleaned = raw
+  const cleaned = raw
     .replace(/[^a-zA-Z0-9._@+-]+/g, '_')
     .replace(/\.{2,}/g, '_')
     .replace(/^\.+|\.+$/g, '')

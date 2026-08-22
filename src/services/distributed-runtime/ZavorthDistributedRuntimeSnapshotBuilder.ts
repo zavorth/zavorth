@@ -429,7 +429,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
       });
     }
 
-    if (!Boolean(input.manifest?.remote?.ready)) {
+    if (!input.manifest?.remote?.ready) {
       actions.push({
         id: 'remote-rollout',
         label: 'Fechar rollout remote oficial',
@@ -628,7 +628,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     if (total > 0 && ready === 0) {
       return 'critical';
     }
-    if (!this.resolvePrimarySurfaceReady(manifest) || !Boolean(manifest?.remote?.ready)) {
+    if (!this.resolvePrimarySurfaceReady(manifest) || !manifest?.remote?.ready) {
       return 'attention';
     }
     return 'healthy';
@@ -725,7 +725,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
   }
 
   private pickSurfaceNextAction(manifest: RuntimeAccessManifest): string {
-    if (!Boolean(manifest?.remote?.ready)) {
+    if (!manifest?.remote?.ready) {
       return 'Fechar o rollout remote oficial para abrir o mesmo cockpit outside do host local.';
     }
     return 'The official surfaces already tell the same distributed-runtime story.';

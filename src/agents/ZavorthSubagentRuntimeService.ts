@@ -1,37 +1,21 @@
-import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import {
-  ZAVORTH_SUBAGENT_RUNTIME_CONTRACT_VERSION,
   type ZavorthSubagentRuntimeAction,
-  type ZavorthSubagentRuntimeDynamicConfigProjection,
   type ZavorthSubagentRuntimeExecutionMode,
   type ZavorthSubagentRuntimeLimits,
-  type ZavorthSubagentRuntimeMessage,
   type ZavorthSubagentRuntimeMode,
-  type ZavorthSubagentRuntimeObservabilityEvent,
   type ZavorthSubagentRuntimePairedDevicesProjection,
   type ZavorthSubagentRuntimeRun,
-  type ZavorthSubagentRuntimeSandboxProjection,
   type ZavorthSubagentRuntimeSession,
   type ZavorthSubagentRuntimeSnapshot,
   type ZavorthSubagentRuntimeStatus,
-  type ZavorthSubagentRuntimeTimelineEvent,
   type ZavorthSubagentRoleMode,
   type ZavorthSubagentSandboxBackendId,
-  type ZavorthSubagentRuntimeWorkerResult,
   type ZavorthSubagentDynamicConfigSettings,
-  type ZavorthSubagentRuntimeWorkboardProjection,
 } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
-import type { ZavorthSubagentAutoInvocationTelemetry } from '../contracts/runtime/ZavorthSubagentAutoInvocationContract.js';
-import {
-  ZAVORTH_INVOCATION_RECEIPT_CONTRACT_VERSION,
-  type ZavorthInvocationReceipt,
-  type ZavorthInvocationReceiptKind,
-  type ZavorthInvocationReceiptStatus,
-} from '../contracts/runtime/ZavorthInvocationReceiptContract.js';
 import type {
   ZavorthGovernedSubagentProfile,
   ZavorthGovernedSubagentProfileId,
@@ -43,36 +27,22 @@ import {
 } from '../security/SecurityPolicyBroker.js';
 import { ZavorthGovernedSubagentService } from '../services/ZavorthGovernedSubagentService.js';
 import {
-  buildAutoInvocationZavorthControlProjection,
   normalizeAutoInvocation,
 } from '../services/ZavorthSubagentRuntimeTelemetrySupport.js';
 import {
-  AUTO_SUBAGENT_DECISION_LABEL,
   formatSubagentRuntimeSnapshotText,
 } from '../services/ZavorthSubagentRuntimePresenter.js';
 import { buildSubagentIdentity } from '../services/ZavorthSubagentIdentityService.js';
-import { logger } from '../logger.js';
 import { ZavorthSubagentRuntimeSnapshotService } from './ZavorthSubagentRuntimeSnapshotService.js';
 import { ZavorthSubagentRuntimeStateService } from './ZavorthSubagentRuntimeStateService.js';
 import {
-  DEFAULT_DYNAMIC_CONFIG,
   DEFAULT_LIMITS,
-  buildPairedDevicesProjection,
   buildPolicyReasons,
   buildRuntimeOutput,
-  buildSandboxProjection,
-  buildTree,
-  clampInt,
   classifyRisk,
-  coerceDynamicConfigProjection,
-  defaultDynamicConfigProjection,
-  emptyState,
   firstLine,
   last,
   mapBoardRisk,
-  mapWorkboardStatus,
-  mapWorkboardTask,
-  motionStateForStatus,
   normalizeAction,
   normalizeChannel,
   normalizeDynamicConfig,
@@ -85,11 +55,9 @@ import {
   normalizeTasks,
   normalizeText,
   positiveInteger,
-  resolveDepthFromRuns,
   resolveExecutionMode,
   stableId,
   summarizeMessages,
-  uniqueStrings,
   type RuntimeRisk,
   type StoredState,
 } from './ZavorthSubagentRuntimeHelpers.js';
@@ -110,14 +78,10 @@ import {
 
 import {
   compareSubagentRunsByActivity,
-  compareSubagentSessionsByActivity,
-  isLatestSubagentReference,
 } from '../services/ZavorthSubagentRuntimeStateSelectors.js';
 
 import {
   ZavorthSubagentBoardService,
-  type ZavorthSubagentBoardSnapshot,
-  type ZavorthSubagentBoardTask,
 } from '../services/ZavorthSubagentBoardService.js';
 type DecideSecurityPolicy = (
   request: SecurityPolicyBrokerRequest,

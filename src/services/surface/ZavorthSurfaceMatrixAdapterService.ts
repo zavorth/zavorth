@@ -72,6 +72,7 @@ export class ZavorthSurfaceMatrixAdapterService {
     }
 
     // Default: CLI Terminal
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { KanbanBoardTuiRenderer } = require('../../cli/components/KanbanBoardTuiView.js');
     const renderer = new KanbanBoardTuiRenderer();
     const rendered = renderer.render(board, {
@@ -165,6 +166,7 @@ export class ZavorthSurfaceMatrixAdapterService {
       };
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { DiffPagerModalRenderer } = require('../../cli/components/DiffPagerModal.js');
     const renderer = new DiffPagerModalRenderer();
     const rendered = renderer.render({

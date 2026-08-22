@@ -9,17 +9,7 @@ import type {
 } from '../../domain/execution/infrastructure/SwarmScalePlaneService.js';
 import type { ExecutionEscalationDecision } from './ExecutionEscalationPolicy.js';
 import { assessSwarmWorkload, type SwarmWorkloadAssessment } from './SwarmWorkloadAssessmentService.js';
-import type { SelfModificationPreviewResult } from '../../services/SelfModificationCommandService.js';
-import type { WatchModeRunSnapshot } from '../../services/ComputerUseWatchModeService.js';
 import type {
-  TrustSliderLevel,
-  TrustSliderPolicyDecision,
-  UniversalIntentUserRole,
-} from '../uni/UniversalIntentContracts.js';
-import type { CapabilityNegotiationSnapshot } from './CapabilityNegotiationService.js';
-import type { ToolRehearsalSnapshot } from './ToolRehearsalService.js';
-import type {
-  UniversalAgentExecutor,
   UniversalAgentRequest,
   UniversalAgentRun,
   UniversalAgentRunResult,
@@ -275,7 +265,7 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
   proto.buildSwarmEscalationReply = function (
     this: AgentRunFlowHost,
     decision: ExecutionEscalationDecision,
-    approvalId: string,
+    _approvalId: string,
   ): string {
     return [
       'Structured swarm proposal prepared.',

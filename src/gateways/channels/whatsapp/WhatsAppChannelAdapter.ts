@@ -57,7 +57,7 @@ type WhatsAppChannelAdapterRuntime = {
 export class WhatsAppChannelAdapter implements GatewayChannelAdapter {
   id = 'whatsapp';
   name = 'WhatsApp Cloud API';
-  type: 'async' = 'async';
+  type = 'async' as const;
   private readonly outboxDir: string;
   private readonly now: () => Date;
   private readonly auditLogger: SecurityAuditLogger;

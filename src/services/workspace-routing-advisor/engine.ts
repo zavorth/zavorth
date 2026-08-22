@@ -1,13 +1,7 @@
-import type { ParsedCommand } from '../../gateways/channels/telegram/CommandParser.js';
-import type { RouteIntent } from '../../orchestrator/IntentRouter.js';
-import type { WorkspaceProfile } from '../WorkspaceProfileService.js';
 import type { WorkspaceOperationalMemory } from '../WorkspaceOperationalMemoryService.js';
 import {
   classifyWorkspaceTaskProfile,
   resolveWorkspaceResponseStyle,
-  type WorkspaceResponseStyle,
-  type WorkspaceTaskKind,
-  type WorkspaceTaskSubtype,
 } from '../WorkspaceTaskKind.js';
 import type {
   ActiveFocusAggregate,
@@ -54,12 +48,8 @@ import { getProfileExecutor, normalizeExecutor } from './shared.js';
 
 import type {
   AdviceInput,
-  LlmRecommendation,
   RoutingCandidate,
-  RoutingCandidateSource,
   WorkspaceRoutingAdvice,
-  WorkflowRecommendation,
-  WorkflowStageExecutorRecommendation,
 } from './types.js';
 
 export type { WorkspaceRoutingAdvice } from './types.js';

@@ -26,6 +26,7 @@ export function redactPrivacyText(value: unknown, options: PrivacyRedactionOptio
   for (const rule of TEXT_REDACTIONS) {
     text = text.replace(rule.pattern, rule.replacement);
   }
+  // eslint-disable-next-line no-misleading-character-class
   text = text.replace(/[\u200B\u200C\u200D\u2060\uFEFF\u00AD]/g, '');
   return text.length > maxStringLength ? `${text.slice(0, maxStringLength - 3)}...` : text;
 }

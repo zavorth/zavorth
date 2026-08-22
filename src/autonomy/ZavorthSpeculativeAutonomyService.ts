@@ -1,14 +1,9 @@
-import { spawn } from 'child_process';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { createTwoFilesPatch } from 'diff';
 import ts from 'typescript';
 import { config } from '../config/index.js';
-import { spawnCommand } from '../core/CommandSpawn.js';
 import type { ZavorthMutationPlan, ZavorthReadinessGate } from '../contracts/ZavorthMutationPlaneContract.js';
-import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
-import { DockerSandboxRuntime, type DockerSandboxStatus } from '../services/sandbox/DockerSandboxRuntime.js';
 import { ZavorthMutationPlaneService } from '../services/ZavorthMutationPlaneService.js';
 import {
   buildAstContextGraph,
@@ -330,39 +325,12 @@ const DEFAULT_MAX_COPY_BYTES = 180 * 1024 * 1024;
 const DEFAULT_VALIDATION_TIMEOUT_MS = 120000;
 const DEFAULT_AUTO_HEALING_TIME_BUDGET_MS = 2 * 60 * 1000;
 const MAX_VALIDATION_COMMANDS = 3;
-const MAX_AST_FILES = 80;
 const MAX_DIFF_CHARS = 100000;
 const MAX_STDIO_CHARS = 12000;
-const MAX_EDIT_BYTES = 1024 * 1024;
-
-const IGNORED_DIR_NAMES = new Set([
-  '.git',
-  'node_modules',
-  'dist',
-  'dist-ops',
-  'build',
-  'coverage',
-  '.next',
-  '.turbo',
-  '.cache',
-  '.tmp',
-  'tmp',
-]);
-
-const IGNORED_RELATIVE_PREFIXES = [
-  'data/runtime/',
-  'data\\runtime\\',
-];
-
-const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mts', '.cts'];
 
 function normalizeText(value: unknown, fallback = ''): string {
   const text = String(value ?? '').trim();
   return text || fallback;
-}
-
-function normalizePortablePath(value: string): string {
-  return value.replace(/\\/g, '/');
 }
 
 function clampText(value: unknown, maxChars = MAX_STDIO_CHARS): string {
@@ -394,35 +362,6 @@ function redactValidationResult(result: ZavorthSpeculativeValidationResult): Zav
 
 function sha256(value: string): string {
   return crypto.createHash('sha256').update(value, 'utf8').digest('hex');
-}
-
-function looksLikeSecret(value: string): boolean {
-  return /\b(?:\.env|id_rsa|credentials\.json|secrets.*\.json|token|secret|password|api[_-]?key|sk-[a-z0-9_-]{12,})\b/i.test(value);
-}
-
-function countOccurrences(value: string, search: string): number {
-  if (!search) {
-    return 0;
-  }
-  let count = 0;
-  let index = value.indexOf(search);
-  while (index >= 0) {
-    count += 1;
-    index = value.indexOf(search, index + search.length);
-  }
-  return count;
-}
-
-function stableStringify(value: unknown): string {
-  if (Array.isArray(value)) {
-    return `[${value.map((entry) => stableStringify(entry)).join(',')}]`;
-  }
-  if (value && typeof value === 'object') {
-    return `{${Object.keys(value as Record<string, unknown>).sort().map((key) =>
-      `${JSON.stringify(key)}:${stableStringify((value as Record<string, unknown>)[key])}`,
-    ).join(',')}}`;
-  }
-  return JSON.stringify(value);
 }
 
 export class ZavorthSpeculativeAutonomyService {

@@ -28,6 +28,7 @@ import { PluginForgeService } from '../../services/PluginForgeService.js';
 import { PluginMcpBridgeService } from '../../services/PluginMcpBridgeService.js';
 import { PluginCuratedMarketplaceService } from '../../services/PluginCuratedMarketplaceService.js';
 import { PluginOsMarketplaceService } from '../../services/PluginOsMarketplaceService.js';
+import { ExperienceSkillLearningLoopService } from '../../services/ExperienceSkillLearningLoopService.js';
 import { PluginOsObservabilityService } from '../../services/PluginOsObservabilityService.js';
 import { PluginOsAgentSurfaceService } from '../../services/PluginOsAgentSurfaceService.js';
 import { PluginOsTelemetryService } from '../../services/PluginOsTelemetryService.js';
@@ -541,8 +542,6 @@ export async function runPlugins(root: string, args: string[]) {
     const userId =
       userIdx >= 0 ? String(args[userIdx + 1] || '').trim() : process.env.USER || process.env.USERNAME || 'local-user';
     try {
-      const { ExperienceSkillLearningLoopService } =
-        require('../../services/ExperienceSkillLearningLoopService.js') as typeof import('../../services/ExperienceSkillLearningLoopService.js');
       const loop = new ExperienceSkillLearningLoopService({ projectRoot: root });
       const result = loop.promote(userId, skillRef, { kind: 'plugin', dryRun });
       return render(args, 'Zavorth plugins promote-from-skill', result.text.split('\n'), {
@@ -1730,7 +1729,7 @@ export async function runPlugins(root: string, args: string[]) {
 
   let discoverySummary: JsonObject | null = null;
   let discoveryLines: string[] = [];
-  let bridgedList = bridge.list();
+  const bridgedList = bridge.list();
   try {
     const discovery = new PluginDiscoveryService({
       projectRoot: root,
@@ -1759,7 +1758,7 @@ export async function runPlugins(root: string, args: string[]) {
         .slice(0, 10)
         .map(
           (item) =>
-            `- ${String((item as JsonObject).id || (item as JsonObject).name)} | ${String((item as JsonObject).status || 'registered')} | ${Boolean((item as JsonObject).enabled) ? 'enabled' : 'disabled'}`,
+            `- ${String((item as JsonObject).id || (item as JsonObject).name)} | ${String((item as JsonObject).status || 'registered')} | ${(item as JsonObject).enabled ? 'enabled' : 'disabled'}`,
         ),
       ...(discoveryLines.length ? ['', 'Plugin OS discovery:', ...discoveryLines] : []),
     ],

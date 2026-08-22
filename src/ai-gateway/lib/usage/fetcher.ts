@@ -3,7 +3,7 @@
  * Usage Fetcher - Get usage data from provider APIs
  */
 
-import { GITHUB_CONFIG, GEMINI_CONFIG, ZAVORTH_BRIDGE_CONFIG } from "@/lib/oauth/constants/oauth";
+import { GITHUB_CONFIG } from "@/lib/oauth/constants/oauth";
 import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../utils/errorLike.js';
 
@@ -151,7 +151,7 @@ async function getGeminiUsage(accessToken) {
 /**
  * ZavorthBridge Usage
  */
-async function getZavorthBridgeUsage(accessToken) {
+async function getZavorthBridgeUsage(_accessToken) {
   try {
     // Similar to Gemini, uses Google Cloud
     return { message: "ZavorthBridge connected. Usage tracked via Google Cloud Console." };
@@ -215,7 +215,7 @@ async function getQwenUsage(accessToken, providerSpecificData) {
 /**
  * Qoder Usage
  */
-async function getIflowUsage(accessToken) {
+async function getIflowUsage(_accessToken) {
   try {
     // Qoder may have usage endpoint
     return { message: "Qoder connected. Usage tracked per request." };

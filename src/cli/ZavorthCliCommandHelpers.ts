@@ -540,6 +540,7 @@ function resolveCliExecutionInput(rawInput: string): CliResolvedExecutionInput {
 export function parseZavorthCliFlags(argv: string[]): ZavorthCliFlags {
   const headless = normalizeZavorthHeadlessArgs(argv);
   const effectiveArgv = headless.argv;
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { resolveCliDefaultUserId } = require('../services/ZavorthDefaultUserId.js') as typeof import('../services/ZavorthDefaultUserId.js');
   const defaultUserId = resolveCliDefaultUserId({
     allowedUserIds: config.allowedUserIds,
@@ -714,6 +715,7 @@ async function buildDefaultCliRuntime(options: {
   }
   // P2: reconcile skill firewall tool maps with the live registry.
   try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { reconcileSkillToolsWithRegistry } = require('../services/SkillToolRegistryBridge.js');
     const runtime = toolRuntimeServices.toolRuntime as {
       hasTool?(name: string): boolean;

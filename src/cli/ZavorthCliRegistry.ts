@@ -1,26 +1,6 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import { LoopEngineeringService } from '../services/LoopEngineeringService.js';
 import { globalSpinner } from './presentation/TerminalSpinner.js';
-import readline from 'readline/promises';
-import type { Interface as ReadlineInterface } from 'readline/promises';
-import { stdin as input, stdout as output } from 'process';
-import { InlineKeyboard } from 'grammy';
-import type { NodeMeshActivitySnapshot, NodeMeshNodeKind } from '../contracts/NodeMeshContract.js';
-import { config } from '../config/index.js';
 import type { IMessageContext } from '../contracts/IMessageBroker.js';
-import type { Task } from '../contracts/TaskContract.js';
-import { Database } from '../storage/Database.js';
-import { LogRepository } from '../storage/LogRepository.js';
-import { TaskRepository } from '../storage/TaskRepository.js';
-import { TaskManager } from '../orchestrator/TaskManager.js';
-import { PermissionService } from '../services/PermissionService.js';
-import { SelfModificationCommandService } from '../services/SelfModificationCommandService.js';
-import { RuntimeDiagnosticsService } from '../services/RuntimeDiagnosticsService.js';
-import {
-  RuntimeAccessReadinessService,
-  type RuntimeAccessReadinessReport,
-} from '../runtime/access/RuntimeAccessReadinessService.js';
 import type {
   ZavorthCliFlags,
   ZavorthCliRuntime,
@@ -28,265 +8,39 @@ import type {
   CliExecutionResult,
 } from './ZavorthCliContract.js';
 import {
-  RuntimeBootstrapService,
-  type RuntimeBootstrapReport,
-} from '../runtime/access/RuntimeBootstrapService.js';
-import {
-  RuntimeBootstrapRepairService,
-  type RuntimeBootstrapRepairReport,
-} from '../runtime/access/RuntimeBootstrapRepairService.js';
-import { ZavorthMemoryPlaneService } from '../services/ZavorthMemoryPlaneService.js';
-import {
-  ZavorthPlatformRegistryService,
-  type ZavorthPlatformRegistrySnapshot,
-  type ZavorthPlatformRegistryStatusSummarySnapshot,
-  type ZavorthPlatformRegistrySummarySnapshot,
-} from '../services/ZavorthPlatformRegistryService.js';
-import { ZavorthPlatformCatalogSyncService } from '../services/ZavorthPlatformCatalogSyncService.js';
-import {
-  ZavorthPackagePublisher,
-  type PublishResult as ZavorthPlatformPublishResult,
-} from '../platform/publish/ZavorthPackagePublisher.js';
-import { ZavorthHookPlaneService, type ZavorthHookPlaneSnapshot } from '../services/ZavorthHookPlaneService.js';
-import { ZavorthNodeMeshService } from '../services/ZavorthNodeMeshService.js';
-import { ZavorthGatewayLauncherService } from '../services/ZavorthGatewayLauncherService.js';
-import { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';
-import { GatewaySessionToolsService } from '../runtime/sessions/GatewaySessionToolsService.js';
-import {
-  OperationsActionService,
-  type OperationsActionExecution,
-} from '../services/OperationsActionService.js';
-import {
-  OperationsDashboardService,
-  OperationsCockpitService,
-  type OperationsDashboardSnapshot,
-  type OperationsCockpitSnapshot,
-} from '../services/OperationsDashboardService.js';
-import { OperationsHealthService } from '../observability/OperationsHealthService.js';
-import {
-  GatewayCompatibilityDoctorService,
-  type AIGatewayCompatibilityDoctorReport,
-} from '../services/GatewayCompatibilityDoctorService.js';
-import {
-  GatewayUpstreamSyncService,
-  type AIGatewayUpstreamSyncReport,
-} from '../services/GatewayUpstreamSyncService.js';
-import { CanonicalPublicApiService } from '../api/public/CanonicalPublicApiService.js';
-import { RuntimeCompositionService } from '../services/RuntimeCompositionService.js';
-import {
-  type CliContextSnapshot,
-  type CliDomainsSnapshot,
-  type CliHelpSnapshot,
-  type CliStatusSnapshot,
-  formatGatewaySnapshot,
-  formatLearningActionExecution,
-  formatLearningMetricsSnapshot,
-  formatLearningSnapshot,
-  formatLayeredMemoryProcedures,
-  formatLayeredMemorySearch,
-  formatLayeredMemoryStatus,
-  formatMemoryPlaneSnapshot,
-  formatPlatformSnapshot,
-  formatPlatformSyncResult,
-} from './ZavorthCliSurfaceHelpers.js';
-import {
   applyInlineCliFlags,
-  canonicalizeCliCommandInput,
-  createCliReplConversationFlags,
-  createCliReplSwitchConversationFlags,
-  createDefaultSessionId,
-  defaultWriter,
   executeCliLegacyUnifiedConversation,
   executeCliUniversalAgentRuntime,
   executeCliUniversalApprovalDecision,
   executeCliWorkflowQueueCommand,
   executeCliTaskDispatch,
-  extractCommandArgs,
-  formatCliNewConversationMessage,
-  formatCliReplPrompt,
-  formatCliSessionPlaneOutput,
-  formatCliSharedSurfaceProductOutput,
-  formatCliSwitchedConversationMessage,
-  isCliIo,
-  isCliNativeReadCommand,
-  isCliReplNewConversationCommand,
-  loadCliReplHistory,
-  normalizeCliCommandName,
-  normalizeCliInput,
-  parseCliReplSwitchConversationTarget,
-  persistCliReplHistory,
-  requiresCliTaskRuntime,
-  requiresNodeDoctorRuntime,
-  resolveCliRuntimeProfile,
-  withFilteredCliStartupLogs,
-} from './ZavorthCliFlowHelpers.js';
+  formatCliSharedSurfaceProductOutput} from './ZavorthCliFlowHelpers.js';
 import {
   buildCliContextSnapshot,
-  buildCliDomainsSnapshot,
   buildCliHelpSnapshot,
-  buildCliNodeMeshDoctorSnapshot,
-  buildCliOperationsDoctorSnapshot,
-  buildCliRuntimeAccessProbeInput,
-  buildCliStatusSnapshot,
-  formatAIGatewayDoctorReport,
-  formatAIGatewayGatewayStatus,
-  formatAIGatewaySyncReport,
   formatCliContextSnapshot,
-  formatCliDomainsSnapshot,
   formatCliHelp,
-  formatCliOperationsDoctorSnapshot,
-  formatCliOpsQualitySnapshot,
-  formatCliStatusSnapshot,
-  formatHookPlaneSnapshot,
-  formatNodeCapabilities,
-  formatNodeInvokeResult,
-  formatNodeMeshActivity,
-  formatNodeMeshDoctorSnapshot,
-  formatNodeMeshSnapshot,
-  formatNodePairingDraft,
-  formatNodeProfiles,
-  formatOperationsActionDefinitions,
-  formatOperationsActionExecution,
-  formatOperationsCockpitSnapshot,
-  formatOperatorBriefSnapshot,
-  formatPlatformActionExecution,
-  formatPlatformPublishResult,
-  formatSessionSendResult,
-  formatSessionSpawnResult,
-  formatToolSurfaceSnapshot,
-  parseCliNodeInvokeArgs,
-  parseCliNodePairArgs,
-  readCliBriefSnapshot,
-  readCliCockpitSnapshot,
-  readCliOpsQualitySnapshot,
-  resolveCliHelpTopic,
-  resolveNodeIntent,
-  withCliConsoleSuppressed,
-} from './ZavorthCliNativeRenderers.js';
-import { formatLayeredMemoryMetrics } from './ZavorthCliRenderers.js';
+  resolveCliHelpTopic} from './ZavorthCliNativeRenderers.js';
 import { formatZavorthSelfHealingProjection } from './ZavorthCliSelfHealingRenderer.js';
 import {
   buildCliRuntimeFromOverrides as buildCliRuntimeFromOverridesImpl,
-  buildSessionPlaneInput,
   parseZavorthCliArgs as parseZavorthCliArgsImpl,
   parseZavorthCliFlags as parseZavorthCliFlagsImpl,
-  parseCliSessionSendArgs,
-  resolveCliExecutionInput,
-  resolveOperationsIntent,
-  resolvePlatformIntent,
-  resolveSessionTargetRef,
-} from './ZavorthCliCommandHelpers.js';
+  resolveCliExecutionInput} from './ZavorthCliCommandHelpers.js';
 import { handleZavorthCliRegistryNodesCommand } from './ZavorthCliRegistryNodes.js';
 
-import { ZavorthLayeredMemoryService } from '../services/ZavorthLayeredMemoryService.js';
-import {
-  ZavorthLearningPlaneService,
-  type LearningPlaneActionExecution,
-  type LearningPlaneSnapshot,
-} from '../services/ZavorthLearningPlaneService.js';
 
-import {
-  ZavorthPlatformActionService,
-  type ZavorthPlatformActionExecution,
-} from '../services/ZavorthPlatformActionService.js';
 
-import { ZavorthPluginActionService } from '../services/ZavorthPluginActionService.js';
-import { ZavorthPluginRegistryService } from '../services/ZavorthPluginRegistryService.js';
-import { ZavorthToolSurfaceService } from '../services/ZavorthToolSurfaceService.js';
-import type { ZavorthToolSurfaceSnapshot } from '../services/ZavorthToolSurfaceService.js';
-import { ZavorthSessionPlaneService } from '../services/ZavorthSessionPlaneService.js';
-import type {
-  ZavorthSessionPlaneSnapshot,
-  ZavorthSessionPlaneStatusSummarySnapshot,
-} from '../services/ZavorthSessionPlaneService.js';
 
-import { NodeCapabilityService } from '../services/NodeCapabilityService.js';
-import { NodeDeviceProfileService } from '../services/NodeDeviceProfileService.js';
-import { NodeInvocationStoreService } from '../services/NodeInvocationStoreService.js';
-import { NodeInvokeService } from '../services/NodeInvokeService.js';
-import { NodePairingService } from '../services/NodePairingService.js';
-import {
-  AIGatewayProxyService,
-  type AIGatewayProxyStatus,
-} from '../services/AIGatewayProxyService.js';
 
-import { ZavorthSessionToolsService } from '../runtime/sessions/ZavorthSessionToolsService.js';
-import type { DomainRegistrySnapshot, DomainRegistrySummarySnapshot } from '../domain/DomainRegistry.js';
-import { NodeRegistryService } from '../services/NodeRegistryService.js';
-import { ZavorthGatewayService, type ZavorthGatewaySnapshot } from '../services/ZavorthGatewayService.js';
-import { GatewayChannelRegistryService } from '../services/GatewayChannelRegistryService.js';
-import {
-  DiscordRuntimeChannelAdapter,
-  EmailRuntimeChannelAdapter,
-  IMessageRuntimeChannelAdapter,
-  SignalRuntimeChannelAdapter,
-  SlackRuntimeChannelAdapter,
-  TeamsRuntimeChannelAdapter,
-  WhatsAppRuntimeChannelAdapter,
-} from '../services/GatewayRuntimeChannelAdapters.js';
 
-import { GatewaySessionService } from '../runtime/sessions/GatewaySessionService.js';
-import {
-  GatewaySessionStoreService,
-  type GatewaySessionSpawnSnapshot,
-} from '../runtime/sessions/GatewaySessionStoreService.js';
 
-import { MemoryService } from '../services/MemoryService.js';
 import { handleZavorthCliRegistryKanbanCommand } from './ZavorthCliRegistryKanban.js';
-import {
-  AutoRepairService,
-  type AutoRepairReport,
-  type AutoRepairRunResult,
-} from '../services/AutoRepairService.js';
+
 
 import {
-  OperatorBriefService,
-  type OperatorBriefSnapshot,
-} from '../observability/OperatorBriefService.js';
+  createInternalSurfaceCommandApi} from '../api/internal/InternalSurfaceApiCompat.js';
 
-import {
-  createInternalSurfaceCommandApi,
-  type SurfaceCommandBoundary,
-} from '../api/internal/InternalSurfaceApiCompat.js';
-import type { OpsQualityDTO } from '../contracts/public/rest/platform-ops-dto.js';
-import type { SurfaceTaskDispatcherLike } from '../services/SurfaceRuntime.js';
-import { SurfaceTaskDispatchService } from '../services/SurfaceTaskDispatchService.js';
-import {
-  SupervisedRuntimeService,
-  type SupervisedRuntimeInspection,
-  type SupervisedReloadRequestResult,
-} from '../services/SupervisedRuntimeService.js';
-
-import { WorkspaceExtensionRegistryService } from '../services/WorkspaceExtensionRegistryService.js';
-import { WorkspaceOperationalMemoryService } from '../runtime/context/WorkspaceOperationalMemoryService.js';
-import { TrustedBoundary } from '../security/TrustedBoundary.js';
-import { ExecutionGateway } from '../execution/ExecutionGateway.js';
-import { LocalExecutor } from '../execution/LocalExecutor.js';
-import { CodexExecutor } from '../execution/CodexExecutor.js';
-import { StitchExecutor } from '../execution/StitchExecutor.js';
-import { AiStudioExecutor } from '../execution/AiStudioExecutor.js';
-import { HostIdentityService } from '../services/HostIdentityService.js';
-import { BridgeManager } from '../orchestrator/BridgeManager.js';
-import { VideoHandler } from '../gateways/channels/telegram/VideoHandler.js';
-import { TelegramConversationController } from '../gateways/channels/telegram/controllers/TelegramConversationController.js';
-import { TelegramExecutionController } from '../gateways/channels/telegram/controllers/TelegramExecutionController.js';
-import { TelegramPermissionController } from '../gateways/channels/telegram/controllers/TelegramPermissionController.js';
-import { TelegramPipelineController } from '../gateways/channels/telegram/controllers/TelegramPipelineController.js';
-import { TelegramTaskOrchestrationController } from '../gateways/channels/telegram/controllers/TelegramTaskOrchestrationController.js';
-import { CommandParser } from '../gateways/channels/telegram/CommandParser.js';
-import { AuditLogger } from '../monitoring/AuditLogger.js';
-import { MultiAgentPipeline } from '../runtime/workflows/MultiAgentPipeline.js';
-import { OperatorModeService } from '../services/OperatorModeService.js';
-import { PresentationModeService } from '../services/PresentationModeService.js';
-import { WorkspaceProfileService } from '../services/WorkspaceProfileService.js';
-import { extractTaskPayload, getDefaultWorkspace, persistTask } from '../gateways/channels/telegram/TelegramTaskSupport.js';
-import {
-  formatAutoRepairRunResult as renderAutoRepairRunResult,
-  formatRuntimeAccessReadinessReport as renderRuntimeAccessReadinessReport,
-  formatRuntimeBootstrapRepairReport as renderRuntimeBootstrapRepairReport,
-  formatRuntimeBootstrapReport as renderRuntimeBootstrapReport,
-  formatSupervisedReloadResult as renderSupervisedReloadResult,
-} from './ZavorthCliOpsFormatting.js';
 
 import { formatCliChatAssistantMessage } from './ZavorthCliChatRenderers.js';
 import {
@@ -298,9 +52,7 @@ import { ZavorthSelfHealingUxService } from '../services/ZavorthSelfHealingUxSer
 import { ZavorthSmartCommandSurfaceService } from '../services/ZavorthSmartCommandSurfaceService.js';
 import {
   formatCliChatReplyEventCard,
-  formatCliRecoverableErrorEventCard,
-  formatCliSuccessEventCard,
-} from './ZavorthCliEventCards.js';
+  formatCliSuccessEventCard} from './ZavorthCliEventCards.js';
 
 import { handleZavorthCliRegistryOpsCommand } from './ZavorthCliRegistryOps.js';
 import { handleZavorthCliRegistryPlatformCommand } from './ZavorthCliRegistryPlatform.js';
@@ -571,6 +323,7 @@ async function executeZavorthCliCommandInner(params: {
 
   if (commandName === 'setup' || commandName === 'init') {
     // Static import path: dynamic import() fails under Jest without --experimental-vm-modules.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { runZavorthSetupStudioCommand } = require('./setup-studio/ZavorthSetupStudioCommand.js') as typeof import('./setup-studio/ZavorthSetupStudioCommand.js');
     const result = await runZavorthSetupStudioCommand({
       projectRoot: process.cwd(),

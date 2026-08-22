@@ -373,7 +373,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
       .map((entry: RuntimeStabilityDynamic) => ({
         nodeId: this.text(entry?.id, 'node'),
         label: this.text(entry?.label, entry?.id || 'node'),
-        kind: Boolean(entry?.lifecycle?.pairingDraftStale)
+        kind: entry?.lifecycle?.pairingDraftStale
           ? 'expired-pairing-draft'
           : 'stale-queue-debt',
         recoverable: true,

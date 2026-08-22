@@ -5,7 +5,7 @@ class TestableMqttPublisher extends MQTTPublisher {
     super();
   }
 
-  protected loadMqttModule(): any {
+  protected loadMqttModule(): { connect: jest.Mock } {
     return this.mqttModule;
   }
 }
@@ -17,7 +17,7 @@ describe('MQTTPublisher', () => {
 
   it('returns canonical lifecycle, artifact, policy, and correlation metadata on successful local publish', async () => {
     const mockClient = {
-      on: jest.fn((event: string, handler: (...args: any[]) => void) => {
+      on: jest.fn((event: string, handler: (...args: unknown[]) => void) => {
         if (event === 'connect') {
           setImmediate(() => handler());
         }

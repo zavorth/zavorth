@@ -18,6 +18,67 @@ import type {
   TokenUsage,
 } from '../LLMAdapterContract.js';
 
+interface OpenAIChatCompletionResponse {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: Array<{
+    index: number;
+    message: {
+      role: string;
+      content: string | null;
+      reasoning_content?: string;
+      thought?: string;
+      tool_calls?: Array<{
+        id: string;
+        type: 'function';
+        function: {
+          name: string;
+          arguments: string;
+        };
+      }>;
+    };
+    finish_reason: string | null;
+  }>;
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+    completion_tokens_details?: { reasoning_tokens: number };
+    prompt_tokens_details?: { cached_tokens: number };
+  };
+}
+
+interface OpenAIStreamChunk {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: Array<{
+    index: number;
+    delta: {
+      content?: string;
+      reasoning_content?: string;
+      thought?: string;
+      tool_calls?: Array<{
+        index: number;
+        id?: string;
+        function?: {
+          name?: string;
+          arguments?: string;
+        };
+      }>;
+    };
+    finish_reason: string | null;
+  }>;
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+}
+
 export interface OpenAICompatibleAdapterConfig {
   id?: string;
   name?: string;
@@ -82,13 +143,16 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
         throw new Error(`HTTP ${response.status} from ${this.name}: ${errorText}`);
       }
 
-      const data = (await response.json()) as Record<string, any>;
-      const choice = data.choices?.[0] || {};
-      const message = choice.message || {};
+      const data = (await response.json()) as OpenAIChatCompletionResponse;
+      const choice = data.choices?.[0] ?? {
+        message: { content: '', role: 'assistant', reasoning_content: undefined, thought: undefined, tool_calls: undefined },
+        finish_reason: 'stop' as const,
+      };
+      const message = choice.message;
 
       let content = message.content || '';
       const reasoningContent = message.reasoning_content || message.thought || undefined;
-      let toolCalls: ToolCall[] = (message.tool_calls || []).map((tc: any) => ({
+      let toolCalls: ToolCall[] = (message.tool_calls || []).map((tc) => ({
         id: tc.id || `call_${Date.now()}`,
         type: 'function',
         function: {
@@ -134,7 +198,7 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
         content,
         reasoningContent,
         toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
-        finishReason: choice.finish_reason || 'stop',
+        finishReason: (choice.finish_reason as 'stop' | 'length' | 'tool_calls' | 'content_filter' | 'error') || 'stop',
         usage,
         model,
         provider: this.name,
@@ -197,7 +261,7 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
 
           if (trimmed.startsWith('data: ')) {
             try {
-              const json = JSON.parse(trimmed.slice(6));
+              const json = JSON.parse(trimmed.slice(6)) as OpenAIStreamChunk;
               const choice = json.choices?.[0];
               if (!choice) continue;
 
@@ -205,11 +269,11 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
               const chunk: StreamChunk = {
                 deltaText: delta.content || '',
                 deltaReasoning: delta.reasoning_content || delta.thought || undefined,
-                finishReason: choice.finish_reason || undefined,
+                finishReason: choice.finish_reason as 'stop' | 'length' | 'tool_calls' | 'content_filter' | null | undefined,
               };
 
               if (delta.tool_calls) {
-                chunk.toolCallDeltas = delta.tool_calls.map((tc: any) => ({
+                chunk.toolCallDeltas = delta.tool_calls.map((tc) => ({
                   index: tc.index || 0,
                   id: tc.id,
                   name: tc.function?.name,

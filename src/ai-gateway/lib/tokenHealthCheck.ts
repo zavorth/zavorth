@@ -134,7 +134,7 @@ export function clearHealthCheckLogCache() {
 // ── Singleton guard (globalThis survives HMR re-evaluation) ─────────────────
 
 declare global {
-  var __ZavorthGatewayTokenHC:
+  let __ZavorthGatewayTokenHC:
     | { initialized: boolean; interval: ReturnType<typeof setInterval> | null }
     | undefined;
 }

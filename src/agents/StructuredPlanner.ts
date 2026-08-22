@@ -143,7 +143,7 @@ export class StructuredPlanner {
 
   private toPlan(
     task: Task,
-    cleaned: Record<string, any>,
+    cleaned: Record<string, unknown>,
     trace: PlannerDecisionTrace,
     providerUsed: string,
   ): Plan {
@@ -183,7 +183,7 @@ export class StructuredPlanner {
     ]);
   }
 
-  private extractJson(text: string): Record<string, any> | null {
+  private extractJson(text: string): Record<string, unknown> | null {
     try {
       const cleanText = text.replace(/```json/gi, '').replace(/```/g, '').trim();
       const match = cleanText.match(/\{[\s\S]*\}/);
@@ -191,7 +191,10 @@ export class StructuredPlanner {
         return JSON.parse(match[0]);
       }
       return JSON.parse(cleanText);
-    } catch (error: unknown) {logger.warn('[Structured Planner] JSON parse failed', error); return null; }
+    } catch (error: unknown) {
+      logger.warn('[Structured Planner] JSON parse failed', error);
+      return null;
+    }
   }
 
   private isProviderAvailable(name: string): boolean {

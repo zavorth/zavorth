@@ -1,11 +1,3 @@
-import * as http from 'http';
-import fs from 'fs';
-import path from 'path';
-import { timingSafeEqual } from 'node:crypto';
-import { GATEWAY_SESSION_ROUTE_PATHS } from '../../../../contracts/GatewayContract.js';
-import type { HybridMemoryRecallInput, HybridMemoryRecallResult, HybridMemorySourcesResult } from '../../../../contracts/HybridMemoryContract.js';
-import { config } from '../../../../config/index.js';
-
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
 import { defaultLlmRuntimeTelemetryService } from '../../../../services/llm/LlmRuntimeTelemetryService.js';
 import { ZavorthActiveMissionUxService } from '../../../../services/ZavorthActiveMissionUxService.js';
@@ -16,20 +8,8 @@ import { ZavorthProviderModelCatalogService } from '../../../../services/Zavorth
 import { ZavorthProviderPreferencePersistenceService } from '../../../../services/ZavorthProviderPreferencePersistenceService.js';
 import { ZavorthProviderSelectionUxService } from '../../../../services/ZavorthProviderSelectionUxService.js';
 import { ZavorthSensitiveActionFlowUxService } from '../../../../services/ZavorthSensitiveActionFlowUxService.js';
-import { ZavorthRuntimeReadinessService } from '../../../../services/ZavorthRuntimeReadinessService.js';
-import { ZavorthRuntimeGuidedFixesService } from '../../../../services/ZavorthRuntimeGuidedFixesService.js';
-import { ZavorthRuntimeReadinessUxService } from '../../../../services/ZavorthRuntimeReadinessUxService.js';
-import { ZavorthReadyToGoService } from '../../../../services/ZavorthReadyToGoService.js';
-import { ZavorthStayOnlineService } from '../../../../services/ZavorthStayOnlineService.js';
-import { ZavorthExternalAgentOnboardingService } from '../../../../services/ZavorthExternalAgentOnboardingService.js';
-import { ZavorthExternalAgentGatewayService } from '../../../../services/ZavorthExternalAgentGatewayService.js';
-import { ZavorthCapabilityMeshService } from '../../../../services/ZavorthCapabilityMeshService.js';
 import { ZavorthVisualReceiptUxService } from '../../../../services/ZavorthVisualReceiptUxService.js';
 import { ZavorthControlContractAdapterService } from '../../../../services/ZavorthControlContractAdapterService.js';
-import { ZavorthDailyUseGuiCertificationService } from '../../../../services/ZavorthDailyUseGuiCertificationService.js';
-import type { ZavorthSensitiveActionFlowDecision } from '../../../../contracts/ZavorthSensitiveActionFlowContract.js';
-import { logger } from '../../../../logger';
-import type { ZavorthExternalAgentAdapterKind, ZavorthExternalAgentIsolationKind, ZavorthExternalAgentNetworkMode } from '../../../../contracts/ZavorthExternalAgentGatewayContract.js';
 type RuntimeRecord = Record<string, unknown>;
 type WebSessionContext = RuntimeRecord & {
   userId: string;
@@ -45,18 +25,11 @@ type UiSurfaceHintsInput = {
   cliReady: boolean;
 };
 
-const AGENT_RUN_STATUS_VALUES = new Set(['idle', 'queued', 'thinking', 'running', 'waiting_approval', 'completed', 'failed', 'cancelled']);
-
-const EXTERNAL_AGENT_ADAPTERS = new Set<ZavorthExternalAgentAdapterKind>(['cli', 'http', 'acp', 'mcp']);
-const EXTERNAL_AGENT_PROMPT_MODES = new Set(['stdin', 'arg', 'json']);
-const EXTERNAL_AGENT_ISOLATION_KINDS = new Set<ZavorthExternalAgentIsolationKind | 'local'>(['local', 'local-supervised', 'wsl', 'docker']);
-const EXTERNAL_AGENT_NETWORK_MODES = new Set<ZavorthExternalAgentNetworkMode>(['disabled', 'local-only', 'profile']);
-
 export type WebAppRuntimeStateRouteHelpers = {
   buildSessionContext: (sessionId: string) => WebSessionContext;
   isFullDetailRequested: (url: URL) => boolean;
-  previewGatewayMemoryRecall: (input: HybridMemoryRecallInput) => Promise<HybridMemoryRecallResult>;
-  listGatewayMemorySources: (input: Pick<HybridMemoryRecallInput, 'sessionId' | 'chatId' | 'userId' | 'platform' | 'workspaceHint'>) => Promise<HybridMemorySourcesResult>;
+  previewGatewayMemoryRecall: (input: any) => Promise<any>;
+  listGatewayMemorySources: (input: any) => Promise<any>;
   buildRecallQueryFromSnapshot: (snapshot: RuntimeRecord | null | undefined) => string;
   buildLightweightStateResponse: (state: RuntimeRecord) => RuntimeRecord;
   buildProductMode: () => RuntimeRecord | null;

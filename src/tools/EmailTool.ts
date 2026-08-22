@@ -235,6 +235,7 @@ export class EmailTool extends BaseTool {
   }
 
   private encodeHeader(value: string): string {
+  // eslint-disable-next-line no-control-regex
     return /^[\x00-\x7F]*$/u.test(value)
       ? value
       : `=...UTF-8...B...${Buffer.from(value, 'utf8').toString('base64')}...=`;

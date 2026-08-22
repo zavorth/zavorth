@@ -88,6 +88,7 @@ export class ZavorthTransactionRuntimeOrchestratorService {
       });
     }
 
+    // eslint-disable-next-line prefer-const
     previewEntry = this.approvalLedger.recordPreview(preview, 'system');
     phaseReceipts.push({
       phase: 'approval-ledger',

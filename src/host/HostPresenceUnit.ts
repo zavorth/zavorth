@@ -563,6 +563,7 @@ export class HostPresenceUnit {
     try {
       // Lazy require keeps unit tests free of sqlite when path absent
       // eslint-disable-next-line @typescript-eslint/no-require-imports
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { ZavorthOperationalStateDbService } = require('../services/ZavorthOperationalStateDbService.js') as {
         ZavorthOperationalStateDbService: new (opts: { dbPath: string; now?: () => Date }) => {
           getMeta: <T = unknown>(key: string) => T | null;
@@ -896,6 +897,7 @@ function resolveGatewayBaseUrl(env: NodeJS.ProcessEnv): string {
 function defaultResolveBinary(projectRoot: string, env: NodeJS.ProcessEnv): string | null {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const launch = require(path.join(projectRoot, 'bin', 'lib', 'launch-code-tui.cjs')) as {
       resolveCompiledCodeBinary?: (root: string, env: NodeJS.ProcessEnv) => string | null;
     };

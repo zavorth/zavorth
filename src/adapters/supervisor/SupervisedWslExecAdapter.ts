@@ -175,6 +175,7 @@ export class SupervisedWslExecAdapter implements SystemOverlordRuntimeAdapter {
   }
 
   private parseDistributions(stdout: string): string[] {
+  // eslint-disable-next-line no-control-regex
     const normalized = String(stdout || '').replace(/\u0000/g, '');
     return normalized
       .split(/\r?\n/)

@@ -68,7 +68,7 @@ export async function probeChannelConnection(channelId: string): Promise<any> {
       connectionCache.set(key, res);
       return res;
     }
-    let detail = result.detail ? String(result.detail).replace(/\n/g, ' ').slice(0, 500) : null;
+    const detail = result.detail ? String(result.detail).replace(/\n/g, ' ').slice(0, 500) : null;
     const res = { channelId: key, state: result.state, latencyMs: result.latencyMs, detail, certified: false };
     connectionCache.set(key, res);
     return res;

@@ -124,7 +124,7 @@ export class EchoOutputStageService {
     }
 
     // Preference path: conversation + tts.enabled (or explicit voice request with TTS configured)
-    let usePreferenceTts = preferenceTts.ok && wantsPreferenceTts;
+    const usePreferenceTts = preferenceTts.ok && wantsPreferenceTts;
 
     // Legacy Echo path only when preference TTS is not driving the reply
     if (!usePreferenceTts) {

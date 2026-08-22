@@ -283,8 +283,7 @@ export class ZavorthAutonomousLearningWriteService {
           fs.rmSync(resolved, { recursive: true, force: true });
           return { ok: true, summary: `Draft removido: ${dir.name}`, removedId: meta.candidateId || dir.name };
         }
-      } catch {
-      }
+      } catch { /* best-effort removal */ }
     }
     return { ok: false, summary: `Draft not found: ${target}`, removedId: null };
   }

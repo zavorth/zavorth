@@ -221,6 +221,7 @@ export class ZavorthBridgeWindowAutomator {
   public captureWindow(outputPath: string, processId = 0): Promise<boolean> {
     return new Promise((resolve) => {
       const powershellPath = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe';
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const scriptPath = require('path').join(process.cwd(), 'scripts', 'zavorth-bridge-window-capture.ps1');
       const args = [
         '-ExecutionPolicy', 'Bypass',

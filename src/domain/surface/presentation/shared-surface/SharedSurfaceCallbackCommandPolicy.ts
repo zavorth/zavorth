@@ -3,6 +3,7 @@ const CALLBACK_MAX_LENGTH = 100;
 const SAFE_ARG_TOKEN_PATTERN = /^[a-z0-9][a-z0-9._:-]{0,63}$/i;
 const SAFE_MODEL_TOKEN_PATTERN = /^[a-z0-9][a-z0-9._:/-]{0,79}$/i;
 const UNSAFE_CALLBACK_CHAR_PATTERN = /[;&|`$<>\\]/;
+  // eslint-disable-next-line no-control-regex
 const CONTROL_CHAR_PATTERN = /[\u0000-\u001f\u007f]/;
 
 const SAFE_NO_ARG_COMMANDS = new Set([

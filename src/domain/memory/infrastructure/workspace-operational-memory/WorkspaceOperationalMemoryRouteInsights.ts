@@ -191,7 +191,7 @@ function hydrateWorkflowRecoverySignals(
       continue;
     }
 
-    const recoveredCount = Boolean(run.recovered_from_interruption) ? 1 : 0;
+    const recoveredCount = run.recovered_from_interruption ? 1 : 0;
     const recoverySuccessCount =
       recoveredCount > 0 && String(run.status || '').trim().toLowerCase() === 'completed' ? 1 : 0;
     const recoveryArtifactfulCount =
@@ -312,7 +312,7 @@ export function buildRouteOutcomes(
     existing.rejected_count += explicitRejectedCount;
     existing.high_risk_count += Math.max(
       Number(outcome.high_risk_count || 0),
-      Boolean(outcome.requires_high_risk_pin) ? 1 : 0,
+      outcome.requires_high_risk_pin ? 1 : 0,
     );
     if ((Array.isArray(task.artifacts) ? task.artifacts.length : 0) > 0) {
       existing.artifactful_count += 1;

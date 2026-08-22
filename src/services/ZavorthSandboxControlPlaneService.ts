@@ -160,7 +160,7 @@ export class ZavorthSandboxControlPlaneService {
       availableProfiles: profiles.filter((entry) => entry.canRun).length,
       strongProfilesReady,
       untrustedExecutionReady: strongProfilesReady > 0,
-      heavyRuntimesStarted: false as false,
+      heavyRuntimesStarted: false as const,
       doctorStatus: this.resolveDoctorStatus(profiles),
     };
     const doctor = this.buildDoctor(profiles);

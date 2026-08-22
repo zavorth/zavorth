@@ -4,6 +4,8 @@ import type { IExecutor } from '../../../src/contracts/IExecutor';
 import type { Plan } from '../../../src/contracts/PlanContract';
 import type { Task } from '../../../src/contracts/TaskContract';
 import { OperationalMode } from '../../../src/security/OperationalMode';
+import type { LogRepository } from '../../../src/storage/LogRepository';
+import type { TelemetryRuntimeService } from '../../../src/services/telemetry/TelemetryRuntimeService';
 
 class TelemetryExecutor implements IExecutor {
   public readonly name = 'stub';
@@ -94,9 +96,9 @@ describe('ExecutionGateway telemetry', () => {
   it('records start and completion events for successful executions', async () => {
     const telemetryRuntime = {
       record: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as TelemetryRuntimeService;
     const gateway = new ExecutionGateway(
-      { log: jest.fn() } as any,
+      { log: jest.fn() } as unknown as LogRepository,
       OperationalMode.BUILD,
       undefined,
       telemetryRuntime,

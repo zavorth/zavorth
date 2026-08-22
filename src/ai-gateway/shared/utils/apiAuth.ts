@@ -66,7 +66,7 @@ export async function verifyAuth(request: any): Promise<string | null> {
       if (payload.authenticated === true) {
         return null; // ✔ Authenticated via cookie
       }
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
       // Invalid/expired token — fall through to API key check
       logger.warn('[api Auth] encoding failed', error);
     }
@@ -81,7 +81,7 @@ export async function verifyAuth(request: any): Promise<string | null> {
       const { validateApiKey } = await import("@/lib/db/apiKeys");
       const isValid = await validateApiKey(apiKey);
       if (isValid) return null; // ✔ Authenticated via API key
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
       // DB not ready or import error — deny access
       logger.warn('[api Auth] lifecycle operation failed', error);
     }
@@ -125,7 +125,7 @@ export async function isStrictlyAuthenticated(request: Request): Promise<boolean
     try {
       const { validateApiKey } = await import("@/lib/db/apiKeys");
       if (await validateApiKey(apiKey)) return true;
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
       // DB not ready or import error
       logger.warn('[api Auth] lifecycle operation failed', error);
     }
@@ -143,7 +143,7 @@ export async function isStrictlyAuthenticated(request: Request): Promise<boolean
           return true;
         }
       }
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
       // Invalid/expired token or cookies not available
       logger.warn('[api Auth] encoding failed', error);
     }
@@ -192,7 +192,7 @@ export async function isAuthRequired(): Promise<boolean> {
     // reset-password CLI tool (bin/reset-password.mjs).
     if (!settings.password && !process.env.INITIAL_PASSWORD) return false;
     return true;
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) { const err = asErrorLike(error);
     // On error, require auth (secure by default)
     // Log the error so failures (e.g., SQLITE_BUSY) aren't silent 401s
     console.error(

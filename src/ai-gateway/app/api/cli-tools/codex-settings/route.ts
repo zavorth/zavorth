@@ -65,7 +65,7 @@ const parseToml = (content: string) => {
 
 // Convert parsed object back to TOML string
 const toToml = (parsed: Record<string, any>) => {
-  let lines: string[] = [];
+  const lines: string[] = [];
 
   // Root level keys
   Object.entries(parsed._root).forEach(([key, value]) => {

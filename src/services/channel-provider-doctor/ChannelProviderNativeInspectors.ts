@@ -2,7 +2,7 @@
 import { config } from '../../config/index.js';
 import type { ChannelProviderDoctorItem } from '../ChannelProviderDoctorService.js';
 import { logger } from '../../logger.js';
-import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
+import { errorMessage } from '../../utils/errorLike.js';
 type ChannelCapabilityLifecycleHint = {
   dormant: boolean;
   notes: string | null;
@@ -89,7 +89,7 @@ export async function inspectTelegramChannel(
       ],
     };
   } catch (error: unknown) {
- const err = asErrorLike(error); logger.warn('[Channel  Native Inspectors] load operation failed', error);
+    logger.warn('[Channel  Native Inspectors] load operation failed', error);
     return {
       channelId: 'telegram',
       mode: 'native',
@@ -237,7 +237,7 @@ export async function inspectDiscordChannel(deps: NativeInspectorDeps): Promise<
       ],
     };
   } catch (error: unknown) {
- const err = asErrorLike(error); logger.warn('[Channel  Native Inspectors] load operation failed', error);
+    logger.warn('[Channel  Native Inspectors] load operation failed', error);
     return {
       channelId: 'discord',
       mode,
@@ -429,7 +429,7 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
       ],
     };
   } catch (error: unknown) {
- const err = asErrorLike(error); logger.warn('[Channel  Native Inspectors] validation failed', error);
+    logger.warn('[Channel  Native Inspectors] validation failed', error);
     return {
       channelId: 'slack',
       mode,
@@ -712,7 +712,7 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       ],
     };
   } catch (error: unknown) {
- const err = asErrorLike(error); logger.warn('[Channel  Native Inspectors] validation failed', error);
+    logger.warn('[Channel  Native Inspectors] validation failed', error);
     return {
       channelId: 'whatsapp',
       mode,

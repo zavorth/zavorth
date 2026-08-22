@@ -46,7 +46,7 @@ let filterColumnEnsured = false;
  */
 export function ensureWebhooksFilterColumn(db = getDbInstance()): boolean {
   if (filterColumnEnsured) return true;
-  const ok = ensureWebhooksFilterColumnOn(db as any);
+  const ok = ensureWebhooksFilterColumnOn(db);
   if (ok) filterColumnEnsured = true;
   return ok;
 }
@@ -134,7 +134,7 @@ export function updateWebhook(
   if (!existing) return null;
 
   const fields: string[] = [];
-  const values: any[] = [];
+  const values: (string | number | null)[] = [];
 
   if (data.url !== undefined) {
     fields.push("url = ...");
@@ -172,7 +172,7 @@ export function updateWebhook(
 export function deleteWebhook(id: string): boolean {
   const db = getDbInstance();
   const result = db.prepare("DELETE FROM webhooks WHERE id = ...").run(id);
-  return (result as any).changes > 0;
+  return result.changes > 0;
 }
 
 export function recordWebhookDelivery(id: string, status: number, success: boolean): void {
@@ -193,5 +193,5 @@ export function disableWebhooksWithHighFailures(threshold = 10): number {
   const result = db
     .prepare(`UPDATE webhooks SET enabled = 0 WHERE failure_count >= ? AND enabled = 1`)
     .run(threshold);
-  return (result as any).changes;
+  return result.changes;
 }

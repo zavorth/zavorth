@@ -18,7 +18,6 @@ import {
 } from "./coreSchemaBootstrap";
 import type { CheckpointMode, SqliteDatabase } from "./coreTypes";
 import { logger } from '@/shared/utils/logger';
-import { asErrorLike } from '../../../../utils/errorLike';
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -57,7 +56,7 @@ function prepareExistingSqliteFile(sqliteFile: string): void {
         | { c: number }
         | undefined;
       hasData = Boolean(count && count.c > 0);
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
     logger.warn('[core Runtime] resource cleanup failed', error);
     hasData = false;
   }
@@ -69,7 +68,7 @@ function prepareExistingSqliteFile(sqliteFile: string): void {
       try {
         fixDb.exec("DROP TABLE IF EXISTS schema_migrations");
         fixDb.pragma("wal_checkpoint(TRUNCATE)");
-      } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+      } catch (error: unknown) {
         console.warn("[DB] Could not clean up old schema table:", getErrorMessage(error));
       } finally {
         fixDb.close();
@@ -87,16 +86,16 @@ function prepareExistingSqliteFile(sqliteFile: string): void {
         if (fs.existsSync(sqliteFile + ext)) {
           fs.unlinkSync(sqliteFile + ext);
         }
-      } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+      } catch (error: unknown) {
       // Ignore stale sidecar cleanup failures.
       logger.warn('[core Runtime] file cleanup failed', error);
     }
     }
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) {
     console.warn("[DB] Could not probe existing DB, will create fresh:", getErrorMessage(error));
     try {
       fs.unlinkSync(sqliteFile);
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
       // Ignore best-effort cleanup failures.
       logger.warn('[core Runtime] file cleanup failed', error);
     }

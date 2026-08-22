@@ -311,7 +311,7 @@ export function cleanupExpiredLogs() {
   const BATCH_SIZE = 5000;
   if (callLogsMaxRows > 0) {
     try {
-      let currentCount = db.prepare("SELECT COUNT(*) as cnt FROM call_logs").get() as {
+      const currentCount = db.prepare("SELECT COUNT(*) as cnt FROM call_logs").get() as {
         cnt: number;
       };
       while (currentCount.cnt > callLogsMaxRows) {
@@ -331,7 +331,7 @@ export function cleanupExpiredLogs() {
 
   if (proxyLogsMaxRows > 0) {
     try {
-      let currentProxyCount = db.prepare("SELECT COUNT(*) as cnt FROM proxy_logs").get() as {
+      const currentProxyCount = db.prepare("SELECT COUNT(*) as cnt FROM proxy_logs").get() as {
         cnt: number;
       };
       while (currentProxyCount.cnt > proxyLogsMaxRows) {

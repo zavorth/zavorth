@@ -29,7 +29,7 @@ export interface EvalRunResult {
   total: number;
   passed: number;
   failed: number;
-  results: any[];
+  results: Array<{ caseId: string; caseName: string; passed: boolean; durationMs: number; error?: string; details?: Record<string, unknown> }>;
 }
 
 // ── State ──
@@ -65,7 +65,7 @@ export function schedule(suiteId: string, intervalMs: number): ScheduledEval {
 
   // Clear existing timer if re-scheduling
   if (_timers.has(suiteId)) {
-    clearInterval(_timers.get(suiteId) as any);
+    clearInterval(_timers.get(suiteId)!);
   }
 
   const entry: ScheduledEval = {
@@ -97,7 +97,7 @@ export function schedule(suiteId: string, intervalMs: number): ScheduledEval {
 export function unschedule(suiteId: string): boolean {
   const timer = _timers.get(suiteId);
   if (timer) {
-    clearInterval(timer as any);
+    clearInterval(timer);
     _timers.delete(suiteId);
   }
   return _schedules.delete(suiteId);
@@ -112,7 +112,7 @@ export function pause(suiteId: string): boolean {
   entry.enabled = false;
   const timer = _timers.get(suiteId);
   if (timer) {
-    clearInterval(timer as any);
+    clearInterval(timer);
     _timers.delete(suiteId);
   }
   return true;
@@ -244,7 +244,7 @@ export function getScorecard(): ReturnType<typeof createScorecard> | null {
   if (_history.length === 0) return null;
 
   // Get latest run per suite
-  const latestBySuite = new Map<string, any>();
+  const latestBySuite = new Map<string, EvalRunResult>();
   for (const run of _history) {
     latestBySuite.set(run.suiteId, run);
   }
@@ -265,7 +265,7 @@ export function getScorecard(): ReturnType<typeof createScorecard> | null {
  */
 export function stopAll(): void {
   for (const timer of _timers.values()) {
-    clearInterval(timer as any);
+    clearInterval(timer);
   }
   _timers.clear();
   _schedules.clear();

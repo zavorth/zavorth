@@ -312,6 +312,7 @@ export class ExperienceSkillLearningMutationOperations extends ExperienceSkillLe
     keyPrefix: string;
   }): void {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { writeGovernedMemoryProvenance } = require('../AgentProvenanceMemoryBridge.js') as typeof import('../AgentProvenanceMemoryBridge.js');
       writeGovernedMemoryProvenance({
         userId: cleanUserId(input.userId),

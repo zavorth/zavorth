@@ -22,7 +22,7 @@ const SHUTDOWN_TIMEOUT_MS = safeParseInt(process.env.SHUTDOWN_TIMEOUT_MS, 30000)
 export const STARTUP_EPOCH = Date.now();
 
 declare global {
-  var __ZavorthGatewayShutdown:
+  let __ZavorthGatewayShutdown:
     | { init: boolean; shuttingDown: boolean; activeRequests: number }
     | undefined;
 }

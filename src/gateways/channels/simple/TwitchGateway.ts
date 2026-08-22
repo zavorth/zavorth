@@ -20,7 +20,7 @@ interface TwitchWebhookPayload {
 export class TwitchGateway extends WebhookGateway {
   public readonly id = 'twitch';
   public readonly name = 'Twitch';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'local-bridge';
 
   constructor(options: WebhookGatewayOptions) {

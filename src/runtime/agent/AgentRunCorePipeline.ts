@@ -108,6 +108,7 @@ export class AgentRunCorePipeline<TBaseline> {
     // Governed missions cannot end as completed without independent verification.
     if (String(run.status || '').toLowerCase() === 'completed') {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const { gateRunCompletionFromMetadata } = require('../../services/AgentMissionCompletionGate.js') as typeof import('../../services/AgentMissionCompletionGate.js');
         const gate = gateRunCompletionFromMetadata({
           runId: run.id,

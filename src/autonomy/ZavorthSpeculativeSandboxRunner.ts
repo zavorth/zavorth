@@ -1,5 +1,4 @@
 import { spawn } from 'node:child_process';
-import crypto from 'node:crypto';
 import path from 'node:path';
 import { config } from '../config/index.js';
 import { spawnCommand } from '../core/CommandSpawn.js';
@@ -17,39 +16,11 @@ import type {
 import { asErrorLike } from '../utils/errorLike.js';
 
 const MAX_VALIDATION_COMMANDS = 3;
-const MAX_AST_FILES = 80;
-const MAX_DIFF_CHARS = 100000;
 const MAX_STDIO_CHARS = 12000;
-const MAX_EDIT_BYTES = 1024 * 1024;
-
-const IGNORED_DIR_NAMES = new Set([
-  '.git',
-  'node_modules',
-  'dist',
-  'dist-ops',
-  'build',
-  'coverage',
-  '.next',
-  '.turbo',
-  '.cache',
-  '.tmp',
-  'tmp',
-]);
-
-const IGNORED_RELATIVE_PREFIXES = [
-  'data/runtime/',
-  'data\\runtime\\',
-];
-
-const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mts', '.cts'];
 
 function normalizeText(value: unknown, fallback = ''): string {
   const text = String(value ?? '').trim();
   return text || fallback;
-}
-
-function normalizePortablePath(value: string): string {
-  return value.replace(/\\/g, '/').replace(/\//g, '/');
 }
 
 function looksLikeSecret(value: string): boolean {
@@ -95,10 +66,6 @@ function redactValidationResult(result: ZavorthSpeculativeValidationResult): Zav
     stdout: redactSensitiveText(result.stdout),
     stderr: redactSensitiveText(result.stderr),
   };
-}
-
-function sha256(value: string): string {
-  return crypto.createHash('sha256').update(value, 'utf8').digest('hex');
 }
 
 function skippedValidation(reason: string): ZavorthSpeculativeValidationResult {

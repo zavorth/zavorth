@@ -1,6 +1,7 @@
 import { TemporaryDirectoryTrustService } from '../../src/services/TemporaryDirectoryTrustService';
 import { SecurityAuditLogger } from '../../src/services/SecurityAuditLogger';
 import { WorkspaceResolver } from '../../src/security/WorkspaceResolver';
+import type { LogRepository } from '../../src/storage/LogRepository';
 import os from 'os';
 import path from 'path';
 import fs from 'fs';
@@ -14,7 +15,7 @@ describe('TemporaryDirectoryTrustAdversarial', () => {
   const tempRootsCreated: string[] = [];
 
   beforeEach(() => {
-    mockAuditLogger = new SecurityAuditLogger({} as any) as jest.Mocked<SecurityAuditLogger>;
+    mockAuditLogger = new SecurityAuditLogger({} as unknown as LogRepository) as jest.Mocked<SecurityAuditLogger>;
     service = new TemporaryDirectoryTrustService(mockAuditLogger);
   });
 

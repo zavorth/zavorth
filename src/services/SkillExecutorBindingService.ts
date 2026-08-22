@@ -310,6 +310,7 @@ export function bindSkillDeclaredTools(
   if (options.useBindCache !== false && !options.registry) {
     try {
       const { getSkillHotPathCache, SkillHotPathCacheService } =
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         require('./SkillHotPathCacheService.js') as typeof import('./SkillHotPathCacheService.js');
       const cache = getSkillHotPathCache();
       if (cache.isEnabled()) {

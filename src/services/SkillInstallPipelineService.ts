@@ -55,6 +55,8 @@ export type {
   SkillInstallPreviewInput,
 } from './SkillInstallPipelineContracts.js';
 
+import { getSkillHotPathCache } from './SkillHotPathCacheService.js';
+
 const SECRET_NAME_RE = /\.(env|pem|key)$/i;
 const SECRET_CONTENT_HINT = /\b(api[_-]?key|secret|token|password)\s*[:=]/i;
 
@@ -99,8 +101,6 @@ export class SkillInstallPipelineService {
    */
   public preview(input: SkillInstallPreviewInput): SkillInstallPlan {
     try {
-      const { getSkillHotPathCache } =
-        require('./SkillHotPathCacheService.js') as typeof import('./SkillHotPathCacheService.js');
       getSkillHotPathCache().recordInstallPreview();
     } catch {
       /* soft */
@@ -172,8 +172,6 @@ export class SkillInstallPipelineService {
     const raw = String(input.source || '').trim();
     const plan = this.preview({ source: raw, skillId: input.skillId });
     try {
-      const { getSkillHotPathCache } =
-        require('./SkillHotPathCacheService.js') as typeof import('./SkillHotPathCacheService.js');
       getSkillHotPathCache().recordInstallApply();
     } catch {
       /* soft */
@@ -235,8 +233,6 @@ export class SkillInstallPipelineService {
     try {
       // digest short-circuit — skip re-fetch when same SkillIR already installed.
       try {
-        const { getSkillHotPathCache } =
-          require('./SkillHotPathCacheService.js') as typeof import('./SkillHotPathCacheService.js');
         const hot = getSkillHotPathCache();
         const digest = plan.skillIrDigest || null;
         if (digest) {
@@ -354,8 +350,6 @@ export class SkillInstallPipelineService {
       });
       this.persistReceipt(receipt);
       try {
-        const { getSkillHotPathCache } =
-          require('./SkillHotPathCacheService.js') as typeof import('./SkillHotPathCacheService.js');
         if (skillIrDigest && receipt.skillId) {
           getSkillHotPathCache().recordInstallDigest({
             skillId: String(receipt.skillId),
@@ -960,7 +954,7 @@ export class SkillInstallPipelineService {
       const file = path.join(this.receiptsDir, `${sanitizeFileId(receipt.id)}.json`);
       const body = JSON.stringify(receipt, null, 2);
       // Defense: never write obvious secret assignments
-      if (SECRET_CONTENT_HINT.test(body) && /=\s*['\"]?[A-Za-z0-9_\-]{16}/.test(body)) {
+      if (SECRET_CONTENT_HINT.test(body) && /=\s*['"]?[A-Za-z0-9_-]{16}/.test(body)) {
         const safe = { ...receipt, reason: 'redacted: secret-like content stripped from persist' };
         fs.writeFileSync(file, JSON.stringify(safe, null, 2), 'utf8');
         return;

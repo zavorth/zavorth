@@ -6,7 +6,7 @@ import { asErrorLike } from '../../../utils/errorLike.js';
 export class LineGateway extends WebhookGateway {
   public readonly id = 'line';
   public readonly name = 'LINE Messaging API';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'line';
 
   constructor(options: WebhookGatewayOptions) {

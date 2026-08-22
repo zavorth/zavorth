@@ -33,6 +33,7 @@ export function validateSelectionIds(input: {
   if (!providerId || providerId.length > 128) {
     return 'providerId is required and must be at most 128 characters';
   }
+  // eslint-disable-next-line no-control-regex
   if (/[\u0000-\u001f]/.test(providerId)) return 'providerId contains invalid control characters';
   if (!/^[a-z0-9][a-z0-9._-]*$/i.test(providerId)) {
     return 'providerId contains unsupported characters';
@@ -47,6 +48,7 @@ export function validateSelectionIds(input: {
     if (value == null || value === '') continue;
     if (typeof value !== 'string') return `${key} must be a string or null`;
     if (value.length > 256) return `${key} is too long`;
+  // eslint-disable-next-line no-control-regex
     if (/[\u0000-\u001f]/.test(value)) return `${key} contains invalid control characters`;
     if (key === 'channelId' && !/^[a-z0-9][a-z0-9._-]*$/i.test(value)) {
       return 'channelId contains unsupported characters';

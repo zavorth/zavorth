@@ -227,6 +227,7 @@ function detectPromptInjectionIndicatorsInternal(
 ): void {
   if (typeof value === 'string') {
     const text = value
+  // eslint-disable-next-line no-misleading-character-class
       .replace(/[\u200B\u200C\u200D\u2060\uFEFF\u00AD]/g, '')
       .replace(/\s+/g, ' ')
       .trim();

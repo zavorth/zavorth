@@ -87,11 +87,11 @@ describe('egress guard hardening', () => {
   });
 
   it('blocks webhook redirects to private network targets before following them', async () => {
-    const fetchSpy = jest.spyOn(global, 'fetch' as any).mockResolvedValueOnce(
+    const fetchSpy = jest.spyOn(global, 'fetch' as unknown as keyof typeof global).mockResolvedValueOnce(
       new Response(null, {
         status: 302,
         headers: { location: 'http://127.0.0.1:33333/internal' },
-      }) as any,
+      }) as unknown as Response,
     );
 
     const result = await deliverWebhook(

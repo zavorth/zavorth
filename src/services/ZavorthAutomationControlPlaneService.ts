@@ -201,7 +201,7 @@ export class ZavorthAutomationControlPlaneService {
       profile: summary.profile,
       creationMode,
       trustPlaneDomain: 'automation' as const,
-      schedulerStartsInCore: false as false,
+      schedulerStartsInCore: false as const,
       approvalRequiredFor: ['create', 'resume', 'maintenance-on', 'maintenance-run'],
     };
     const budgets = {

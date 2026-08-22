@@ -37,6 +37,14 @@ export {
   markAccountUnavailable,
 } from "./authAccountState";
 
+interface ConnectionWithRecency {
+  id?: string;
+  lastUsedAt?: string;
+  priority?: number;
+  consecutiveUseCount?: number;
+  backoffLevel?: number;
+}
+
 let selectionMutex = Promise.resolve();
 
 // Strict-Random shuffle deck moved to src/shared/utils/shuffleDeck.ts.
@@ -289,13 +297,7 @@ export async function getProviderCredentials(
       const isFallbackScenario = excludeConnectionId !== null;
 
       if (!isFallbackScenario) {
-        interface ConnectionWithRecency {
-  lastUsedAt?: string;
-  priority?: number;
-  consecutiveUseCount?: number;
-}
-
-const byRecency = [...orderedConnections].sort((a: ConnectionWithRecency, b: ConnectionWithRecency) => {
+        const byRecency = [...orderedConnections].sort((a: ConnectionWithRecency, b: ConnectionWithRecency) => {
           if (!a.lastUsedAt && !b.lastUsedAt) return (a.priority || 999) - (b.priority || 999);
           if (!a.lastUsedAt) return 1;
           if (!b.lastUsedAt) return -1;

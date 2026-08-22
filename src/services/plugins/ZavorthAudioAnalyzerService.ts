@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
-import { getBestProvider, getAvailableProviders, callAudioProvider, listProviders } from './MultimodalProviderSelector.js';
+import { getBestProvider, getAvailableProviders, callAudioProvider } from './MultimodalProviderSelector.js';
 import { logger } from '../../logger.js';
 import { asErrorLike } from '../../utils/errorLike.js';
 
@@ -96,11 +96,11 @@ export class ZavorthAudioAnalyzerService extends BaseTool {
     } catch (error: unknown) {logger.warn('[Zavorth Audio Analyzer] operation failed', error); return ''; }
   }
 
-  private async detectSpeakers(audioPath: string): Promise<string> {
+  private async detectSpeakers(_audioPath: string): Promise<string> {
     return 'Speaker diarization requires specialized models. Use Whisper with speaker detection.';
   }
 
-  private async analyzeSentiment(audioPath: string): Promise<string> {
+  private async analyzeSentiment(_audioPath: string): Promise<string> {
     return 'Audio sentiment analysis requires transcription first. Transcribe then analyze text sentiment.';
   }
 
@@ -121,7 +121,7 @@ export class ZavorthAudioAnalyzerService extends BaseTool {
     return lines.join('\n');
   }
 
-  private async detectGenre(audioPath: string): Promise<string> {
+  private async detectGenre(_audioPath: string): Promise<string> {
     return 'Music genre detection requires specialized ML models. Analyze audio characteristics first.';
   }
 

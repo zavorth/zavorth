@@ -7,7 +7,10 @@ jest.mock('../../../src/services/DeepSearchService', () => ({
 
 import { LocalExecutor } from '../../../src/execution/LocalExecutor';
 import { TelegramExecutionController } from '../../../src/telegram/controllers/TelegramExecutionController';
+import type { TelegramExecutionControllerDeps } from '../../../src/telegram/controllers/TelegramExecutionController';
 import type { Task } from '../../../src/contracts/TaskContract';
+import type { ExecutionResult } from '../../../src/contracts/runtime/ExecutionContract';
+import type { Context } from 'grammy';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -55,7 +58,7 @@ describe('TelegramExecutionController', () => {
     jest.restoreAllMocks();
   });
 
-  function createController(overrides: Record<string, any> = {}) {
+  function createController(overrides: Partial<TelegramExecutionControllerDeps> & { toolRuntime?: import('../../../src/services/tools/ToolRuntimeService').ToolRuntimeService } = {}) {
     const toolRuntime = overrides.toolRuntime;
     const deps = {
       taskManager: {
@@ -65,7 +68,7 @@ describe('TelegramExecutionController', () => {
       },
       logRepo: {
         log: jest.fn(),
-      } as any,
+      } as import('../../../src/storage/LogRepository').LogRepository,
       executionGateway: {
         getModeManager: jest.fn().mockReturnValue({
           getMode: jest.fn().mockReturnValue('BUILD'),
@@ -101,7 +104,7 @@ describe('TelegramExecutionController', () => {
         isEnabled: jest.fn().mockReturnValue(false),
       },
       ...overrides,
-    } as any;
+    } as unknown as TelegramExecutionControllerDeps;
 
     return {
       controller: new TelegramExecutionController(deps, toolRuntime),
@@ -112,7 +115,7 @@ describe('TelegramExecutionController', () => {
   it('executes dry-run tasks through the execution gateway and replies with output', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask();
     const { controller, deps } = createController();
 
@@ -135,7 +138,7 @@ describe('TelegramExecutionController', () => {
   it('captures and logs preparation failures when immediate execution throws', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask();
     const { controller, deps } = createController({
       executionGateway: {
@@ -170,7 +173,7 @@ describe('TelegramExecutionController', () => {
       reply: jest.fn()
         .mockRejectedValueOnce(new Error('reply transport failed'))
         .mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask();
     const { controller } = createController();
 
@@ -184,7 +187,7 @@ describe('TelegramExecutionController', () => {
   it('resumes execution and marks the task completed when successful', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({ status: 'running' });
     const { controller } = createController();
 
@@ -200,7 +203,7 @@ describe('TelegramExecutionController', () => {
   it('routes /ag through the direct ZavorthBridge path instead of the gateway', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/ag',
       raw_message: '/ag revise o repositorio atual',
@@ -217,7 +220,7 @@ describe('TelegramExecutionController', () => {
         tracking_file: 'tracking.json',
         response_file: 'response.txt',
       },
-    } as any);
+    } as unknown as ExecutionResult);
     const { controller, deps } = createController();
 
     await controller.resumeTaskExecution(ctx, task);
@@ -231,7 +234,7 @@ describe('TelegramExecutionController', () => {
   it('executes local shell commands without routing them through the gateway', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/shell',
       raw_message: '/shell npm test',
@@ -245,7 +248,7 @@ describe('TelegramExecutionController', () => {
       stderr: '',
       diff_summary: '',
       artifacts: [],
-    } as any);
+    } as unknown as ExecutionResult);
     const { controller, deps } = createController();
 
     await controller.resumeTaskExecution(ctx, task);
@@ -266,7 +269,7 @@ describe('TelegramExecutionController', () => {
   it('resumes stored mailbox gateway plans through the execution gateway', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/auto_bridge',
       status: 'running',
@@ -320,7 +323,7 @@ describe('TelegramExecutionController', () => {
   it('injects the role-aware ExternalExecutor binding before submitting the plan', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/external',
       raw_message: '/external revisar modulo',
@@ -370,7 +373,7 @@ describe('TelegramExecutionController', () => {
   it('opens a path-scoped ExternalExecutor permission request when extra folder access is required', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/external',
       raw_message: '/external veja o que tem na pasta workspace',
@@ -440,7 +443,7 @@ describe('TelegramExecutionController', () => {
   it('routes /gemini through the execution gateway with the Gemini CLI executor', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/gemini',
       raw_message: '/gemini revise o arquivo atual',
@@ -467,7 +470,7 @@ describe('TelegramExecutionController', () => {
   it('hides executor labels in execution output when presentation mode is active', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/gemini',
       raw_message: '/gemini explique esse erro',
@@ -493,7 +496,7 @@ describe('TelegramExecutionController', () => {
   it('routes /aistudio through the execution gateway with the Google AI Studio executor', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/aistudio',
       raw_message: '/aistudio model=gemini-2.5-pro tools=search me diga as noticias do dia',
@@ -520,7 +523,7 @@ describe('TelegramExecutionController', () => {
   it('injects workspace profile notes into explicit execution plans', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/run',
       raw_message: '/run npm test',
@@ -574,7 +577,7 @@ describe('TelegramExecutionController', () => {
   it('routes auto-routed web research through the structured web path instead of the gateway', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/task',
       raw_message: '/task pesquise as noticias de tecnologia de hoje',
@@ -607,7 +610,7 @@ describe('TelegramExecutionController', () => {
   it('opens a Google AI Studio permission request when Gemini API tools still need approval', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/aistudio',
       raw_message: '/aistudio pesquise as principais noticias de IA',
@@ -678,7 +681,7 @@ describe('TelegramExecutionController', () => {
   it('returns a clear message when Google AI Studio asks for an unsupported external service', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/aistudio',
       raw_message: '/aistudio services=drive leia um documento e resuma',
@@ -722,7 +725,7 @@ describe('TelegramExecutionController', () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
       replyWithPhoto: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/stitch',
       raw_message: '/stitch gere um app mobile de tarefas',
@@ -800,7 +803,7 @@ describe('TelegramExecutionController', () => {
   it('does not re-request explicit confirmation after a task approval was already registered', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/external',
       raw_message: '/external revise esta pasta',
@@ -828,7 +831,7 @@ describe('TelegramExecutionController', () => {
   it('executes planned tool steps through ToolRuntimeService before local shell commands', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/task',
       raw_message: '/task leia o readme e rode npm test',
@@ -874,7 +877,7 @@ describe('TelegramExecutionController', () => {
   it('routes /jules through the execution gateway with the Jules executor', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/jules',
       raw_message: '/jules abra uma sessao de automacao',
@@ -901,7 +904,7 @@ describe('TelegramExecutionController', () => {
   it('keeps Jules tasks in waiting_approval when the external plan still needs approval', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/jules',
       raw_message: '/jules abra uma sessao de automacao',
@@ -945,7 +948,7 @@ describe('TelegramExecutionController', () => {
   it('keeps Jules tasks in delivery_pending when the remote session is still running', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as Context;
     const task = createTask({
       command_type: '/jules',
       raw_message: '/jules abra uma sessao de automacao',

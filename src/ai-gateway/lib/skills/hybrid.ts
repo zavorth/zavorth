@@ -26,20 +26,19 @@ export class HybridExecutor {
     this.config = { ...this.config, ...config };
   }
 
-  async execute(skillName: string, input: any, context: any): Promise<any> {
-    const startTime = Date.now();
+  async execute(skillName: string, input: any, _context: any): Promise<any> {
     const estimatedDuration = input.estimatedDuration || 0;
 
     if (this.shouldUseSandbox(estimatedDuration)) {
-      return this.executeInSandbox(skillName, input, context);
+      return this.executeInSandbox();
     }
 
     try {
-      return await this.executeDirect(skillName, input, context);
+      return await this.executeDirect();
     } catch (error: unknown) {
       const err = asErrorLike(error);
       if (this.config.autoUpgrade && this.isRetryable(err)) {
-        return this.executeInSandbox(skillName, input, context);
+        return this.executeInSandbox();
       }
       throw err;
     }
@@ -51,11 +50,11 @@ export class HybridExecutor {
     return estimatedDuration > this.config.maxDirectDuration;
   }
 
-  private async executeDirect(skillName: string, input: any, context: any): Promise<any> {
+  private async executeDirect(): Promise<any> {
     return { mode: "direct", result: {} };
   }
 
-  private async executeInSandbox(skillName: string, input: any, context: any): Promise<any> {
+  private async executeInSandbox(): Promise<any> {
     return { mode: "sandbox", result: {} };
   }
 

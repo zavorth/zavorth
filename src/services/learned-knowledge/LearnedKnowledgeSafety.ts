@@ -161,6 +161,7 @@ export function forgetLearnedKnowledge(input: {
  return { ok: false, text: 'Usage: zavorth knowledge forget about <fact-id|key>', pillar: 'about-you' };
  }
  try {
+ // eslint-disable-next-line @typescript-eslint/no-var-requires
  const { AboutYouService } = require('./AboutYouService.js') as typeof import('./AboutYouService.js');
  const result = new AboutYouService({ projectRoot }).forget(userId, id);
  emitKnowledgeTelemetry('knowledge.forget', { pillar: 'about-you', ok: result.ok, hitCount: result.ok ? 1 : 0 });
@@ -183,6 +184,7 @@ export function forgetLearnedKnowledge(input: {
  };
  }
  try {
+ // eslint-disable-next-line @typescript-eslint/no-var-requires
  const { ExperienceSkillLearningLoopService } = require('../ExperienceSkillLearningLoopService.js') as typeof import('../ExperienceSkillLearningLoopService.js');
  const result = new ExperienceSkillLearningLoopService({ projectRoot }).forget(userId, id);
  emitKnowledgeTelemetry('knowledge.forget', { pillar: 'workflows', ok: result.ok, hitCount: result.ok ? 1 : 0 });

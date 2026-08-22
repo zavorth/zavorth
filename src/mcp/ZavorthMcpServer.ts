@@ -67,8 +67,10 @@ export class ZavorthMcpServer {
 
     this.server.setRequestHandler(
       CallToolRequestSchema,
-      async (request: any) => {
-        const { name, arguments: args } = request.params;
+      async (request: Record<string, unknown>) => {
+        const params = request.params as Record<string, unknown> | undefined;
+        const name = params?.name as string | undefined;
+        const args = params?.arguments as Record<string, unknown> | undefined;
         const decision = this.toolPolicy.decide(name);
         if (!decision.allowed) {
           logger.error(`[MCP policy] ${decision.reason}`);

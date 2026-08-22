@@ -6,7 +6,7 @@ import { asErrorLike } from '../../../utils/errorLike.js';
 export class ClickClackGateway extends WebhookGateway {
   public readonly id = 'clickclack';
   public readonly name = 'ClickClack';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'webhook';
 
   constructor(options: WebhookGatewayOptions) {

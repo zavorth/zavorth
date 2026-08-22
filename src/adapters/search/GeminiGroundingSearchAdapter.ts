@@ -72,7 +72,7 @@ export class GeminiGroundingSearchAdapter implements ISearchAdapter {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
       model: config.geminiModel || 'gemini-2.0-flash',
-      tools: [{ googleSearch: {} } as any],
+      tools: [{ googleSearch: {} }],
     });
 
     const result = await model.generateContent({
@@ -97,7 +97,7 @@ export class GeminiGroundingSearchAdapter implements ISearchAdapter {
     const text = response.text();
 
     // Extract citations from grounding metadata.
-    const groundingMetadata = (response.candidates?.[0] as any)?.groundingMetadata;
+    const groundingMetadata = (response.candidates?.[0] as { groundingMetadata?: unknown } | undefined)?.groundingMetadata;
     const citations = this.extractCitations(groundingMetadata);
 
     const synthesis: SearchGroundedSynthesis = {
@@ -119,17 +119,24 @@ export class GeminiGroundingSearchAdapter implements ISearchAdapter {
     };
   }
 
-  private extractCitations(metadata: any): SearchCitation[] {
-    if (!metadata?.groundingChunks) {
+  private extractCitations(metadata: unknown): SearchCitation[] {
+    if (!metadata || typeof metadata !== 'object' || !('groundingChunks' in metadata)) {
       return [];
     }
 
-    return metadata.groundingChunks
-      .filter((chunk: any) => chunk.web?.uri)
+    const chunks = (metadata as { groundingChunks?: unknown[] }).groundingChunks;
+    if (!Array.isArray(chunks)) {
+      return [];
+    }
+
+    return chunks
+      .filter((chunk): chunk is { web?: { uri?: string; title?: string } } => {
+        return !!chunk && typeof chunk === 'object' && 'web' in chunk && !!chunk.web && typeof chunk.web === 'object' && 'uri' in chunk.web && typeof chunk.web.uri === 'string';
+      })
       .slice(0, 8)
-      .map((chunk: any) => ({
-        title: chunk.web.title || chunk.web.uri,
-        url: chunk.web.uri,
+      .map((chunk) => ({
+        title: chunk.web?.title || chunk.web?.uri || '',
+        url: chunk.web?.uri || '',
       }));
   }
 }

@@ -20,7 +20,7 @@ interface WeixinWebhookPayload {
 export class WeixinGateway extends WebhookGateway {
   public readonly id = 'weixin';
   public readonly name = 'Weixin / WeChat';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'local-bridge';
 
   constructor(options: WebhookGatewayOptions) {

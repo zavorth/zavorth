@@ -1,24 +1,46 @@
 import { TelegramSkillCatalogController } from '../../../src/telegram/controllers/TelegramSkillCatalogController.js';
 
+interface MockSkillLibraryPresentationService {
+  renderReport: jest.Mock;
+}
+
+interface MockSkillInstallPlanPresentationService {
+  renderReport: jest.Mock;
+}
+
+interface MockSkillMcpSidecarService {
+  renderReport: jest.Mock;
+}
+
+interface MockSkillBridgeActivationService {
+  executeCommand: jest.Mock;
+  renderReport: jest.Mock;
+}
+
+interface MockContext {
+  from?: { id: number };
+  reply: jest.Mock;
+}
+
 describe('TelegramSkillCatalogController', () => {
   it('renders recipe requests through the install plan service', async () => {
-    const skillLibraryPresentationService = {
+    const skillLibraryPresentationService: MockSkillLibraryPresentationService = {
       renderReport: jest.fn(() => 'library report'),
     };
-    const skillInstallPlanPresentationService = {
+    const skillInstallPlanPresentationService: MockSkillInstallPlanPresentationService = {
       renderReport: jest.fn(() => 'recipe plan'),
     };
-    const skillMcpSidecarService = {
+    const skillMcpSidecarService: MockSkillMcpSidecarService = {
       renderReport: jest.fn(() => 'mcp report'),
     };
     const controller = new TelegramSkillCatalogController({
-      skillMcpSidecarService: skillMcpSidecarService as any,
-      skillLibraryPresentationService: skillLibraryPresentationService as any,
-      skillInstallPlanPresentationService: skillInstallPlanPresentationService as any,
+      skillMcpSidecarService: skillMcpSidecarService as unknown as never,
+      skillLibraryPresentationService: skillLibraryPresentationService as unknown as never,
+      skillInstallPlanPresentationService: skillInstallPlanPresentationService as unknown as never,
     });
-    const ctx = {
+    const ctx: MockContext = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    };
 
     await controller.handleSkills(ctx, 'recipe security-hardening');
 
@@ -33,17 +55,17 @@ describe('TelegramSkillCatalogController', () => {
     const controller = new TelegramSkillCatalogController({
       skillMcpSidecarService: {
         renderReport: jest.fn(() => 'mcp report'),
-      } as any,
+      } as unknown as never,
       skillLibraryPresentationService: {
         renderReport: jest.fn(() => 'library report'),
-      } as any,
+      } as unknown as never,
       skillInstallPlanPresentationService: {
         renderReport: jest.fn(() => 'plan report'),
-      } as any,
+      } as unknown as never,
     });
-    const ctx = {
+    const ctx: MockContext = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    };
 
     await controller.handleSkills(ctx, 'mcp security');
 
@@ -55,17 +77,17 @@ describe('TelegramSkillCatalogController', () => {
     const controller = new TelegramSkillCatalogController({
       skillMcpSidecarService: {
         renderReport: jest.fn(() => 'mcp report'),
-      } as any,
+      } as unknown as never,
       skillLibraryPresentationService: {
         renderReport: jest.fn(() => 'library report'),
-      } as any,
+      } as unknown as never,
       skillInstallPlanPresentationService: {
         renderReport: jest.fn(() => 'plan report'),
-      } as any,
+      } as unknown as never,
     });
-    const ctx = {
+    const ctx: MockContext = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    };
 
     await controller.handleSkills(ctx, 'library security');
 
@@ -74,31 +96,31 @@ describe('TelegramSkillCatalogController', () => {
   });
 
   it('routes bridge activation commands through the governed activation service', async () => {
-    const skillBridgeActivationService = {
+    const skillBridgeActivationService: MockSkillBridgeActivationService = {
       executeCommand: jest.fn(async () => ({
         status: 'dry-run',
         action: 'dry-run',
         selectedId: 'research-pack',
         report: 'Universal Skill Bridge Activation\nBridge: dry-run',
       })),
-      renderReport: jest.fn((snapshot: any) => snapshot.report),
+      renderReport: jest.fn((snapshot: unknown) => (snapshot as { report: string }).report),
     };
     const controller = new TelegramSkillCatalogController({
       skillMcpSidecarService: {
         renderReport: jest.fn(() => 'mcp report'),
-      } as any,
+      } as unknown as never,
       skillLibraryPresentationService: {
         renderReport: jest.fn(() => 'library report'),
-      } as any,
+      } as unknown as never,
       skillInstallPlanPresentationService: {
         renderReport: jest.fn(() => 'plan report'),
-      } as any,
-      skillBridgeActivationService: skillBridgeActivationService as any,
+      } as unknown as never,
+      skillBridgeActivationService: skillBridgeActivationService as unknown as never,
     });
-    const ctx = {
+    const ctx: MockContext = {
       from: { id: 42 },
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    };
 
     await controller.handleSkills(ctx, 'run research-pack');
 

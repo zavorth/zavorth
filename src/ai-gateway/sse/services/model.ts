@@ -1,4 +1,3 @@
-import { asErrorLike } from '../../../utils/errorLike';
 import { getSettings } from "@/lib/localDb";
 // Zavorth model plane with localDb integration.
 import {
@@ -19,6 +18,41 @@ parseModel,
 
 export { parseModel };
 
+interface CustomModel {
+  id: string;
+  apiFormat?: string;
+}
+
+interface ProviderConnection {
+  isActive?: boolean;
+  provider?: string;
+  defaultModel?: string;
+  model?: string;
+  id?: string;
+}
+
+interface ComboModel {
+  priority?: number;
+}
+
+interface ComboStrategy {
+  strategy?: string;
+  config?: Record<string, unknown>;
+}
+
+interface PricingData {
+  [provider: string]: {
+    [model: string]: {
+      inputCostPer1M?: number;
+      input?: number;
+    };
+  };
+}
+
+interface ResolveComboForModelResult {
+  models?: unknown[];
+}
+
 /**
  * Resolve model alias from localDb
  */
@@ -31,11 +65,6 @@ export async function resolveModelAlias(alias: string) {
  * Look up the apiFormat for a custom model from the DB.
  * Returns "responses" if the model is configured for the Responses API, otherwise undefined.
  */
-interface CustomModel {
-  id: string;
-  apiFormat?: string;
-}
-
 async function lookupCustomModelApiFormat(
   providerId: string,
   modelId: string
@@ -45,7 +74,7 @@ async function lookupCustomModelApiFormat(
     if (!Array.isArray(models)) return undefined;
     const match = (models as CustomModel[]).find((m) => m.id === modelId);
     return match?.apiFormat === "responses" ? "responses" : undefined;
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[model] operation failed', error); return undefined; }
+  } catch (error: unknown) { logger.warn('[model] operation failed', error); return undefined; }
 }
 
 /**
@@ -99,7 +128,7 @@ export async function getModelInfo(modelStr: string) {
       if (settings.stripModelPrefix === true) {
         return { ...getModelInfoCore(parsed.model), extendedContext };
       }
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
       // If settings read fails, fall through to normal resolution
       logger.warn('[model] parsing failed', error);
     }
@@ -145,10 +174,10 @@ export async function getComboForModel(modelStr: string) {
   try {
     const { resolveComboForModel } = await import("@/lib/localDb");
     const mapped = await resolveComboForModel(modelStr);
-    if (mapped && (mapped as any).models?.length > 0) {
-      return normalizeZavorthComboStrategy(mapped);
+    if (mapped && (mapped as ResolveComboForModelResult).models?.length > 0) {
+      return normalizeZavorthComboStrategy(mapped as ComboStrategy);
     }
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) {
       // If the mappings table doesn't exist yet (pre-migration), continue gracefully
       logger.warn('[model] health check failed', error);
     }
@@ -162,13 +191,6 @@ async function buildZavorthAutoCombo(name: string) {
       getProviderConnections({ isActive: true }).catch(() => []),
       getPricing().catch(() => ({})),
     ]);
-    interface ProviderConnection {
-      isActive?: boolean;
-      provider?: string;
-      defaultModel?: string;
-      model?: string;
-      id?: string;
-    }
 
     const models = connections
       .filter((connection: ProviderConnection) => connection?.isActive !== false && connection?.provider)
@@ -177,8 +199,8 @@ async function buildZavorthAutoCombo(name: string) {
         const model = String(connection.defaultModel || connection.model || "").trim();
         if (!provider || !model) return null;
         const price = Number(
-          (pricing as any)?.[provider]?.[model]?.inputCostPer1M ||
-          (pricing as any)?.[provider]?.[model]?.input ||
+          (pricing as PricingData)?.[provider]?.[model]?.inputCostPer1M ||
+          (pricing as PricingData)?.[provider]?.[model]?.input ||
           0
         );
         return {
@@ -189,10 +211,7 @@ async function buildZavorthAutoCombo(name: string) {
         };
       })
       .filter(Boolean)
-      interface ComboModel {
-      priority?: number;
-    }
-    .sort((a: ComboModel, b: ComboModel) => (a.priority || 100) - (b.priority || 100))
+      .sort((a: ComboModel, b: ComboModel) => (a.priority || 100) - (b.priority || 100))
       .slice(0, 12);
     if (models.length === 0) return null;
     return {
@@ -208,12 +227,7 @@ async function buildZavorthAutoCombo(name: string) {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[model] connection failed', error); return null; }
-}
-
-interface ComboStrategy {
-  strategy?: string;
-  config?: Record<string, unknown>;
+  } catch (error: unknown) { logger.warn('[model] connection failed', error); return null; }
 }
 
 function normalizeZavorthComboStrategy(combo: ComboStrategy) {

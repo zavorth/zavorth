@@ -460,7 +460,7 @@ export class VideoTranscriptionPipeline {
     let currentIndex = 0;
 
     const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
-      while (true) {
+      for (;;) {
         const index = currentIndex;
         currentIndex += 1;
 

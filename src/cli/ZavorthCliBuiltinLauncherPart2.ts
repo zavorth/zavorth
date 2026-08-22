@@ -1,41 +1,16 @@
 import path from 'path';
-import { resolveCliHelpTopic } from './ZavorthCliSurfaceHelpers.js';
-import { resolveZavorthSimpleCommand } from './SimpleCommandRouter.js';
 import {
   projectRoot,
-  logCliError,
   printCliPanel,
-  spawnInherited,
-  npmInherited,
-  readPackageVersion,
-  entryDir,
-  runningFromDist,
-  printBuiltinHelp,
-  readNumberFlag,
-  readStringFlag,
-  readFlexibleStringFlag,
-  readStringListFlag,
-  readTaskPositional,
-  readDurationMsFlag,
-  resolveCommandSuggestion,
-  printCommandSuggestion
+  readNumberFlag
 } from './ZavorthCliCommonInfrastructure.js';
 import {
   runRuntimeResourceDoctor, runOperationalSecurityDoctor, runPremiumDoctor, runDiagnosticsExport,
-  runPremiumHome, runZavorthHomeCommand, writeZavorthHomeEnvSelection,
-  runZavorthEchoWakeCommand,
-  runZavorthTasksCommand, runZavorthFriendlyWorkCommand,
-  runPremiumHatch, runPremiumQuickStart, runPremiumApprovalDiff,
-  runPremiumHud, resolveDailyHudArgs,
-  runPremiumSetupStudio,
-  runGitWorkflowCommand,
   runContinuousSecurityMonitor, runSecurityOperationalPreset, runMinimalKernel, runAiFirstOwnerControlledDefault,
-  runPromotedScript, buildQuickSandboxHostReadiness,
-  runProductizationProtectedRuntime,
-  runExperienceProfiles, runConversationalSetup, runGuidedMissions, runCapabilityStore, runDoItWithMe, runTrustPanel, runTrustApprovalUxFinal, runAutonomySlider, runModelCostGuard, runVisualReceiptsV2, runSatelliteApprovalCompanion, runNaturalRuntimeQuestions, runZavorthControlExperienceHome, runRuntimeReadiness, runReadyToGo, runOneCommandOperatorCheck, runStayOnline, runSmartCommands, runExternalAgentOnboarding, runExternalAgentMigrationPack, runExternalAgentGateway, runAgentManager, runCapabilityMesh, runAgentReview, runSkillCurator, runPersistentApprovals, runSkillExpansionPack, runCapabilityCertification, runProviderConsistency, runProviderCapabilityCatalog, runProviderCapabilityMatrix, runNativeIntegrations, runProviderChannelWizard, runChannelCapabilityCatalog, runChannelCapabilityAtlas, runChannelDeepening, runNativeLearningLoop, runZavorthConvergenceDoctor, runZavorthProductHardeningDoctor, runGatewayMatrix, runExecutionBackends, runSkillEcosystem, runAcp, runRuntimeGuidedFixes, runRuntimeReadinessFix, runRuntimeReadinessFixProvider, runCliExperienceConsistency, runExperienceLayerDailyUseCertification, runGatewaySpine, runUnifiedOnboarding, runSensitiveActionFlow, runProviderReadiness, runDynamicWorkflows, runEffortControl, collectEffortControlPositionals, runProviderLongTailActivation, runChannelLongTailActivation, normalizeMeshActivationArgs, resolveProductizationView
+  runProductizationProtectedRuntime, runRuntimeReadiness, runProviderConsistency, runProviderCapabilityCatalog, runProviderCapabilityMatrix, runNativeIntegrations, runProviderChannelWizard, runZavorthConvergenceDoctor, runZavorthProductHardeningDoctor, runGatewayMatrix, runSkillEcosystem, runCliExperienceConsistency, runExperienceLayerDailyUseCertification, runGatewaySpine, runSensitiveActionFlow, runProviderReadiness, runProviderLongTailActivation, normalizeMeshActivationArgs
 } from './ZavorthCliPremiumHandlers.js';
 
-export async function runBuiltinLauncherPart2(command: string, restArgs: string[], rawArgs: string[]): Promise<number | null> {
+export async function runBuiltinLauncherPart2(command: string, restArgs: string[], _rawArgs: string[]): Promise<number | null> {
   if (command === 'skill-ecosystem' || command === 'skills-ecosystem') {
     return runSkillEcosystem(restArgs);
   }

@@ -21,7 +21,7 @@ export type WebhookEvent =
 export interface WebhookPayload {
   event: WebhookEvent;
   timestamp: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
 }
 
 function signPayload(payload: string, secret: string): string {
@@ -133,7 +133,7 @@ export async function deliverWebhook(
 /**
  * Dispatch an event to all matching enabled webhooks
  */
-export async function dispatchEvent(event: WebhookEvent, data: Record<string, any>): Promise<void> {
+export async function dispatchEvent(event: WebhookEvent, data: Record<string, unknown>): Promise<void> {
   // Lazy import to avoid circular deps
   const { getEnabledWebhooks, recordWebhookDelivery, disableWebhooksWithHighFailures } =
     await import("./db/webhooks");

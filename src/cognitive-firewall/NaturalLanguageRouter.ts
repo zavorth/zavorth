@@ -39,6 +39,7 @@ export class NaturalLanguageRouter {
       this.firewall = firewall;
     } else {
       // Lazy import to avoid circular dependency
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { CognitiveFirewall: LazyFirewall } = require('../cognitive-firewall/index.js');
       this.firewall = new LazyFirewall();
     }

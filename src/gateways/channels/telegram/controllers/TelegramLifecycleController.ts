@@ -27,6 +27,7 @@ export class TelegramLifecycleController {
       );
     }
 
+  // eslint-disable-next-line no-useless-catch
     try {
       await new Promise<void>((resolve, reject) => {
         let startupResolved = false;

@@ -832,7 +832,7 @@ export class SkillPromotionGate {
     input: ZavorthSkillEvolutionPreviewInput,
   ): Promise<SkillPromotionGateResult> {
     const intentText = this.cleanText(input.intentText);
-    let envelope = this.beginRequest({
+    const envelope = this.beginRequest({
       surface: input.sourceSurface || 'agent-run',
       operation: 'skill.promotion.dry-preview',
       target: intentText ? this.compact(intentText, 64) : '<empty-intent>',

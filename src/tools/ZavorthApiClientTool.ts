@@ -261,6 +261,7 @@ export class ZavorthApiClientTool extends BaseTool {
     let tmpBodyFile: string | undefined;
     try {
       if (body) {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const os = require('os');
         tmpBodyFile = path.join(os.tmpdir(), `zavorth_curl_body_${Date.now()}.tmp`);
         const fs = await import('fs');

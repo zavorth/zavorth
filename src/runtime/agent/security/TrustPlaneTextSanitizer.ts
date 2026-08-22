@@ -34,6 +34,7 @@ export type TrustPlaneSanitizeOptions = {
 export function sanitizeTrustPlaneText(value: unknown, options: TrustPlaneSanitizeOptions = {}): string {
   const maxChars = Math.max(32, options.maxChars || 2000);
   let text = String(value ?? '')
+  // eslint-disable-next-line no-misleading-character-class
     .replace(/[\u200B\u200C\u200D\u2060\uFEFF\u00AD]/g, '')
     .replace(/\r\n?/g, '\n')
     .trim();

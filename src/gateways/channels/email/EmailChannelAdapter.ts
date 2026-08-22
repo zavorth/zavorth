@@ -20,7 +20,7 @@ type EmailChannelAdapterRuntime = {
 export class EmailChannelAdapter implements GatewayChannelAdapter {
   id = 'email';
   name = 'Email SMTP/IMAP Bridge';
-  type: 'async' = 'async';
+  type = 'async' as const;
   private readonly outboxDir: string;
   private readonly now: () => Date;
 

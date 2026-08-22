@@ -1,59 +1,25 @@
 import { asErrorLike } from '../utils/errorLike';
-import { SalesPackBusinessModeService } from './SalesPackBusinessModeService.js';
 
 import * as http from 'http';
-import path from 'path';
-import fs from 'fs';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 import { NodeMeshTransportRouteService } from './NodeMeshTransportRouteService.js';
-import { WorkspaceWriteApprovalPayloadCache } from './WorkspaceWriteApprovalPayloadCache.js';
-import { WorkspaceWriteApprovalService } from './WorkspaceWriteApprovalService.js';
-import { WorkspaceSessionGrantCache } from './WorkspaceSessionGrantCache.js';
-import { WorkspaceCommandApprovalService } from './WorkspaceCommandApprovalService.js';
-import { WorkspaceTaskMandateService } from './WorkspaceTaskMandateService.js';
-import { TemporaryDirectoryTrustService } from './TemporaryDirectoryTrustService.js';
-import { WorkspacePathGuard } from '../mcp/workspace/WorkspacePathGuard.js';
-import { AgentWorkspaceConfigService } from './AgentWorkspaceConfigService.js';
-import { WorkspaceRuntimeReadinessService } from './WorkspaceRuntimeReadinessService.js';
-import { WorkspacePolicyPreviewService } from './WorkspacePolicyPreviewService.js';
-import { SecurityAuditLogger } from './SecurityAuditLogger.js';
-import { LogRepository } from '../storage/LogRepository.js';
-import { InternalBetaDiagnosticsService } from './InternalBetaDiagnosticsService.js';
-import { InternalBetaChecklistService } from './InternalBetaChecklistService.js';
-import { ErrorNormalizationService } from './ErrorNormalizationService.js';
-import { logger } from '../logger.js';
 
-import { PtySessionService } from './PtySessionService.js';
-import { PtySessionApprovalService } from './PtySessionApprovalService.js';
-import { PtyInputApprovalService } from './PtyInputApprovalService.js';
-
-import { HostCommandApprovalService } from './HostCommandApprovalService.js';
-import { HostCommandRunnerService } from './HostCommandRunnerService.js';
-import { HostCommandPayloadCache } from './HostCommandPayloadCache.js';
-import { HostPowerModeService } from './HostPowerModeService.js';
-import { Database } from '../storage/Database.js';
-import { config } from '../config/index.js';
+import type {
+  SalesPackInboundMessageInput,
+} from '../contracts/SalesPackContract.js';
+import type { SalesPackChannelIoEnvelope } from '../contracts/SalesPackChannelIoContract.js';
+import { globalLiveNodeRegistry } from './LiveNodeRegistryService.js';
+import { TrustedDeviceAccessRouteService } from './TrustedDeviceAccessRouteService.js';
 import { OperationalMaturityService } from '../domain/platform-ecosystem/application/OperationalMaturityService.js';
 import { SalesPackMvpService } from '../domain/platform-ecosystem/application/sales-pack/index.js';
-
+import { SalesPackBusinessModeService } from './SalesPackBusinessModeService.js';
 import { SalesPackChannelIoService } from './SalesPackChannelIoService.js';
-import type { ZavorthControlAuthenticatedIdentity, ZavorthControlAuthService } from './ZavorthControlAuthService.js';
-import type { SalesPackInboundMessageInput } from '../contracts/SalesPackContract.js';
-import type { SalesPackChannelIoEnvelope } from '../contracts/SalesPackChannelIoContract.js';
-import type { ExperienceCommand, ExperienceSurface } from './experience/ExperienceContracts.js';
-import { ExperienceCoreService } from './experience/ExperienceCoreService.js';
-import type { ZavorthRuntimeStateActionType } from '../contracts/ZavorthRuntimeStateBusContract.js';
-import { globalLiveNodeRegistry } from './LiveNodeRegistryService.js';
-import { TrustedDeviceAccessService } from './TrustedDeviceAccessService.js';
-import { TrustedDeviceAccessRouteService } from './TrustedDeviceAccessRouteService.js';
-import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
-import { TrustedWorkspaceService } from './TrustedWorkspaceService.js';
-import { ProviderConfigService } from './ProviderConfigService.js';
-import { LocalEncryptedProviderSecretStore } from './ProviderSecretStore.js';
-import { ProviderConnectionTestService } from './ProviderConnectionTestService.js';
-import * as schemas from '../domain/validation/controlSchemas.js';
 
 import type { ZavorthControlCoreRouteDeps } from './ZavorthControlCoreRouteService.js';
+
+import { CostSavingsDashboardService } from './CostSavingsDashboardService.js';
+import { MemoryGraphSnapshotService } from './MemoryGraphSnapshotService.js';
+import { ZavorthSessionTranscriptExportService } from './ZavorthSessionTranscriptExportService.js';
 
 export type ZavorthControlRouteInput = {
   req: http.IncomingMessage;
@@ -61,29 +27,6 @@ export type ZavorthControlRouteInput = {
   url: URL;
   pathname: string;
   deps: ZavorthControlCoreRouteDeps;
-};
-
-type CommandApprovalRow = {
-  operation_id: string;
-  workspace_id: string;
-  command: string;
-  created_at: string;
-  expires_at: string;
-};
-
-type HostCommandProposalRow = {
-  operation_id: string;
-  workspace_id: string;
-  command_preview_redacted: string;
-  args_preview_redacted: string;
-  cwd_suffix: string;
-  shell: number;
-  risk_level: string;
-  reason_redacted: string;
-  created_at: string;
-  expires_at: string;
-  requires_strong_confirmation: number;
-  strong_confirmation_phrase: string;
 };
 
 type PlatformRouteContext = {
@@ -165,8 +108,6 @@ export async function handleControlPlatformRoutes(
       return true;
     }
     try {
-      const { CostSavingsDashboardService } =
-        require('./CostSavingsDashboardService.js') as typeof import('./CostSavingsDashboardService.js');
       const snap = new CostSavingsDashboardService().buildSnapshot();
       deps.writeJson(res, { ok: true, data: snap });
     } catch (error: unknown) {
@@ -182,8 +123,6 @@ export async function handleControlPlatformRoutes(
       return true;
     }
     try {
-      const { MemoryGraphSnapshotService } =
-        require('./MemoryGraphSnapshotService.js') as typeof import('./MemoryGraphSnapshotService.js');
       const snap = new MemoryGraphSnapshotService().buildSnapshot();
       deps.writeJson(res, {
         ok: true,
@@ -209,8 +148,7 @@ export async function handleControlPlatformRoutes(
       return true;
     }
     try {
-      const { ZavorthSessionTranscriptExportService } =
-        require('./ZavorthSessionTranscriptExportService.js') as typeof import('./ZavorthSessionTranscriptExportService.js');
+      const service = new ZavorthSessionTranscriptExportService();
       const query = url.searchParams;
       let body: Record<string, unknown> = {};
       if (
@@ -222,7 +160,6 @@ export async function handleControlPlatformRoutes(
       }
       const redactRaw = body.redact ?? query.get('redact');
       const redact = redactRaw === false || redactRaw === 'false' || redactRaw === '0' ? false : true;
-      const service = new ZavorthSessionTranscriptExportService();
       const snap = service.export({
         sessionId: String(body.sessionId || query.get('session') || query.get('sessionId') || '').trim() || undefined,
         format: String(body.format || query.get('format') || 'markdown').trim() as 'markdown' | 'html' | 'prompt',

@@ -711,7 +711,7 @@ export class AgentRunLlmRuntimeExecutor {
     } else {
       try {
         // Dynamic import path avoided for sync hot path — require registry
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const reg = require('../../services/voice/VoiceAgentAbortRegistry.js') as typeof import('../../services/voice/VoiceAgentAbortRegistry.js');
         voiceSignal = reg.resolveAbortSignalFromRequestMetadata(meta);
       } catch {

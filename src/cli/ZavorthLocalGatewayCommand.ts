@@ -26,17 +26,22 @@ function readStringFlag(args: string[], name: string): string | null {
   return null;
 }
 
-function hookGatewayOutbox(gateway: any, onReply: (message: string) => void) {
+interface GatewayWithOutbox {
+  writeStubEnvelope?: (message: string, recipients: string[], extra?: Record<string, unknown>) => unknown;
+  writeEnvelope?: (inputEnvelope: { message: string; [key: string]: unknown }) => unknown;
+}
+
+function hookGatewayOutbox(gateway: GatewayWithOutbox, onReply: (message: string) => void) {
   if (typeof gateway.writeStubEnvelope === 'function') {
     const original = gateway.writeStubEnvelope;
-    gateway.writeStubEnvelope = function(message: string, recipients: string[], extra: any = {}) {
+    gateway.writeStubEnvelope = function(message: string, recipients: string[], extra: Record<string, unknown> = {}) {
       onReply(message);
       return original.call(this, message, recipients, extra);
     };
   }
   if (typeof gateway.writeEnvelope === 'function') {
     const original = gateway.writeEnvelope;
-    gateway.writeEnvelope = function(inputEnvelope: any) {
+    gateway.writeEnvelope = function(inputEnvelope: { message: string; [key: string]: unknown }) {
       onReply(inputEnvelope.message);
       return original.call(this, inputEnvelope);
     };
@@ -82,7 +87,7 @@ export async function runZavorthLocalGatewayCommand(rawArgs: string[]): Promise<
     orchestrator.attachLegacyUnifiedGatewayAdapter(runtime.legacyUnifiedGateway as unknown as Pick<LegacyUnifiedGatewayAdapter, 'recordEvent' | 'handleEvent'>);
   }
 
-  let gateway: any;
+  let gateway: GatewayWithOutbox;
   if (channel === 'slack') {
     gateway = new SlackGateway(orchestrator);
   } else if (channel === 'whatsapp') {
@@ -116,7 +121,7 @@ export async function runZavorthLocalGatewayCommand(rawArgs: string[]): Promise<
   process.stdout.write(`Type your messages below. Type "exit" or "quit" to leave.\n\n`);
 
   try {
-    while (true) {
+    for (;;) {
       const text = await rl.question(`${channel} (${userId}) > `);
       const normalized = text.trim();
       if (normalized.toLowerCase() === 'exit' || normalized.toLowerCase() === 'quit') {

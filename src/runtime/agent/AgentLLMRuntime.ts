@@ -55,7 +55,7 @@ export class AgentLLMRuntime {
    * Prepares messages by injecting pending live operator steering and applying intra-turn compaction.
    */
   public prepareMessages(messages: ChatMessage[]): ChatMessage[] {
-    let prepared = [...messages];
+    const prepared = [...messages];
 
     // 1. Inject pending mid-turn interjections if present
     if (InterjectionQueue.hasPending()) {

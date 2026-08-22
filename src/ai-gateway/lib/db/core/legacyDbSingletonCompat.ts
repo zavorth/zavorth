@@ -1,7 +1,7 @@
 import type { SqliteDatabase } from "./coreTypes";
 
 declare global {
-  var __ZavorthGatewayDb: SqliteDatabase | undefined;
+  let __ZavorthGatewayDb: SqliteDatabase | undefined;
 }
 
 export function getLegacyStoredDb(): SqliteDatabase | null {

@@ -11,13 +11,11 @@ import {
   getAuditLog,
   getSkillPermissions,
   signSkillPackage,
-  verifySkillPackageSignature,
 } from '../skills/marketplace/SkillMarketplaceSecurity.js';
 import { SkillRegistryOpsService } from '../services/SkillRegistryOpsService.js';
 import { getTrustedSkillGitDomains } from '../skills/marketplace/SkillGitRegistry.js';
 import { SkillRollback } from '../skills/marketplace/SkillRollback.js';
 import { SkillDependencyResolver } from '../skills/marketplace/SkillDependencyResolver.js';
-import { detectSource, getSourceHint } from '../skills/marketplace/SkillSourceDetector.js';
 import { SkillUpdateChecker } from '../skills/marketplace/SkillUpdateChecker.js';
 import { detectConflicts } from '../skills/marketplace/SkillConflictDetector.js';
 import { SkillBundleManager } from '../skills/marketplace/SkillBundle.js';
@@ -342,21 +340,6 @@ function handleList(skillsDir: string, registry: SkillLocalRegistry, writer: Cli
   const body = lines.join('\n');
   writer.line(body);
   return { ok: true, handled: true, output: [body], error: null };
-}
-
-function trustIcon(level: string): string {
-  switch (level) {
-    case 'verified':
-      return '\u2713';
-    case 'trusted':
-      return '\u25cb';
-    case 'unknown':
-      return '...';
-    case 'suspicious':
-      return '\u2717';
-    default:
-      return '...';
-  }
 }
 
 async function handleSearchDiscover(

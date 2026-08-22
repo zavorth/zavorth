@@ -31,18 +31,6 @@ const readGlobalState = async () => {
   }
 };
 
-// Read secrets.json
-const readSecrets = async () => {
-  try {
-    const content = await fs.readFile(SECRETS_PATH, "utf-8");
-    return JSON.parse(content);
-  } catch (error: unknown) {
-    const err = asErrorLike(error);
-    if (err.code === "ENOENT") return {};
-    throw error;
-  }
-};
-
 // Check if ZavorthGateway is configured as OpenAI-compatible provider
 const hasZavorthGatewayConfig = (globalState: any) => {
   if (!globalState) return false;
@@ -81,7 +69,6 @@ export async function GET(request: Request) {
     }
 
     const globalState = await readGlobalState();
-    const secrets = await readSecrets();
 
     return NextResponse.json({
       installed: runtime.installed,
@@ -136,7 +123,7 @@ export async function POST(request: Request) {
     if (isValidationFailure(validation)) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
-    let { baseUrl, apiKey, model } = validation.data;
+    const { baseUrl, apiKey, model } = validation.data;
 
     // (#526) Resolve real key from DB if keyId was provided
     const keyId = typeof rawBody?.keyId === "string" ? rawBody.keyId.trim() : null;

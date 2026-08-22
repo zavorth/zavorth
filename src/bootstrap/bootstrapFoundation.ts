@@ -37,6 +37,9 @@ import {
   createDefaultAgentWorkflowQueueStore,
 } from '../runtime/agent/index.js';
 import { createBootstrapToolRuntime } from './bootstrapToolRuntime.js';
+import { captureConversationTurn } from '../services/learned-knowledge/ConversationContinuumCapture.js';
+import { Monitor } from '../monitoring/Monitor.js';
+import { RecoveryManager } from '../orchestrator/RecoveryManager.js';
 
 import { createContextEngineRuntime, wireLegacyUnifiedGatewayAgentCallback } from './bootstrapContextEngine.js';
 import type {
@@ -279,8 +282,6 @@ export async function initializeBootstrapFoundation(
       });
     }
     try {
-      const { captureConversationTurn } =
-        require('../services/learned-knowledge/ConversationContinuumCapture.js') as typeof import('../services/learned-knowledge/ConversationContinuumCapture.js');
       // captureConversationTurn no-ops when ZAVORTH_CONTINUUM_CAPTURE=0.
       captureConversationTurn({
         sessionId: sessionId || null,
@@ -508,14 +509,12 @@ export async function startRemoteRuntimeServices(
   await foundation.mcpRuntime.start();
   logger.info('[BOOT] mcp-runtime-ready');
 
-  const MonitorModule = require('../monitoring/Monitor.js').Monitor;
-  const RecoveryModule = require('../orchestrator/RecoveryManager.js').RecoveryManager;
-  const sysMonitor = new MonitorModule(foundation.logRepo);
+  const sysMonitor = new Monitor(foundation.logRepo);
   sysMonitor.startHeartbeat();
 
   supervisor.updateProgress('boot-recovery');
   logger.info('[BOOT] boot-recovery');
-  const recovery = new RecoveryModule(foundation.taskManager, foundation.logRepo);
+  const recovery = new RecoveryManager(foundation.taskManager, foundation.logRepo);
   await recovery.runBootRecovery();
   logger.info('[BOOT] boot-recovery-ready');
 

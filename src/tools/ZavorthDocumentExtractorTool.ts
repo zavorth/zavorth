@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
@@ -341,8 +342,6 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
     _options: unknown,
   ): Promise<ExtractionResult> {
     const { execFileSync } = await import('child_process');
-    const os = require('os');
-
     try {
       const script = `import zipfile, xml.etree.ElementTree as ET
 z = zipfile.ZipFile(${JSON.stringify(filePath)})
@@ -385,8 +384,6 @@ print('\\n'.join(texts))`;
     _options: unknown,
   ): Promise<ExtractionResult> {
     const { execFileSync } = await import('child_process');
-    const os = require('os');
-
     try {
       const script = `import zipfile, xml.etree.ElementTree as ET
 z = zipfile.ZipFile(${JSON.stringify(filePath)})
@@ -443,8 +440,6 @@ for name, spath in sheets:
     _options: unknown,
   ): Promise<ExtractionResult> {
     const { execFileSync } = await import('child_process');
-    const os = require('os');
-
     try {
       const script = `import zipfile, xml.etree.ElementTree as ET
 z = zipfile.ZipFile(${JSON.stringify(filePath)})
@@ -576,7 +571,7 @@ for i, slide_path in enumerate(slides, 1):
   }
 
   private sanitizePath(msg: string): string {
-    return msg.replace(/(?:[A-Z]:)?[\\\/][^\s]*[\\\/]/g, '[path]/');
+    return msg.replace(/(?:[A-Z]:)?[\\/][^\s]*[\\/]/g, '[path]/');
   }
 
   private parseTablesFromText(text: string): string[][] {

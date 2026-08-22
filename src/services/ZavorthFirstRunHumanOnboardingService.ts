@@ -234,7 +234,7 @@ export class ZavorthFirstRunHumanOnboardingService {
     allowLearning?: boolean | null;
   }): FirstRunHumanSnapshot {
     const state = this.readState();
-    let next = { ...state };
+    const next = { ...state };
     if (input.language != null) {
       next.language = normalizeLanguage(String(input.language)) || next.language;
       if (next.step === 1) next.step = 2;
@@ -280,8 +280,7 @@ export class ZavorthFirstRunHumanOnboardingService {
           appliedBy: 'first-run-human',
           now: this.now,
         });
-      } catch {
-      }
+      } catch { /* intentionally ignored */ }
     }
 
     setLearningRuntimeMode(input.allowLearning ? 'autonomous' : 'governed', {
@@ -316,8 +315,7 @@ export class ZavorthFirstRunHumanOnboardingService {
         completedAt: now,
         updatedAt: now,
       }, null, 2)}\n`, 'utf8');
-    } catch {
-    }
+    } catch { /* intentionally ignored */ }
 
     const snapshot = this.buildSnapshot();
     const learningHint = input.allowLearning ? 'I will remember useful preferences and you can undo anytime.'

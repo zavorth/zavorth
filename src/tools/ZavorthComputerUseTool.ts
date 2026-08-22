@@ -1,5 +1,8 @@
 
+import fs from 'fs';
+import os from 'os';
 import path from 'path';
+import { execFileSync } from 'child_process';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
@@ -252,20 +255,16 @@ export class ZavorthComputerUseTool extends BaseTool {
   }
 
   private async executeMacOS(command: string, params: Record<string, unknown>): Promise<ClickResult & Partial<ScreenshotResult>> {
-    const { execFileSync } = require('child_process');
-    const os = require('os');
-
     try {
       switch (command) {
         case 'screenshot': {
           const tmpFile = path.join(os.tmpdir(), `zavorth_screenshot_${Date.now()}.png`);
           try {
             execFileSync('screencapture', ['-x', tmpFile], { timeout: 10000 });
-            const fs = require('fs');
             const buffer = fs.readFileSync(tmpFile);
             return { success: true, action_performed: 'screenshot', image_base64: buffer.toString('base64') };
           } finally {
-            try { require('fs').unlinkSync(tmpFile); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Computer Use] file cleanup failed', error); }
+            try { fs.unlinkSync(tmpFile); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Computer Use] file cleanup failed', error); }
           }
         }
         case 'click': {
@@ -311,9 +310,6 @@ export class ZavorthComputerUseTool extends BaseTool {
   }
 
   private async executeWindows(command: string, params: Record<string, unknown>): Promise<ClickResult & Partial<ScreenshotResult>> {
-    const { execFileSync } = require('child_process');
-    const os = require('os');
-
     try {
       switch (command) {
         case 'screenshot': {
@@ -321,11 +317,10 @@ export class ZavorthComputerUseTool extends BaseTool {
           const script = `Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; $b = New-Object System.Drawing.Bitmap([System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Width, [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Height); $g = [System.Drawing.Graphics]::FromImage($b); $g.CopyFromScreen(0, 0, 0, 0, $b.Size); $b.Save('${tmpFile.replace(/\\/g, '\\\\')}'); $g.Dispose(); $b.Dispose()`;
           try {
             execFileSync('powershell', ['-Command', script], { timeout: 15000 });
-            const fs = require('fs');
             const buffer = fs.readFileSync(tmpFile);
             return { success: true, action_performed: 'screenshot', image_base64: buffer.toString('base64') };
           } finally {
-            try { require('fs').unlinkSync(tmpFile); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Computer Use] file cleanup failed', error); }
+            try { fs.unlinkSync(tmpFile); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Computer Use] file cleanup failed', error); }
           }
         }
         case 'click': {
@@ -384,9 +379,6 @@ export class ZavorthComputerUseTool extends BaseTool {
   }
 
   private async executeLinux(command: string, params: Record<string, unknown>): Promise<ClickResult & Partial<ScreenshotResult>> {
-    const { execFileSync } = require('child_process');
-    const os = require('os');
-
     try {
       switch (command) {
         case 'screenshot': {
@@ -396,11 +388,10 @@ export class ZavorthComputerUseTool extends BaseTool {
               execFileSync('import', ['-window', 'root', tmpFile], { timeout: 10000 });
             } catch (error: unknown) {execFileSync('scrot', [tmpFile], { timeout: 10000 });
             }
-            const fs = require('fs');
             const buffer = fs.readFileSync(tmpFile);
             return { success: true, action_performed: 'screenshot', image_base64: buffer.toString('base64') };
           } finally {
-            try { require('fs').unlinkSync(tmpFile); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Computer Use] file cleanup failed', error); }
+            try { fs.unlinkSync(tmpFile); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Computer Use] file cleanup failed', error); }
           }
         }
         case 'click': {

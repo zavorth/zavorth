@@ -20,7 +20,7 @@ interface NostrWebhookPayload {
 export class NostrGateway extends WebhookGateway {
   public readonly id = 'nostr';
   public readonly name = 'Nostr';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'local-bridge';
 
   constructor(options: WebhookGatewayOptions) {

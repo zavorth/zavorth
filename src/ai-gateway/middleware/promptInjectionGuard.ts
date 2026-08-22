@@ -1,26 +1,33 @@
 import { asErrorLike } from '../../utils/errorLike';
-/**
- * Prompt Injection Guard — Express/Next.js middleware
- *
- * Wraps the inputSanitizer module as middleware for API routes.
- * Blocks or warns on detected prompt injection attempts.
- *
- * @module middleware/promptInjectionGuard
- */
-
 import { extractMessageContents, sanitizeRequest } from "../shared/utils/inputSanitizer";
 import { logger } from '@/shared/utils/logger';
 
-/**
- * @typedef {Object} GuardOptions
- * @property {"block"|"warn"|"log"} [mode="warn"] - Action on detection
- * @property {boolean} [enabled=true] - Whether the guard is active
- * @property {"low"|"medium"|"high"} [blockThreshold="high"] - Minimum severity to block
- * @property {Array<string|RegExp|{name?: string, pattern: string|RegExp, severity?: "low"|"medium"|"high"}>} [customPatterns]
- * @property {Object} [logger] - Logger instance (defaults to console)
- */
+export interface GuardPattern {
+  name: string;
+  pattern: RegExp;
+  severity: 'low' | 'medium' | 'high';
+}
 
-const DEFAULT_GUARD_PATTERNS = [
+export interface GuardOptions {
+  mode?: 'block' | 'warn' | 'log';
+  enabled?: boolean;
+  blockThreshold?: 'low' | 'medium' | 'high';
+  customPatterns?: Array<string | RegExp | { name?: string; pattern: string | RegExp; severity?: 'low' | 'medium' | 'high' }>;
+  logger?: Console;
+}
+
+export interface SanitizeResult {
+  flagged: boolean;
+  detections: Array<{ pattern: string; severity: string; match: string }>;
+  piiDetections: unknown[];
+}
+
+export interface GuardResult {
+  blocked: boolean;
+  result: SanitizeResult;
+}
+
+const DEFAULT_GUARD_PATTERNS: GuardPattern[] = [
   {
     name: "system_override_inline",
     pattern: /\bsystem\s*:\s*override\b/i,
@@ -37,9 +44,9 @@ const SEVERITY_SCORES = {
   low: 1,
   medium: 2,
   high: 3,
-};
+} as const;
 
-function normalizePatternEntry(entry: any, index: number) {
+function normalizePatternEntry(entry: string | RegExp | { name?: string; pattern: string | RegExp; severity?: 'low' | 'medium' | 'high' }, index: number): GuardPattern | null {
   if (entry instanceof RegExp) {
     return {
       name: `custom_${index}`,
@@ -67,8 +74,8 @@ function normalizePatternEntry(entry: any, index: number) {
   };
 }
 
-function detectWithPatterns(text: string, patterns: any[]) {
-  const detections = [];
+function detectWithPatterns(text: string, patterns: GuardPattern[]): Array<{ pattern: string; severity: string; match: string }> {
+  const detections: Array<{ pattern: string; severity: string; match: string }> = [];
 
   for (const rule of patterns) {
     const match = text.match(rule.pattern);
@@ -84,7 +91,7 @@ function detectWithPatterns(text: string, patterns: any[]) {
   return detections;
 }
 
-function shouldBlock(detections: any[], threshold: string) {
+function shouldBlock(detections: Array<{ severity: string }>, threshold: string): boolean {
   const minimumSeverity = SEVERITY_SCORES[threshold as keyof typeof SEVERITY_SCORES] || 3;
   return detections.some(
     (d) => (SEVERITY_SCORES[d.severity as keyof typeof SEVERITY_SCORES] || 0) >= minimumSeverity
@@ -93,33 +100,27 @@ function shouldBlock(detections: any[], threshold: string) {
 
 /**
  * Create a prompt injection guard middleware.
- *
- * @param {GuardOptions} [options={}]
- * @returns {(req: Request) => { blocked: boolean, result: Object }|null}
  */
-export function createInjectionGuard(options: any = {}) {
+export function createInjectionGuard(options: GuardOptions = {}): (body: unknown) => GuardResult {
   const mode =
     options.mode || process.env.INJECTION_GUARD_MODE || process.env.INPUT_SANITIZER_MODE || "warn";
   const enabled = options.enabled ?? process.env.INPUT_SANITIZER_ENABLED !== "false";
   const blockThreshold = options.blockThreshold || options.threshold || "high";
-  const logger = options.logger || console;
+  const loggerInstance = options.logger || console;
   const customPatterns = [...DEFAULT_GUARD_PATTERNS, ...(options.customPatterns || [])]
     .map(normalizePatternEntry)
-    .filter(Boolean);
+    .filter((p): p is GuardPattern => p !== null);
 
   /**
    * Check a request body for prompt injection.
-   *
-   * @param {Object} body - The parsed request body
-   * @returns {{ blocked: boolean, result: Object }}
    */
-  return function guardRequest(body: any) {
+  return function guardRequest(body: unknown): GuardResult {
     if (!enabled || !body || typeof body !== "object") {
       return { blocked: false, result: { flagged: false, detections: [], piiDetections: [] } };
     }
 
-    const result: any = sanitizeRequest(body, logger);
-    const contents = extractMessageContents(body);
+    const result: SanitizeResult = sanitizeRequest(body as Record<string, unknown>, loggerInstance);
+    const contents = extractMessageContents(body as Record<string, unknown>);
     const customDetections = detectWithPatterns(contents.join("\n"), customPatterns);
 
     if (customDetections.length > 0) {
@@ -137,20 +138,19 @@ export function createInjectionGuard(options: any = {}) {
 
     result.flagged = result.detections.length > 0 || result.piiDetections.length > 0;
 
-    // Check if any detections were found (sanitizeRequest returns .detections, NOT .flagged)
     if (!result.flagged) {
       return { blocked: false, result };
     }
 
     if (mode === "block" && shouldBlock(result.detections, blockThreshold)) {
-      logger.warn?.("[InjectionGuard] Blocked request with prompt injection:", {
+      loggerInstance.warn?.("[InjectionGuard] Blocked request with prompt injection:", {
         detections: result.detections.map((d) => ({ pattern: d.pattern, severity: d.severity })),
       });
       return { blocked: true, result };
     }
 
     if (mode === "warn" || mode === "log") {
-      logger[mode === "warn" ? "warn" : "info"]?.(
+      loggerInstance[mode === "warn" ? "warn" : "info"]?.(
         "[InjectionGuard] Detected potential injection patterns:",
         {
           detections: result.detections.map((d) => ({ pattern: d.pattern, severity: d.severity })),
@@ -165,15 +165,14 @@ export function createInjectionGuard(options: any = {}) {
 
 /**
  * Next.js API route handler wrapper for injection guarding.
- *
- * @param {Function} handler - Original route handler
- * @param {GuardOptions} [options={}]
- * @returns {Function} Wrapped handler
  */
-export function withInjectionGuard(handler: any, options: any = {}) {
+export function withInjectionGuard(
+  handler: (request: Request, context: unknown) => Promise<Response>,
+  options: GuardOptions = {}
+) {
   const guard = createInjectionGuard(options);
 
-  return async function guardedHandler(request: any, context: any) {
+  return async function guardedHandler(request: Request, context: unknown): Promise<Response> {
     // Only apply to POST/PUT/PATCH
     if (!["POST", "PUT", "PATCH"].includes(request.method)) {
       return handler(request, context);
@@ -185,7 +184,7 @@ export function withInjectionGuard(handler: any, options: any = {}) {
       const body = await cloned.json().catch(() => null);
 
       if (body) {
-        const { blocked, result }: any = guard(body);
+        const { blocked, result } = guard(body);
 
         if (blocked) {
           return new Response(
@@ -206,9 +205,10 @@ export function withInjectionGuard(handler: any, options: any = {}) {
           request.headers.set("X-Injection-Detections", String(result.detections.length));
         }
       }
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       // Don't block on guard errors — fail open
-      logger.warn('[prompt Injection Guard] operation failed', error);
+      logger.warn('[prompt Injection Guard] operation failed', err);
     }
 
     return handler(request, context);

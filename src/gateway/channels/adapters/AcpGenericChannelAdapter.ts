@@ -10,7 +10,7 @@ import type {
 export class AcpGenericChannelAdapter implements GatewayChannelAdapter {
   public readonly id = 'acp-generic';
   public readonly name = 'ACP Generic Channel Adapter';
-  public readonly type: 'duplex' = 'duplex';
+  public readonly type = 'duplex' as const;
 
   private lastReceipt: AcpGenericChannelAdapterReceipt | null = null;
 

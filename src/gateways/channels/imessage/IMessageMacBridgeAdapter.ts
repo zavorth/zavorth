@@ -22,7 +22,7 @@ type IMessageMacBridgeAdapterRuntime = {
 export class IMessageMacBridgeAdapter implements GatewayChannelAdapter {
   id = 'imessage';
   name = 'iMessage macOS Node Host Bridge';
-  type: 'async' = 'async';
+  type = 'async' as const;
   private readonly outboxDir: string;
   private readonly now: () => Date;
   private readonly requireApproval: boolean;

@@ -7,8 +7,10 @@ export async function startRuntimeWatchers(
   foundation: BootstrapFoundation,
   surfaceRuntime: BootstrapSurfaceRuntime,
 ): Promise<void> {
-  const WatcherModule = require('../orchestrator/RealZavorthBridgeWatcher.js').RealZavorthBridgeWatcher;
-  const MailboxWatcher = require('../orchestrator/MailboxWatcher.js').MailboxWatcher;
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { RealZavorthBridgeWatcher: WatcherModule } = require('../orchestrator/RealZavorthBridgeWatcher.js');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { MailboxWatcher } = require('../orchestrator/MailboxWatcher.js');
 
   const responseWatcher = new WatcherModule(foundation.logRepo, surfaceRuntime.botGateway, {
     taskManager: foundation.taskManager,

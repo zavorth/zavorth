@@ -662,6 +662,7 @@ export class ExternalExecutor implements IExecutor {
         maxBuffer: 1024 * 1024,
         windowsHide: true,
       }));
+      // eslint-disable-next-line no-control-regex
       const cleaned = stdout.replace(/\u0000/g, '');
       const lines = cleaned
         .split(/\r?\n/)
@@ -703,7 +704,7 @@ export class ExternalExecutor implements IExecutor {
       return value;
     }
 
-    return `'${value.replace(/'/g, `'\"'\"'`)}'`;
+    return `'${value.replace(/'/g, `'"'"'`)}'`;
   }
 
   private cleanOutput(value: unknown): string {

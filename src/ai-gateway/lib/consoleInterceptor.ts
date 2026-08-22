@@ -1,4 +1,3 @@
-import { asErrorLike } from '../../utils/errorLike';
 /**
  * Console Log Interceptor — captures console output to a log file.
  *
@@ -20,7 +19,7 @@ const logToFile = getAppLogToFile();
 const logFilePath = resolve(getAppLogFilePath());
 
 declare global {
-  var __ZavorthGatewayConsoleInterceptorInit: boolean | undefined;
+  let __ZavorthGatewayConsoleInterceptorInit: boolean | undefined;
 }
 
 /**
@@ -62,7 +61,7 @@ function argsToMessage(args: unknown[]): string {
       if (typeof arg === "object" && arg !== null) {
         try {
           return JSON.stringify(arg);
-        } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+        } catch (error: unknown) { 
     logger.warn('[console Interceptor] serialization failed', error);
     return String(arg);
   }
@@ -85,7 +84,7 @@ function writeEntry(level: string, args: unknown[]) {
       message,
     };
     appendFileSync(logFilePath, JSON.stringify(entry) + "\n");
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) { 
       // Silently fail — never break the app over log writing
       logger.warn('[console Interceptor] operation failed', error);
     }
@@ -103,7 +102,7 @@ export function initConsoleInterceptor(): void {
 
   try {
     ensureDir();
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) { 
     logger.warn('[console Interceptor] operation failed', error);
     // Can't create log dir — skip interception
     return;

@@ -1,6 +1,24 @@
 import { TelegramMnemosController } from '../../../src/telegram/controllers/TelegramMnemosController';
 
-function createCtx() {
+interface MockContext {
+  answerCallbackQuery: jest.Mock;
+  editMessageText: jest.Mock;
+  reply: jest.Mock;
+}
+
+interface MockLogRepo {
+  log: jest.Mock;
+}
+
+interface MockMcpRuntimeService {
+  readSnapshot: jest.Mock;
+}
+
+interface MockMnemosService {
+  processCallback: jest.Mock;
+}
+
+function createCtx(): MockContext {
   return {
     answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
     editMessageText: jest.fn().mockResolvedValue(undefined),
@@ -18,12 +36,12 @@ describe('TelegramMnemosController', () => {
     });
     const ctx = createCtx();
     const controller = new TelegramMnemosController({
-      logRepo: { log: jest.fn() } as any,
-      mcpRuntimeService: { readSnapshot: jest.fn() } as any,
-      mnemosService: { processCallback } as any,
+      logRepo: { log: jest.fn() } as unknown as MockLogRepo,
+      mcpRuntimeService: { readSnapshot: jest.fn() } as unknown as MockMcpRuntimeService,
+      mnemosService: { processCallback } as unknown as MockMnemosService,
     });
 
-    await controller.handleMnemosCallback(ctx as any, 'mnemos:index_confirm:path');
+    await controller.handleMnemosCallback(ctx as unknown as Parameters<typeof controller.handleMnemosCallback>[0], 'mnemos:index_confirm:path');
 
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
     expect(processCallback).toHaveBeenCalledWith('mnemos:index_confirm:path', expect.any(Object));
@@ -33,12 +51,12 @@ describe('TelegramMnemosController', () => {
   it('responds safely when the MCP runtime is unavailable', async () => {
     const ctx = createCtx();
     const controller = new TelegramMnemosController({
-      logRepo: { log: jest.fn() } as any,
+      logRepo: { log: jest.fn() } as unknown as MockLogRepo,
       mcpRuntimeService: null,
-      mnemosService: { processCallback: jest.fn() } as any,
+      mnemosService: { processCallback: jest.fn() } as unknown as MockMnemosService,
     });
 
-    await controller.handleMnemosCallback(ctx as any, 'mnemos:vault_status');
+    await controller.handleMnemosCallback(ctx as unknown as Parameters<typeof controller.handleMnemosCallback>[0], 'mnemos:vault_status');
 
     expect(ctx.editMessageText).toHaveBeenCalledWith(expect.stringContaining('Mnemos is not connected'));
   });
@@ -47,8 +65,8 @@ describe('TelegramMnemosController', () => {
     const ctx = createCtx();
     ctx.editMessageText.mockRejectedValueOnce(new Error('stale message'));
     const controller = new TelegramMnemosController({
-      logRepo: { log: jest.fn() } as any,
-      mcpRuntimeService: { readSnapshot: jest.fn() } as any,
+      logRepo: { log: jest.fn() } as unknown as MockLogRepo,
+      mcpRuntimeService: { readSnapshot: jest.fn() } as unknown as MockMcpRuntimeService,
       mnemosService: {
         processCallback: jest.fn().mockResolvedValue({
           handled: true,
@@ -56,10 +74,10 @@ describe('TelegramMnemosController', () => {
           action: 'vault_status',
           error: null,
         }),
-      } as any,
+      } as unknown as MockMnemosService,
     });
 
-    await controller.handleMnemosCallback(ctx as any, 'mnemos:vault_status');
+    await controller.handleMnemosCallback(ctx as unknown as Parameters<typeof controller.handleMnemosCallback>[0], 'mnemos:vault_status');
 
     expect(ctx.reply).toHaveBeenCalledWith('status');
   });

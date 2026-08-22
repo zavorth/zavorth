@@ -11,7 +11,7 @@ describe('ZavorthMemoryGraphTool', () => {
       fs.mkdirSync(testDir, { recursive: true });
     }
     const store = new KnowledgeGraphStore(testDir);
-    (ZavorthMemoryGraphTool as any).globalStore = store;
+    (ZavorthMemoryGraphTool as unknown as { globalStore: import('../../src/memory/graph/KnowledgeGraphStore').KnowledgeGraphStore }).globalStore = store;
   });
 
   afterAll(() => {

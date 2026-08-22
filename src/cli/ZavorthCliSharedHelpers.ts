@@ -166,6 +166,7 @@ export function sha256(value: Buffer): string {
 }
 
 export function runProcess(command: string, args: string[], cwd: string, timeoutMs: number): Promise<{ exitCode: number; output: string; durationMs: number; timedOut: boolean }> {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { exec, execFile } = require('child_process');
   return new Promise((resolve) => {
     const start = Date.now();

@@ -5,7 +5,7 @@ import { GatewayEventBus } from '../../events/GatewayEventBus';
 export class CliChannelAdapter implements GatewayChannelAdapter {
   id = 'cli';
   name = 'Text CLI / REPL';
-  type: 'sync' = 'sync';
+  type = 'sync' as const;
 
   constructor(private eventBus: GatewayEventBus) {}
 

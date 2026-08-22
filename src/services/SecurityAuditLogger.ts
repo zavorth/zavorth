@@ -42,6 +42,7 @@ export class SecurityAuditLogger {
 
   // Runtime string sanitization: strip control characters
   private sanitizeString(val: string, maxLength = 128): string {
+    // eslint-disable-next-line no-control-regex
     const cleaned = val.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
     return cleaned.slice(0, maxLength);
   }
@@ -76,6 +77,7 @@ export class SecurityAuditLogger {
           throw new Error(`Payload field "${key}" exceeds maximum length of 128 characters.`);
         }
         // Reject newlines, carriage returns, tabs, and control chars
+        // eslint-disable-next-line no-control-regex
         if (/[\r\n\t\x00-\x1F\x7F-\x9F]/.test(val)) {
           throw new Error(`Payload field "${key}" contains forbidden newline or control characters.`);
         }
@@ -87,6 +89,7 @@ export class SecurityAuditLogger {
     if (value.length > maxLength) {
       throw new Error(`Path field exceeds maximum length of ${maxLength} characters.`);
     }
+    // eslint-disable-next-line no-control-regex
     if (/[\r\n\t\x00-\x1F\x7F-\x9F]/.test(value)) {
       throw new Error(`Path field contains forbidden newline or control characters.`);
     }

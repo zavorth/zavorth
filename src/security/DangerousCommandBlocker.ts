@@ -111,6 +111,7 @@ export class DangerousCommandBlocker {
 
   private static normalizeCommand(command: string): string {
     return String(command || '')
+  // eslint-disable-next-line no-control-regex
       .replace(/\u0000/g, '')
       .replace(/\s+/g, ' ')
       .trim();

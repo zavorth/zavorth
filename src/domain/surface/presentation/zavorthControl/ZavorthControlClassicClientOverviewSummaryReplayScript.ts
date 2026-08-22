@@ -263,6 +263,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       '</div>';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime by the concatenated classic-client script
   function renderOperationsOverview(overview: OverviewData): void {
     const summary: OverviewSummary = overview && overview.summary ? overview.summary : {};
     renderOverviewBlock(
@@ -288,6 +289,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime by the concatenated classic-client script
   function renderOperationsTrustOverview(overview: OverviewData): void {
     const summary: OverviewSummary = overview && overview.summary ? overview.summary : {};
     renderOverviewBlock(
@@ -313,6 +315,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime by the concatenated classic-client script
   function renderOperationsProductOverview(overview: OverviewData): void {
     const summary: OverviewSummary = overview && overview.summary ? overview.summary : {};
     renderOverviewBlock(
@@ -340,6 +343,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime by the concatenated classic-client script
   function renderOperationsControlPlaneCatalog(catalog: OverviewData): void {
     const summary: OverviewSummary = catalog && catalog.summary ? catalog.summary : {};
     renderOverviewBlock(
@@ -373,6 +377,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime by the concatenated classic-client script
   function renderOperationsReplay(replay: ReplayData): void {
     const node = document.getElementById('operations-replay');
     if (!node) return;
@@ -463,6 +468,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       '</div>';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime by the concatenated classic-client script
   function renderOperationsLifecycle(lifecycle: LifecycleData): void {
     const node = document.getElementById('operations-lifecycle');
     if (!node) return;
@@ -559,6 +565,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       '</div>';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime by the concatenated classic-client script
   function renderOperationsHandoff(handoff: HandoffData): void {
     const node = document.getElementById('operations-handoff');
     if (!node) return;

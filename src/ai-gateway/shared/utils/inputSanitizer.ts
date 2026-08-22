@@ -74,6 +74,7 @@ const INJECTION_PATTERNS = [
   {
     name: "token_smuggling",
     pattern:
+  // eslint-disable-next-line no-misleading-character-class
       /[\u200B\u200C\u200D\u2060\uFEFF\u00AD]{3,}|[\u0410-\u044F][a-zA-Z]|[a-zA-Z][\u0410-\u044F]/,
     severity: "medium",
   },

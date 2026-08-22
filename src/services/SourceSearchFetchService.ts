@@ -289,6 +289,7 @@ function decodeBasicEntities(value: string): string {
 
 function stripControlNoise(value: string): string {
   return value
+  // eslint-disable-next-line no-control-regex
     .replace(/\u0000/g, '')
     .replace(/[ \t]+\n/g, '\n')
     .replace(/\n{3,}/g, '\n\n')

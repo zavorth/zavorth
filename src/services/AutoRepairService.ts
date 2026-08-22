@@ -529,7 +529,7 @@ export class AutoRepairService {
       }
 
       if (insideTestFailure) {
-        const stackMatch = l.match(/at\s+(?:.+?\s+\()?([a-zA-Z0-9_\-\/\\\.]+?\.(?:ts|js)):(\d+):(\d+)\)?/);
+        const stackMatch = l.match(/at\s+(?:.+?\s+\()?([a-zA-Z0-9_\-/\\.]+?\.(?:ts|js)):(\d+):(\d+)\)?/);
         if (stackMatch) {
           if (!file) {
             file = stackMatch[1].replace(/\\/g, '/');
@@ -548,7 +548,7 @@ export class AutoRepairService {
 
     if (!file) {
       for (const l of lines) {
-        const stackMatch = l.match(/at\s+(?:.+?\s+\()?([a-zA-Z0-9_\-\/\\\.]+?\.(?:ts|js)):(\d+):(\d+)\)?/);
+        const stackMatch = l.match(/at\s+(?:.+?\s+\()?([a-zA-Z0-9_\-/\\.]+?\.(?:ts|js)):(\d+):(\d+)\)?/);
         if (stackMatch) {
           file = stackMatch[1].replace(/\\/g, '/');
           line = safeParseInt(stackMatch[2], 0);
@@ -565,7 +565,7 @@ export class AutoRepairService {
       const trimmed = el.trim();
       if (trimmed.includes('|')) return false;
       if (trimmed.startsWith('>')) return false;
-      if (/^[~^\|\s]+$/.test(trimmed)) return false;
+      if (/^[~^|\s]+$/.test(trimmed)) return false;
       return true;
     });
 

@@ -2,6 +2,16 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { config } from './ZavorthControlServiceDependencies.js';
+import {
+  ProductObservabilityService,
+  OperationsReportService,
+  ZavorthAgentOperatingSystemActionService,
+  ZavorthTenantGovernanceActionService,
+  CodexRemoteActionService,
+  NodeInvokeService,
+  NodeHeartbeatService,
+  NodePairingService,
+} from './ZavorthControlServiceDependencies.js';
 
 const assetRoot = path.resolve('C:/DEV WORKSPACE/Projetos/Zavorth', 'assets', 'zavorth-control');
 import { ZavorthControlOperationsRouteService } from '../ZavorthControlOperationsRouteService.js';
@@ -258,14 +268,14 @@ export function refreshRuntimeBackedReporting(
   service.sessionContinuity = runtime.taskManager ? new SessionContinuityService(runtime.taskManager) : null;
   service.continuityUserId = runtime.webUserId || service.continuityUserId || config.allowedUserIds[0] || '1';
   if (!service.productObservabilityInjected) {
-    service.productObservability = new (require('./ZavorthControlServiceDependencies.js').ProductObservabilityService)(
+    service.productObservability = new ProductObservabilityService(
       service.reportTaskManager || null,
       service.reportPermissionService || null,
       { workflowRunService: service.workflowRuns },
     );
   }
   if (!service.reportServiceInjected) {
-    service.operationsReport = new (require('./ZavorthControlServiceDependencies.js').OperationsReportService)(
+    service.operationsReport = new OperationsReportService(
       service.operationsCockpit,
       null,
       service.reportTaskManager || null,
@@ -345,14 +355,14 @@ export function attachChatRuntime(service: ZavorthControlFacadeCompat, runtime: 
   refreshRuntimeBackedReporting(service, canonicalRuntime);
   rebuildRuntimeDependentServices(service);
   service.agentOperatingSystemActions =
-    new (require('./ZavorthControlServiceDependencies.js').ZavorthAgentOperatingSystemActionService)({
+    new ZavorthAgentOperatingSystemActionService({
       workflowController: canonicalRuntime.workflowController || null,
       teamCatalogService: service.teamCatalog,
       agentOperatingSystemService: service.agentOperatingSystem,
       capabilityCatalogService: service.capabilityCatalog,
     });
   service.tenantGovernanceActions =
-    new (require('./ZavorthControlServiceDependencies.js').ZavorthTenantGovernanceActionService)({
+    new ZavorthTenantGovernanceActionService({
       tenantGovernanceService: service.tenantGovernance,
       teamCatalogService: service.teamCatalog,
       channelMeshService: service.channelMesh,
@@ -363,7 +373,7 @@ export function attachChatRuntime(service: ZavorthControlFacadeCompat, runtime: 
       workflowController: canonicalRuntime.workflowController || null,
       runtimeUserId: canonicalRuntime.webUserId || service.continuityUserId || config.allowedUserIds[0] || '1',
     });
-  service.codexRemoteActions = new (require('./ZavorthControlServiceDependencies.js').CodexRemoteActionService)({
+  service.codexRemoteActions = new CodexRemoteActionService({
     controlPlaneService: service.codexRemote,
     permissionService: service.reportPermissionService || null,
     runtimeUserId: canonicalRuntime.webUserId || service.continuityUserId || config.allowedUserIds[0] || '1',
@@ -424,7 +434,7 @@ export function buildMemoryPlaneService(service: ZavorthControlFacadeCompat): Za
 }
 
 export function buildNodeInvokeService(service: ZavorthControlFacadeCompat): NodeInvokeService {
-  return new (require('./ZavorthControlServiceDependencies.js').NodeInvokeService)({
+  return new NodeInvokeService({
     registryService: service.nodeRegistry,
     capabilityService: service.nodeCapabilities,
     invocationStoreService: service.nodeInvocationStore,
@@ -432,7 +442,7 @@ export function buildNodeInvokeService(service: ZavorthControlFacadeCompat): Nod
 }
 
 export function buildNodeHeartbeatService(service: ZavorthControlFacadeCompat): NodeHeartbeatService {
-  return new (require('./ZavorthControlServiceDependencies.js').NodeHeartbeatService)({
+  return new NodeHeartbeatService({
     registryService: service.nodeRegistry,
     invokeService: service.nodeInvoke,
     pairingService: service.nodePairing,
@@ -449,7 +459,7 @@ export function buildNodeMeshService(service: ZavorthControlFacadeCompat): Zavor
 }
 
 export function buildNodePairingService(service: ZavorthControlFacadeCompat): NodePairingService {
-  return new (require('./ZavorthControlServiceDependencies.js').NodePairingService)({
+  return new NodePairingService({
     registryService: service.nodeRegistry,
     capabilityService: service.nodeCapabilities,
     deviceProfileService: service.nodeDeviceProfiles,

@@ -496,6 +496,7 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
   }
 
   private writeCompressed(filePath: string, content: string, level: number): string {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const zlib = require('zlib');
     const compressed = zlib.gzipSync(Buffer.from(content, 'utf-8'), { level });
     fs.writeFileSync(`${filePath}.gz`, compressed);

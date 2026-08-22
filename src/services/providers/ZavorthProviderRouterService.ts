@@ -1,4 +1,3 @@
-import { asErrorLike } from '../../utils/errorLike';
 import { logger } from '../../logger.js';
 import * as http from 'http';
 import type {
@@ -8,8 +7,6 @@ import type {
   ZavorthProviderRouterSnapshot,
   ZavorthProviderRouterStatus,
   ZavorthProviderRouterCompletionStatus,
-  ZavorthProviderRouterRateLimitState,
-  ZavorthProviderRouterHealthState,
   ZavorthProviderRouterMessage,
   ZavorthProviderRouterContextBudgetReceipt,
   ZavorthProviderRouterBudgetPreference,
@@ -23,7 +20,6 @@ import {
   getDefaultProviderIntegrationRegistry,
 } from './catalog/ProviderIntegrationRegistry.js';
 import type {
-  ProviderIntegrationManifest,
   ProviderIntegrationRouteManifest,
 } from './catalog/ProviderIntegrationManifest.js';
 
@@ -535,7 +531,7 @@ export class ZavorthProviderRouterService {
         const routerRequest = this.parseRouterRequest(body as RouterRequestInput);
         const receipt = await this.route(routerRequest);
         this.writeJson(res, { ok: true, receipt }, 200);
-      } catch (error: unknown) { const e = asErrorLike(error);
+      } catch (error: unknown) {
         const err = error as Error;
         this.writeJson(
           res,
@@ -556,7 +552,7 @@ export class ZavorthProviderRouterService {
 
         const openAiResponse = this.receiptToOpenAiResponse(receipt, openAiBody.model);
         this.writeJson(res, openAiResponse, receipt.status === 'all-providers-exhausted' ? 503 : 200);
-      } catch (error: unknown) { const e = asErrorLike(error);
+      } catch (error: unknown) {
         const err = error as Error;
         this.writeJson(res, {
           error: {
@@ -596,7 +592,7 @@ export class ZavorthProviderRouterService {
       || safeParseInt(process.env[OPENAI_COMPAT_PORT_ENV], DEFAULT_OPENAI_COMPAT_PORT);
 
     const server = http.createServer((req, res) => {
-      this.handleOpenAiCompatibleRequest(req, res).catch((err) => {
+      this.handleOpenAiCompatibleRequest(req, res).catch(() => {
         if (!res.headersSent) {
           res.writeHead(500, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: { message: 'Internal error.', type: 'server_error' } }));

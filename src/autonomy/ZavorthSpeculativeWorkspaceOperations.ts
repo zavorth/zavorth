@@ -8,8 +8,6 @@ import type {
 } from './ZavorthSpeculativeAutonomyService.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
-const MAX_VALIDATION_COMMANDS = 3;
-const MAX_AST_FILES = 80;
 const MAX_DIFF_CHARS = 100000;
 const MAX_STDIO_CHARS = 12000;
 const MAX_EDIT_BYTES = 1024 * 1024;
@@ -33,13 +31,6 @@ const IGNORED_RELATIVE_PREFIXES = [
   'data\\runtime\\',
 ];
 
-const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mts', '.cts'];
-
-function normalizeText(value: unknown, fallback = ''): string {
-  const text = String(value ?? '').trim();
-  return text || fallback;
-}
-
 function normalizePortablePath(value: string): string {
   return value.replace(/\\/g, '/').replace(/\//g, '/');
 }
@@ -53,31 +44,11 @@ function clampText(value: unknown, maxChars = MAX_STDIO_CHARS): string {
   return text.length <= maxChars ? text : text.slice(0, maxChars - 20) + '\n[truncated]';
 }
 
-function normalizeSandboxIsolation(value: unknown): 'container' | 'local-copy' | 'microvm' | 'auto' {
-  const text = normalizeText(value).toLowerCase();
-  if (text === 'container' || text === 'docker') {
-    return 'container';
-  }
-  if (text === 'host' || text === 'local' || text === 'local-copy') {
-    return 'local-copy';
-  }
-  if (text === 'microvm' || text === 'firecracker') {
-    return 'microvm';
-  }
-  return 'auto';
-}
-
 export type WorkspaceCopyStats = {
   files: number;
   bytes: number;
   skipped: string[];
 };
-
-const SENSITIVE_WORKSPACE_PATH_PATTERN =
-  /(^|[\\/])(\.env(?:\.|$)|.ssh|\.aws|\.gnupg|secrets.*|credentials.*|private[-_]?key|id_rsa|id_ed25519)([\\/]|$)/i;
-const BROAD_WINDOWS_ROOT_PATTERN = /^[a-z]:[\\/]?$/i;
-const SYSTEM_WORKSPACE_PATH_PATTERN =
-  /(^[a-z]:[\\/](windows|program files|program files \(x86\)|programdata)([\\/]|$)|^[\\/]?(etc|bin|usr|var|root)([\\/]|$))/i;
 
 function countOccurrences(value: string, search: string): number {
   if (!search) return 0;

@@ -47,7 +47,7 @@ describe('EchoCapabilityCatalogService', () => {
         requiresPermission: false,
         parameters: { type: 'object', properties: {} },
       },
-    ] as any, registry);
+    ] as unknown as Array<{ name: string; description: string; category: string; dangerLevel: string; requiresPermission: boolean; parameters: { type: string; properties: Record<string, unknown> } }>, registry);
 
     expect(registered).toHaveLength(5);
     const screenshot = registry.getAll().find((capability) => capability.id === 'echo-capability-os_screenshot');

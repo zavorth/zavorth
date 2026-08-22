@@ -560,6 +560,7 @@ export class ZavorthProductizationProtectedRuntimeService {
     evidence: unknown[];
     verifiedAt?: string;
   }): ZavorthMissionContract {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { gateMissionCompletion } = require('./AgentMissionCompletionGate.js') as typeof import('./AgentMissionCompletionGate.js');
     const definition = input.mission.definition;
     if (!definition) {

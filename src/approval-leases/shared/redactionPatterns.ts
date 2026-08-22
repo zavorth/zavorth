@@ -29,7 +29,7 @@ export function sanitizeLeaseFeedback(text: string): string {
   let sanitized = text;
 
   // Remove private filesystem paths when avoidable (do this first to protect paths from other redactions)
-  sanitized = sanitized.replace(/[a-zA-Z]:\\[\w\s.-]+|\/[\w\s.-]+(?:[\/\\][\w\s.-]+)+/gi, '[REDACTED_PATH]');
+  sanitized = sanitized.replace(/[a-zA-Z]:\\[\w\s.-]+|\/[\w\s.-]+(?:[/\\][\w\s.-]+)+/gi, '[REDACTED_PATH]');
 
   // Redact Authorization/Bearer patterns and their token values (up to punctuation or end)
   sanitized = sanitized.replace(/(?:Authorization|Bearer)\s*[:\s]\s*[^.,;\s]+(?:\s+[^.,;\s]+){0,3}/gi, '[REDACTED_AUTH]');

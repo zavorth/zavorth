@@ -22,7 +22,7 @@ describe('ZavorthMacroTool (Workflow Macro Tool)', () => {
     // 3. List macros
     const listRes = JSON.parse(await tool.execute({ action: 'list' }));
     expect(listRes.success).toBe(true);
-    expect(listRes.macros.some((m: any) => m.name === 'build-and-test')).toBe(true);
+    expect(listRes.macros.some((m: { name?: string }) => m.name === 'build-and-test')).toBe(true);
 
     // 4. Delete macro
     const deleteRes = JSON.parse(await tool.execute({ action: 'delete', name: 'build-and-test' }));

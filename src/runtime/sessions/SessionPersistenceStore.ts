@@ -552,6 +552,6 @@ function rowToChunk(row: MemoryRow): CompressedMemoryChunk {
 }
 
 function loadBetterSqlite3(): SqliteConstructor {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   return require('better-sqlite3') as SqliteConstructor;
 }

@@ -1,100 +1,15 @@
-import { ActionCardService } from './ActionCardService.js';
-import { defaultZavorthSpeculativeAutonomyCancellationRegistry } from '../../autonomy/ZavorthSpeculativeAutonomyService.js';
-import { ZavorthRuntimeStateBusService } from '../ZavorthRuntimeStateBusService.js';
-import {
-  ZavorthRuntimeCapabilitiesService,
-  type ZavorthRuntimeCapabilitiesSnapshot,
-} from '../ZavorthRuntimeCapabilitiesService.js';
-import {
-  ZavorthRuntimeOperationalSpineService,
-  type ZavorthRuntimeOperationalSpineSyncInput,
-  type ZavorthRuntimeOperationalSpineSyncResult,
-} from '../ZavorthRuntimeOperationalSpineService.js';
-import { ZavorthRuntimeSecureIntegrationService } from '../ZavorthRuntimeSecureIntegrationService.js';
-
 import { logger } from '../../logger.js';
-import { tService } from '../../i18n/services.js';
 import {
-  EXPERIENCE_COMMAND_CONTRACT_VERSION,
   EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
-  EXPERIENCE_SNAPSHOT_CONTRACT_VERSION,
-  LEARNING_CANDIDATE_CONTRACT_VERSION,
   type ExperienceAction,
   type ExperienceActionCard,
-  type ExperienceApproval,
-  type ExperienceApprovalSurfaceProjection,
   type ExperienceCommand,
   type ExperienceCommandResult,
-  type ExperienceHealthStatus,
-  type ExperienceLearningCandidate,
-  type ExperienceMemorySignal,
   type ExperienceReceipt,
-  type ExperienceResponseProfileId,
   type ExperienceSnapshot,
-  type ExperienceSurface,
-  type ExperienceTimelineItem,
 } from './ExperienceContracts.js';
-import { projectResponseForChannel } from '../../domain/surface/application/surface-projection/projectors/SurfaceProjectorRegistry.js';
-import { buildAgentPermissionApprovalResponse } from '../permission/AgentPermissionApprovalPresentation.js';
-
-import { AutoHealingProjectionService } from './AutoHealingProjectionService.js';
-import { ContextRecoveryService } from './ContextRecoveryService.js';
-import { PulseBriefService } from './PulseBriefService.js';
-import { DiffReviewService } from './DiffReviewService.js';
-import { ExecutionGraphService } from './ExecutionGraphService.js';
-import { JourneyEngineService } from './JourneyEngineService.js';
-import { LearningOSService } from './LearningOSService.js';
-import { NaturalCommandRouterService } from './NaturalCommandRouterService.js';
-import { ReasoningSummaryService } from './ReasoningSummaryService.js';
-import { ResponseProfilePreferenceService } from './ResponseProfilePreferenceService.js';
-import { TrustLensService } from './TrustLensService.js';
-import type {
-  UniversalAgentModelProfile,
-  UniversalAgentRun,
-  UniversalAgentRunResult,
-  UniversalApprovalRequest,
-} from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
-import type {
-  ZavorthAgentGateway,
-  ZavorthAgentGatewaySnapshot,
-  ZavorthAgentGatewaySnapshotOptions,
-} from '../../runtime/agent/ZavorthAgentGateway.js';
-
-import { ZavorthProviderReadinessMatrixService } from '../ZavorthProviderReadinessMatrixService.js';
-import { ZavorthSelfHealingUxService } from '../ZavorthSelfHealingUxService.js';
-import {
-  ZavorthSelfHealingReceiptService,
-  type ZavorthSelfHealingReceipt,
-} from '../ZavorthSelfHealingReceiptService.js';
-import type { ZavorthMemoryPlaneService } from '../ZavorthMemoryPlaneService.js';
-import type { ZavorthLearningPlaneService } from '../ZavorthLearningPlaneService.js';
-import type { RuntimeAccessReadinessService } from '../../runtime/access/RuntimeAccessReadinessService.js';
-import type {
-  ZavorthSelfHealingAction,
-  ZavorthSelfHealingProjection,
-} from '../../contracts/ZavorthSelfHealingUxContract.js';
-import type { ZavorthLlmBrainSnapshot } from '../../contracts/ZavorthLlmBrainContract.js';
-import type { UniversalAgentRequest } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
-import { ZavorthAgentMaturityService, type ZavorthAgentMaturitySnapshot } from '../ZavorthAgentMaturityService.js';
-
-import type {
-  ZavorthRuntimeStateBusActionInput,
-  ZavorthRuntimeStateBusDispatchResult,
-  ZavorthRuntimeStateBusSnapshot,
-} from '../../contracts/ZavorthRuntimeStateBusContract.js';
-import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
-type AgentGatewayLike = Pick<ZavorthAgentGateway, 'handle' | 'buildSnapshot' | 'approve' | 'reject'>;
 
 import type { ExperienceCoreService } from './ExperienceCoreService.js';
-
-function normalizeText(value: unknown, fallback = ''): string {
-  const text = String(value ?? '').trim();
-  return text || fallback;
-}
-
-function recordOrNull(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
-}
 
 function normalizeKey(value: unknown): string {
   const normalized = String(value || '').normalize('NFD').toLowerCase();
@@ -128,44 +43,6 @@ function isProviderHealingIssue(issue: string): boolean {
     issue === 'provider_timeout' ||
     issue === 'provider_unavailable'
   );
-}
-
-function isLiveRunStatus(status: unknown): boolean {
-  return status === 'queued' || status === 'thinking' || status === 'running' || status === 'waiting_approval';
-}
-
-function isLiveWorkflowJobStatus(status: unknown): boolean {
-  return status === 'waiting_approval' || status === 'queued' || status === 'running';
-}
-
-function inferRequestedTimeZone(_text: string): string {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-}
-
-function isSimpleDateTimeQuestion(_text: string): boolean {
-  return false;
-}
-
-function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
-  if (!isSimpleDateTimeQuestion(text)) return null;
-  const timeZone = inferRequestedTimeZone(text);
-  try {
-    const formatted = new Intl.DateTimeFormat('en-US', {
-      timeZone,
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      timeZoneName: 'short',
-    }).format(now);
-    return `It is now ${formatted} in ${timeZone}.`;
-  } catch (error: unknown) {
-    logger.warn(`[ExperienceCore] Intl.DateTimeFormat failed for timezone ${timeZone}:`, error);
-    return `It is now ${now.toLocaleString('en-US')} in the system local timezone.`;
-  }
 }
 
 function parseActionCardId(actionId: string, allowedKinds: string[]): { kind: string; value: string } | null {

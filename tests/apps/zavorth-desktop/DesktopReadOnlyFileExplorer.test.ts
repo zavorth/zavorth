@@ -8,25 +8,25 @@ class MockElement {
   tagName: string;
   className = '';
   style = {};
-  childNodes: any[] = [];
-  parentNode: any = null;
+  childNodes: unknown[] = [];
+  parentNode: MockElement | MockTextNode | null = null;
   attributes: Record<string, string> = {};
-  listeners: Record<string, any> = {};
-  ownerDocument: any = null;
+  listeners: Record<string, (...args: unknown[]) => void> = {};
+  ownerDocument: MockElement | null = null;
 
   constructor(tagName: string) {
     this.tagName = tagName.toUpperCase();
     this.ownerDocument = mockDocument;
   }
 
-  appendChild(child: any) {
+  appendChild(child: MockElement | MockTextNode) {
     if (child.parentNode) child.parentNode.removeChild(child);
     child.parentNode = this;
     this.childNodes.push(child);
     return child;
   }
 
-  removeChild(child: any) {
+  removeChild(child: MockElement | MockTextNode) {
     const idx = this.childNodes.indexOf(child);
     if (idx !== -1) {
       this.childNodes.splice(idx, 1);
@@ -35,7 +35,7 @@ class MockElement {
     return child;
   }
 
-  insertBefore(child: any, reference: any) {
+  insertBefore(child: MockElement | MockTextNode, reference: MockElement | MockTextNode) {
     if (child.parentNode) child.parentNode.removeChild(child);
     child.parentNode = this;
     const idx = this.childNodes.indexOf(reference);
@@ -57,21 +57,21 @@ class MockElement {
     if (name === 'class') this.className = '';
   }
 
-  addEventListener(type: string, handler: any) {
+  addEventListener(type: string, handler: (...args: unknown[]) => void) {
     this.listeners[type] = handler;
   }
 
-  removeEventListener(type: string, handler: any) {
+  removeEventListener(type: string, handler: (...args: unknown[]) => void) {
     delete this.listeners[type];
   }
 
   click() {
-    let current: any = this;
+    let current: MockElement | MockTextNode | null = this;
     const event = {
       target: this,
       currentTarget: this,
       stopPropagation() {
-        (this as any)._stopped = true;
+        (event as unknown as { _stopped: boolean })._stopped = true;
       },
       preventDefault() {},
       _stopped: false,
@@ -112,11 +112,11 @@ class MockElement {
           }
         }
       }
-      if ((event as any)._stopped) break;
-      current = current.parentNode;
+      if ((event as unknown as { _stopped: boolean })._stopped) break;
+      current = current.parentNode as MockElement | MockTextNode | null;
     }
-    if (!(event as any)._stopped) {
-      event.currentTarget = mockDocument as any;
+    if (!(event as unknown as { _stopped: boolean })._stopped) {
+      event.currentTarget = mockDocument as unknown as MockElement;
       if (mockDocument.listeners && mockDocument.listeners.click) {
         try {
           mockDocument.listeners.click(event);
@@ -127,8 +127,8 @@ class MockElement {
         }
       }
     }
-    if (!(event as any)._stopped) {
-      event.currentTarget = mockWindow as any;
+    if (!(event as unknown as { _stopped: boolean })._stopped) {
+      event.currentTarget = mockWindow as unknown as MockElement;
       if (mockWindow.listeners && mockWindow.listeners.click) {
         try {
           mockWindow.listeners.click(event);
@@ -142,7 +142,7 @@ class MockElement {
   }
 
   get textContent(): string {
-    return this.childNodes.map(node => node.textContent || '').join('');
+    return this.childNodes.map(node => (node as MockElement | MockTextNode).textContent || '').join('');
   }
 
   set textContent(value: string) {
@@ -153,11 +153,11 @@ class MockElement {
     const attrs = Object.entries(this.attributes)
       .map(([k, v]) => ` ${k}="${v}"`)
       .join('');
-    const childrenHtml = this.childNodes.map(c => c.innerHTML || '').join('');
+    const childrenHtml = this.childNodes.map(c => (c as MockElement | MockTextNode).innerHTML || '').join('');
     return `<${this.tagName.toLowerCase()}${attrs}>${childrenHtml}</${this.tagName.toLowerCase()}>`;
   }
 
-  querySelector(selector: string): any {
+  querySelector(selector: string): MockElement | null {
     if (selector.startsWith('.')) {
       const cls = selector.slice(1);
       if (this.className.split(' ').includes(cls)) return this;
@@ -171,8 +171,8 @@ class MockElement {
     }
 
     for (const child of this.childNodes) {
-      if (child.querySelector) {
-        const found = child.querySelector(selector);
+      if ((child as MockElement).querySelector) {
+        const found = (child as MockElement).querySelector(selector);
         if (found) return found;
       }
     }
@@ -183,8 +183,8 @@ class MockElement {
 class MockTextNode {
   nodeType = 3;
   nodeValue: string;
-  parentNode: any = null;
-  ownerDocument: any = null;
+  parentNode: MockElement | MockTextNode | null = null;
+  ownerDocument: MockElement | null = null;
 
   constructor(value: string) {
     this.nodeValue = value;
@@ -215,14 +215,14 @@ const mockDocument = {
     fragment.nodeType = 11;
     return fragment;
   },
-  body: null as any,
-  documentElement: null as any,
-  activeElement: null as any,
-  listeners: {} as Record<string, any>,
-  addEventListener(type: string, handler: any) {
+  body: null as MockElement | null,
+  documentElement: null as MockElement | null,
+  activeElement: null as MockElement | null,
+  listeners: {} as Record<string, (...args: unknown[]) => void>,
+  addEventListener(type: string, handler: (...args: unknown[]) => void) {
     this.listeners[type] = handler;
   },
-  removeEventListener(type: string, handler: any) {
+  removeEventListener(type: string, handler: (...args: unknown[]) => void) {
     delete this.listeners[type];
   },
 };
@@ -230,7 +230,7 @@ const mockDocument = {
 mockDocument.body = new MockElement('body');
 mockDocument.documentElement = new MockElement('html');
 mockDocument.body.parentNode = mockDocument.documentElement;
-mockDocument.documentElement.parentNode = mockDocument as any;
+mockDocument.documentElement.parentNode = mockDocument as unknown as MockElement;
 
 const mockWindow = {
   document: mockDocument,
@@ -243,29 +243,43 @@ const mockWindow = {
   HTMLTextAreaElement: MockElement,
   HTMLSelectElement: MockElement,
   MouseEvent: class {},
-  listeners: {} as Record<string, any>,
-  addEventListener(type: string, handler: any) {
+  listeners: {} as Record<string, (...args: unknown[]) => void>,
+  addEventListener(type: string, handler: (...args: unknown[]) => void) {
     this.listeners[type] = handler;
   },
-  removeEventListener(type: string, handler: any) {
+  removeEventListener(type: string, handler: (...args: unknown[]) => void) {
     delete this.listeners[type];
   },
 };
 
-(global as any).window = mockWindow;
-(global as any).document = mockDocument;
-(global as any).navigator = mockWindow.navigator;
-(global as any).HTMLElement = MockElement;
-(global as any).HTMLDivElement = MockElement;
-(global as any).HTMLButtonElement = MockElement;
-(global as any).HTMLIFrameElement = MockElement;
-(global as any).HTMLInputElement = MockElement;
-(global as any).HTMLTextAreaElement = MockElement;
-(global as any).HTMLSelectElement = MockElement;
-(global as any).MouseEvent = mockWindow.MouseEvent;
-(global as any).requestAnimationFrame = (cb: any) => setTimeout(cb, 0);
-(global as any).cancelAnimationFrame = (id: any) => clearTimeout(id);
-(global as any).IS_REACT_ACT_ENVIRONMENT = true;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).window = mockWindow;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).document = mockDocument;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).navigator = mockWindow.navigator;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).HTMLElement = MockElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).HTMLDivElement = MockElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).HTMLButtonElement = MockElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).HTMLIFrameElement = MockElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).HTMLInputElement = MockElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).HTMLTextAreaElement = MockElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).HTMLSelectElement = MockElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).MouseEvent = mockWindow.MouseEvent;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).requestAnimationFrame = (cb: (...args: unknown[]) => void) => setTimeout(cb, 0);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).cancelAnimationFrame = (id: ReturnType<typeof setTimeout>) => clearTimeout(id);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = true;
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -276,7 +290,7 @@ import { FileExplorer, isSuspiciousPath, sanitizeTree } from '../../../apps/zavo
 const iconsPath = path.resolve('apps/zavorth-desktop/src/icons');
 const mockFn = () => {
   // React imported at top level
-  const DummyIcon = (props: any) => React.createElement('span', props);
+  const DummyIcon = (props: Record<string, unknown>) => React.createElement('span', props);
   return {
     ChevronDown: DummyIcon,
     ChevronRight: DummyIcon,
@@ -308,9 +322,9 @@ describe('Desktop Read-Only FileExplorer Component', () => {
   let root: Root | null = null;
 
   beforeEach(() => {
-    container = mockDocument.createElement('div') as any;
-    mockDocument.body.appendChild(container);
-    root = createRoot(container as any);
+    container = mockDocument.createElement('div') as unknown as HTMLDivElement;
+    mockDocument.body.appendChild(container as unknown as MockElement);
+    root = createRoot(container as unknown as Element);
   });
 
   afterEach(() => {
@@ -434,7 +448,7 @@ describe('Desktop Read-Only FileExplorer Component', () => {
         root!.render(React.createElement(FileExplorer, { data: mockTree }));
       });
 
-      const dirHeader = container!.querySelector('.zavorth-file-node-dir-header') as any;
+      const dirHeader = container!.querySelector('.zavorth-file-node-dir-header') as unknown as MockElement;
       expect(dirHeader).not.toBeNull();
       act(() => {
         dirHeader.click();
@@ -484,7 +498,7 @@ describe('Desktop Read-Only FileExplorer Component', () => {
         root!.render(React.createElement(FileExplorer, { data: mockTree }));
       });
 
-      const dirHeader = container!.querySelector('.zavorth-file-node-dir-header') as any;
+      const dirHeader = container!.querySelector('.zavorth-file-node-dir-header') as unknown as MockElement;
       expect(dirHeader).not.toBeNull();
       act(() => {
         dirHeader.click();
@@ -521,13 +535,13 @@ describe('Desktop Read-Only FileExplorer Component', () => {
         root!.render(React.createElement(FileExplorer, { data: mockTree, onAttachFile }));
       });
 
-      const dirHeader = container!.querySelector('.zavorth-file-node-dir-header') as any;
+      const dirHeader = container!.querySelector('.zavorth-file-node-dir-header') as unknown as MockElement;
       expect(dirHeader).not.toBeNull();
       act(() => {
         dirHeader.click();
       });
 
-      const fileNode = container!.querySelector('.zavorth-file-node-file') as any;
+      const fileNode = container!.querySelector('.zavorth-file-node-file') as unknown as MockElement;
       expect(fileNode).not.toBeNull();
 
       act(() => {

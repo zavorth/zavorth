@@ -48,7 +48,7 @@ export class InternalSurfaceApiService {
     const replies: string[] = [];
     const wrappedContext: IMessageContext = {
       ...input.context,
-      reply: async (text: string, options?: any) => {
+      reply: async (text: string, options?: Record<string, unknown>) => {
         replies.push(String(text || ''));
         await input.context.reply(text, options);
       },

@@ -58,7 +58,7 @@ export class ZavorthScheduledTaskOperationalGuardService {
       autoPauseRecommendedTasks: taskCards.filter((task) =>
         task.operationalStatus === 'auto_pause_recommended').length,
       autoPausedTasks: taskCards.filter((task) => task.operationalStatus === 'auto_paused').length,
-      workloadExecutionPerformed: false as false,
+      workloadExecutionPerformed: false as const,
     };
     receipts.push({
       id: 'gate-5-no-workload-execution',

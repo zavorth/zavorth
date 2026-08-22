@@ -62,6 +62,7 @@ export class HoneypotMonitor {
           return;
         }
 
+  // eslint-disable-next-line no-control-regex
         const normalizedName = String(filename ?? '').replace(/\u0000/g, '');
 
         if (normalizedName && path.basename(normalizedName) !== honeyFileName) {

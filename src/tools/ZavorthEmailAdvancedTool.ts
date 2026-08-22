@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
@@ -331,9 +330,7 @@ const nodemailer = require('nodemailer');
         template = template.replace(new RegExp(`{{\\s*${key}\\s*}}`, 'g'), String(value));
       }
 
-      const body = String(args.body || '');
       args.body = template;
-
       return await this.sendEmail(args);
     } catch (error: unknown) {logger.warn('[Zavorth Email Advanced] JSON parse failed', error); return ''; }
   }
@@ -452,15 +449,15 @@ const { ImapFlow } = require('imapflow');
     return await this.runNodeScript(script, 15000);
   }
 
-  private async parseEmail(args: Record<string, unknown>): Promise<string> {
+  private async parseEmail(_args: Record<string, unknown>): Promise<string> {
     return 'Error: Parse requires raw email content. Use "read" action to fetch emails with parsed headers.';
   }
 
-  private async listAttachments(args: Record<string, unknown>): Promise<string> {
+  private async listAttachments(_args: Record<string, unknown>): Promise<string> {
     return 'Error: Attachments list requires message content. Use "read" action to fetch emails, then use download_attachment.';
   }
 
-  private async downloadAttachment(args: Record<string, unknown>): Promise<string> {
+  private async downloadAttachment(_args: Record<string, unknown>): Promise<string> {
     return 'Error: Download attachment requires IMAP integration with attachment parsing. Use a specialized email client library.';
   }
 

@@ -6,7 +6,7 @@ import { asErrorLike } from '../../../utils/errorLike.js';
 export class HomeAssistantGateway extends WebhookGateway {
   public readonly id = 'home-assistant';
   public readonly name = 'Home Assistant';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'webhook';
 
   constructor(options: WebhookGatewayOptions) {

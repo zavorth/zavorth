@@ -82,7 +82,7 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
 
     const response = result.response;
     const text = response.text();
-    const usage = (response as any).usageMetadata;
+    const usage = (response as { usageMetadata?: { totalTokenCount?: number } }).usageMetadata;
 
     const hasVisibleText = false;
     const hasFaces = false;

@@ -66,23 +66,23 @@ function rssOrHtml(rss: string, html: (url: string) => string): FetchRoute {
 }
 
 function makeTool(intent: SemanticIntent, fetcher?: typeof fetch, relevance: IRelevanceScorer = makeRelevanceScorer('relevant')): WebSearchTool {
-  const adapters: any[] = [
+  const adapters: Array<import('../../src/contracts/search/SearchAdapterContract').ISearchAdapter> = [
     new NewsRssAdapter({ httpFetch: fetcher }),
     new DuckDuckGoSearchAdapter({ httpFetch: fetcher }),
   ];
   const service = new SearchQueryService({
     intentClassifier: makeIntentClassifier(intent),
     relevanceScorer: relevance,
-    adapters: adapters as any,
+    adapters: adapters as unknown as import('../../src/services/SearchQueryService').SearchQueryServiceOptions['adapters'],
   });
-  return new WebSearchTool({ service: service as any });
+  return new WebSearchTool({ service: service as unknown as import('../../src/services/SearchQueryService').SearchQueryService });
 }
 
 function fixedDate(iso: string): void {
   const realDate = Date;
   const fixedNow = new realDate(iso);
   global.Date = class extends realDate {
-    constructor(...args: any[]) { super(...(args.length ? args : [fixedNow.toISOString()])); }
+    constructor(...args: unknown[]) { super(...(args.length ? (args as [string]) : [fixedNow.toISOString()])); }
     static now() { return fixedNow.getTime(); }
   } as DateConstructor;
 }

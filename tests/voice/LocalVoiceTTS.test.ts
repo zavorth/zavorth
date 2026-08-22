@@ -1,3 +1,4 @@
+import { spawn, spawnSync } from 'child_process';
 import { LocalVoiceTTS } from '../../src/voice/LocalVoiceTTS';
 
 describe('LocalVoiceTTS', () => {
@@ -14,7 +15,7 @@ describe('LocalVoiceTTS', () => {
 
     it('checks for espeak/spd-say on Linux', () => {
       const mockSpawnSync = jest.fn().mockReturnValue({ status: 0, stdout: '/usr/bin/espeak' });
-      const tts = new LocalVoiceTTS({ platform: 'linux', spawnSync: mockSpawnSync as any });
+      const tts = new LocalVoiceTTS({ platform: 'linux', spawnSync: mockSpawnSync as unknown as typeof spawnSync });
       expect(tts.isAvailable()).toBe(true);
       expect(mockSpawnSync).toHaveBeenCalledWith('which', ['espeak'], expect.any(Object));
     });
@@ -55,7 +56,7 @@ describe('LocalVoiceTTS', () => {
         }),
       };
       const mockSpawn = jest.fn().mockReturnValue(mockChild);
-      const tts = new LocalVoiceTTS({ platform: 'darwin', spawn: mockSpawn as any });
+      const tts = new LocalVoiceTTS({ platform: 'darwin', spawn: mockSpawn as unknown as typeof spawn });
 
       await tts.speak('Hello world');
 
@@ -73,7 +74,7 @@ describe('LocalVoiceTTS', () => {
         }),
       };
       const mockSpawn = jest.fn().mockReturnValue(mockChild);
-      const tts = new LocalVoiceTTS({ platform: 'win32', spawn: mockSpawn as any });
+      const tts = new LocalVoiceTTS({ platform: 'win32', spawn: mockSpawn as unknown as typeof spawn });
 
       await tts.speak('Hello');
 
@@ -94,7 +95,7 @@ describe('LocalVoiceTTS', () => {
         }),
       };
       const mockSpawn = jest.fn().mockReturnValue(mockChild);
-      const tts = new LocalVoiceTTS({ platform: 'darwin', spawn: mockSpawn as any });
+      const tts = new LocalVoiceTTS({ platform: 'darwin', spawn: mockSpawn as unknown as typeof spawn });
 
       await tts.speak('Test', { voice: 'Samantha', rate: 200 });
 
@@ -116,7 +117,7 @@ describe('LocalVoiceTTS', () => {
         stdout: 'Samantha   en_US  # American English\nDaniel     en_GB  # British English\n',
         status: 0,
       });
-      const tts = new LocalVoiceTTS({ platform: 'darwin', spawnSync: mockSpawnSync as any });
+      const tts = new LocalVoiceTTS({ platform: 'darwin', spawnSync: mockSpawnSync as unknown as typeof spawnSync });
       const voices = tts.getAvailableVoices();
       expect(voices).toContain('Samantha');
       expect(voices).toContain('Daniel');

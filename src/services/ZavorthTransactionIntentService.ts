@@ -48,8 +48,6 @@ const KIND_DEFAULTS: Readonly<Record<ZavorthTransactionIntentKind, KindDefaults>
   'unknown-transaction': { actionKind: 'cart-preview', targetKind: 'unknown' },
 };
 
-const ASSET_SYMBOLS = ['BTC', 'ETH', 'SOL', 'USDT', 'USDC', 'BNB', 'XRP', 'ADA', 'DOGE', 'MATIC'] as const;
-
 export class ZavorthTransactionIntentService {
   public constructor(private readonly policy = new ZavorthTransactionPlanePolicyService()) {}
 
@@ -261,14 +259,6 @@ function extractTarget(
   };
 }
 
-function cleanTargetLabel(value: string): string {
-  const cleaned = value
-    .replace(/\s+/g, ' ')
-    .replace(/[.,;:]+$/g, '')
-    .trim();
-  return cleaned.length > 0 ? cleaned : 'unknown';
-}
-
 function extractVendorHints(_text: string): string[] {
   return [];
 }
@@ -283,22 +273,6 @@ function extractCurrencyCodes(_text: string): string[] {
 
 function extractLimits(_text: string): ZavorthTransactionIntentLimit[] {
   return [];
-}
-
-function detectLimitScope(_text: string): ZavorthTransactionIntentLimit['scope'] {
-  return 'per-transaction';
-}
-
-function dedupeLimits(limits: ZavorthTransactionIntentLimit[]): ZavorthTransactionIntentLimit[] {
-  const seen = new Set<string>();
-  return limits.filter((limit) => {
-    const key = `${limit.currency}:${limit.amount}:${limit.scope}`;
-    if (seen.has(key)) {
-      return false;
-    }
-    seen.add(key);
-    return true;
-  });
 }
 
 function extractConditions(_text: string, _limits: ZavorthTransactionIntentLimit[]): ZavorthTransactionIntentCondition[] {

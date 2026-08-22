@@ -5,7 +5,7 @@ import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } f
 export class GoogleMeetGateway extends WebhookGateway {
   public readonly id = 'google-meet';
   public readonly name = 'Google Meet';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'local-bridge';
 
   constructor(options: WebhookGatewayOptions) {

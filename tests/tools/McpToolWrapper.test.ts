@@ -1,5 +1,6 @@
 
 import { McpToolWrapper } from '../../src/tools/McpToolWrapper';
+import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 
 describe('McpToolWrapper', () => {
   it('calls the original remote MCP tool name instead of rewriting underscores', async () => {
@@ -8,7 +9,7 @@ describe('McpToolWrapper', () => {
       isError: false,
     });
     const wrapper = new McpToolWrapper(
-      { callTool } as any,
+      { callTool } as unknown as Client,
       'search_memory',
       'search_memory',
       'Search local memory',
@@ -29,7 +30,7 @@ describe('McpToolWrapper', () => {
       isError: false,
     });
     const wrapper = new McpToolWrapper(
-      { callTool } as any,
+      { callTool } as unknown as Client,
       'browser_navigate',
       'browser-navigate',
       'Navigate browser',
@@ -47,7 +48,7 @@ describe('McpToolWrapper', () => {
 
   it('preserves MCP plugin provenance in the tool definition for quarantine checks', () => {
     const wrapper = new McpToolWrapper(
-      { callTool: jest.fn() } as any,
+      { callTool: jest.fn() } as unknown as Client,
       'browser_navigate',
       'browser-navigate',
       'Navigate browser',

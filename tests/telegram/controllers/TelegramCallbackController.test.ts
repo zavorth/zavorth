@@ -1,13 +1,13 @@
 import { TelegramCallbackController } from '../../../src/telegram/controllers/TelegramCallbackController';
 
 describe('TelegramCallbackController', () => {
-  function createCtx(overrides: Record<string, any> = {}) {
+  function createCtx(overrides: Record<string, unknown> = {}) {
     return {
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       deleteMessage: jest.fn().mockResolvedValue(undefined),
       msg: { message_id: 10 },
       ...overrides,
-    } as any;
+    } as unknown as import('grammy').Context;
   }
 
   it('routes menu actions through the injected handlers', async () => {

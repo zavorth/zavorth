@@ -329,7 +329,7 @@ async function voiceBackends(input: ZavorthActionHandlerInput): Promise<ZavorthA
 
   if (selected.id === 'edge') {
     try {
-      // @ts-ignore
+      // @ts-expect-error - dynamic import for optional msedge-tts package
       const { MsEdgeTTS } = await import('msedge-tts');
       const tts = new MsEdgeTTS();
       const voiceName = text(input.args.voice, 'pt-BR-FranciscaNeural');

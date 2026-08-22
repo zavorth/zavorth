@@ -19,12 +19,7 @@ import {
 import type {
   SharedSurfaceConsistencyManifestOptions,
   SharedSurfaceConsistencyOptions,
-  SurfaceConsistencyActionContext,
-  SurfaceConsistencyActionSnapshot,
-  SurfaceConsistencyCategory,
-  SurfaceConsistencyCommandSnapshot,
   SurfaceConsistencyManifest,
-  SurfaceConsistencySurfaceActionSnapshot,
 } from '../domain/surface/infrastructure/shared-surface-consistency/SharedSurfaceConsistencyTypes.js';
 
 export type {

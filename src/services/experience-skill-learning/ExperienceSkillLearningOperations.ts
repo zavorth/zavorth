@@ -1,20 +1,12 @@
-import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { ChatMessage, ILlmProvider } from '../../providers/ILlmProvider.js';
 import { ExperienceSkillLearningCore } from './ExperienceSkillLearningCore.js';
 import {
-  cleanUserId,
-  commonPrefixLength,
   computeReuseScore,
   redact,
-  SIMILAR_GOAL_SLUG_CHARS,
-  SIMILAR_TOOL_JACCARD,
   slugify,
-  titleFromGoal,
-  type DraftMeta,
   type ExperienceSkillDraftSummary,
-  type ExperienceSkillLearningResult,
   type ExperienceSkillPromoteKind,
   type ExperienceSkillPromotePreview,
   type ExperienceSkillPromoteResult,
@@ -47,6 +39,7 @@ export class ExperienceSkillLearningOperations extends ExperienceSkillLearningCo
     let llm = input.llm || null;
     if (!llm) {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const { LlmRuntimeService } = require('../llm/LlmRuntimeService.js') as typeof import('../llm/LlmRuntimeService.js');
         const runtime = new LlmRuntimeService();
         llm = {
@@ -498,6 +491,7 @@ export class ExperienceSkillLearningOperations extends ExperienceSkillLearningCo
     if (raw.includes('..')) return false;
     if (raw.includes('/') || raw.includes('\\') || raw.includes(path.sep)) return false;
     // Reject null bytes / control chars that can confuse path APIs.
+  // eslint-disable-next-line no-control-regex
     if (/[\0-\x1f\x7f]/.test(raw)) return false;
     return true;
   }

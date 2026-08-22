@@ -572,6 +572,7 @@ export class ZavorthReplayLearningService {
     return String(text || '')
       .split(/\r?\n/)
       .map((line) => this.parseCastLine(line))
+      // eslint-disable-next-line no-control-regex
       .map((line) => line.replace(/\x1b\[[0-9;]*m/g, '').trim())
       .filter((line) => line.length > 0)
       .slice(0, 200);
@@ -678,7 +679,7 @@ export class ZavorthReplayLearningService {
   }
 
   private mergeIntoProfile(profile: DigitalTwinProfile, records: ReplayLearningRecord[]): DigitalTwinProfile {
-    let next = this.removeManyFromProfile(profile, records.map((record) => record.id));
+    const next = this.removeManyFromProfile(profile, records.map((record) => record.id));
     for (const record of records) {
       const entry = {
         id: record.id,

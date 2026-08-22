@@ -39,6 +39,7 @@ async function checkToolConfigStatus(toolId: string): Promise<string> {
       case "cline":
       case "kilo":
         // Generic check: look for ZavorthGateway-specific markers in the config
+  // eslint-disable-next-line no-case-declarations
         const configStr = JSON.stringify(config).toLowerCase();
         return configStr.includes("ZavorthGateway") ||
           configStr.includes("sk_ZavorthGateway") ||

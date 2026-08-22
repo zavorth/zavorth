@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { MessageBus, type Message, type MessageFilter } from './MessageBus.js';
+import { MessageBus } from './MessageBus.js';
 import { logger } from '../logger.js';
 
 export type AgentStatus = 'online' | 'busy' | 'offline' | 'error';
@@ -137,7 +137,7 @@ export class AgentCommunicator {
     this.stopHeartbeat(agentId);
     this.agents.delete(agentId);
 
-    for (const [taskId, task] of this.tasks) {
+    for (const [, task] of this.tasks) {
       if (task.assignedTo === agentId && task.status !== 'completed' && task.status !== 'cancelled') {
         task.status = 'cancelled';
         task.completedAt = this.config.now().toISOString();

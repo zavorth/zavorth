@@ -97,7 +97,7 @@ export class LLMFallbackRouter {
     });
 
     // Try candidates
-    while (true) {
+    for (;;) {
       const candidate = chain.selectCandidate();
       if (!candidate) {
         throw new Error('All providers are in cooldown. Please try again later.');
@@ -143,7 +143,7 @@ export class LLMFallbackRouter {
   private getProfileById(id: string): { provider: string; model: string } | null {
     // Find profile by ID in LLMRouterService
     const models = this.llmRouter.listModels();
-    const match = models.match(new RegExp(`${id}: ([^/]+)/([^\s]+)`));
+    const match = models.match(new RegExp(`${id}: ([^/]+)/([^\\s]+)`));
     if (match) {
       return { provider: match[1], model: match[2] };
     }

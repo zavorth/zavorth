@@ -210,7 +210,7 @@ export function buildNpmUpdateScript(latest: string): string {
     "if command -v pm2 >/dev/null 2>&1; then",
     "  pm2 restart ZavorthGateway || true",
     "fi",
-    `echo \"[AutoUpdate] Successfully updated to v${latest}.\"`,
+    `echo "[AutoUpdate] Successfully updated to v${latest}."`,
   ].join("\n");
 }
 

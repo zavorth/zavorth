@@ -46,7 +46,7 @@ export interface BackgroundDegradationConfig {
   stats: BackgroundDegradationStats;
 }
 
-let backgroundDegradationConfig: BackgroundDegradationConfig = {
+const backgroundDegradationConfig: BackgroundDegradationConfig = {
   enabled: false,
   degradationMap: {},
   detectionPatterns: [],

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { logger } from '../../logger.js';
 
 export interface MultimodalProvider {
@@ -119,7 +120,7 @@ export async function callVisionProvider(
           { inline_data: { mime_type: mimeType, data: imageBase64.slice(0, 4 * 1024 * 1024) } },
         ] }],
       });
-      const tmpFile = path.join(require('os').tmpdir(), `vision_gemini_${Date.now()}.json`);
+      const tmpFile = path.join(os.tmpdir(), `vision_gemini_${Date.now()}.json`);
       fs.writeFileSync(tmpFile, payload);
       try {
         const result = execFileSync('curl', [
@@ -141,7 +142,7 @@ export async function callVisionProvider(
         ] }],
         max_tokens: 2048,
       });
-      const tmpFile = path.join(require('os').tmpdir(), `vision_openai_${Date.now()}.json`);
+      const tmpFile = path.join(os.tmpdir(), `vision_openai_${Date.now()}.json`);
       fs.writeFileSync(tmpFile, payload);
       try {
         const result = execFileSync('curl', [
@@ -161,7 +162,7 @@ export async function callVisionProvider(
           { type: 'text', text: prompt },
         ] }],
       });
-      const tmpFile = path.join(require('os').tmpdir(), `vision_anthropic_${Date.now()}.json`);
+      const tmpFile = path.join(os.tmpdir(), `vision_anthropic_${Date.now()}.json`);
       fs.writeFileSync(tmpFile, payload);
       try {
         const result = execFileSync('curl', [
@@ -212,7 +213,7 @@ export async function callAudioProvider(
           { inline_data: { mime_type: 'audio/mpeg', data: audioBase64.slice(0, 4 * 1024 * 1024) } },
         ] }],
       });
-      const tmpFile = path.join(require('os').tmpdir(), `stt_gemini_${Date.now()}.json`);
+      const tmpFile = path.join(os.tmpdir(), `stt_gemini_${Date.now()}.json`);
       fs.writeFileSync(tmpFile, payload);
       try {
         const result = execFileSync('curl', [

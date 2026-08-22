@@ -24,7 +24,7 @@ export interface SkillManifest {
   /** TOOLS.md content for the LLM to read. */
   toolsMarkdown: string | null;
   /** JSON Schema tool definitions for prompt injection. */
-  toolDefinitions: any[];
+  toolDefinitions: unknown[];
   /** Main implementation file path. */
   entryPoint: string | null;
   /** Extra manifest metadata. */
@@ -76,7 +76,7 @@ export class SkillScanner {
     }
 
     let toolsMarkdown: string | null = null;
-    let toolDefinitions: any[] = [];
+    let toolDefinitions: unknown[] = [];
     let metadata: Record<string, unknown> = {};
 
     if (hasToolsMd) {

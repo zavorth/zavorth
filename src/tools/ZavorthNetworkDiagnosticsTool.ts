@@ -241,7 +241,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
 
       const result = execFileSync('ping', pingArgs, { timeout: 30000 }).toString();
 
-      const avgMatch = result.match(/Average = (\d+)ms/i) || result.match(/avg[\/=]\s*([\d.]+)/i);
+      const avgMatch = result.match(/Average = (\d+)ms/i) || result.match(/avg[/=]\s*([\d.]+)/i);
       const avg = avgMatch ? avgMatch[1] : 'unknown';
 
       return `Latency test to ${host} (${count} packets):\n${result}\nAverage latency: ${avg}ms`;

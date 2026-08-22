@@ -99,7 +99,7 @@ export class LazyMemoryLoader {
       const keywords = query.toLowerCase().split(/\s+/).filter(Boolean);
       for (const keyword of keywords) {
         // Exact keyword match in content (with word boundaries) or tags
-        const escaped = keyword.replace(/[-\/\\^$*+....()|[\]{}]/g, '\\$&');
+        const escaped = keyword.replace(/[-/\\^$*+....()|[\]{}]/g, '\\$&');
         const regex = new RegExp(`\\b${escaped}\\b`);
         if (regex.test(contentLower) || tagsLower.includes(keyword)) {
           score += 3;

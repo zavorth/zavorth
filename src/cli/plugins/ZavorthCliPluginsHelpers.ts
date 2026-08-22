@@ -24,7 +24,7 @@ export async function calculatePluginChecksum(root: string, spec: string): Promi
   const pluginPath = resolvePluginPath(root, spec);
   if (!existsSync(pluginPath)) return '';
   const files = (await walkFiles(pluginPath, 500))
-    .filter((file) => !/[\\\/](node_modules|\.git)[\\\/]/u.test(file))
+    .filter((file) => !/[\\/](node_modules|\.git)[\\/]/u.test(file))
     .sort();
   const hash = createHash('sha256');
   for (const file of files) {
@@ -81,7 +81,7 @@ export function findPlugin(items: unknown[], id: string): JsonObject | undefined
 
 export async function doctorPlugin(root: string, plugin: JsonObject): Promise<Array<{ id: string; ok: boolean; summary: string }>> {
   const checks: Array<{ id: string; ok: boolean; summary: string }> = [];
-  checks.push({ id: 'manifest', ok: Boolean(plugin.manifestFound), summary: Boolean(plugin.manifestFound) ? 'Manifest is present.' : 'Plugin uses fallback manifest metadata.' });
+  checks.push({ id: 'manifest', ok: Boolean(plugin.manifestFound), summary: plugin.manifestFound ? 'Manifest is present.' : 'Plugin uses fallback manifest metadata.' });
   checks.push({ id: 'checksum', ok: Boolean(plugin.checksum), summary: plugin.checksum ? 'Checksum is recorded.' : 'Checksum is unavailable for remote package until install proof.' });
   checks.push({ id: 'permissions', ok: Array.isArray(plugin.permissions), summary: `${((plugin.permissions as string[]) || []).length} permission(s) declared.` });
   const entry = String(plugin.entry || '');

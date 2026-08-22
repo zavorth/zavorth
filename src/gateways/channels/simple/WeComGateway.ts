@@ -6,7 +6,7 @@ import { asErrorLike } from '../../../utils/errorLike.js';
 export class WeComGateway extends WebhookGateway {
   public readonly id = 'wecom';
   public readonly name = 'WeCom';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'webhook';
 
   constructor(options: WebhookGatewayOptions) {

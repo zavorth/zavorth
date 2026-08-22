@@ -27,6 +27,7 @@ declare function renderOperationsHealth(operations: Record<string, unknown>): vo
 
 function zavorthControlClassicClientCore() {
   // Tab Navigation
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   function switchTab(tabId: string) {
     document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
     document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
@@ -39,6 +40,7 @@ function zavorthControlClassicClientCore() {
   }
 
   // Toast Notification
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   function showToast(msg: string, isError?: boolean) {
     const t = document.getElementById('toast')!;
     t.innerText = msg;
@@ -48,6 +50,7 @@ function zavorthControlClassicClientCore() {
     setTimeout(() => t.classList.remove('show'), 3000);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   function escapeHtml(value: unknown) {
     return String(value ?? '')
       .replace(/&/g, '&amp;')
@@ -58,6 +61,7 @@ function zavorthControlClassicClientCore() {
   }
 
   // Metrics Loader
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   async function loadMetrics() {
     try {
       const [
@@ -182,6 +186,7 @@ function zavorthControlClassicClientCore() {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   function formatBytes(bytes: unknown) {
     const value = Number(bytes || 0);
     if (!Number.isFinite(value) || value <= 0) return '0 B';
@@ -196,6 +201,7 @@ function zavorthControlClassicClientCore() {
     return current.toFixed(decimals) + ' ' + units[unitIndex];
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   function formatRelativeTime(value: unknown) {
     if (!value) return 'Nunca';
     const target = new Date(String(value));

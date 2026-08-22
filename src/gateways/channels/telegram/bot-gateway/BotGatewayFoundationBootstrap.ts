@@ -13,6 +13,9 @@ import {
   ExternalExecutor,
 } from '../../../../execution/ExternalExecutor.js';
 import { StitchExecutor } from '../../../../execution/StitchExecutor.js';
+import { GeminiCliExecutor } from '../../../../execution/GeminiCliExecutor.js';
+import { JulesExecutor } from '../../../../execution/JulesExecutor.js';
+import { SwarmExecutor } from '../../../../execution/SwarmExecutor.js';
 
 import { AiStudioExecutor } from '../../../../execution/AiStudioExecutor.js';
 import { GeminiManagedAgentExecutor } from '../../../../execution/GeminiManagedAgentExecutor.js';
@@ -130,18 +133,18 @@ export function initializeBotGatewayFoundation(
   gateway.executionGateway.registerExecutor(EXTERNAL_EXECUTOR_ID, externalExecutor);
   gateway.executionGateway.registerExecutor(
     'gemini_cli',
-    new (require('../../../../execution/GeminiCliExecutor.js').GeminiCliExecutor)(),
+    new GeminiCliExecutor(),
   );
   gateway.executionGateway.registerExecutor('aistudio', new AiStudioExecutor());
   gateway.executionGateway.registerExecutor('gemini_managed_agent', new GeminiManagedAgentExecutor());
   gateway.executionGateway.registerExecutor(
     'jules',
-    new (require('../../../../execution/JulesExecutor.js').JulesExecutor)(),
+    new JulesExecutor(),
   );
   gateway.executionGateway.registerExecutor('stitch', new StitchExecutor());
   gateway.executionGateway.registerExecutor(
     'swarm',
-    new (require('../../../../execution/SwarmExecutor.js').SwarmExecutor)(
+    new SwarmExecutor(
       gateway.runtimeComposition.getLlmRuntime(),
     ),
   );

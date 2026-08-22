@@ -109,17 +109,20 @@ export async function readGatewayDomains(
     generatedAt: snapshot?.generatedAt || hydrated?.generatedAt || new Date().toISOString(),
     summary: snapshot?.summary || {
       total: entries.length,
-      initialized: entries.filter((entry: any) => Boolean(entry?.initialized)).length,
-      pending: entries.filter((entry: any) => !entry?.initialized).length,
+      initialized: entries.filter((entry: unknown) => Boolean((entry as Record<string, unknown>)?.initialized)).length,
+      pending: entries.filter((entry: unknown) => !(entry as Record<string, unknown>)?.initialized).length,
     },
-    domains: entries.map((entry: any) => ({
-      id: String(entry?.id || '').trim(),
-      label: String(entry?.label || '').trim(),
-      initialized: Boolean(entry?.initialized),
-      initializedAt: entry?.initializedAt || null,
-      summary: entry?.summary || undefined,
-      metrics: entry?.metrics || undefined,
-    })),
+    domains: entries.map((entry: unknown) => {
+      const e = entry as Record<string, unknown>;
+      return {
+        id: String(e?.id || '').trim(),
+        label: String(e?.label || '').trim(),
+        initialized: Boolean(e?.initialized),
+        initializedAt: e?.initializedAt || null,
+        summary: e?.summary,
+        metrics: e?.metrics,
+      };
+    }),
   };
 }
 

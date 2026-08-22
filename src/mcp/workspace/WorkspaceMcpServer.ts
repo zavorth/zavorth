@@ -240,6 +240,7 @@ function resolveAndValidatePathForMcp(
     checkBlocklist(targetPath);
     checkBlocklist(realTarget);
 
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { TemporaryDirectoryTrustService } = require('../../services/TemporaryDirectoryTrustService.js');
     const tmpTrustService = TemporaryDirectoryTrustService.getInstance();
     const checkResult = tmpTrustService.checkPathAccess(sessionId, workspaceRoot, realTarget, operation);

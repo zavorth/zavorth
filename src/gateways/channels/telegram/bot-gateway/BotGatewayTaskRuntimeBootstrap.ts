@@ -9,6 +9,11 @@ import { SurfaceTaskDispatchService } from '../../../../services/SurfaceTaskDisp
 import type { EchoOutputStageService } from '../../../../services/EchoOutputStageService.js';
 import { TelegramTaskOrchestrationController } from '../../../../gateways/channels/telegram/controllers/TelegramTaskOrchestrationController.js';
 import type { TelegramTaskPreparationInput } from '../../../../gateways/channels/telegram/controllers/TelegramTaskPreparationService.js';
+import { TelegramSwarmController } from '../../../../gateways/channels/telegram/controllers/TelegramSwarmController.js';
+import { LlmRuntimeService } from '../../../../services/llm/LlmRuntimeService.js';
+import { ContextManager } from '../../../../orchestrator/ContextManager.js';
+import { IntentRouter } from '../../../../orchestrator/IntentRouter.js';
+import { RiskClassifier } from '../../../../orchestrator/RiskClassifier.js';
 import type {
   ParserLike,
   TaskOrchestrationControllerLike,
@@ -223,26 +228,24 @@ export function initializeTelegramTaskRuntime(
   logRepo: LogRepository,
   workflowRunService: WorkflowRunService,
 ): void {
-  const { TelegramSwarmController } = require('../controllers/TelegramSwarmController.js');
   gateway.swarmController = new TelegramSwarmController({
     botApi: gateway.bot.api,
-    getLlmRuntime: () => new (require('../../services/llm/LlmRuntimeService.js').LlmRuntimeService)(),
+    getLlmRuntime: () => new LlmRuntimeService(),
   });
   gateway.taskOrchestrationController = new TelegramTaskOrchestrationController({
     taskManager,
     logRepo,
     auditLogger: gateway.auditLogger,
     attachRecentContext: async (task) => {
-      const ContextModule = require('../../orchestrator/ContextManager.js').ContextManager;
-      const contextManager = new ContextModule(taskManager);
+      const contextManager = new ContextManager(taskManager);
       await contextManager.attachRecentContext(task);
     },
     routeIntent: (parsed) => {
-      const intentRouter = new (require('../../orchestrator/IntentRouter.js').IntentRouter)();
+      const intentRouter = new IntentRouter();
       return intentRouter.route(parsed);
     },
     classifyRisk: (parsed, route) => {
-      const riskClassifier = new (require('../../orchestrator/RiskClassifier.js').RiskClassifier)();
+      const riskClassifier = new RiskClassifier();
       return riskClassifier.classify(parsed, route);
     },
     classifyTrust: (text, input) => classifyTaskTrust(text, input),

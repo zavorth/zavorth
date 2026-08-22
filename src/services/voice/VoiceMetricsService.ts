@@ -47,7 +47,7 @@ function sanitizeMessage(raw: string | null | undefined): string | null {
   let s = String(raw);
   // tokens / api keys patterns
   s = s.replace(/\b(sk-[A-Za-z0-9_-]{10,})\b/g, '[redacted]');
-  s = s.replace(/\b(Bearer\s+)[A-Za-z0-9._\-]+/gi, '$1[redacted]');
+  s = s.replace(/\b(Bearer\s+)[A-Za-z0-9._-]+/gi, '$1[redacted]');
   s = s.replace(/\b(api[_-]?key|token|secret|password)\s*[:=]\s*\S+/gi, '$1=[redacted]');
   if (s.length > 500) s = `${s.slice(0, 500)}...`;
   return s;

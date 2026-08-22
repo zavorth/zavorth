@@ -15,7 +15,7 @@ describe('ZavorthEchoService', () => {
       content: null,
       toolCalls: [{ id: 'call-1', name: toolName, arguments: args }],
       finishReason: 'tool_calls',
-    } as any);
+    } as unknown as Awaited<ReturnType<typeof LlmRuntimeService.prototype.chat>>);
   }
 
   it('uses the configured Echo LLM fallback order for provider execution', () => {
@@ -24,7 +24,7 @@ describe('ZavorthEchoService', () => {
       llmFallbackOrder: [' VLLM ', 'openai', 'vllm', '', 'Gemini'],
     });
 
-    expect((service as any).buildLlmRunOptions()).toEqual({
+    expect((service as unknown as { buildLlmRunOptions: () => unknown }).buildLlmRunOptions()).toEqual({
       providerName: 'ollama',
       allowFallback: true,
       fallbackOrder: ['vllm', 'openai', 'gemini'],
@@ -51,7 +51,7 @@ describe('ZavorthEchoService', () => {
     const permission = service.getPendingPermissions()[0];
 
     const executePipeline = jest
-      .spyOn((service as any).orchestrator, 'executePipeline')
+      .spyOn((service as unknown as { orchestrator: { executePipeline: jest.Mock } }).orchestrator, 'executePipeline')
       .mockResolvedValue('OK: screenshot capturado');
 
     const result = await service.resolvePermission(permission.id, true);
@@ -70,7 +70,7 @@ describe('ZavorthEchoService', () => {
     await service.processIntent('tire um print');
     const permission = service.getPendingPermissions()[0];
 
-    const executePipeline = jest.spyOn((service as any).orchestrator, 'executePipeline');
+    const executePipeline = jest.spyOn((service as unknown as { orchestrator: { executePipeline: jest.Mock } }).orchestrator, 'executePipeline');
     const result = await service.resolvePermission(permission.id, false);
 
     expect(result.ok).toBe(true);
@@ -85,10 +85,10 @@ describe('ZavorthEchoService', () => {
     const oldToken = process.env.HOME_ASSISTANT_TOKEN;
     delete process.env.HOME_ASSISTANT_TOKEN;
     mockProvider('iot_home_assistant', { entity_id: 'light.sala', action: 'turn_on' });
-    const fetchSpy = jest.spyOn(global, 'fetch' as any).mockResolvedValue({
+    const fetchSpy = jest.spyOn(global, 'fetch' as unknown as jest.SpyInstance).mockResolvedValue({
       ok: true,
       text: async () => '',
-    } as any);
+    } as unknown as Response);
 
     try {
       const service = new ZavorthEchoService({ llmProvider: 'openai' });
@@ -101,7 +101,7 @@ describe('ZavorthEchoService', () => {
       expect(pending.executionEntry.status).toBe('permission_pending');
       expect(result.executionEntry?.status).toBe('success');
       expect(service.getHistory(1)).toHaveLength(1);
-      expect((service as any).orchestrator.getExecutionLog()).toEqual([]);
+      expect((service as unknown as { orchestrator: { getExecutionLog: () => unknown[] } }).orchestrator.getExecutionLog()).toEqual([]);
     } finally {
       fetchSpy.mockRestore();
       if (oldUrl === undefined) {
@@ -121,10 +121,10 @@ describe('ZavorthEchoService', () => {
     const oldUrl = process.env.HOME_ASSISTANT_URL;
     const oldToken = process.env.HOME_ASSISTANT_TOKEN;
     mockProvider('iot_home_assistant', { entity_id: 'light.sala', action: 'turn_on' });
-    const fetchSpy = jest.spyOn(global, 'fetch' as any).mockResolvedValue({
+    const fetchSpy = jest.spyOn(global, 'fetch' as unknown as jest.SpyInstance).mockResolvedValue({
       ok: true,
       text: async () => '',
-    } as any);
+    } as unknown as Response);
 
     try {
       const service = new ZavorthEchoService({ llmProvider: 'openai' });
@@ -180,7 +180,7 @@ describe('ZavorthEchoService', () => {
         feedback: 'Atencao: lock.front_door mudou para unlocked.',
         severity: 'critical',
       },
-    ] as any);
+    ] as unknown as Array<{ id: string; source: string; timestamp: string; entityId: string; oldState: string; newState: string; feedback: string; severity: string }>);
     const service = new ZavorthEchoService({
       watchModeControlPlane: {
         buildSnapshot: jest.fn(() => ({
@@ -254,7 +254,7 @@ describe('ZavorthEchoService', () => {
             nextAction: 'Decidir approvals pendentes',
           },
         })),
-      } as any,
+      } as unknown as { buildSnapshot: () => Record<string, unknown> },
     });
     jest.spyOn(service, 'testConnection').mockResolvedValue({
       online: true,
@@ -338,7 +338,7 @@ describe('ZavorthEchoService', () => {
           outputBytes: 512,
         })),
         cleanup: jest.fn(),
-      } as any,
+      } as unknown as { isConfigured: () => boolean; synthesizeDetailed: jest.Mock; cleanup: jest.Mock },
     });
 
     const result = await service.synthesizeSpeech({

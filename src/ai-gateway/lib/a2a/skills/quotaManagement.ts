@@ -12,7 +12,7 @@ import { resolveZavorthGatewayBaseUrl } from "@/shared/utils/resolveGatewayBaseU
 const ZavorthGateway_BASE_URL = resolveZavorthGatewayBaseUrl();
 const ZavorthGateway_API_KEY = process.env.ZavorthGateway_API_KEY || "";
 
-async function quotaFetch(path: string): Promise<any> {
+async function quotaFetch(path: string): Promise<Record<string, unknown>> {
   const url = `${ZavorthGateway_BASE_URL}${path}`;
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -20,7 +20,7 @@ async function quotaFetch(path: string): Promise<any> {
   };
   const res = await fetch(url, { headers, signal: AbortSignal.timeout(10000) });
   if (!res.ok) throw new Error(`API [${res.status}]`);
-  return res.json();
+  return res.json() as Promise<Record<string, unknown>>;
 }
 
 export interface QuotaManagementResult {
@@ -42,10 +42,10 @@ export async function executeQuotaManagement(task: A2ATask): Promise<QuotaManage
       : normalizeQuotaResponse({});
   const combos =
     combosRaw.status === "fulfilled"
-      ? Array.isArray((combosRaw.value as any)?.combos)
-        ? (combosRaw.value as any).combos
+      ? Array.isArray((combosRaw.value as Record<string, unknown>)?.combos)
+        ? ((combosRaw.value as Record<string, unknown>).combos as unknown[])
         : Array.isArray(combosRaw.value)
-          ? (combosRaw.value as any[])
+          ? (combosRaw.value as unknown[])
           : []
       : [];
   const providers = quota.providers;
@@ -79,7 +79,7 @@ export async function executeQuotaManagement(task: A2ATask): Promise<QuotaManage
   }
 
   if (query.includes("free") || query.includes("suggest")) {
-    const freeCombos = combos.filter((c: any) => {
+    const freeCombos = combos.filter((c: unknown) => {
       const name = (c.name || "").toLowerCase();
       return name.includes("free") || name.includes("gratis");
     });
@@ -89,7 +89,10 @@ export async function executeQuotaManagement(task: A2ATask): Promise<QuotaManage
           type: "text",
           content:
             freeCombos.length > 0
-              ? `**Free combos available:**\n${freeCombos.map((c: any) => `- **${c.name}** (ID: ${c.id})`).join("\n")}`
+              ? `**Free combos available:**\n${freeCombos.map((c: unknown) => {
+                  const combo = c as Record<string, unknown>;
+                  return `- **${combo.name}** (ID: ${combo.id})`;
+                }).join("\n")}`
               : "No free combos configured. Consider adding providers with free tiers (Gemini, Groq, etc.).",
         },
       ],

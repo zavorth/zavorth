@@ -288,6 +288,7 @@ export class PluginOsOnboardingWizardService {
     injectMode: PluginOsWizardState['injectMode'],
     injectSamplePercent: number,
   ): void {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const fs = require('node:fs') as typeof import('node:fs');
     const statePath = path.join(root, '.zavorth', 'plugin-os-prompt.json');
     fs.mkdirSync(path.dirname(statePath), { recursive: true });

@@ -37,7 +37,7 @@ describe('ToolRegistry security catalog', () => {
           parameters: this.parameters,
         };
       },
-    } as any);
+    } as unknown as import('../../src/tools/BaseTool').BaseTool);
 
     const definition = registry.getToolSecurityDefinition('brand_new_tool');
 
@@ -73,7 +73,7 @@ describe('ToolRegistry security catalog', () => {
             parameters: this.parameters,
           };
         },
-      } as any,
+      } as unknown as import('../../src/tools/BaseTool').BaseTool,
       createMcpAgentToolSecurityDefinition('browser_click'),
     );
 

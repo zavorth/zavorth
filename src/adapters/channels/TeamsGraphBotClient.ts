@@ -184,7 +184,7 @@ export class TeamsGraphBotClient {
     path: string,
     method: 'POST' | 'PATCH',
     body: Record<string, unknown>,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     if (!this.fetchImpl) {
       throw new Error('Teams Graph live send requires fetch in the runtime.');
     }
@@ -202,10 +202,11 @@ export class TeamsGraphBotClient {
       body: JSON.stringify(body),
     });
 
-    let payload: Record<string, any> | null = null;
+    let payload: Record<string, unknown> | null = null;
     try {
-      payload = await response.json() as Record<string, any>;
-    } catch (error: unknown) {payload = null;
+      payload = await response.json() as Record<string, unknown>;
+    } catch {
+      payload = null;
     }
 
     if (!response.ok) {
@@ -243,10 +244,11 @@ export class TeamsGraphBotClient {
       },
     );
 
-    let payload: Record<string, any> | null = null;
+    let payload: Record<string, unknown> | null = null;
     try {
-      payload = await response.json() as Record<string, any>;
-    } catch (error: unknown) {payload = null;
+      payload = await response.json() as Record<string, unknown>;
+    } catch {
+      payload = null;
     }
 
     if (!response.ok || typeof payload?.access_token !== 'string') {
@@ -258,7 +260,7 @@ export class TeamsGraphBotClient {
 
     const expiresIn = Number(payload.expires_in || 3600);
     this.cachedToken = {
-      value: payload.access_token,
+      value: payload.access_token as string,
       expiresAt: nowMs + Math.max(60, expiresIn) * 1000,
     };
     return this.cachedToken.value;
@@ -277,7 +279,7 @@ export class TeamsGraphBotClient {
   private receipt(
     status: 'sent' | 'edited',
     conversationId: string,
-    payload: Record<string, any>,
+    payload: Record<string, unknown>,
   ): TeamsTextSendReceipt {
     return {
       channelId: 'msteams',

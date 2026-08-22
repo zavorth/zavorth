@@ -126,7 +126,9 @@ function extractReadableHtml(html: string, url: string | null): {
 
 function loadReadability(): { Readability: ReadabilityShape; JSDOM: JSDOMShape } | null {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const readabilityModule = require('@mozilla/readability') as { Readability: ReadabilityShape };
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const jsdomModule = require('jsdom') as { JSDOM: JSDOMShape };
     return {
       Readability: readabilityModule.Readability,

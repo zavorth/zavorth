@@ -342,12 +342,13 @@ If the objective has already been reached, return: {"action": "done", "reasoning
     }
 
     try {
-      const response = await this.llmRuntime.chat(messages as any);
+      const response = await this.llmRuntime.chat(messages);
       const text = (response.content || '').replace(/```json/g, '').replace(/```/g, '').trim();
       return JSON.parse(text) as ComputerUseAction;
-    } catch (error: unknown) {logger.warn('[Computer Use Agent] JSON parse failed', error);
-    return { action: 'done', reasoning: 'Failed to parse LLM response, stopping for safety.' };
-  }
+    } catch (error: unknown) {
+      logger.warn('[Computer Use Agent] JSON parse failed', error);
+      return { action: 'done', reasoning: 'Failed to parse LLM response, stopping for safety.' };
+    }
   }
 
   private async executeDesktopAction(args: {

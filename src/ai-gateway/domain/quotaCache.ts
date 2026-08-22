@@ -156,7 +156,7 @@ function earliestResetAt(quotas: Record<string, QuotaInfo>): string | null {
   return earliest;
 }
 
-function normalizeQuotas(rawQuotas: Record<string, any>): Record<string, QuotaInfo> {
+function normalizeQuotas(rawQuotas: Record<string, unknown>): Record<string, QuotaInfo> {
   const result: Record<string, QuotaInfo> = {};
   for (const [key, q] of Object.entries(rawQuotas)) {
     if (q && typeof q === "object") {
@@ -179,7 +179,7 @@ function normalizeQuotas(rawQuotas: Record<string, any>): Record<string, QuotaIn
 export function setQuotaCache(
   connectionId: string,
   provider: string,
-  rawQuotas: Record<string, any>
+  rawQuotas: Record<string, unknown>
 ) {
   const quotas = normalizeQuotas(rawQuotas);
   const exhausted = isExhausted(quotas);
@@ -334,7 +334,7 @@ async function refreshEntry(entry: QuotaCacheEntry) {
     const err = asErrorLike(error);
     console.warn(
       `[QuotaCache] Refresh failed for ${entry.connectionId.slice(0, 8)}:`,
-      (err as any)?.message || err
+      err.message || String(err)
     );
   } finally {
     refreshingSet.delete(entry.connectionId);

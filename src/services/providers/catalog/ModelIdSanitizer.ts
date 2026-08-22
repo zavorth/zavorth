@@ -17,13 +17,14 @@ const BLOCKED_PATTERNS = [
 ];
 
 const MODEL_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9\-_./:]*$/;
-const PROVIDER_ID_PATTERN = /^[a-z0-9][a-z0-9\-]*$/;
+const PROVIDER_ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 
 function containsBlockedPattern(value: string): boolean {
   return BLOCKED_PATTERNS.some((pattern) => pattern.test(value));
 }
 
 function stripControlCharacters(value: string): string {
+  // eslint-disable-next-line no-control-regex
   return value.replace(/[\x00-\x1f\x7f-\x9f]/g, '');
 }
 
@@ -56,7 +57,7 @@ export function sanitizeProviderId(raw: string): string {
 
   let sanitized = stripControlCharacters(raw.trim().toLowerCase());
 
-  sanitized = sanitized.replace(/[^a-z0-9\-]/g, '-');
+  sanitized = sanitized.replace(/[^a-z0-9-]/g, '-');
 
   sanitized = sanitized.replace(/^-+|-+$/g, '');
 
@@ -90,7 +91,7 @@ export function sanitizeBaseUrl(raw: string): string {
     return '';
   }
 
-  let sanitized = raw.trim();
+  const sanitized = raw.trim();
 
   try {
     const url = new URL(sanitized);

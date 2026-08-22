@@ -20,7 +20,7 @@ type TeamsChannelAdapterRuntime = {
 export class TeamsChannelAdapter implements GatewayChannelAdapter {
   id = 'teams';
   name = 'Microsoft Teams Graph/Bot Bridge';
-  type: 'async' = 'async';
+  type = 'async' as const;
   private readonly outboxDir: string;
   private readonly now: () => Date;
 

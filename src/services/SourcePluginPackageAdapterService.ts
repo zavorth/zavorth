@@ -392,7 +392,7 @@ function normalizeId(value: string): string {
 function normalizeLabel(value: string): string {
   return value
     .replace(/^@/, '')
-    .replace(/[\/_.:-]+/g, ' ')
+    .replace(/[/_.:-]+/g, ' ')
     .split(/\s+/g)
     .filter(Boolean)
     .map((part) => part.slice(0, 1).toUpperCase() + part.slice(1))

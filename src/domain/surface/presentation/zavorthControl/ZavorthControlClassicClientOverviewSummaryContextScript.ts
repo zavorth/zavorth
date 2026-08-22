@@ -2,13 +2,10 @@
 
 declare function escapeHtml(value: unknown): string;
 declare function formatRelativeTime(value: unknown): string;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- ambient declaration for the runtime concatenated script
 declare function runCockpitAction(actionId: string): void;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- ambient declaration for the runtime concatenated script
 declare function copyTextToClipboard(value: string, successMessage?: string): void;
-
-interface OperatorBriefHighlight {
-  key?: string;
-  value?: string;
-}
 
 interface ZavorthBridgeInfo {
   available?: boolean;
@@ -136,6 +133,7 @@ interface Continuity {
 }
 
 function zavorthControlClassicClientOverviewSummaryContext() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   function renderOperatorBrief(brief: OperatorBrief | null): void {
     const node = document.getElementById('operations-brief');
     if (!node) return;
@@ -238,6 +236,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
       '</div>';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   function renderOperationsMemoryPlane(memoryPlane: MemoryPlane | null): void {
     const node = document.getElementById('operations-memory-plane');
     if (!node) return;
@@ -363,6 +362,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
       '</div>';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   function renderOperationsContinuity(continuity: Continuity | null): void {
     const node = document.getElementById('operations-continuity');
     if (!node) return;

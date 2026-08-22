@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { SkillLocalRegistry } from "../../../../../skills/marketplace/SkillLocalRegistry.js";
 import { SkillGitRegistry } from "../../../../../skills/marketplace/SkillGitRegistry.js";
-import { validateSkillPackage } from "../../../../../skills/marketplace/SkillPackageValidator.js";
-import { scanSkillForSecurity, getSkillPermissions, recordAuditLog, getAuditLog } from "../../../../../skills/marketplace/SkillMarketplaceSecurity.js";
+import { recordAuditLog, getAuditLog } from "../../../../../skills/marketplace/SkillMarketplaceSecurity.js";
 import { SkillDependencyResolver } from "../../../../../skills/marketplace/SkillDependencyResolver.js";
 import { SkillRollback } from "../../../../../skills/marketplace/SkillRollback.js";
 import { searchGitHubReposBroad } from "../../../../../skills/marketplace/SkillGitHubSearch.js";
@@ -91,6 +90,7 @@ export async function GET(request: Request) {
       const skillsDir = resolveInstalledSkillPath(skillId);
       if (!skillsDir) return NextResponse.json({ ok: false, error: "Invalid skill id" }, { status: 400 });
       const depResolver = new SkillDependencyResolver();
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const depCheck = require("fs").existsSync(skillsDir) ? depResolver.checkDependencies(skillsDir) : null;
       return NextResponse.json({
         ok: true,
@@ -148,6 +148,7 @@ export async function POST(request: Request) {
     if (action === "uninstall" && skillId) {
       const skillsDir = resolveInstalledSkillPath(skillId);
       if (!skillsDir) return NextResponse.json({ ok: false, error: "Invalid skill id" }, { status: 400 });
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const fs = require("fs");
       if (!fs.existsSync(skillsDir)) {
         return NextResponse.json({ ok: false, error: `Skill "${skillId}" not installed` }, { status: 404 });

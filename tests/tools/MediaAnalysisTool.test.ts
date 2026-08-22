@@ -3,7 +3,7 @@ import { MediaAnalysisTool } from '../../src/tools/MediaAnalysisTool';
 
 describe('MediaAnalysisTool', () => {
   it('exposes artifact_id instead of file_path', () => {
-    const tool = new MediaAnalysisTool({ service: { analyze: jest.fn() } as any });
+    const tool = new MediaAnalysisTool({ service: { analyze: jest.fn() } as unknown as import('../../src/services/MediaUnderstandingService').MediaUnderstandingService });
 
     expect(tool.parameters.required).toEqual(['artifact_id']);
     expect(tool.parameters.properties).toHaveProperty('artifact_id');
@@ -29,7 +29,7 @@ describe('MediaAnalysisTool', () => {
       summary: 'test stop',
       processedAt: new Date().toISOString(),
     }));
-    const tool = new MediaAnalysisTool({ service: { analyze } as any });
+    const tool = new MediaAnalysisTool({ service: { analyze } as unknown as import('../../src/services/MediaUnderstandingService').MediaUnderstandingService });
 
     await tool.execute({
       artifact_id: 'artifact-123',

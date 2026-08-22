@@ -20,10 +20,10 @@ export function readDiscordBridgeRuntimeStatus(): DiscordBridgeRuntimeStatus | n
     const mode =
       parsed.mode === 'native' || parsed.mode === 'bridge'
         ? parsed.mode
-        : Boolean(config.discordBotToken) ? 'native'
+        : config.discordBotToken ? 'native'
           : config.discordBridgeEnabled ? 'bridge'
             : 'unknown';
-    const expectedMode = Boolean(config.discordBotToken) ? 'native' : config.discordBridgeEnabled ? 'bridge' : mode;
+    const expectedMode = config.discordBotToken ? 'native' : config.discordBridgeEnabled ? 'bridge' : mode;
     const modeMismatch = expectedMode !== 'unknown' && mode !== expectedMode;
     return {
       mode: expectedMode,

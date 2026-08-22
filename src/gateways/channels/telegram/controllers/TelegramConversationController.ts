@@ -139,6 +139,7 @@ export class TelegramConversationController {
       await ctx.api.sendChatAction(ctx.chat.id, 'typing');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const ConversationalModule = require('../../../../agents/ConversationalAgent.js').ConversationalAgent;
     const convAgent = new ConversationalModule({
       toolRuntime: this.toolRuntime,

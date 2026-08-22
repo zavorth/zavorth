@@ -231,7 +231,7 @@ export class NaturalChannelSetupTurnService {
     const canonical = String(text || '').replace(/\s+(?:\u00e9|eh|is)\s+/gi, ' = ');
     for (const label of labels) {
       const escaped = label.replace(/[.*+...^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
-      const pattern = new RegExp(`(?:${escaped})\\s*(?:=|:)...\\s*(?:\"([^\"]+)\"|'([^']+)'|([^\\s]+))`, 'i');
+      const pattern = new RegExp(`(?:${escaped})\\s*(?:=|:)...\\s*(?:"([^"]+)"|'([^']+)'|([^\\s]+))`, 'i');
       const match = canonical.match(pattern);
       const value = [match?.[1], match?.[2], match?.[3]].map((entry) => String(entry || '').trim()).find(Boolean);
       if (value) {

@@ -71,7 +71,7 @@ function proxyRequest(req: IncomingMessage, res: ServerResponse, zavorthControlP
 }
 
 declare global {
-  var __ZavorthGatewayApiBridgeStarted: boolean | undefined;
+  let __ZavorthGatewayApiBridgeStarted: boolean | undefined;
 }
 
 export function initApiBridgeServer(): void {

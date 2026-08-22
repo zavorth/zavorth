@@ -171,7 +171,7 @@ export class ConsensusWithFallback extends EventEmitter {
 
     let lastError: string | undefined;
 
-    while (true) {
+    for (;;) {
       if (signal?.aborted) {
         return {
           provider: reviewer.provider,
@@ -260,7 +260,7 @@ Requirements:
     const chain = this.buildFallbackChain(synthesizer);
     let lastError: string | undefined;
 
-    while (true) {
+    for (;;) {
       if (signal?.aborted) {
         throw new Error('Synthesizer aborted');
       }

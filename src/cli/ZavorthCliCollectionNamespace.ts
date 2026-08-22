@@ -1,96 +1,27 @@
-import { createCipheriv, createDecipheriv, createHash, randomBytes, scryptSync } from 'crypto';
-import { spawn } from 'child_process';
-import { existsSync, readFileSync } from 'fs';
-import { spawnCommandLine } from '../security/SafeProcessExec.js';
-import * as fs from 'fs/promises';
 import * as path from 'path';
-import { gzip, gunzip } from 'zlib';
-import { promisify } from 'util';
-import { formatZavorthCertificationHelp } from './ZavorthCliCertificationCommands.js';
-import { ZavorthOperationalReadinessService } from '../services/ZavorthOperationalReadinessService.js';
-import { ZavorthNativeCapabilityCertificationService } from '../services/ZavorthNativeCapabilityCertificationService.js';
-import { ZavorthProductExcellenceService } from '../services/ZavorthProductExcellenceService.js';
-import { AutonomySchedulePlane, bindAutonomySchedulePlane } from '../services/AutonomySchedulePlane.js';
-import { GoalLoopService } from '../services/GoalLoopService.js';
-import { GoalLoopDaemonService } from '../services/GoalLoopDaemonService.js';
-import { GoalLoopWorkerService } from '../services/GoalLoopWorkerService.js';
-import { GoalPlaneService } from '../services/GoalPlaneService.js';
-import { TaskBoardPlaneService } from '../services/TaskBoardPlaneService.js';
-import { TaskPlaneService } from '../services/TaskPlaneService.js';
-import { ZavorthHomePathService } from '../services/ZavorthHomePathService.js';
-import { ZavorthBackgroundTaskService } from '../services/ZavorthBackgroundTaskService.js';
-import { ZavorthCapabilityLifecycleService } from '../services/ZavorthCapabilityLifecycleService.js';
-import { ZavorthCapabilityUsageSignalsService } from '../services/ZavorthCapabilityUsageSignalsService.js';
-import { ZavorthCapabilityAtlasService } from '../services/ZavorthCapabilityAtlasService.js';
-import { ZavorthDailyProductQuietAutonomyService } from '../services/ZavorthDailyProductQuietAutonomyService.js';
-import { ZavorthActionGateway, type ZavorthActionOperation } from '../runtime/actions/index.js';
-import { SessionContinuumService, resolveSessionContinuumStorePath } from '../services/SessionContinuumService.js';
-import { ZavorthXaiRuntimeService } from '../services/ZavorthXaiRuntimeService.js';
-import { ZavorthOperationalStateDbService } from '../services/ZavorthOperationalStateDbService.js';
-import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
-import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
-import { runSkills as runSkillsNamespace } from './skills/ZavorthCliSkillsNamespace.js';
-import { runPlugins as runPluginsNamespace } from './plugins/ZavorthCliPluginsNamespace.js';
-import { AgentRunService } from '../runtime/agent/AgentRunService.js';
+import {
+  LlmRoleRoutingService,
+} from '../services/llm/LlmRoleRoutingService.js';
+import { resolveLlmRoleScopeId } from '../contracts/runtime/LlmRoleRoutingContract.js';
+import { AboutYouService, isUserModelEnabled, knowledgeWikiPresent, queryKnowledgeFacts, getConversationContinuum, isContinuumCaptureEnabled, continuumBackendLabel } from '../services/learned-knowledge/index.js';
+import { ExperienceSkillLearningLoopService, isExperienceSkillLearningLoopEnabled } from '../services/ExperienceSkillLearningLoopService.js';
 import { AgentUnifiedHealthService } from '../services/AgentUnifiedHealthService.js';
-import { TerminalPanel } from './presentation/TerminalPanel.js';
-import { ChannelGatewayFactory } from '../gateways/ChannelGatewayFactory.js';
-import { runCertify } from './certify/ZavorthCliCertifyNamespace.js';
-import { runSandbox } from './sandbox/ZavorthCliSandboxNamespace.js';
 import {
   firstArg,
   readFlag,
-  readFlags,
   readNumberFlag,
   stateDir,
   ensureDir,
   readJson,
   readArray,
   writeJson,
-  appendJsonArray,
-  listJsonFiles,
-  listAnyFiles,
-  walkFiles,
   idWithTime,
-  safeString,
-  isInside,
-  runProcess,
-  sha256,
   render,
-  normalizeRenderLines,
-  resolvePanelType,
-  terminalPanelWidth,
-  text,
+  sha256,
   splitList,
-  getEnv,
-  quoteEnv,
-  mergeSingleEnvValue,
 } from './ZavorthCliSharedHelpers.js';
-import type {
-  ZavorthCapabilityUsageEventKind,
-  ZavorthCapabilityUsageSurface,
-} from '../contracts/ZavorthCapabilityUsageSignalsContract.js';
-import type { ZavorthCapabilityAtlasCategory } from '../contracts/ZavorthCapabilityAtlasContract.js';
-import type {
-  ZavorthAppsSatelliteAction,
-  ZavorthAppsSatelliteNodeKind,
-} from '../contracts/ZavorthAppsSatelliteNodesContract.js';
-import type { ZavorthTerminalBackendId } from '../contracts/runtime/ZavorthTerminalBackendsContract.js';
-import type {
-  SwarmScaleExecutionMode,
-  SwarmScaleExecutionBackendId,
-} from '../domain/execution/infrastructure/SwarmScalePlaneService.js';
-import { logger } from '../logger.js';
-import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 import { runBackground, runTaskBoard } from './ZavorthCliLiveNamespaces.js';
-import { findById, redactCommand } from './ZavorthCliMcpNamespace.js';
 import { inferText, isProviderConfigured, redact, redactUrl } from './ZavorthCliCommunicationNamespace.js';
-
-type JsonObject = Record<string, unknown>;
-const gzipAsync = promisify(gzip);
-const gunzipAsync = promisify(gunzip);
-
-import { taskPlaneServiceForCli } from './ZavorthCliLiveNamespaces.js';
 
 export async function runCollection(root: string, collection: string, args: string[], label: string) {
   const file = path.join(stateDir(root), `${collection}.json`);
@@ -866,10 +797,6 @@ export async function runHealth(root: string, args: string[]) {
     label: 'LLM roles store',
     read: () => {
       try {
-        const { LlmRoleRoutingService } =
-          require('../services/llm/LlmRoleRoutingService.js') as typeof import('../services/llm/LlmRoleRoutingService.js');
-        const { resolveLlmRoleScopeId } =
-          require('../contracts/runtime/LlmRoleRoutingContract.js') as typeof import('../contracts/runtime/LlmRoleRoutingContract.js');
         const roles = new LlmRoleRoutingService();
         const scopeId = resolveLlmRoleScopeId({
           userId: process.env.USER || process.env.USERNAME || 'cli',
@@ -985,8 +912,6 @@ export async function runHealth(root: string, args: string[]) {
     label: 'About you',
     read: () => {
       try {
-        const { AboutYouService, isUserModelEnabled } =
-          require('../services/learned-knowledge/index.js') as typeof import('../services/learned-knowledge/index.js');
         const userId = process.env.USER || process.env.USERNAME || 'local-user';
         const snap = new AboutYouService({ projectRoot: root }).buildSnapshot(userId);
         const inject = isUserModelEnabled();
@@ -1010,8 +935,6 @@ export async function runHealth(root: string, args: string[]) {
     label: 'Knowledge (Mnemos wiki)',
     read: () => {
       try {
-        const { knowledgeWikiPresent, queryKnowledgeFacts } =
-          require('../services/learned-knowledge/index.js') as typeof import('../services/learned-knowledge/index.js');
         const wiki = knowledgeWikiPresent(root);
         if (!wiki) {
           return {
@@ -1050,8 +973,6 @@ export async function runHealth(root: string, args: string[]) {
     label: 'Conversation continuum',
     read: () => {
       try {
-        const { getConversationContinuum, isContinuumCaptureEnabled, continuumBackendLabel } =
-          require('../services/learned-knowledge/index.js') as typeof import('../services/learned-knowledge/index.js');
         const continuum = getConversationContinuum({ projectRoot: root });
         const capture = isContinuumCaptureEnabled();
         const backend = continuumBackendLabel({ projectRoot: root });
@@ -1084,10 +1005,6 @@ export async function runHealth(root: string, args: string[]) {
     label: 'Experience skill learning',
     read: () => {
       try {
-        const {
-          ExperienceSkillLearningLoopService,
-          isExperienceSkillLearningLoopEnabled,
-        } = require('../services/ExperienceSkillLearningLoopService.js');
         if (!isExperienceSkillLearningLoopEnabled()) {
           return {
             status: 'attention' as const,

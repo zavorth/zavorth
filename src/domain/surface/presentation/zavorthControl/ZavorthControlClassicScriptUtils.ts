@@ -1,3 +1,4 @@
+  // eslint-disable-next-line @typescript-eslint/ban-types
 export function extractFunctionBody(fn: Function): string {
   const source = fn.toString();
   const start = source.indexOf('{') + 1;

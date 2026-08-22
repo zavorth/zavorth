@@ -83,7 +83,7 @@ describe('SecurityEngine', () => {
     const oldToken = process.env.HOME_ASSISTANT_TOKEN;
     process.env.HOME_ASSISTANT_URL = 'https://example.com';
     process.env.HOME_ASSISTANT_TOKEN = 'test-token';
-    const fetchSpy = jest.spyOn(global, 'fetch' as any);
+    const fetchSpy = jest.spyOn(global, 'fetch' as unknown as jest.SpyInstance);
 
     try {
       const result = await new HomeAssistantBridge().execute({

@@ -712,7 +712,7 @@ export class PlaywrightActionTool implements IZavorthTool {
             new Set(
                 String(selector || '')
                     .toLowerCase()
-                    .replace(/[\[\]#.=:"'()>,/+*\-_]+/g, ' ')
+                    .replace(/[[\]#.=:"'()>,/+*\-_]+/g, ' ')
                     .split(/\s+/)
                     .map((entry) => entry.trim())
                     .filter((entry) => entry.length >= 3 && !ignoredTokens.has(entry)),

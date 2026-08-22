@@ -117,7 +117,7 @@ export class ZavorthNotificationTool extends BaseTool {
   }
 
   private resolveTemplate(args: Record<string, unknown>): { title: string; message: string } {
-    let title = String(args.title || 'Notification');
+    const title = String(args.title || 'Notification');
     let message = String(args.message || '');
 
     const templatePath = String(args.template_path || '');

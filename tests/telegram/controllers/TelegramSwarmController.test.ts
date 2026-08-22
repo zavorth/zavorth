@@ -1,13 +1,32 @@
 import { EventEmitter } from 'events';
 import { TelegramSwarmController } from '../../../src/telegram/controllers/TelegramSwarmController.js';
 
+interface MockBotApi {
+  sendMessage: jest.Mock;
+  editMessageText: jest.Mock;
+}
+
+interface MockSwarm extends EventEmitter {
+  execute: jest.Mock;
+}
+
+interface MockCreateSwarm {
+  (): MockSwarm;
+}
+
+interface MockControllerDeps {
+  botApi: MockBotApi;
+  getLlmRuntime: () => Record<string, unknown>;
+  createSwarm: MockCreateSwarm;
+}
+
 describe('TelegramSwarmController', () => {
   it('routes /swarm to a non-interactive orchestrator and sends a truncated final summary', async () => {
-    const botApi = {
+    const botApi: MockBotApi = {
       sendMessage: jest.fn(async () => ({ message_id: 123 })),
       editMessageText: jest.fn(async () => ({})),
     };
-    const swarm = new EventEmitter() as any;
+    const swarm = new EventEmitter() as unknown as MockSwarm;
     swarm.execute = jest.fn(async () => {
       swarm.emit('role:started', { roleId: 'swarm-researcher' });
       swarm.emit('role:finished', { roleId: 'swarm-researcher', status: 'IDLE' });
@@ -19,14 +38,14 @@ describe('TelegramSwarmController', () => {
         synthesizedOutput: 'x'.repeat(5000),
       };
     });
-    const createSwarm = jest.fn(() => swarm);
+    const createSwarm: MockCreateSwarm = jest.fn(() => swarm);
     const controller = new TelegramSwarmController({
       botApi,
-      getLlmRuntime: () => ({}) as any,
+      getLlmRuntime: () => ({}) as unknown as never,
       createSwarm,
     });
 
-    await controller.handleSwarm({ chat: { id: 42 } }, 'validar release');
+    await controller.handleSwarm({ chat: { id: 42 } } as unknown as never, 'validar release');
 
     expect(createSwarm).toHaveBeenCalledWith(
       'validar release',

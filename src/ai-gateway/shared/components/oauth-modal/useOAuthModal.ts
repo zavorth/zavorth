@@ -110,7 +110,6 @@ export function useOAuthModal({
         onSuccess?.();
       } catch (caughtError: unknown) {
         const err = asErrorLike(caughtError);
-        const error = err;
         const message =
           caughtError instanceof Error ? err.message : "Exchange failed unexpectedly";
         if (
@@ -167,7 +166,6 @@ export function useOAuthModal({
           }
         } catch (caughtError: unknown) {
           const err = asErrorLike(caughtError);
-          const error = err;
           const message =
             caughtError instanceof Error
               ? err.message
@@ -305,7 +303,6 @@ export function useOAuthModal({
       }
     } catch (caughtError: unknown) {
       const err = asErrorLike(caughtError);
-      const error = err;
       const message =
         caughtError instanceof Error ? err.message : "OAuth flow failed unexpectedly";
       setError(message);
@@ -482,7 +479,6 @@ export function useOAuthModal({
       await exchangeTokens(callbackData.code, callbackData.state);
     } catch (caughtError: unknown) {
       const err = asErrorLike(caughtError);
-      const error = err;
       const message =
         caughtError instanceof Error ? err.message : "Manual callback handling failed";
       setError(message);

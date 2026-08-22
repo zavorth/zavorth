@@ -20,7 +20,7 @@ interface MattermostWebhookPayload {
 export class MattermostGateway extends WebhookGateway {
   public readonly id = 'mattermost';
   public readonly name = 'Mattermost';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'webhook';
 
   constructor(options: WebhookGatewayOptions) {

@@ -138,6 +138,7 @@ interface OperationsReport {
 }
 
 function zavorthControlClassicClientOverviewOperationsCockpit() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   function renderOperationsCockpit(cockpit: OperationsCockpit) {
     const node = document.getElementById('operations-cockpit');
     if (!node) return;
@@ -278,6 +279,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
       '</div>';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   function renderOperationsReport(report: OperationsReport) {
     const node = document.getElementById('operations-report');
     if (!node) return;
@@ -483,6 +485,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
       '</div>';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   async function copyOperationsReport() {
     const node = document.getElementById('operations-report-text');
     if (!node) {
@@ -501,6 +504,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   async function copyTextToClipboard(value: string | number | boolean, successMessage?: string) {
     try {
       if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
@@ -513,6 +517,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   async function runCockpitAction(actionId: string) {
     try {
       const response = await fetch('/api/operations/actions', {
@@ -537,6 +542,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumed at runtime via fn.toString() → extractFunctionBody()
   async function runIntegrationHubAction(integrationId: string, actionId: string) {
     try {
       const response = await fetch('/api/operations/integrations/actions', {

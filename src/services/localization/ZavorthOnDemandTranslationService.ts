@@ -70,7 +70,7 @@ export class ZavorthOnDemandTranslationService {
         this.memoryCache.set(normalized, synthesized);
         try {
           fs.writeFileSync(diskPath, JSON.stringify(synthesized, null, 2), 'utf8');
-        } catch {}
+        } catch {/* empty */}
         return synthesized;
       }
     }

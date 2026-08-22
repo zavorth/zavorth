@@ -115,7 +115,7 @@ export async function POST(request: Request) {
     if (isValidationFailure(validation)) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
-    let { baseUrl, apiKey, model } = validation.data;
+    const { baseUrl, apiKey, model } = validation.data;
 
     const keyId = typeof rawBody?.keyId === "string" ? rawBody.keyId.trim() : null;
     if (keyId) {

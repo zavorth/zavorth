@@ -7,7 +7,6 @@ import type { TransportAdapter } from './transports/TransportAdapter.js';
 import type { CompatLayer } from './compat/types.js';
 import type { ThinkingAdapter, ThinkingLevelConfig } from './thinking/types.js';
 import type { AuthProvider, ResolvedCredentials } from './auth/types.js';
-import type { ModelCatalog, ModelInfo } from './catalog/types.js';
 import { wrapLlmProviderWithEgressGuard } from '../security/LlmEgressGuard.js';
 
 export interface EnhancedProviderInfo {
@@ -75,11 +74,6 @@ class TransportBasedProvider implements ILlmProvider {
 
   async chat(messages: ChatMessage[], tools?: ToolDefinition[], options?: ProviderChatOptions): Promise<LlmResponse> {
     const effectiveModel = options?.modelName || this.modelName || undefined;
-    let request = this.buildRequest(messages, tools, options, effectiveModel);
-
-    if (this.compat) {
-      request = this.compat.transformRequest(request, effectiveModel || '');
-    }
 
     const response = await this.transport.chat(messages, tools, { ...options, modelName: effectiveModel });
 
@@ -127,7 +121,7 @@ class TransportBasedProvider implements ILlmProvider {
     return request;
   }
 
-  private applyCompatResponse(response: LlmResponse, model: string): LlmResponse {
+  private applyCompatResponse(response: LlmResponse, _model: string): LlmResponse {
     if (!this.compat) return response;
 
     const compatInput: Record<string, unknown> = {

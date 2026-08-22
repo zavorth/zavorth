@@ -2,65 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { Task } from '../../contracts/TaskContract.js';
 import { PermissionRequest } from '../../contracts/PermissionRequest.js';
-import { config } from '../../config/index.js';
-import { AgentBridgeManager, PendingZavorthBridgeSession } from '../AgentBridgeManager.js';
-import { ZavorthBridgeWindowAutomator } from '../../agents/ZavorthBridgeWindowAutomator.js';
-import { ZavorthBridgeCompanionBridge } from '../../agents/ZavorthBridgeCompanionBridge.js';
-import { PermissionService } from '../../services/PermissionService.js';
-import {
-  ZavorthBridgeUiCaptureService,
-  type ZavorthBridgeUiSnapshot,
-} from '../../services/ZavorthBridgeUiCaptureService.js';
-import { FinalResponseFormattingService } from '../../services/FinalResponseFormattingService.js';
-import {
-  extractDirectoryHints as extractDirectoryHintsImpl,
-  isExistingDirectory as isExistingDirectoryImpl,
-  isLocalDirectoryInspectionPrompt as isLocalDirectoryInspectionPromptImpl,
-  listAncestorDirectories as listAncestorDirectoriesImpl,
-  normalizeComparisonValue as normalizeComparisonValueImpl,
-  normalizePathToken as normalizePathTokenImpl,
-  pathTokensRoughlyMatch as pathTokensRoughlyMatchImpl,
-  resolveDirectoryHint as resolveDirectoryHintImpl,
-  resolveDirectoryListingTarget as resolveDirectoryListingTargetImpl,
-  safeReadDirectory as safeReadDirectoryImpl,
-} from './RealZavorthBridgeWatcherDirectoryHelpers.js';
-import {
-  formatArtifactCompletion as formatArtifactCompletionImpl,
-  formatFinalResponseBroadcast as formatFinalResponseBroadcastImpl,
-  formatTelegramFriendlyResponse as formatTelegramFriendlyResponseImpl,
-  humanizeArtifactType as humanizeArtifactTypeImpl,
-  isDiscardableZavorthBridgeClosingLine as isDiscardableZavorthBridgeClosingLineImpl,
-  isVisibleResponseCaptureReady as isVisibleResponseCaptureReadyImpl,
-  normalizeTelegramFriendlyText as normalizeTelegramFriendlyTextImpl,
-  normalizeVisibleResponse as normalizeVisibleResponseImpl,
-  sanitizeVisibleResponse as sanitizeVisibleResponseImpl,
-  truncate as truncateImpl,
-  tryFormatStructuredInventory as tryFormatStructuredInventoryImpl,
-  extractInventoryHeading as extractInventoryHeadingImpl,
-  extractInventoryItem as extractInventoryItemImpl,
-  looksLikeInventoryItem as looksLikeInventoryItemImpl,
-} from './RealZavorthBridgeWatcherFormattingHelpers.js';
-import { RealZavorthBridgeWatcherPermissionSupport } from './RealZavorthBridgeWatcherPermissionSupport.js';
-
-import {
-  collectArtifacts as collectZavorthBridgeArtifacts,
-  collectRecentLogEvents as collectZavorthBridgeRecentLogEvents,
-  findLatestZavorthBridgeLogFile as findLatestZavorthBridgeLogFileImpl,
-  isAutomationTriggerZavorthBridgeLogLine as isAutomationTriggerZavorthBridgeLogLineImpl,
-  isInterestingZavorthBridgeLogLine as isInterestingZavorthBridgeLogLineImpl,
-  parseZavorthBridgeLogEvent as parseZavorthBridgeLogEventImpl,
-  resolveArtifactContentPath as resolveArtifactContentPathImpl,
-  type ZavorthBridgeArtifact,
-  type ZavorthBridgeLogEvent,
-} from './RealZavorthBridgeWatcherArtifactLogHelpers.js';
-
-import { RealZavorthBridgeWatcherTaskSupport } from './RealZavorthBridgeWatcherTaskSupport.js';
-import { RealZavorthBridgeWatcherCompanionSupport } from './RealZavorthBridgeWatcherCompanionSupport.js';
-import type {
-  RealZavorthBridgeWatcherDeps,
-  RealZavorthBridgeWatcherWorkflowContext,
-  ScopedCompanionUiTarget,
-} from './RealZavorthBridgeWatcherWorkflowTypes.js';
 import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
 export type {
   BotApiLike,
@@ -494,7 +435,7 @@ export class RealZavorthBridgeWatcherWorkflow {
     try {
       await this.broadcaster.broadcast(message);
     } catch (error: unknown) {
-  const err = asErrorLike(error);const broadcastError = error instanceof Error ? error : new Error(String(errorMessage(error)));
+      const broadcastError = error instanceof Error ? error : new Error(String(errorMessage(error)));
       throw new Error(
         directError ? `Direct delivery failed (${directError.message}) and broadcast also failed (${broadcastError.message}).`
           : `Failed to deliver response by broadcast: ${broadcastError.message}`,

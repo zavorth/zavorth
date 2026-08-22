@@ -1,12 +1,24 @@
 import { logger } from '../logger.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { ToolDefinition, ToolDefinitionSchema } from '../providers/ILlmProvider.js';
+import { ToolDefinition } from '../providers/ILlmProvider.js';
 import { buildChildProcessEnv } from '../security/ChildProcessEnv.js';
 import { createMcpAgentToolSecurityDefinition } from '../security/AgentToolSecurityCatalog.js';
 import { McpToolWrapper } from '../tools/McpToolWrapper.js';
 import { ToolRegistry } from '../tools/ToolRegistry.js';
 import { asErrorLike } from '../utils/errorLike';
+
+interface McpToolInputSchema {
+  type?: string;
+  properties?: Record<string, McpToolInputSchemaProperty>;
+  required?: string[];
+}
+
+interface McpToolInputSchemaProperty {
+  type?: string;
+  description?: string;
+  enum?: string[];
+}
 
 export function buildMcpChildEnv(
   explicitEnv: Record<string, string> = {},
@@ -65,18 +77,6 @@ export class McpClientManager {
     }
 
     logger.info(`[MCP] ${response.tools.length} modules/tools found on server ${this.name}`);
-
-    interface McpToolInputSchema {
-      type?: string;
-      properties?: Record<string, McpToolInputSchemaProperty>;
-      required?: string[];
-    }
-
-    interface McpToolInputSchemaProperty {
-      type?: string;
-      description?: string;
-      enum?: string[];
-    }
 
     for (const tool of response.tools) {
       const inputSchema = tool.inputSchema as McpToolInputSchema;

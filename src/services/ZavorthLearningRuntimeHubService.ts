@@ -249,6 +249,7 @@ export class ZavorthLearningRuntimeHubService {
 
 function sanitizeLearnedSummary(value: string): string {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { redactSensitiveText } = require('./ZavorthNativeAutonomyShared.js') as typeof import('./ZavorthNativeAutonomyShared.js');
     return redactSensitiveText(value).slice(0, 240);
   } catch {

@@ -1,5 +1,4 @@
 import { config } from "../../../../../config/index.js";
-import { RuntimeDiagnosticsService } from "../../../../../services/RuntimeDiagnosticsService.js";
 import { SupervisedRuntimeService } from "../../../../../services/SupervisedRuntimeService.js";
 import { AutoRepairService } from "../../../../../services/AutoRepairService.js";
 import { ZavorthBridgePreferenceStore } from "../../../../../agents/ZavorthBridgePreferenceStore.js";
@@ -7,10 +6,8 @@ import { ZavorthChannelActionService } from "../../../../../services/ZavorthChan
 import { ZavorthChannelMeshService } from "../../../../../services/ZavorthChannelMeshService.js";
 import { ZavorthGatewayService } from "../../../../../services/ZavorthGatewayService.js";
 import { AIGatewayProxyService } from "../../../../../services/AIGatewayProxyService.js";
-import { ZavorthMemoryPlaneService } from "../../../../../services/ZavorthMemoryPlaneService.js";
 import { ZavorthLayeredMemoryService } from "../../../../../services/ZavorthLayeredMemoryService.js";
 import { ZavorthLearningPlaneService } from "../../../../../services/ZavorthLearningPlaneService.js";
-import { ZavorthSessionPlaneService } from "../../../../../services/ZavorthSessionPlaneService.js";
 import { ZavorthSessionToolsService } from "../../../../../runtime/sessions/ZavorthSessionToolsService.js";
 import { ZavorthHookPlaneService } from "../../../../../services/ZavorthHookPlaneService.js";
 import { ZavorthPluginActionService } from "../../../../../services/ZavorthPluginActionService.js";
@@ -56,11 +53,6 @@ import { SkillInstallPlanPresentationService } from "../../../../../services/Ski
 import { UniversalSkillBridgeActivationService } from "../../../../../services/UniversalSkillBridgeActivationService.js";
 import { ZavorthNaturalInvocationRouter } from "../../../../../services/ZavorthNaturalInvocationRouter.js";
 import { ZavorthSubagentInvocationGatewayService } from "../../../../../services/ZavorthSubagentInvocationGatewayService.js";
-import type { PermissionRequest } from "../../../../../contracts/PermissionRequest.js";
-import type { Task } from "../../../../../contracts/TaskContract.js";
-import type { SurfaceTaskDispatcherLike } from "../../../../../services/SurfaceRuntime.js";
-import { PermissionService } from "../../../../../services/PermissionService.js";
-import { SelfModificationCommandService } from "../../../../../services/SelfModificationCommandService.js";
 import { EngineeringCoreService } from "../../../../../services/EngineeringCoreService.js";
 import { SupervisedExecutionGatewayService } from "../../../../../services/SupervisedExecutionGatewayService.js";
 import { ChannelInstallScaffoldService } from "../../../../../services/ChannelInstallScaffoldService.js";
@@ -84,7 +76,6 @@ import { ZavorthTelemetryLedgerService } from "../../../../../services/ZavorthTe
 import { ZavorthWatchModeControlPlaneService } from "../../../../../services/ZavorthWatchModeControlPlaneService.js";
 import { ZavorthTrustPlaneService } from "../../../../../services/ZavorthTrustPlaneService.js";
 import { ZavorthTrustPlaneActionService } from "../../../../../services/ZavorthTrustPlaneActionService.js";
-import { AutomaticBrowserDoctorService } from "../../../../../mcp/AutomaticBrowserDoctorService.js";
 import { McpToolPolicy } from "../../../../../mcp/McpToolPolicy.js";
 import { SkillTrustPolicyService } from "../../../../../services/SkillTrustPolicyService.js";
 import { McpToolPolicyFileService } from "../../../../../services/McpToolPolicyFileService.js";
@@ -93,10 +84,7 @@ import { ProductObservabilityService } from "../../../../../services/ProductObse
 import type { TaskManagerLike as ProductObservabilityTaskManagerLike } from "../../../../../services/product-observability/types.js";
 import { CapabilityLifecycleService } from "../../../../../services/CapabilityLifecycleService.js";
 import type { DesktopResourcePlaneService } from "../../../../../services/DesktopResourcePlaneService.js";
-import type { CompanionControlService } from "../../../../../services/CompanionControlService.js";
 import { TaskResourcePlannerService } from "../../../../../services/TaskResourcePlannerService.js";
-import type { CompanionWorkspaceOptimizerService } from "../../../../../services/CompanionWorkspaceOptimizerService.js";
-import type { ModeEscalationService } from "../../../../../services/ModeEscalationService.js";
 import { buildSharedSurfaceCommandServiceAssembly } from "./SharedSurfaceCommandServiceAssembly.js";
 import type { SharedSurfaceCommandServiceDeps } from "./SharedSurfaceCommandServiceDeps.js";
 

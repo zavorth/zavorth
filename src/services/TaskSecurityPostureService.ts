@@ -71,7 +71,7 @@ export class TaskSecurityPostureService {
     if (Boolean(task.requires_approval) || String(task.approval_status || '') === 'pending') {
       activeControls.push('manual_approval');
     }
-    if (Boolean(metadata.pendingPermissionId)) {
+    if (metadata.pendingPermissionId) {
       activeControls.push('permission_request');
     }
     if (allowedPathPolicies.length > 0) {
@@ -80,7 +80,7 @@ export class TaskSecurityPostureService {
     if (allowedCommandPolicies.length > 0) {
       activeControls.push('scoped_command_access');
     }
-    if (Boolean(metadata.requiresHighRiskPin)) {
+    if (metadata.requiresHighRiskPin) {
       activeControls.push('pin_or_totp');
     }
     if (String(metadata.tenant_context?.isolation_mode || metadata.tenant_isolation_mode || '').trim() === 'tenant') {

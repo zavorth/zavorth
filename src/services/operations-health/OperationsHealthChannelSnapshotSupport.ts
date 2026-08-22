@@ -141,11 +141,9 @@ export class OperationsHealthChannelSnapshotSupport {
             : true,
       providerDecision:
         config.whatsappProvider === 'cloud-api'
-          ? Boolean(
-              String(config.whatsappPhoneNumberId || '').trim()
+          ? String(config.whatsappPhoneNumberId || '').trim()
               && String(config.whatsappAccessToken || '').trim()
-              && String(config.whatsappWebhookVerifyToken || '').trim(),
-            ) ? 'Cloud API connected; webhook verification, inbound, and official outbound are active.'
+              && String(config.whatsappWebhookVerifyToken || '').trim() ? 'Cloud API connected; webhook verification, inbound, and official outbound are active.'
             : 'Cloud API selected as target provider, but minimum credentials are still missing to activate runtime.'
           : config.whatsappProvider === 'baileys'
             ? 'Baileys selected as target provider; persistent native session connection is still missing.'

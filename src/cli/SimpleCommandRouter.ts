@@ -143,7 +143,7 @@ export function resolveZavorthSimpleCommand(rawArgs: string[]): ZavorthSimpleCom
 
   // Natural CLI rewrite (shared policies with slash) — passthrough after normalize.
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { naturalizeCliArgv } = require('./CliNaturalConvention.js') as typeof import('./CliNaturalConvention.js');
     const naturalized = naturalizeCliArgv(rawArgs);
     if (naturalized.rewritten) {

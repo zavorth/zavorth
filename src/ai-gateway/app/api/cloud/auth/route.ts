@@ -19,15 +19,15 @@ export async function POST(request) {
     const connections = await getProviderConnections({ isActive: true });
 
     // Helper to mask sensitive values
-    function maskSecret(value: string | null | undefined): string | null {
+    const maskSecret = (value: string | null | undefined): string | null => {
       if (!value) return null;
       if (value.length <= 8) return "****";
       return value.slice(0, 4) + "****" + value.slice(-4);
-    }
+    };
 
-    function toOptionalString(value: unknown): string | null {
+    const toOptionalString = (value: unknown): string | null => {
       return typeof value === "string" ? value : null;
-    }
+    };
 
     // Map connections — NEVER expose raw credentials
     const mappedConnections = connections.map((conn) => ({

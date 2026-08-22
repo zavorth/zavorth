@@ -14,7 +14,7 @@ interface GoogleChatWebhookPayload extends Record<string, unknown> {
 export class GoogleChatGateway extends WebhookGateway {
   public readonly id = 'google-chat';
   public readonly name = 'Google Chat';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'webhook';
 
   constructor(options: WebhookGatewayOptions) {

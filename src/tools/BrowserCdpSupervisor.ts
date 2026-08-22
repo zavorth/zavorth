@@ -188,6 +188,7 @@ export class BrowserCdpSupervisor extends EventEmitter {
   private handleEvent(method: string, params: Record<string, unknown>): void {
     switch (method) {
       case 'Runtime.consoleAPICalled':
+  // eslint-disable-next-line no-case-declarations
         const args = params.args as Array<{ value: unknown }> | undefined;
         this.consoleLog.push({
           type: String(params.type),

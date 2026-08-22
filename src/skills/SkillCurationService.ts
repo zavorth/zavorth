@@ -293,6 +293,7 @@ function normalizeSkillId(skillId: string): string {
   if (!normalized) {
     throw new Error('skillId e required.');
   }
+  // eslint-disable-next-line no-control-regex
   if (/[\u0000-\u001F\u007F]/.test(normalized)) {
     throw new Error('skillId contains caracteres de controle invalids.');
   }

@@ -5,45 +5,31 @@ import type {
   ZavorthCliFlags,
   ZavorthCliIo,
   ZavorthCliRuntime,
-  ZavorthCliServiceOverrides,
   CliExecutionResult,
-  CliTerminalStreamEvent,
-  CliReadlineFactory,
-  CliRuntimeProfile,
   CliWriter,
 } from './ZavorthCliContract.js';
-import type { LegacyUnifiedGatewayAdapter } from '../context-engine/LegacyUnifiedGatewayAdapter.js';
 import type { SurfaceTaskDispatcherLike, SurfaceControllerContext } from '../services/SurfaceRuntime.js';
 import type { MessageChannel, TaskSource } from '../contracts/PlatformContract.js';
-import { config } from '../config/index.js';
 import {
   type UniversalAgentChannel,
   type UniversalAgentExecutor,
-  type UniversalAgentRunResult,
   type UniversalAgentWorkflowJob,
 } from '../runtime/agent/index.js';
-import type { ZavorthResponseDecision } from '../contracts/ZavorthResponseDecisionContract.js';
-import { SurfaceOperationalIntentService } from '../services/SurfaceOperationalIntentService.js';
-import { resolveCliUniversalModelProfile } from './ZavorthCliModelPickerHelpers.js';
 import { createDefaultSessionId } from './ZavorthCliReplHistoryHelpers.js';
-import { ZavorthUserResponseRendererService } from '../services/ZavorthUserResponseRendererService.js';
 import {
   formatCliChatAssistantMessage,
   formatCliChatCommandHint,
 } from './ZavorthCliChatRenderers.js';
 import {
-  formatCliApprovalRequiredEventCard,
   formatCliChatReplyEventCard,
   formatCliRecoverableErrorEventCard,
   formatCliSuccessEventCard,
-  formatCliCuratorNotificationCard,
 } from './ZavorthCliEventCards.js';
 import { formatTerminalComposerPrompt } from './ZavorthCliTerminalComposer.js';
 
 export { buildCliReplCompleter, createDefaultSessionId, loadCliReplHistory, persistCliReplHistory } from './ZavorthCliReplHistoryHelpers.js';
 
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
-import { Database } from '../storage/Database.js';
 import { asErrorLike } from '../utils/errorLike.js';
 import { resolveCliLegacyUnifiedGateway } from './ZavorthCliRuntimeFlowHelpers.js';
 
@@ -90,18 +76,6 @@ function restoreConsoleMethods(originals: Map<CliSuppressedConsoleMethod, typeof
   });
 }
 
-function withSuppressedConsoleMethods<T>(
-  fn: () => T,
-  methods: CliSuppressedConsoleMethod[] = ['log', 'info', 'warn', 'debug'],
-): T {
-  const originals = suppressConsoleMethods(methods);
-
-  try {
-    return fn();
-  } finally {
-    restoreConsoleMethods(originals);
-  }
-}
 export async function withCliConsoleSuppressedAsync<T>(fn: () => Promise<T>): Promise<T> {
   const originals = suppressConsoleMethods();
   try {

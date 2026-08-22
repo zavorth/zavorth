@@ -11,6 +11,11 @@ import { ExecutionGateway } from '../execution/ExecutionGateway.js';
 import { LocalExecutor } from '../execution/LocalExecutor.js';
 import { CodexExecutor } from '../execution/CodexExecutor.js';
 import { EXTERNAL_EXECUTOR_ID, ExternalExecutor } from '../execution/ExternalExecutor.js';
+import { GeminiCliExecutor } from '../execution/GeminiCliExecutor.js';
+import { GeminiManagedAgentExecutor } from '../execution/GeminiManagedAgentExecutor.js';
+import { JulesExecutor } from '../execution/JulesExecutor.js';
+import { SwarmExecutor } from '../execution/SwarmExecutor.js';
+import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import type { Plan, PlanStep } from '../contracts/PlanContract.js';
 import type { ToolRuntimeService } from '../services/tools/ToolRuntimeService.js';
 import { asErrorLike } from '../utils/errorLike';
@@ -100,7 +105,7 @@ export class MailboxWatcher {
   }
 
   private async processInbox() {
-    while (true) {
+    for (;;) {
       const pendingFiles = await this.listPendingMessageFiles();
       if (pendingFiles.length === 0) {
         return;
@@ -304,16 +309,16 @@ export class MailboxWatcher {
     gateway.registerExecutor('codex', new CodexExecutor());
     const externalExecutor = new ExternalExecutor();
     gateway.registerExecutor(EXTERNAL_EXECUTOR_ID, externalExecutor);
-    gateway.registerExecutor('gemini_cli', new (require('../execution/GeminiCliExecutor.js').GeminiCliExecutor)());
+    gateway.registerExecutor('gemini_cli', new GeminiCliExecutor());
     gateway.registerExecutor(
       'gemini_managed_agent',
-      new (require('../execution/GeminiManagedAgentExecutor.js').GeminiManagedAgentExecutor)(),
+      new GeminiManagedAgentExecutor(),
     );
-    gateway.registerExecutor('jules', new (require('../execution/JulesExecutor.js').JulesExecutor)());
+    gateway.registerExecutor('jules', new JulesExecutor());
     gateway.registerExecutor(
       'swarm',
-      new (require('../execution/SwarmExecutor.js').SwarmExecutor)(
-        new (require('../services/llm/LlmRuntimeService.js').LlmRuntimeService)(),
+      new SwarmExecutor(
+        new LlmRuntimeService(),
       ),
     );
     return gateway;

@@ -5,7 +5,7 @@ import { getDefaultEchoVoiceAssetStore } from '../../src/domain/surface/infrastr
 import { ZavorthControlEchoRouteService } from '../../src/services/ZavorthControlEchoRouteService.js';
 
 type WriteCall = {
-  body: any;
+  body: unknown;
   statusCode: number;
 };
 
@@ -28,7 +28,7 @@ function createReq(
   req.method = method;
   req.url = url;
   req.headers = { host: 'localhost', ...(options.headers || {}) };
-  (req as any).socket = { remoteAddress: options.remoteAddress || '127.0.0.1' };
+  (req as unknown as { socket: { remoteAddress: string } }).socket = { remoteAddress: options.remoteAddress || '127.0.0.1' };
 
   process.nextTick(() => {
     if (options.rawBody !== undefined) {
@@ -50,8 +50,8 @@ function createRes(): MockResponse {
     setHeader: (name: string, value: string) => {
       headers[String(name)] = String(value);
     },
-    end(chunk?: any) {
-      this.body = chunk ? Buffer.from(chunk) : Buffer.alloc(0);
+    end(chunk?: unknown) {
+      this.body = chunk ? Buffer.from(String(chunk)) : Buffer.alloc(0);
       return this;
     },
   } as MockResponse;
@@ -144,7 +144,7 @@ function createDeps() {
   return {
     calls,
     deps: {
-      echo: echo as any,
+      echo: echo as unknown as typeof echo,
       writeJson: (_res: http.ServerResponse, body: unknown, statusCode = 200) => {
         calls.push({ body, statusCode });
       },
@@ -345,7 +345,7 @@ describe('ZavorthControlEchoRouteService', () => {
       createRes(),
       new URL('http://localhost/api/v2/nexus/execute'),
       '/api/v2/nexus/execute',
-      { ...deps, agentGateway: agentGateway as any },
+      { ...deps, agentGateway: agentGateway as unknown as typeof agentGateway },
     );
 
     expect(handled).toBe(true);
@@ -468,7 +468,7 @@ describe('ZavorthControlEchoRouteService', () => {
       res,
       new URL('http://localhost/api/v2/nexus/execute'),
       '/api/v2/nexus/execute',
-      { ...deps, agentGateway: agentGateway as any },
+      { ...deps, agentGateway: agentGateway as unknown as typeof agentGateway },
     );
 
     expect(handled).toBe(true);

@@ -1,5 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+import { execFileSync } from 'child_process';
+import os from 'os';
 import { logger } from '../../logger.js';
 
 export interface DocumentMetadata {
@@ -196,7 +198,6 @@ export class DocumentIntelligenceService {
 
   private extractPdfText(filePath: string): string {
     try {
-      const { execFileSync } = require('child_process');
       const result = execFileSync('pdftotext', [filePath, '-'], { timeout: 30000 }).toString();
       return result;
     } catch (error: unknown) {logger.warn('[Document Intelligence] process execution failed', error);
@@ -268,7 +269,6 @@ export class DocumentIntelligenceService {
       if (!apiKey) continue;
 
       try {
-        const { execFileSync } = require('child_process');
         let payload: string;
         let headers: string[];
         let url: string;
@@ -299,7 +299,7 @@ export class DocumentIntelligenceService {
           url = provider.url;
         }
 
-        const tmpFile = path.join(require('os').tmpdir(), `lang_detect_${provider.name}_${Date.now()}.json`);
+        const tmpFile = path.join(os.tmpdir(), `lang_detect_${provider.name}_${Date.now()}.json`);
         fs.writeFileSync(tmpFile, payload);
         try {
           const result = execFileSync('curl', [

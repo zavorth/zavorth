@@ -70,7 +70,7 @@ describe('ZavorthSandboxCloudTool cloud adapter contract', () => {
         },
         listProviders: () => [],
       },
-    } as any);
+    } as unknown as import('../../src/services/ZavorthCloudSandboxAdapterService').ZavorthCloudSandboxAdapterService);
 
     const output = await tool.execute({
       action: 'run',
@@ -111,7 +111,7 @@ describe('ZavorthSandboxCloudTool cloud adapter contract', () => {
         }),
         listProviders: () => [],
       },
-    } as any);
+    } as unknown as import('../../src/services/ZavorthCloudSandboxAdapterService').ZavorthCloudSandboxAdapterService);
 
     const output = await tool.execute({
       action: 'run',

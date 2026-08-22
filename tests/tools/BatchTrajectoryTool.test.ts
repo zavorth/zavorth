@@ -17,12 +17,12 @@ describe('BatchTrajectoryTool', () => {
     jest.mocked(ProviderFactory.create).mockReset();
     jest.mocked(ProviderFactory.create).mockReturnValue({
       name: 'mock-provider',
-      chat: jest.fn(async (messages: any[]) => ({
+      chat: jest.fn(async (messages: Array<{ content?: string }>) => ({
         content: `real output for ${messages[0]?.content || 'unknown'}`,
         toolCalls: [],
         finishReason: 'stop',
       })),
-    } as any);
+    } as unknown as ReturnType<typeof ProviderFactory.create>);
     tool = new BatchTrajectoryTool();
   });
 

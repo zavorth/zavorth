@@ -17,7 +17,7 @@ interface FeishuWebhookPayload extends Record<string, unknown> {
 export class FeishuGateway extends WebhookGateway {
   public readonly id = 'feishu';
   public readonly name = 'Feishu / Lark';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'webhook';
 
   constructor(options: WebhookGatewayOptions) {

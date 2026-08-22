@@ -442,5 +442,6 @@ export function sanitize(value: unknown): string {
   for (const pattern of SECRET_PATTERNS) {
     text = text.replace(pattern, '[redacted]');
   }
+  // eslint-disable-next-line no-control-regex
   return text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').slice(0, 4000);
 }

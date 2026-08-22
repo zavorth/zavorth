@@ -236,13 +236,12 @@ else:
     return `Evaluation:\n${await this.runPython(script)}`;
   }
 
-  private async predict(args: Record<string, unknown>): Promise<string> {
+  private async predict(_args: Record<string, unknown>): Promise<string> {
     return 'Error: Predict requires data input. Use "execute" action with custom code for predictions.';
   }
 
   private async tune(args: Record<string, unknown>): Promise<string> {
     const filePath = String(args.file_path || '');
-    const modelType = String(args.model_type || 'random_forest');
     const target = String(args.target_column || '');
     if (!filePath || !target) return 'Error: "file_path" and "target_column" are required.';
 
@@ -366,7 +365,6 @@ else:
 
   private async crossValidate(args: Record<string, unknown>): Promise<string> {
     const filePath = String(args.file_path || '');
-    const modelType = String(args.model_type || 'random_forest');
     const target = String(args.target_column || '');
     const nFolds = Number(args.n_folds || 5);
     if (!filePath || !target) return 'Error: "file_path" and "target_column" are required.';
@@ -429,7 +427,7 @@ print(f"  Std: {scores.std():.4f}")
     return `Model "${modelName}" loaded from ${modelPath} (${(stats.size / 1024).toFixed(1)} KB, modified: ${stats.mtime.toISOString()})`;
   }
 
-  private async listModels(args: Record<string, unknown>): Promise<string> {
+  private async listModels(_args: Record<string, unknown>): Promise<string> {
     const modelDir = path.join(process.cwd(), '.zavorth_models');
     if (!fs.existsSync(modelDir)) return 'No models directory found.';
 
@@ -445,11 +443,11 @@ print(f"  Std: {scores.std():.4f}")
     ].join('\n');
   }
 
-  private async deploy(args: Record<string, unknown>): Promise<string> {
+  private async deploy(_args: Record<string, unknown>): Promise<string> {
     return 'Model deployment requires integration with a serving framework (FastAPI, TensorFlow Serving, etc.). Use "execute" action with custom deployment code.';
   }
 
-  private async monitor(args: Record<string, unknown>): Promise<string> {
+  private async monitor(_args: Record<string, unknown>): Promise<string> {
     return 'Model monitoring requires integration with monitoring tools (MLflow, Evidently, etc.). Use "execute" action with custom monitoring code.';
   }
 

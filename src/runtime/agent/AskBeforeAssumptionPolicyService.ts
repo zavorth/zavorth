@@ -671,7 +671,7 @@ export class AskBeforeAssumptionPolicyService {
   }
 
   private hasExplicitTarget(text: string): boolean {
-    const pathPattern = /[\/\\]|[A-Z]:\\|\.\/|\.\.\//;
+    const pathPattern = /[/\\]|[A-Z]:\\|\.\/|\.\.\//;
     const filePattern = /\.\w{1,10}$/;
     const explicitPatterns = [pathPattern, filePattern];
     return explicitPatterns.some((pattern) => pattern.test(text));

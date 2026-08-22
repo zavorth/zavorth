@@ -1,30 +1,64 @@
 import { TelegramSecurityController } from '../../../src/telegram/controllers/TelegramSecurityController';
 
-describe('TelegramSecurityController', () => {
-  function createBot() {
-    return {
-      api: {
-        deleteMessage: jest.fn().mockResolvedValue(undefined),
-      },
-    } as any;
-  }
+interface MockBot {
+  api: {
+    deleteMessage: jest.Mock;
+  };
+}
 
+interface MockContext {
+  chat: { id: number };
+  message?: { message_id: number };
+  reply: jest.Mock;
+}
+
+interface MockSecurityLock {
+  setPassword: jest.Mock;
+  isPasswordConfigured: jest.Mock;
+  lock: jest.Mock;
+  isLocked: jest.Mock;
+  unlock: jest.Mock;
+}
+
+interface MockChatCleanup {
+  getTrackedCount: jest.Mock;
+  clearChat: jest.Mock;
+}
+
+interface MockHostIdentityService {
+  getStatus: jest.Mock;
+  authorizeCurrentHost?: jest.Mock;
+}
+
+interface MockManifestService {
+  buildManifest: jest.Mock;
+}
+
+function createBot(): MockBot {
+  return {
+    api: {
+      deleteMessage: jest.fn().mockResolvedValue(undefined),
+    },
+  } as unknown as MockBot;
+}
+
+describe('TelegramSecurityController', () => {
   it('configures the lock password and deletes the sensitive command message', async () => {
     const bot = createBot();
-    const ctx = {
+    const ctx: MockContext = {
       chat: { id: 42 },
       message: { message_id: 9 },
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
-    const securityLock = {
+    };
+    const securityLock: MockSecurityLock = {
       setPassword: jest.fn(),
       isPasswordConfigured: jest.fn().mockReturnValue(true),
       lock: jest.fn(),
       isLocked: jest.fn(),
       unlock: jest.fn(),
-    } as any;
+    } as unknown as MockSecurityLock;
 
-    const controller = new TelegramSecurityController(bot, {} as any, {} as any, securityLock);
+    const controller = new TelegramSecurityController(bot, {} as unknown as never, {} as unknown as never, securityLock);
     await controller.handleLock(ctx, 'set segredo-forte');
 
     expect(securityLock.setPassword).toHaveBeenCalledWith('segredo-forte');
@@ -34,16 +68,16 @@ describe('TelegramSecurityController', () => {
 
   it('clears the chat using the cleanup service when messages are tracked', async () => {
     const bot = createBot();
-    const ctx = {
+    const ctx: MockContext = {
       chat: { id: 77 },
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
-    const chatCleanup = {
+    };
+    const chatCleanup: MockChatCleanup = {
       getTrackedCount: jest.fn().mockReturnValue(3),
       clearChat: jest.fn().mockResolvedValue({ message: 'Limpeza concluida.' }),
-    } as any;
+    } as unknown as MockChatCleanup;
 
-    const controller = new TelegramSecurityController(bot, {} as any, chatCleanup, {} as any);
+    const controller = new TelegramSecurityController(bot, {} as unknown as never, chatCleanup, {} as unknown as never);
     await controller.handleClear(ctx);
 
     expect(chatCleanup.clearChat).toHaveBeenCalledWith(bot, '77');
@@ -52,18 +86,18 @@ describe('TelegramSecurityController', () => {
 
   it('renders host access status with manifest guidance', async () => {
     const bot = createBot();
-    const ctx = {
+    const ctx: MockContext = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
-    const hostIdentityService = {
+    };
+    const hostIdentityService: MockHostIdentityService = {
       getStatus: jest.fn().mockReturnValue({
         authorized: false,
         firstRun: true,
         currentFingerprint: 'fp-current',
         storedFingerprint: 'fp-stored',
       }),
-    } as any;
-    const manifestService = {
+    } as unknown as MockHostIdentityService;
+    const manifestService: MockManifestService = {
       buildManifest: jest.fn().mockResolvedValue({
         summary: 'Zavorth pronto para uso local.',
         local: {
@@ -94,13 +128,13 @@ describe('TelegramSecurityController', () => {
           trust: '/hostauth trust',
         },
       }),
-    } as any;
+    } as unknown as MockManifestService;
 
     const controller = new TelegramSecurityController(
       bot,
-      {} as any,
-      {} as any,
-      {} as any,
+      {} as unknown as never,
+      {} as unknown as never,
+      {} as unknown as never,
       hostIdentityService,
       manifestService,
     );
@@ -114,17 +148,17 @@ describe('TelegramSecurityController', () => {
 
   it('shows refreshed guidance after trusting the host', async () => {
     const bot = createBot();
-    const ctx = {
+    const ctx: MockContext = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
-    const hostIdentityService = {
+    };
+    const hostIdentityService: MockHostIdentityService = {
       authorizeCurrentHost: jest.fn().mockReturnValue({
         fingerprint: 'fp-new',
         hostname: 'dev-box',
         authorizedAt: '2026-04-05T10:00:00.000Z',
       }),
-    } as any;
-    const manifestService = {
+    } as unknown as MockHostIdentityService;
+    const manifestService: MockManifestService = {
       buildManifest: jest.fn().mockResolvedValue({
         summary: 'Zavorth pronto para uso local e remoto.',
         local: {
@@ -150,13 +184,13 @@ describe('TelegramSecurityController', () => {
           trust: '/hostauth trust',
         },
       }),
-    } as any;
+    } as unknown as MockManifestService;
 
     const controller = new TelegramSecurityController(
       bot,
-      {} as any,
-      {} as any,
-      {} as any,
+      {} as unknown as never,
+      {} as unknown as never,
+      {} as unknown as never,
       hostIdentityService,
       manifestService,
     );

@@ -345,6 +345,7 @@ export type WebAppSurfaceRouteDeps = {
     buildDomainSummarySnapshot?: () => unknown;
     buildDomainSnapshot?: () => unknown;
   } | null;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   gateway: {
   } | null;
   gatewayRuntime?: {

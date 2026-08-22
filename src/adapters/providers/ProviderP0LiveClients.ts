@@ -28,6 +28,53 @@ export type ProviderP0ChatSmokeReceipt = {
   receivedAt: string;
 };
 
+interface OpenAIChatCompletionPayload {
+  choices?: Array<{
+    message?: {
+      content?: string;
+    };
+  }>;
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+  };
+  error?: {
+    message?: string;
+  };
+}
+
+interface AnthropicMessagePayload {
+  content?: Array<{
+    text?: string;
+  }>;
+  usage?: {
+    input_tokens?: number;
+    output_tokens?: number;
+  };
+  error?: {
+    message?: string;
+  };
+}
+
+interface GeminiRestPayload {
+  candidates?: Array<{
+    content?: {
+      parts?: Array<{
+        text?: string;
+      }>;
+    };
+  }>;
+  usageMetadata?: {
+    promptTokenCount?: number;
+    candidatesTokenCount?: number;
+    totalTokenCount?: number;
+  };
+  error?: {
+    message?: string;
+  };
+}
+
 type ClientRuntime = {
   now?: () => Date;
   fetchImpl?: typeof fetch;
@@ -109,13 +156,13 @@ export class OpenAICompatibleProviderLiveClient {
       }),
     });
 
-    const payload = await readJson(response);
+    const payload = await readJson(response) as OpenAIChatCompletionPayload | null;
     if (!response.ok) {
       throw new Error(`${this.config.providerId} live smoke failed: ${readError(payload, response.status)}`);
     }
 
     const content = String(payload?.choices?.[0]?.message?.content || '');
-    const usage = payload?.usage && typeof payload.usage === 'object' ? payload.usage : {};
+    const usage = payload?.usage || {};
     return {
       providerId: this.config.providerId,
       family: this.family,
@@ -185,15 +232,15 @@ export class AnthropicCompatibleProviderLiveClient {
       }),
     });
 
-    const payload = await readJson(response);
+    const payload = await readJson(response) as AnthropicMessagePayload | null;
     if (!response.ok) {
       throw new Error(`${this.config.providerId} live smoke failed: ${readError(payload, response.status)}`);
     }
 
     const content = Array.isArray(payload?.content)
-      ? payload.content.map((part: { text: string; [key: string]: unknown }) => String(part?.text || '')).join('')
+      ? payload.content.map((part) => String(part?.text || '')).join('')
       : '';
-    const usage = payload?.usage && typeof payload.usage === 'object' ? payload.usage : {};
+    const usage = payload?.usage || {};
     const inputTokens = numberOrNull(usage.input_tokens);
     const outputTokens = numberOrNull(usage.output_tokens);
     return {
@@ -265,15 +312,13 @@ export class GeminiRestProviderLiveClient {
       },
     );
 
-    const payload = await readJson(response);
+    const payload = await readJson(response) as GeminiRestPayload | null;
     if (!response.ok) {
       throw new Error(`${this.config.providerId} live smoke failed: ${readError(payload, response.status)}`);
     }
 
     const content = String(payload?.candidates?.[0]?.content?.parts?.[0]?.text || '');
-    const usage = payload?.usageMetadata && typeof payload.usageMetadata === 'object'
-      ? payload.usageMetadata
-      : {};
+    const usage = payload?.usageMetadata || {};
     return {
       providerId: this.config.providerId,
       family: 'gemini-rest',
@@ -297,15 +342,22 @@ function normalizeMessages(messages: ProviderP0ChatMessage[]): ProviderP0ChatMes
   }));
 }
 
-async function readJson(response: Response): Promise<any> {
+async function readJson(response: Response): Promise<OpenAIChatCompletionPayload | AnthropicMessagePayload | GeminiRestPayload | null> {
   try {
     return await response.json();
   } catch (error: unknown) {return null;
   }
 }
 
-function readError(payload: any, status: number): string {
-  return String(payload?.error?.message || payload?.message || payload?.error || `HTTP ${status}`);
+function readError(payload: OpenAIChatCompletionPayload | AnthropicMessagePayload | GeminiRestPayload | null, status: number): string {
+  if (!payload) return `HTTP ${status}`;
+  if ('error' in payload && payload.error && typeof payload.error === 'object' && 'message' in payload.error) {
+    return String(payload.error.message);
+  }
+  if ('message' in payload && typeof payload.message === 'string') {
+    return payload.message;
+  }
+  return `HTTP ${status}`;
 }
 
 function numberOrNull(value: unknown): number | null {

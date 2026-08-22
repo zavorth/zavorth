@@ -45,12 +45,19 @@ import { asErrorLike } from '../../../utils/errorLike.js';
 /** @type {Map<string, EvalSuite>} */
 const suites = new Map();
 
-/**
- * Register an evaluation suite.
- *
- * @param {EvalSuite} suite
- */
-export function registerSuite(suite: any) {
+export function registerSuite(suite: {
+  id: string;
+  name: string;
+  cases: Array<{
+    id: string;
+    name: string;
+    model: string;
+    input: Record<string, unknown>;
+    expected: { strategy: 'exact' | 'contains' | 'regex' | 'custom'; value?: string | RegExp; fn?: (output: string, evalCase: { id: string; name: string }) => boolean };
+    tags?: string[];
+  }>;
+  description?: string;
+}) {
   suites.set(suite.id, suite);
 }
 
@@ -92,12 +99,15 @@ export function listSuites() {
  * @param {string} actualOutput - The actual LLM response text
  * @returns {EvalResult}
  */
-export function evaluateCase(evalCase: any, actualOutput: string) {
+export function evaluateCase(
+  evalCase: { id: string; name: string; model: string; input: Record<string, unknown>; expected: { strategy: 'exact' | 'contains' | 'regex' | 'custom'; value?: string | RegExp; fn?: (output: string, evalCase: { id: string; name: string }) => boolean }; tags?: string[] },
+  actualOutput: string
+) {
   const start = Date.now();
 
   try {
     let passed = false;
-    const details: Record<string, any> = {};
+    const details: Record<string, unknown> = {};
 
     switch (evalCase.expected.strategy) {
       case "exact":
@@ -199,7 +209,9 @@ export function runSuite(suiteId: string, outputs: Record<string, string>) {
  * @param {Array<ReturnType<typeof runSuite>>} runs
  * @returns {{ suites: number, totalCases: number, totalPassed: number, overallPassRate: number, perSuite: Array<{ id: string, name: string, passRate: number }> }}
  */
-export function createScorecard(runs: any[]) {
+export function createScorecard(
+  runs: Array<{ suiteId: string; suiteName: string; results: Array<{ caseId: string; caseName: string; passed: boolean; durationMs: number; error?: string; details?: Record<string, unknown> }>; summary: { total: number; passed: number; failed: number; passRate: number } }>
+) {
   const totalCases = runs.reduce((sum, r) => sum + r.summary.total, 0);
   const totalPassed = runs.reduce((sum, r) => sum + r.summary.passed, 0);
 

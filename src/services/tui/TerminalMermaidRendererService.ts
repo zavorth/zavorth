@@ -59,7 +59,7 @@ export class TerminalMermaidRendererService {
       }
 
       // Parse edge connections e.g. A[Start] --> B[Process] or A -->|Yes| B
-      const edgePattern = /([A-Za-z0-9_-]+)(?:\[([^\]]+)\]|\(([^\)]+)\)|\{([^}]+)\})?\s*(-->|--\s*>\s*\|([^|]+)\|\s*|-->\|([^|]+)\|)\s*([A-Za-z0-9_-]+)(?:\[([^\]]+)\]|\(([^\)]+)\)|\{([^}]+)\})?/;
+      const edgePattern = /([A-Za-z0-9_-]+)(?:\[([^\]]+)\]|([^)]+)|\{([^}]+)\})?\s*(-->|--\s*>\s*\|([^|]+)\|\s*|-->\|([^|]+)\|)\s*([A-Za-z0-9_-]+)(?:\[([^\]]+)\]|([^)]+)|\{([^}]+)\})?/;
       const match = line.match(edgePattern);
 
       if (match) {
@@ -94,7 +94,7 @@ export class TerminalMermaidRendererService {
       }
 
       // Parse single node e.g. A[Standalone Node]
-      const singleNodePattern = /^([A-Za-z0-9_-]+)(?:\[([^\]]+)\]|\(([^\)]+)\)|\{([^}]+)\})/;
+      const singleNodePattern = /^([A-Za-z0-9_-]+)(?:\[([^\]]+)\]|([^)]+)|\{([^}]+)\})/;
       const singleMatch = line.match(singleNodePattern);
       if (singleMatch) {
         const id = singleMatch[1];

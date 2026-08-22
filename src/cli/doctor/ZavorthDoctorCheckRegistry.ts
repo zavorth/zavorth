@@ -14,6 +14,10 @@ fileExists,
   redactValue,
 } from './checks/ZavorthDoctorCheckUtils.js';
 import { asErrorLike } from '../../utils/errorLike.js';
+import { WhatsAppBridgeSupervisorService } from '../../services/WhatsAppBridgeSupervisorService.js';
+import { ZavorthProductReadinessService } from '../../services/ZavorthProductReadinessService.js';
+import BetterSqlite3 from 'better-sqlite3';
+
 export type BuildZavorthDoctorPremiumInput = {
   projectRoot: string;
   now?: () => Date;
@@ -78,7 +82,6 @@ function checkWhatsAppBridge(projectRoot: string, env: Record<string, string>): 
     };
   }
   try {
-    const { WhatsAppBridgeSupervisorService } = require('../../services/WhatsAppBridgeSupervisorService.js') as typeof import('../../services/WhatsAppBridgeSupervisorService.js');
     const service = new WhatsAppBridgeSupervisorService({ projectRoot });
     const packageReady = service.packageReady;
     const statusFile = service.statusFile;
@@ -129,7 +132,6 @@ function checkWhatsAppBridge(projectRoot: string, env: Record<string, string>): 
 
 function checkProductReadiness(projectRoot: string): ZavorthDoctorPremiumCheck {
   try {
-    const { ZavorthProductReadinessService } = require('../../services/ZavorthProductReadinessService.js') as typeof import('../../services/ZavorthProductReadinessService.js');
     const snapshot = new ZavorthProductReadinessService().buildSnapshot({ projectRoot });
     const status: ZavorthDoctorPremiumStatus = snapshot.status === 'blocked'
       ? 'fail'
@@ -199,9 +201,8 @@ function checkSqliteIntegrity(projectRoot: string): ZavorthDoctorPremiumCheck {
     .map((entry) => path.join(dataRoot, entry)) : [];
   if (databases.length === 0) return { id: 'sqlite-integrity', title: 'SQLite integrity', status: 'pass', summary: 'No local SQLite database exists yet.', impact: 'The database integrity check will run automatically after a local database is created.', fixCommand: null, canAutoFix: false, evidence: ['databases=0'] };
   try {
-    const Database = require('better-sqlite3');
     const failures = databases.flatMap((databasePath) => {
-      const db = new Database(databasePath, { readonly: true });
+      const db = new BetterSqlite3(databasePath, { readonly: true });
       try { const row = db.prepare('PRAGMA integrity_check').get() as { integrity_check?: string }; return row.integrity_check === 'ok' ? [] : [path.basename(databasePath)]; } finally { db.close(); }
     });
     return { id: 'sqlite-integrity', title: 'SQLite integrity', status: failures.length ? 'fail' : 'pass', summary: failures.length ? `Integrity check failed: ${failures.join(', ')}.` : `${databases.length} SQLite database(s) passed integrity_check.`, impact: failures.length ? 'local state may be corrupted and should be restored from a known-good backup.' : 'local agent state is structurally readable.', fixCommand: failures.length ? 'Restore the affected database from backup before using governed writes.' : null, canAutoFix: false, evidence: databases.map((databasePath) => `database=${path.basename(databasePath)}`) };

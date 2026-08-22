@@ -1,5 +1,6 @@
 
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -430,8 +431,8 @@ export class ZavorthVoiceModeTool extends BaseTool {
           model_id: 'eleven_multilingual_v2',
           voice_settings: { stability: 0.5, similarity_boost: 0.75 },
         });
-        const tmpPayload = path.join(require('os').tmpdir(), `el_tts_${Date.now()}.json`);
-        require('fs').writeFileSync(tmpPayload, payload);
+        const tmpPayload = path.join(os.tmpdir(), `el_tts_${Date.now()}.json`);
+        fs.writeFileSync(tmpPayload, payload);
         try {
           execFileSync('curl', [
             '-s', '-X', 'POST',
@@ -442,7 +443,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
             '-o', outputPath,
           ], { timeout: 60000 });
         } finally {
-          try { require('fs').unlinkSync(tmpPayload); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Voice Mode] file cleanup failed', error); }
+          try { fs.unlinkSync(tmpPayload); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Voice Mode] file cleanup failed', error); }
         }
         return outputPath;
       }
@@ -452,8 +453,8 @@ export class ZavorthVoiceModeTool extends BaseTool {
         if (!apiKey || !region) throw new Error('AZURE_SPEECH_KEY and AZURE_SPEECH_REGION are not configured.');
         const voice = options.voiceId || 'en-US-GuyNeural';
         const ssml = `<speak version='1.0' xml:lang='${options.language}'><voice name='${voice}'><prosody rate='${options.speed}'>${text}</prosody></voice></speak>`;
-        const tmpSsml = path.join(require('os').tmpdir(), `azure_tts_${Date.now()}.xml`);
-        require('fs').writeFileSync(tmpSsml, ssml);
+        const tmpSsml = path.join(os.tmpdir(), `azure_tts_${Date.now()}.xml`);
+        fs.writeFileSync(tmpSsml, ssml);
         try {
           execFileSync('curl', [
             '-s', '-X', 'POST',
@@ -464,7 +465,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
             '-o', outputPath,
           ], { timeout: 60000 });
         } finally {
-          try { require('fs').unlinkSync(tmpSsml); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Voice Mode] file cleanup failed', error); }
+          try { fs.unlinkSync(tmpSsml); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Voice Mode] file cleanup failed', error); }
         }
         return outputPath;
       }
@@ -527,7 +528,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
             { inline_data: { mime_type: 'audio/wav', data: audioData } },
           ] }],
         });
-        const tmpPayload = path.join(require('os').tmpdir(), `gemini_stt_${Date.now()}.json`);
+        const tmpPayload = path.join(os.tmpdir(), `gemini_stt_${Date.now()}.json`);
         fs.writeFileSync(tmpPayload, payload);
         try {
           const result = execFileSync('curl', [

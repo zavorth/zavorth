@@ -74,7 +74,7 @@ describe('ZavorthBrowserAutomationTool security boundaries', () => {
   });
 
   it('executes click, text entry, selector waits, and DOM link extraction', async () => {
-    const tool = new ZavorthBrowserAutomationTool() as any;
+    const tool = new ZavorthBrowserAutomationTool();
 
     // click action returns a descriptive message about the prepared action
     const clickResult = await tool.execute({ action: 'click', url: 'https://example.com', selector: '#submit' });

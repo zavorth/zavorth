@@ -193,7 +193,7 @@ export class PublicApiRouter {
   }
 
   private handleError(error: unknown, res: http.ServerResponse): void {
-    let responseBody: ApiResponse<null> & {
+    const responseBody: ApiResponse<null> & {
       ok: false;
       data: null;
       traceId: string;

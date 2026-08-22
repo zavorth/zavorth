@@ -44,7 +44,7 @@ describe('ZavorthPluginSdkTool', () => {
     const parsed = JSON.parse(raw);
     expect(parsed.status).toBe('success');
     expect(parsed.total).toBeGreaterThanOrEqual(1);
-    expect(parsed.plugins.some((p: any) => p.id === 'demo_tool_plugin')).toBe(true);
+    expect(parsed.plugins.some((p: { id?: string }) => p.id === 'demo_tool_plugin')).toBe(true);
   });
 
   it('should validate valid manifest json', async () => {

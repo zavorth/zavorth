@@ -34,6 +34,7 @@ export class SkillIrNormalizerService {
     // process-local SkillIR cache (mtime keyed). Bypass with ZAVORTH_SKILL_HOT_PATH_CACHE=0.
     try {
       const { getSkillHotPathCache } =
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         require('../services/SkillHotPathCacheService.js') as typeof import('../services/SkillHotPathCacheService.js');
       const cache = getSkillHotPathCache();
       if (cache.isEnabled() && !input.now) {

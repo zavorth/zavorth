@@ -622,7 +622,7 @@ export class WorkspaceProfileService {
       return null;
     }
 
-    const match = normalized.match(/^\/?([a-z0-9][a-z0-9_\-]*)\s*(?::|->)\s*(.+)$/i);
+    const match = normalized.match(/^\/?([a-z0-9][a-z0-9_-]*)\s*(?::|->)\s*(.+)$/i);
     if (!match) {
       return null;
     }

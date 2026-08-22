@@ -63,7 +63,7 @@ export function tryParseSelfModificationJson(rawValue: string): Record<string, a
 }
 
 export function extractSelfModificationPathFromGoal(goal: string): string | null {
-  const match = String(goal || '').match(/\b(?:src|tests|config|scripts|skills|plugins|docs)\/[A-Za-z0-9._/\-]+\b/);
+  const match = String(goal || '').match(/\b(?:src|tests|config|scripts|skills|plugins|docs)\/[A-Za-z0-9._/-]+\b/);
   return match ? match[0].replace(/\\/g, '/') : null;
 }
 

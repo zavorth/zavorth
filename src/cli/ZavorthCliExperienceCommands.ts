@@ -1,58 +1,10 @@
 #!/usr/bin/env node
-import { formatZavorthCertificationHelp, formatZavorthConsistencyPreparedNotice, isZavorthConsistencyStubCommand } from './ZavorthCliCertificationCommands.js';
-import { isZavorthLiveNamespaceCommand, runZavorthLiveNamespaceCommand } from './ZavorthCliLiveNamespaces.js';
-import { asErrorLike } from '../utils/errorLike';
-import { spawn } from 'child_process';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-import path from 'path';
-import { formatCliHelp, resolveCliHelpTopic } from './ZavorthCliSurfaceHelpers.js';
-import { getCommandAliases } from './locales/localeManager.js';
-import { resolveZavorthSimpleCommand, type ZavorthSimpleCommandPlan } from './SimpleCommandRouter.js';
-
-import type { DiskMutationGateRequestedOperation } from '../contracts/DiskMutationGateContract.js';
-import { runDiskMutationGateCommand } from './disk/ZavorthCliDiskMutationNamespace.js';
-import { runProjectConstitutionCommand } from './constitution/ZavorthCliConstitutionNamespace.js';
-import { runMigrationUX } from './MigrationCli.js';
-import { runCapabilitySubsystemCli } from './CapabilitySubsystemCli.js';
-import { runReachSubsystemCli } from './ReachSubsystemCli.js';
-import { runPowerSubsystemCli } from './PowerSubsystemCli.js';
-import { runProductSubsystemCli } from './ProductSubsystemCli.js';
-import { runProofLedgerCli } from './ProofLedgerCli.js';
-import { runApprovalPresentationCli, shouldRunApprovalPresentationCli, normalizeApprovalPresentationArgs } from './ApprovalPresentationCli.js';
-import { runRiskBudgetCli } from './RiskBudgetCli.js';
-import { runChangePreviewCli } from './ChangePreviewCli.js';
-import { runMemoryPrivacyCli } from './MemoryPrivacyCli.js';
-import { runZavorthMinimalRuntimeNamespace } from './ZavorthCliMinimalRuntimeNamespace.js';
-
 import {
-  entryDir,
-  logCliError,
   npmInherited,
-  printBuiltinHelp,
-  printCliPanel,
-  printGeneralHelp,
   projectRoot,
-  readDurationMsFlag,
   readFlexibleStringFlag,
-  readNumberFlag,
-  readStringFlag,
-  readStringListFlag,
-  readTaskPositional,
-  runningFromDist,
-  spawnInherited,
 } from './ZavorthCliCommandRuntime.js';
 
-import {
-  silenceConsoleLogToStderr,
-  runGatewayMatrix,
-  runExecutionBackends,
-  runSkillEcosystem,
-  runAcp,
-  buildAcpGenericChannelFrame,
-  runRuntimeGuidedFixes,
-  runRuntimeReadinessFix,
-  runRuntimeReadinessFixProvider,
-} from './ZavorthCliAcpCommands.js';
 export {
   silenceConsoleLogToStderr,
   runGatewayMatrix,
@@ -62,7 +14,6 @@ export {
   buildAcpGenericChannelFrame,
   runRuntimeGuidedFixes,
   runRuntimeReadinessFix,
-  runRuntimeReadinessFixProvider,
 } from './ZavorthCliAcpCommands.js';
 
 export function buildQuickSandboxHostReadiness() {

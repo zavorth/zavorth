@@ -19,7 +19,7 @@ interface VoiceCallWebhookPayload {
 export class VoiceCallGateway extends WebhookGateway {
   public readonly id = 'voice-call';
   public readonly name = 'Voice Call';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'local-bridge';
 
   constructor(options: WebhookGatewayOptions) {

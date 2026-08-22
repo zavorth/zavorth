@@ -550,7 +550,7 @@ function normalizeEnvironment(value: unknown): ZavorthTransactionSandboxAdapterE
 }
 
 function isCredentialRef(value: string): boolean {
-  return /^vault:\/\/zavorth\/transaction\/[a-z0-9._~:/...#\[\]@!$&'()*+,;=-]+$/i.test(value);
+  return /^vault:\/\/zavorth\/transaction\/[a-z0-9._~:/...#[\]@!$&'()*+,;=-]+$/i.test(value);
 }
 
 function buildResultId(text: string, now: Date): string {

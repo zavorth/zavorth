@@ -20,7 +20,7 @@ type SignalChannelAdapterRuntime = {
 export class SignalChannelAdapter implements GatewayChannelAdapter {
   id = 'signal';
   name = 'Signal signal-cli Bridge';
-  type: 'async' = 'async';
+  type = 'async' as const;
   private readonly outboxDir: string;
   private readonly now: () => Date;
 

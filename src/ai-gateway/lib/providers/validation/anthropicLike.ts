@@ -19,7 +19,7 @@ export async function validateAnthropicLikeProvider({
   headers = {},
   providerSpecificData = {},
 }: any) {
-  let normalizedBaseUrl = normalizeAnthropicBaseUrl(baseUrl);
+  const normalizedBaseUrl = normalizeAnthropicBaseUrl(baseUrl);
   if (!normalizedBaseUrl) {
     return connectionFailed("No base URL configured for Anthropic compatible provider");
   }

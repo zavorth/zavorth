@@ -10,6 +10,7 @@ export type CliVisualTone =
   | 'warning'
   | 'danger';
 
+  // eslint-disable-next-line no-control-regex
 const ANSI_PATTERN = /\u001B\[[0-9;]*m/g;
 
 /** Product brand green `#00e88f` (website / desktop). */

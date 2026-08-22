@@ -39,10 +39,10 @@ describe('Workspace tool adapters', () => {
         getToolDefinitions: jest.fn().mockReturnValue([]),
         getAllTools: jest.fn().mockReturnValue(tools),
         getTool: jest.fn((name: string) => tools.find((tool) => tool.name === name)),
-      } as any,
+      } as unknown as import('../../src/tools/ToolRegistry').ToolRegistry,
       {
         executeTool: jest.fn(),
-      } as any,
+      } as unknown as import('../../src/execution/ToolExecutor').ToolExecutor,
     );
 
     expect(runtime.listToolsByGroup('workspace').map((tool) => tool.id)).toEqual([

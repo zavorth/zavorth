@@ -214,7 +214,7 @@ export async function readSafeJsonResponse<T>(
   if (typeof (response.body as unknown as ReadableStreamLike).getReader === 'function') {
     const reader = (response.body as unknown as ReadableStreamLike).getReader();
     try {
-      while (true) {
+      for (;;) {
         const { done, value } = await reader.read();
         if (done) {
           break;

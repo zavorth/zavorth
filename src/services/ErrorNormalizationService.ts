@@ -28,16 +28,16 @@ export class ErrorNormalizationService {
 
     // Redaction: sk-* tokens (remaining bare secrets)
     sanitized = sanitized.replace(/sk-[A-Za-z0-9]{20,}/g, '[REDACTED_SECRET]');
-    sanitized = sanitized.replace(/sk-[A-Za-z0-9\-]+/g, '[REDACTED_SECRET]');
+    sanitized = sanitized.replace(/sk-[A-Za-z0-9-]+/g, '[REDACTED_SECRET]');
 
     // Redaction: secretRef/...
-    sanitized = sanitized.replace(/secret_[A-Za-z0-9_\-]+/g, '[REDACTED_SECRET_REF]');
+    sanitized = sanitized.replace(/secret_[A-Za-z0-9_-]+/g, '[REDACTED_SECRET_REF]');
 
     // Redaction: absolute local DB paths and filesystem paths containing DB or starting with drive letter
     // Match absolute paths like C:\foo\bar or /usr/local/var/
-    sanitized = sanitized.replace(/[a-zA-Z]:\\[\\\w\.\-\s_]+/g, '[REDACTED_PATH]');
-    sanitized = sanitized.replace(/\/[a-zA-Z0-9_\-\.]+\/[a-zA-Z0-9_\-\.\/]+/g, '[REDACTED_PATH]');
-    sanitized = sanitized.replace(/[\w\.\-\s_\/]+\.db/gi, '[REDACTED_PATH]');
+    sanitized = sanitized.replace(/[a-zA-Z]:\\[\\\w.\-\s_]+/g, '[REDACTED_PATH]');
+    sanitized = sanitized.replace(/\/[a-zA-Z0-9_-\.]+\/[a-zA-Z0-9_\-./]+/g, '[REDACTED_PATH]');
+    sanitized = sanitized.replace(/[\w.\-\s_/]+\.db/gi, '[REDACTED_PATH]');
 
     // Redaction: long base64-ish or hex blobs (longer than 80 chars of uninterrupted alphanumeric chars)
     sanitized = sanitized.replace(/[A-Za-z0-9+/]{80,}=*/g, '[REDACTED_BLOB]');
@@ -81,7 +81,7 @@ export class ErrorNormalizationService {
       lowercaseMsg.includes('path traversal')
       || lowercaseMsg.includes('../')
       || lowercaseMsg.includes('..\\')
-      || /(^|[^\.])\.\.([^\.]|$)/.test(lowercaseMsg)
+      || /(^|[^.])\.\.([^.]|$)/.test(lowercaseMsg)
     ) {
       code = 'path_traversal';
       severity = 'error';

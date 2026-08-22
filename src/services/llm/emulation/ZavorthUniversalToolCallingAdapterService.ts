@@ -82,7 +82,7 @@ export class ZavorthUniversalToolCallingAdapterService {
     }
 
     const toolCalls: ExtractedToolCall[] = [];
-    let text = rawText;
+    const text = rawText;
     let callCounter = 0;
 
     // 1. Try Extracting XML <tool_call> blocks (token-based delimiter search)

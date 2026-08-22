@@ -1,35 +1,11 @@
-import fs from 'fs';
-import fsp from 'fs/promises';
 import path from 'path';
-import { MemoryService } from '../../services/MemoryService.js';
-import { GoalLoopService, type GoalLoopLlmRuntime } from '../../services/GoalLoopService.js';
-import { GoalLoopWorkerService, type GoalLoopAgentRunner } from '../../services/GoalLoopWorkerService.js';
+import { GoalLoopService } from '../../services/GoalLoopService.js';
+import { GoalLoopWorkerService } from '../../services/GoalLoopWorkerService.js';
 import { GoalPlaneService } from '../../services/GoalPlaneService.js';
-import { ChannelProgressSurfaceService } from '../../services/ChannelProgressSurfaceService.js';
-import { IntegrationConnectorMeshService } from '../../services/IntegrationConnectorMeshService.js';
-import { TaskBoardPlaneService } from '../../services/TaskBoardPlaneService.js';
-import { TaskPlaneService } from '../../services/TaskPlaneService.js';
-import { VoiceWakeRuntimeService } from '../../services/VoiceWakeRuntimeService.js';
-import { ZavorthBackgroundTaskService } from '../../services/ZavorthBackgroundTaskService.js';
-import { ZavorthHomePathService } from '../../services/ZavorthHomePathService.js';
-import { ZavorthMnemosQueryService } from '../../services/ZavorthMnemosQueryService.js';
-import { ZavorthOperationalStateDbService } from '../../services/ZavorthOperationalStateDbService.js';
-import { SessionContinuumService, resolveSessionContinuumStorePath } from '../../services/SessionContinuumService.js';
-import { bindAutonomySchedulePlane } from '../../services/AutonomySchedulePlane.js';
-import { ZavorthXaiRuntimeService } from '../../services/ZavorthXaiRuntimeService.js';
-import { ZavorthCapabilityActionExposureService } from '../../services/ZavorthCapabilityActionExposureService.js';
-import { ZavorthCapabilityAtlasService } from '../../services/ZavorthCapabilityAtlasService.js';
-import { ZavorthDailyProductQuietAutonomyService } from '../../services/ZavorthDailyProductQuietAutonomyService.js';
 import {
-  type ZavorthActionDefinition,
   type ZavorthActionHandlerInput,
-  type ZavorthActionLookupResult,
   type ZavorthActionResult,
 } from './ZavorthActionContracts.js';
-import { createCapabilitySpineActionModule, createGovernedOpsActionModule, createNativeExtendedToolsActionModule, createNativePowerPacksActionModule, createPowerFabricActionModule, createProductFabricActionModule, createProductizationPacksActionModule, createReachFabricActionModule, createWebBrowserActionModule, createWorkspaceFilesActionModule } from './modules/index.js';
-import { asErrorLike } from '../../utils/errorLike.js';
-
-const SKILL_GOVERNANCE_ENV_KEY = 'ZAVORTH_SKILLS_GOVERNANCE_MODE';
 
 import { normalizeText, result, resolveHome, taskPlaneForRoot } from './ZavorthActionHandlersCore.js';
 import type { ZavorthActionCatalogRuntime } from './ZavorthActionCatalog.js';

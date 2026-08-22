@@ -78,7 +78,7 @@ export class ZavorthPathCompactor {
       return compactedPath.replace(/\\/g, '/');
     }
 
-    let normalized = compactedPath.replace(/\\/g, '/');
+    const normalized = compactedPath.replace(/\\/g, '/');
 
     if (normalized === '~') {
       return this.normalizeHomeDirectory(homedir);

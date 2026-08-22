@@ -1,12 +1,9 @@
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { createHash } from 'crypto';
 import {
   firstArg,
   readFlag,
-  readFlags,
-  readNumberFlag,
   stateDir,
   readArray,
   writeJson,
@@ -16,7 +13,6 @@ import {
   render,
   splitList,
   getEnv,
-  isInside,
   ensureDir,
   sha256
 } from '../ZavorthCliSharedHelpers.js';
@@ -55,13 +51,6 @@ function redactMessageRecord(value: unknown): JsonObject {
   return item;
 }
 
-function sanitizeMessageRecord(value: unknown): JsonObject {
-  return { ...((value || {}) as JsonObject) };
-}
-
-function sanitizeDelivery(value: JsonObject): JsonObject {
-  return { ...value };
-}
 
 function formatMessageReceipt(value: unknown): string {
   const item = (value || {}) as JsonObject;
@@ -192,12 +181,12 @@ async function deliverMessage(root: string, adapter: ChannelAdapter, target: str
   return { ok: false, reason: 'no-configured-transport-mode-for-adapter' };
 }
 
-async function readChannelMessages(channel: string, args: string[]): Promise<{ lines: string[]; payload: JsonObject }> {
+async function readChannelMessages(_channel: string, _args: string[]): Promise<{ lines: string[]; payload: JsonObject }> {
   // Mock or lightweight local channel reader.
   return { lines: ['Read channel messages bypassed: run in interactive shell mode.'], payload: { ok: true } };
 }
 
-async function lookupChannelDirectory(channel: string, query: string): Promise<JsonObject[]> {
+async function _lookupChannelDirectory(_channel: string, _query: string): Promise<JsonObject[]> {
   return [];
 }
 

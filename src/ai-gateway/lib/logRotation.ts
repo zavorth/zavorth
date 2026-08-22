@@ -1,4 +1,3 @@
-import { asErrorLike } from '../../utils/errorLike';
 /**
  * Log Rotation & Cleanup — manages application log file rotation.
  *
@@ -69,7 +68,7 @@ export function rotateIfNeeded(logFilePath: string, maxFileSize: number): void {
 
     const rotatedPath = join(dir, `${base}.${ts}${ext}`);
     renameSync(logFilePath, rotatedPath);
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) {
       // If rotation fails, continue writing to the same file
       logger.warn('[log Rotation] lifecycle operation failed', error);
     }
@@ -97,13 +96,13 @@ export function cleanupOldLogs(logFilePath: string, retentionDays: number): void
           if (stats.mtimeMs < cutoff) {
             unlinkSync(filePath);
           }
-        } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+        } catch (error: unknown) {
       // Skip files we can't stat
       logger.warn('[log Rotation] file cleanup failed', error);
     }
       }
     }
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) {
       // Cleanup is best-effort
       logger.warn('[log Rotation] file cleanup failed', error);
     }
@@ -128,7 +127,7 @@ export function cleanupOverflowLogs(logFilePath: string, maxFiles: number): void
         const filePath = join(dir, file);
         try {
           return { filePath, mtimeMs: statSync(filePath).mtimeMs };
-        } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[log Rotation] filesystem operation failed', error); return null; }
+        } catch (error: unknown) { logger.warn('[log Rotation] filesystem operation failed', error); return null; }
       })
       .filter((entry): entry is { filePath: string; mtimeMs: number } => !!entry)
       .sort((a, b) => b.mtimeMs - a.mtimeMs);
@@ -136,12 +135,12 @@ export function cleanupOverflowLogs(logFilePath: string, maxFiles: number): void
     for (const entry of rotatedFiles.slice(maxFiles)) {
       try {
         unlinkSync(entry.filePath);
-      } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+      } catch (error: unknown) {
       // Best effort only.
       logger.warn('[log Rotation] file cleanup failed', error);
     }
     }
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) {
       // Cleanup is best-effort
       logger.warn('[log Rotation] file cleanup failed', error);
     }

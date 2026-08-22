@@ -80,7 +80,7 @@ export class PtySessionService {
     private mandateService?: WorkspaceTaskMandateService
   ) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       this.ptyModule = require('node-pty') as IPtyModule;
       this.isAvailable = true;
     } catch (error: unknown) {logger.warn('node-pty is not available. PTY tools will fail-closed.');
@@ -321,7 +321,7 @@ export class PtySessionService {
   }
 
   private handlePtyOutput(sessionId: string, rawData: string): void {
-    let buf = this.sessionOutputBuffers.get(sessionId);
+    const buf = this.sessionOutputBuffers.get(sessionId);
     if (!buf) return;
 
     let seq = this.sessionSequenceNumbers.get(sessionId) || 0;

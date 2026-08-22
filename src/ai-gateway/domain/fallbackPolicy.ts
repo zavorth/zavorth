@@ -1,4 +1,3 @@
-import { asErrorLike } from '../../utils/errorLike';
 /**
  * Fallback Policy — Domain Layer (T-19)
  *
@@ -13,8 +12,7 @@ import { asErrorLike } from '../../utils/errorLike';
 
 import { logger } from '@/shared/utils/logger';
 import {
-saveFallbackChain,
-  loadFallbackChain,
+  saveFallbackChain,
   loadAllFallbackChains,
   deleteFallbackChain,
   deleteAllFallbackChains,
@@ -43,7 +41,7 @@ function ensureLoaded() {
     for (const [model, chain] of Object.entries(all)) {
       fallbackChains.set(model, chain);
     }
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) {
       // DB may not be ready yet (build phase), that's ok
       logger.warn('[fallback] cache operation failed', error);
     }
@@ -69,7 +67,7 @@ export function registerFallback(model, chain) {
   fallbackChains.set(model, sorted);
   try {
     saveFallbackChain(model, sorted);
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) {
       // Non-critical: in-memory still works
       logger.warn('[fallback] load operation failed', error);
     }
@@ -128,7 +126,7 @@ export function removeFallback(model) {
   if (removed) {
     try {
       deleteFallbackChain(model);
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
       // Non-critical
       logger.warn('[fallback] delete operation failed', error);
     }
@@ -159,7 +157,7 @@ export function resetAllFallbacks() {
   _loaded = false;
   try {
     deleteAllFallbackChains();
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) {
       // Non-critical
       logger.warn('[fallback] delete operation failed', error);
     }

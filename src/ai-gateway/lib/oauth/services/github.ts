@@ -54,7 +54,7 @@ export class GitHubService extends OAuthService {
     }
 
     // Poll for access token
-    while (true) {
+    for (;;) {
       await new Promise((resolve) => setTimeout(resolve, interval));
 
       const response = await fetch(`${GITHUB_CONFIG.tokenUrl}`, {

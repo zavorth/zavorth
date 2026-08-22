@@ -1,4 +1,3 @@
-import { asErrorLike } from '../../../utils/errorLike';
 /**
  * API Key Policy Enforcement — Shared middleware for all /v1/* endpoints.
  *
@@ -62,7 +61,7 @@ function isWithinSchedule(schedule: AccessSchedule): boolean {
       minute: "2-digit",
       hour12: false,
     }).format(now);
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) {
     logger.warn('[api Key] filesystem check failed', error);
     // Invalid timezone — fail open (don't block)
     return true;
@@ -80,7 +79,7 @@ function isWithinSchedule(schedule: AccessSchedule): boolean {
       timeZone: schedule.tz,
       weekday: "short",
     }).format(now);
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[api Key] operation failed', error); return true; }
+  } catch (error: unknown) { logger.warn('[api Key] operation failed', error); return true; }
 
   const dayMap: Record<string, number> = {
     Sun: 0,
@@ -220,7 +219,7 @@ export async function enforceApiKeyPolicy(
   let apiKeyInfo: ApiKeyMetadata | null = null;
   try {
     apiKeyInfo = await getApiKeyMetadata(apiKey);
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) {
     // Fail-closed: if policy backend fails, reject the request
     log.error("API_POLICY", "Failed to fetch API key metadata. Request blocked.", { error });
     return {
@@ -293,7 +292,7 @@ export async function enforceApiKeyPolicy(
           ),
         };
       }
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
       // Fail-closed: budget backend error should block request
       log.error("API_POLICY", "Budget check failed. Request blocked.", { error });
       return {

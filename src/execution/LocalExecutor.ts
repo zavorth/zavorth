@@ -336,7 +336,7 @@ export class LocalExecutor implements IExecutor {
           result.commands_executed.push(executionCommand);
 
           let success = false;
-          let retries = 0;
+          const retries = 0;
           const maxRetries = 1;
 
           while (retries <= maxRetries && !success) {

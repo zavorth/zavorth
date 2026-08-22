@@ -26,7 +26,7 @@ describe('ZavorthWorktreeTool', () => {
     execFileSync('git', ['commit', '-m', 'initial commit'], { cwd: testRepoDir });
 
     const manager = new GitWorktreeManager(testRepoDir);
-    (ZavorthWorktreeTool as any).globalManager = manager;
+    (ZavorthWorktreeTool as unknown as { globalManager: import('../../src/agents/worktree/GitWorktreeManager').GitWorktreeManager }).globalManager = manager;
   });
 
   afterAll(() => {
@@ -59,7 +59,7 @@ describe('ZavorthWorktreeTool', () => {
     const listParsed = JSON.parse(listRaw);
     expect(listParsed.status).toBe('success');
     expect(listParsed.total).toBeGreaterThanOrEqual(1);
-    expect(listParsed.worktrees.some((w: any) => w.id === testId)).toBe(true);
+    expect(listParsed.worktrees.some((w: { id?: string }) => w.id === testId)).toBe(true);
 
     // 3. Diff
     const diffRaw = await ZavorthWorktreeTool.execute({

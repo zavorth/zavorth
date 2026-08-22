@@ -703,6 +703,6 @@ function clean(value: unknown): string {
 
 function redact(value: string): string {
   return value
-    .replace(/(?:sk|pk|ghp|xox[baprs]|ya29|AIza)[A-Za-z0-9_\-]{12,}/g, '[REDACTED_TOKEN]')
+    .replace(/(?:sk|pk|ghp|xox[baprs]|ya29|AIza)[A-Za-z0-9_-]{12,}/g, '[REDACTED_TOKEN]')
     .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, '[REDACTED_EMAIL]');
 }

@@ -45,7 +45,7 @@ export class SwarmTreeRenderer {
 
   private static formatNode(node: SwarmTreeNode): string {
     let statusBadge = '';
-    let roleText = `${node.scientist} · ${node.role}`;
+    const roleText = `${node.scientist} · ${node.role}`;
 
     switch (node.status) {
       case 'completed':

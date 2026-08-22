@@ -2,10 +2,11 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { EventEmitter } from 'events';
+import { type ChildProcess, spawn } from 'child_process';
 import { LocalVoiceDictation } from '../../src/voice/LocalVoiceDictation';
 
 function createFakeChild() {
-  const child = new EventEmitter() as any;
+  const child = new EventEmitter() as unknown as ChildProcess;
   child.stdout = new EventEmitter();
   child.stderr = new EventEmitter();
   child.stdout.setEncoding = jest.fn();
@@ -70,7 +71,7 @@ describe('LocalVoiceDictation', () => {
     fs.writeFileSync(binaryPath, 'binary', 'utf8');
     fs.writeFileSync(modelPath, 'model', 'utf8');
 
-    const spawn = jest.fn((command: string, args: string[]) => {
+    const spawnMock = jest.fn((command: string, args: string[]) => {
       const child = createFakeChild();
       process.nextTick(() => {
         const outputBase = String(args[args.indexOf('-of') + 1] || '').trim();
@@ -78,20 +79,20 @@ describe('LocalVoiceDictation', () => {
         child.emit('close', 0);
       });
       return child;
-    }) as any;
+    }) as unknown as typeof spawn;
 
     const dictation = new LocalVoiceDictation({
       modelPath,
       binaryPath,
       tempDir: root,
     }, {
-      spawn,
+      spawn: spawnMock,
     });
 
     const transcript = await dictation.transcribeBuffer(Buffer.from('RIFF....TRACK', 'utf8'));
 
     expect(transcript).toBe('ola zavorth');
-    expect(spawn).toHaveBeenCalled();
+    expect(spawnMock).toHaveBeenCalled();
   });
 
   it('requires an explicit external microphone worker for continuous recording', async () => {
@@ -104,18 +105,18 @@ describe('LocalVoiceDictation', () => {
 
   it('streams transcript lines from an external microphone worker and stops cleanly', async () => {
     const child = createFakeChild();
-    const spawn = jest.fn(() => {
+    const spawnMock = jest.fn(() => {
       process.nextTick(() => {
         child.stdout.emit('data', 'linha 1\nlinha 2\n');
       });
       return child;
-    }) as any;
+    }) as unknown as typeof spawn;
     const transcripts: string[] = [];
     const dictation = new LocalVoiceDictation({
       microphoneCommand: 'voice-worker',
       microphoneArgs: ['--stream'],
     }, {
-      spawn,
+      spawn: spawnMock,
     });
 
     await dictation.startContinuousMicrophoneRecord((text) => {
@@ -125,7 +126,7 @@ describe('LocalVoiceDictation', () => {
     await new Promise((resolve) => setTimeout(resolve, 20));
     dictation.stopRecording();
 
-    expect(spawn).toHaveBeenCalledWith('voice-worker', ['--stream'], expect.any(Object));
+    expect(spawnMock).toHaveBeenCalledWith('voice-worker', ['--stream'], expect.any(Object));
     expect(transcripts).toEqual(['linha 1', 'linha 2']);
     expect(child.kill).toHaveBeenCalled();
   });

@@ -157,7 +157,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
     const maxResults = Number(args.max_results || 100);
 
     const secretPatterns = [
-      { name: 'API Key', pattern: /(?:api[_-]?key|apikey)\s*[:=]\s*['"]?([a-zA-Z0-9_\-]{20,})['"]?/gi },
+      { name: 'API Key', pattern: /(?:api[_-]?key|apikey)\s*[:=]\s*['"]?([a-zA-Z0-9_-]{20,})['"]?/gi },
       { name: 'AWS Key', pattern: /(?:AKIA[0-9A-Z]{16})/g },
       { name: 'Private Key', pattern: /-----BEGIN\s+(?:RSA\s+)?PRIVATE\s+KEY-----/g },
       { name: 'JWT Token', pattern: /eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}/g },
@@ -165,7 +165,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
       { name: 'Connection String', pattern: /(?:mongodb|postgres|mysql|redis):\/\/[^\s'"]+/gi },
       { name: 'GitHub Token', pattern: /gh[pousr]_[a-zA-Z0-9]{36,}/g },
       { name: 'Slack Token', pattern: /xox[bpors]-[a-zA-Z0-9-]+/g },
-      { name: 'Generic Secret', pattern: /(?:secret|token)\s*[:=]\s*['"]?([a-zA-Z0-9_\-]{20,})['"]?/gi },
+      { name: 'Generic Secret', pattern: /(?:secret|token)\s*[:=]\s*['"]?([a-zA-Z0-9_-]{20,})['"]?/gi },
     ];
 
     const findings: Array<{ file: string; line: number; type: string; match: string }> = [];

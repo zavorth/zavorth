@@ -6,7 +6,7 @@ import { asErrorLike } from '../../../utils/errorLike.js';
 export class MatrixGateway extends WebhookGateway {
   public readonly id = 'matrix';
   public readonly name = 'Matrix';
-  public readonly type: 'async' = 'async';
+  public readonly type = 'async' as const;
   public readonly mode: WebhookGatewayMode = 'matrix';
 
   constructor(options: WebhookGatewayOptions) {

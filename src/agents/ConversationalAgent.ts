@@ -37,6 +37,13 @@ import {
 
 import { ZavorthHallucinationMitigationService } from '../services/ZavorthHallucinationMitigationService.js';
 import { asErrorLike } from '../utils/errorLike.js';
+import { authorizeHotPathToolCall, noteHotPathToolFailure } from '../services/AgentHotPathBudgetGate.js';
+import { isLearningWriteAllowed } from '../services/ZavorthLearningWriteAuth.js';
+import { ExperienceSkillLearningLoopService } from '../services/ExperienceSkillLearningLoopService.js';
+import { getProductSurfaceRuntime } from '../services/ZavorthProductSurfaceRuntimeService.js';
+import { isLearnedKnowledgeEnabled, buildLearnedKnowledgeInject } from '../services/learned-knowledge/index.js';
+import { formatAboutYouInject } from '../services/learned-knowledge/AboutYouService.js';
+import { captureConversationTurn } from '../services/learned-knowledge/ConversationContinuumCapture.js';
 type InlineData = Array<{ mimeType: string; data: string }>;
 type ConversationalToolTelemetry = {
   exposedToolNames: string[];
@@ -101,7 +108,7 @@ type ConversationalChatOptions = {
   styleHints?: string[];
   taskKind?: WorkspaceTaskKind;
   taskSubtype?: WorkspaceTaskSubtype;
-  workspaceOperationalMemory?: Record<string, any> | null;
+  workspaceOperationalMemory?: Record<string, unknown> | null;
   userId?: string | null;
   chatId?: string | null;
   /** Active chat surface for this turn (telegram, discord, whatsapp, desktop, cli, future ids…). */
@@ -163,7 +170,7 @@ export class ConversationalAgent {
   private sessionId = '';
 
   constructor(runtime: LlmRuntimeService | ConversationalAgentRuntime = {}) {
-    if (runtime instanceof LlmRuntimeService || typeof (runtime as any).chatDetailed === 'function') {
+    if (runtime instanceof LlmRuntimeService || (typeof runtime === 'object' && runtime !== null && 'chatDetailed' in runtime && typeof (runtime as { chatDetailed?: unknown }).chatDetailed === 'function')) {
       this.llmRuntime = runtime as LlmRuntimeService;
       this.toolRuntime = null;
       this.contextEngine = null;
@@ -205,8 +212,8 @@ export class ConversationalAgent {
         if (roleCfg.awaitingSetup || roleCfg.pendingConfirmation) {
           await roleService.refreshLiveCatalog(isUsable).catch(() => 0);
           const setupLlm = {
-            chat: async (messages: any[]) => {
-              const result = await this.llmRuntime.chatDetailed(messages as any);
+            chat: async (messages: Array<{ role: 'system' | 'user' | 'assistant' | 'tool'; content: string; inlineData?: InlineData; toolCalls?: unknown[]; toolCallId?: string; toolName?: string }>) => {
+              const result = await this.llmRuntime.chatDetailed(messages);
               return result.response;
             },
           };
@@ -361,8 +368,6 @@ export class ConversationalAgent {
           } else {
             // Hot-path autonomy budget (actions / mutations) — shared store with partner missions.
             try {
-              const { authorizeHotPathToolCall, noteHotPathToolFailure } =
-                require('../services/AgentHotPathBudgetGate.js') as typeof import('../services/AgentHotPathBudgetGate.js');
               const budget = await authorizeHotPathToolCall({
                 userId: options?.userId,
                 sessionId: options?.chatId || this.sessionId,
@@ -412,8 +417,6 @@ export class ConversationalAgent {
           ].join(' ');
           toolFailures.push(toolCall.name);
           try {
-            const { noteHotPathToolFailure } =
-              require('../services/AgentHotPathBudgetGate.js') as typeof import('../services/AgentHotPathBudgetGate.js');
             noteHotPathToolFailure(options?.chatId || this.sessionId, options?.userId, surface);
           } catch {
             // optional
@@ -541,8 +544,6 @@ export class ConversationalAgent {
     // Same write gate as product-surface post-turn learning (public multi-tenant requires explicit true / allowlist).
     let learningWriteAllowed = false;
     try {
-      const { isLearningWriteAllowed } =
-        require('../services/ZavorthLearningWriteAuth.js') as typeof import('../services/ZavorthLearningWriteAuth.js');
       learningWriteAllowed = isLearningWriteAllowed({
         surface,
         userId: options?.userId,
@@ -563,8 +564,6 @@ export class ConversationalAgent {
       const toolsOk = toolFailures.length === 0;
       const success = toolsOk && Boolean(safeResponseText);
       if (toolReceiptCount > 0 && learningWriteAllowed && (success || !toolsOk)) {
-        const { ExperienceSkillLearningLoopService } =
-          require('../services/ExperienceSkillLearningLoopService.js') as typeof import('../services/ExperienceSkillLearningLoopService.js');
         const loop = new ExperienceSkillLearningLoopService({ projectRoot: process.cwd() });
         const learned = await loop.processTurn({
           userId: options?.userId,
@@ -620,8 +619,6 @@ export class ConversationalAgent {
     // Conversation continuum capture (Learned Knowledge · Conversation recall pillar).
     // Best-effort; never blocks the reply. AgentRun path also captures via bootstrapFoundation.
     try {
-      const { captureConversationTurn } =
-        require('../services/learned-knowledge/ConversationContinuumCapture.js') as typeof import('../services/learned-knowledge/ConversationContinuumCapture.js');
       captureConversationTurn({
         userMessage,
         assistantMessage: safeResponseText,
@@ -788,8 +785,6 @@ export class ConversationalAgent {
     error: unknown,
   ): WorkspaceLlmStrategy | null {
     try {
-      const { LlmRoleRoutingService } =
-        require('../services/llm/LlmRoleRoutingService.js') as typeof import('../services/llm/LlmRoleRoutingService.js');
       const roles = new LlmRoleRoutingService().getConfig(roleScopeId);
       if (!roles.strongOnDefaultFailure || !roles.strong) {
         return null;
@@ -904,8 +899,6 @@ export class ConversationalAgent {
   ): string {
     let next = systemInstruction;
     try {
-      const { getProductSurfaceRuntime } =
-        require('../services/ZavorthProductSurfaceRuntimeService.js') as typeof import('../services/ZavorthProductSurfaceRuntimeService.js');
       next = getProductSurfaceRuntime(process.cwd()).appendInjectBlocks(next, {
         userId: options?.userId || null,
       });
@@ -915,8 +908,6 @@ export class ConversationalAgent {
     // unified Learned Knowledge pack (workflows + conversation + about you + knowledge)
     // with hard token budget. Falls back to legacy dual inject if pack path fails.
     try {
-      const { isLearnedKnowledgeEnabled, buildLearnedKnowledgeInject } =
-        require('../services/learned-knowledge/index.js') as typeof import('../services/learned-knowledge/index.js');
       if (isLearnedKnowledgeEnabled()) {
         const packBlock = buildLearnedKnowledgeInject({
           userId: options?.userId || null,
@@ -933,8 +924,6 @@ export class ConversationalAgent {
       // fall through to legacy
     }
     try {
-      const { ExperienceSkillLearningLoopService } =
-        require('../services/ExperienceSkillLearningLoopService.js') as typeof import('../services/ExperienceSkillLearningLoopService.js');
       const block = new ExperienceSkillLearningLoopService({ projectRoot: process.cwd() }).formatInjectBlock(
         options?.userId,
         5,
@@ -950,8 +939,6 @@ export class ConversationalAgent {
       // optional
     }
     try {
-      const { formatAboutYouInject } =
-        require('../services/learned-knowledge/AboutYouService.js') as typeof import('../services/learned-knowledge/AboutYouService.js');
       const about = formatAboutYouInject(options?.userId, process.cwd());
       if (about) {
         next = `${next}\n\n${about}`;
@@ -973,8 +960,6 @@ export class ConversationalAgent {
   ): void {
     if (!String(assistantText || '').trim()) return;
     try {
-      const { getProductSurfaceRuntime } =
-        require('../services/ZavorthProductSurfaceRuntimeService.js') as typeof import('../services/ZavorthProductSurfaceRuntimeService.js');
       getProductSurfaceRuntime(process.cwd()).scheduleSuccessfulTurn({
         userId: userId || null,
         surface: sourceSurface || 'conversational',
@@ -1177,7 +1162,7 @@ export class ConversationalAgent {
   }
 
   private stripInternalVoicePreamble(message: string): string {
-    let raw = String(message || '').trim();
+    const raw = String(message || '').trim();
     if (!raw) {
       return raw;
     }

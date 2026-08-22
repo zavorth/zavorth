@@ -13,7 +13,7 @@ describe('SystemVisionAnalysisTool', () => {
             mimeType: 'image/png',
           },
         })),
-      } as any,
+      } as unknown as { execute: jest.Mock },
       {
         analyzeScreenshot: jest.fn(async () => ({
           ok: true,
@@ -26,7 +26,7 @@ describe('SystemVisionAnalysisTool', () => {
           rawResponse: '{"summary":"ok"}',
           error: null,
         })),
-      } as any,
+      } as unknown as { analyzeScreenshot: jest.Mock },
     );
 
     const result = await tool.execute({

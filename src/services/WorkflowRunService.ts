@@ -59,7 +59,7 @@ export class WorkflowRunService {
   constructor(runtime: WorkflowRunServiceRuntime = {}) {
     this.storageDir = runtime.storageDir || config.workflowRunDir;
     this.persistEnabled =
-      runtime.persist ?? !Boolean(process.env.JEST_WORKER_ID);
+      runtime.persist ?? !process.env.JEST_WORKER_ID;
     this.now = runtime.now || (() => new Date());
     this.externalizedState = new WorkflowExternalizedStateService({
       storageDir: this.storageDir,

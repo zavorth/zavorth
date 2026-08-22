@@ -194,7 +194,7 @@ export function toRequiredWslPath(targetPath: string, label: string): string {
 }
 
 export function quoteForBash(value: string): string {
-  return `'${String(value || '').replace(/'/g, `'\"'\"'`)}'`;
+  return `'${String(value || '').replace(/'/g, `''"'`)}'`;
 }
 
 export function getWslExecutable(): string {

@@ -6,6 +6,10 @@ import {
   type LearningRuntimePolicySnapshot,
 } from './ZavorthLearningRuntimePolicy.js';
 import { ZavorthAutonomousLearningWriteService } from './ZavorthAutonomousLearningWriteService.js';
+import { ZavorthFirstRunHumanOnboardingService } from './ZavorthFirstRunHumanOnboardingService.js';
+import { ZavorthLearningRuntimeHubService } from './ZavorthLearningRuntimeHubService.js';
+import { ZavorthHumanSuperpowersService } from './ZavorthHumanSuperpowersService.js';
+import { ZavorthHumanReachService } from './ZavorthHumanReachService.js';
 
 export type AnyonePathAreaId = 'learning' | 'first-run' | 'superpowers' | 'reach';
 
@@ -199,7 +203,6 @@ export class ZavorthAnyoneAgentPathService {
     allowLearning?: boolean | null;
     applyPersonalPreset?: boolean;
   } = {}): AnyoneAgentPathSnapshot {
-    const { ZavorthFirstRunHumanOnboardingService } = require('./ZavorthFirstRunHumanOnboardingService.js') as typeof import('./ZavorthFirstRunHumanOnboardingService.js');
     const firstRun = new ZavorthFirstRunHumanOnboardingService({
       projectRoot: this.projectRoot,
       now: this.now,
@@ -230,7 +233,6 @@ export class ZavorthAnyoneAgentPathService {
   }
 
   public undoLearned(id: string, userId?: string | null): { ok: boolean; summary: string; snapshot: AnyoneAgentPathSnapshot } {
-    const { ZavorthLearningRuntimeHubService } = require('./ZavorthLearningRuntimeHubService.js') as typeof import('./ZavorthLearningRuntimeHubService.js');
     const result = new ZavorthLearningRuntimeHubService({
       projectRoot: this.projectRoot,
       now: this.now,
@@ -331,7 +333,6 @@ export class ZavorthAnyoneAgentPathService {
 
   private listSuperpowers(_learned: AnyoneLearnedItem[]): AnyoneSuperpower[] {
     try {
-      const { ZavorthHumanSuperpowersService } = require('./ZavorthHumanSuperpowersService.js') as typeof import('./ZavorthHumanSuperpowersService.js');
       return new ZavorthHumanSuperpowersService({ projectRoot: this.projectRoot }).listPowers().map((power) => ({
         id: power.id,
         title: power.title,
@@ -350,7 +351,6 @@ export class ZavorthAnyoneAgentPathService {
 
   private listReach(): AnyoneReachChannel[] {
     try {
-      const { ZavorthHumanReachService } = require('./ZavorthHumanReachService.js') as typeof import('./ZavorthHumanReachService.js');
       return new ZavorthHumanReachService({ projectRoot: this.projectRoot, env: this.env }).listPaths().map((pathItem) => ({
         id: pathItem.id,
         title: pathItem.title,

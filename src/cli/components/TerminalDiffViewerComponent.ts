@@ -45,7 +45,7 @@ export class TerminalDiffViewerComponent {
 
     let currentOldPath = '';
     let currentNewPath = '';
-    let currentHunks: DiffHunk[] = [];
+    const currentHunks: DiffHunk[] = [];
     let currentHunkLines: DiffHunkLine[] = [];
     let currentHunkHeader = '';
     let oldLineCounter = 1;

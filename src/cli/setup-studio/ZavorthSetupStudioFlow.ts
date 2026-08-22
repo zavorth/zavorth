@@ -308,6 +308,7 @@ function wrapLine(value: string, width: number): string[] {
 }
 
 function visibleLength(value: string): number {
+  // eslint-disable-next-line no-control-regex
   return String(value).replace(/\x1b\[[0-9;]*m/gu, '').length;
 }
 

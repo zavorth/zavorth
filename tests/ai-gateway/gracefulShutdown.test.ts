@@ -8,13 +8,13 @@ import {
 describe('gracefulShutdown', () => {
   beforeEach(() => {
     // Clear global state
-    delete (globalThis as any).__ZavorthGatewayShutdown;
+    delete (globalThis as Record<string, unknown>).__ZavorthGatewayShutdown;
     jest.useFakeTimers();
   });
 
   afterEach(() => {
     jest.useRealTimers();
-    delete (globalThis as any).__ZavorthGatewayShutdown;
+    delete (globalThis as Record<string, unknown>).__ZavorthGatewayShutdown;
   });
 
   it('should initialize with 0 active requests and not draining', () => {
@@ -41,7 +41,7 @@ describe('gracefulShutdown', () => {
   });
 
   it('should register process signal listeners on init', () => {
-    const processOnSpy = jest.spyOn(process, 'on').mockImplementation((() => {}) as any);
+    const processOnSpy = jest.spyOn(process, 'on').mockImplementation(((_event: string | symbol, _listener: (...args: unknown[]) => void) => process) as unknown as typeof process.on);
     
     initGracefulShutdown();
     
@@ -52,7 +52,7 @@ describe('gracefulShutdown', () => {
   });
 
   it('should not register listeners twice if already initialized', () => {
-    const processOnSpy = jest.spyOn(process, 'on').mockImplementation((() => {}) as any);
+    const processOnSpy = jest.spyOn(process, 'on').mockImplementation(((_event: string | symbol, _listener: (...args: unknown[]) => void) => process) as unknown as typeof process.on);
     
     initGracefulShutdown();
     const calls = processOnSpy.mock.calls.length;

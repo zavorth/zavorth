@@ -493,7 +493,7 @@ export class ZavorthBridgeCliAdapter {
   }
 
   private isAutomationSurfaceReady(surface: unknown): boolean {
-    return isAutomationSurfaceReadySupport(surface as any);
+    return isAutomationSurfaceReadySupport(surface);
   }
 
   private buildDirectChatUnavailableError(message: string): Error {

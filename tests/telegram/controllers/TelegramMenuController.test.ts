@@ -1,8 +1,16 @@
 import { TelegramMenuController } from '../../../src/telegram/controllers/TelegramMenuController';
 
+interface MockTelegramApi {
+  setMyCommands?: jest.Mock;
+}
+
+interface MockContext {
+  reply: jest.Mock;
+}
+
 describe('TelegramMenuController', () => {
   it('keeps help natural-first with short human menu', () => {
-    const controller = new TelegramMenuController({ api: {} } as any);
+    const controller = new TelegramMenuController({ api: {} } as unknown as { api: MockTelegramApi });
     const help = controller.getHelpText();
 
     expect(help).toMatch(/Talk normally first/i);
@@ -27,7 +35,7 @@ describe('TelegramMenuController', () => {
     const setMyCommands = jest.fn().mockResolvedValue(undefined);
     const controller = new TelegramMenuController({
       api: { setMyCommands },
-    } as any);
+    } as unknown as { api: MockTelegramApi });
 
     await controller.registerTelegramMenu();
 
@@ -77,12 +85,12 @@ describe('TelegramMenuController', () => {
   });
 
   it('renders /help through the shared Surface Response Telegram renderer', async () => {
-    const controller = new TelegramMenuController({ api: {} } as any);
-    const ctx = {
+    const controller = new TelegramMenuController({ api: {} } as unknown as { api: MockTelegramApi });
+    const ctx: MockContext = {
       reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    };
 
-    await controller.renderHelpCard(ctx);
+    await controller.renderHelpCard(ctx as unknown as Parameters<typeof controller.renderHelpCard>[0]);
 
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(
       /Zavorth - (Quick Guide|Guia rapido)/,

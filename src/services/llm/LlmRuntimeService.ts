@@ -229,7 +229,7 @@ export class LlmRuntimeService {
       );
 
       for (let modelIndex = 0; modelIndex < modelAttempts.length; modelIndex += 1) {
-        let modelName = modelAttempts[modelIndex];
+        const modelName = modelAttempts[modelIndex];
         const modelAttemptStartedAt = Date.now();
         const usingSecondary = Boolean(
           secondaryModelId && modelName && modelName === secondaryModelId,
