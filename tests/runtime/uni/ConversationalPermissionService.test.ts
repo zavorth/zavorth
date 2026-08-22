@@ -11,7 +11,7 @@ describe('ConversationalPermissionService', () => {
   function workspaceMutationRequest() {
     const decision = intentService.decide({
       surface: 'web',
-      text: 'organize minha pasta Downloads',
+      text: 'organize my Downloads folder',
       contextHints: {
         sessionId: 'session-a',
         workspaceRoot: 'C:/repo/Zavorth',

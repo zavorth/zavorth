@@ -3,9 +3,9 @@ import { TelegramTaskOrchestrationController } from '../../../src/telegram/contr
 import { WorkspaceRoutingAdvisor } from '../../../src/services/workspace-routing-advisor/engine.js';
 
 jest.mock('../../../src/telegram/controllers/TelegramTaskPreparationService.js', () => {
-  const advisor = new WorkspaceRoutingAdvisor();
   return {
     TelegramTaskPreparationService: class {
+      advisor = new WorkspaceRoutingAdvisor();
       buildSurfaceMetadata = jest.fn().mockReturnValue({});
       prepareTaskState: any;
       constructor(deps: any) {
@@ -21,7 +21,7 @@ jest.mock('../../../src/telegram/controllers/TelegramTaskPreparationService.js',
           const workspaceOperationalMemory = deps?.workspaceOperationalMemoryService?.getMemory
             ? await deps.workspaceOperationalMemoryService.getMemory(task.workspace, params.userId)
             : null;
-          const workspaceRoutingAdvice = advisor.recommend({
+          const workspaceRoutingAdvice = this.advisor.recommend({
             parsed: params.parsed,
             route: params.route,
             surface_source: 'telegram',

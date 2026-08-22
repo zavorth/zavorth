@@ -528,7 +528,7 @@ export class UniversalIntentEvaluationHarness {
         label: 'Once permission expires when consumed',
         input: {
           surface: 'cli',
-          text: 'edite src/app.ts',
+          text: 'edit src/app.ts',
           userRole: 'builder',
           contextHints: {
             sessionId: 'session-a',

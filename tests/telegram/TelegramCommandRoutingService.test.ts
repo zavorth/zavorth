@@ -84,7 +84,7 @@ describe('TelegramCommandRoutingService', () => {
         handleWarn: jest.fn().mockResolvedValue(undefined),
         handleWarns: jest.fn().mockResolvedValue(undefined),
         handleClearWarns: jest.fn().mockResolvedValue(undefined),
-        handleRegras: jest.fn().mockResolvedValue(undefined),
+        handleRules: jest.fn().mockResolvedValue(undefined),
         handleStats: jest.fn().mockResolvedValue(undefined),
         handleSetWelcome: jest.fn().mockResolvedValue(undefined),
         handleSetBye: jest.fn().mockResolvedValue(undefined),

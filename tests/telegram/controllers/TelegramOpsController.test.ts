@@ -89,7 +89,7 @@ interface MockProductObservabilityService {
 }
 
 interface MockCapabilityLifecycleService {
-  buildManifest: jest.Mock;
+  buildSnapshot: jest.Mock;
 }
 
 interface MockRuntimeAccessManifestService {
@@ -396,6 +396,60 @@ describe('TelegramOpsController', () => {
           insights: [],
         }),
         ...overrides.productObservabilityService,
+      },
+      {
+        buildSnapshot: jest.fn().mockReturnValue({
+          profile: 'ops',
+          productMode: 'operator',
+          policy: 'opt-in',
+          commands: {
+            profile: '/profile <core|ops|full>',
+            mode: '/mode <chat|assistant|builder|operator>',
+            capabilities: '/capabilities [id]',
+            enable: '/enable <capability> [once|session|host]',
+            disable: '/disable <capability>',
+          },
+          summary: {
+            total: 2,
+            builtinCapabilities: 12,
+            registeredCommands: 9,
+            active: 1,
+            dormant: 1,
+            requiringApproval: 1,
+          },
+          capabilities: [
+            {
+              capabilityId: 'core-runtime',
+              label: 'Core runtime',
+              state: 'active',
+              activationMode: 'builtin',
+              approvalRequired: false,
+              enabledByProfile: true,
+              enabledByUser: false,
+              approvalScope: null,
+              idleTtlMs: null,
+              fallbackBehavior: 'always available with the runtime.',
+              estimatedFootprint: { ramIdleMb: 128, diskMb: 0, processCount: 0 },
+              lastUpdatedAt: null,
+            },
+            {
+              capabilityId: 'skill-plane',
+              label: 'Skill plane',
+              state: 'dormant',
+              activationMode: 'lazy',
+              approvalRequired: true,
+              enabledByProfile: false,
+              enabledByUser: true,
+              approvalScope: 'session',
+              idleTtlMs: 1800000,
+              fallbackBehavior: 'stays dormant until approved.',
+              estimatedFootprint: { ramIdleMb: 256, diskMb: 512, processCount: 1 },
+              lastUpdatedAt: '2026-04-05T10:00:00.000Z',
+              notes: 'enabled by operator through /enable skill-plane session.',
+            },
+          ],
+        }),
+        ...overrides.capabilityLifecycleService,
       },
       {
         buildManifest: jest.fn().mockResolvedValue({
@@ -817,7 +871,7 @@ describe('TelegramOpsController', () => {
 
     await controller.handleWslCommand(ctx as unknown as Parameters<typeof controller.handleWslCommand>[0], '');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Ubuntu-24.04');
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Ubuntu-24.04'));
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Use /wsl on to start');
   });
 

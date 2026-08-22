@@ -60,12 +60,12 @@ describe('TelegramGroupAdminController', () => {
       reply: jest.fn().mockResolvedValue(undefined),
     } as any;
 
-    await controller.handleRegras(ctx, '1. Seja gentil com todos');
+    await controller.handleRules(ctx, '1. Seja gentil com todos');
 
     expect(setGroupRules).toHaveBeenCalledWith('-1001', '1. Seja gentil com todos');
     expect(ctx.reply).toHaveBeenCalledWith('Group rules updated successfully.');
 
-    await controller.handleRegras(ctx, '');
+    await controller.handleRules(ctx, '');
     expect(ctx.reply).toHaveBeenLastCalledWith(expect.stringContaining('1. Seja gentil com todos'));
   });
 

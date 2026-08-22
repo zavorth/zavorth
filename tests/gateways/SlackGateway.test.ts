@@ -4,6 +4,42 @@ import os from 'os';
 import path from 'path';
 import { SlackGateway } from '../../src/gateways/channels/slack/SlackGateway';
 
+jest.mock('../../src/config/index.js', () => {
+  const actualConfigModule = jest.requireActual('../../src/config/index.js') as Record<string, unknown>;
+  const configFactory = jest.requireActual('../../src/config/sections/configFactory') as typeof import(
+    '../../src/config/sections/configFactory'
+  );
+
+  // The real config singleton freezes env-derived values at module load,
+  // before the per-test env setup runs. Expose a lazy view that rebuilds the
+  // config from process.env on every read so results never depend on the
+  // machine-level environment.
+  const lazyConfig = new Proxy<Record<PropertyKey, unknown>>({}, {
+    get(_target, property) {
+      if (typeof property === 'symbol') {
+        return undefined;
+      }
+      return Reflect.get(configFactory.buildZavorthConfig(), property);
+    },
+    has(_target, property) {
+      return Reflect.has(configFactory.buildZavorthConfig(), property);
+    },
+    ownKeys() {
+      return Reflect.ownKeys(configFactory.buildZavorthConfig());
+    },
+    getOwnPropertyDescriptor(_target, property) {
+      const descriptor = Reflect.getOwnPropertyDescriptor(configFactory.buildZavorthConfig(), property);
+      if (!descriptor) {
+        return undefined;
+      }
+      descriptor.configurable = true;
+      return descriptor;
+    },
+  });
+
+  return { ...actualConfigModule, config: lazyConfig };
+});
+
 describe('SlackGateway stub', () => {
   const originalEnv = process.env;
   const tempDirs: string[] = [];

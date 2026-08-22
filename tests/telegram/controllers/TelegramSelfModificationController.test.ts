@@ -68,6 +68,7 @@ describe('TelegramSelfModificationController', () => {
   const originalTelegramUserRoles = config.telegramUserRoles;
 
   function createController(task = createTask(), overrides: Record<string, unknown> = {}) {
+    const mergedOverrides = overrides as Partial<MockDeps>;
     const deps: MockDeps = {
       taskManager: {
         createPendingTask: jest.fn().mockReturnValue(task),
@@ -75,12 +76,13 @@ describe('TelegramSelfModificationController', () => {
           currentTask.status = status;
         }),
       },
-      executionGateway: {
-        getModeManager: jest.fn().mockReturnValue({
-          getMode: jest.fn().mockReturnValue('BUILD'),
-          isSufficientFor: jest.fn().mockReturnValue(true),
-        }),
-      },
+      executionGateway:
+        mergedOverrides.executionGateway ?? {
+          getModeManager: jest.fn().mockReturnValue({
+            getMode: jest.fn().mockReturnValue('BUILD'),
+            isSufficientFor: jest.fn().mockReturnValue(true),
+          }),
+        },
       auditLogger: {
         logEvent: jest.fn().mockResolvedValue(undefined),
       },

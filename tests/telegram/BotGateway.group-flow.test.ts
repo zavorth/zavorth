@@ -79,7 +79,7 @@ function createGatewayHarness() {
     handleWarn: jest.fn(),
     handleWarns: jest.fn(),
     handleClearWarns: jest.fn(),
-    handleRegras: jest.fn(),
+    handleRules: jest.fn(),
     handleStats: jest.fn(),
     handleSetWelcome: jest.fn(),
     handleSetBye: jest.fn(),

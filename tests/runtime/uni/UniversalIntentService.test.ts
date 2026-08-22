@@ -54,7 +54,7 @@ describe('UniversalIntentService', () => {
   it('requires preview and permission for workspace mutation', () => {
     const decision = service.decide({
       surface: 'cli',
-      text: 'aplique um patch em src/app.ts',
+      text: 'apply a patch to src/app.ts',
       contextHints: {
         workspacePath: 'C:/repo/Zavorth',
       },
@@ -134,7 +134,7 @@ describe('UniversalIntentService', () => {
   it('turns a common request to organize files into a plain permission narrative', () => {
     const decision = service.decide({
       surface: 'web',
-      text: 'organize minha pasta Downloads',
+      text: 'organize my Downloads folder',
       contextHints: {
         workspaceRoot: 'C:/Users/me/Downloads',
         targetPath: 'C:/Users/me/Downloads',

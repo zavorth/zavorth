@@ -7,6 +7,7 @@ import { SignalGateway } from '../../src/gateways/channels/signal/SignalGateway'
 import { TeamsGateway } from '../../src/gateways/channels/teams/TeamsGateway';
 import { MatrixGateway } from '../../src/gateways/channels/simple/MatrixGateway';
 import { applyLiveGatewayWebhookCompat } from '../../src/gateways/liveGatewayWebhookCompat';
+import { config } from '../../src/config/index';
 import path from 'node:path';
 import os from 'node:os';
 
@@ -60,11 +61,10 @@ describe('Priority channel live densification', () => {
       };
     };
     jest.spyOn(gw, 'resolveConfigured').mockReturnValue(true);
-    const { config: cfg } = await import('../../src/config/index');
-    const prevToken = cfg.discordBotToken;
-    const prevChannels = cfg.discordAllowedChannelIds;
-    cfg.discordBotToken = 'discord-bot-token';
-    cfg.discordAllowedChannelIds = ['chan-1'];
+    const prevToken = config.discordBotToken;
+    const prevChannels = config.discordAllowedChannelIds;
+    config.discordBotToken = 'discord-bot-token';
+    config.discordAllowedChannelIds = ['chan-1'];
     await gw.initialize();
 
     const inbound = gw['extractInboundPayload']({
@@ -79,8 +79,8 @@ describe('Priority channel live densification', () => {
     expect(inbound?.rawText).toBe('hello discord');
 
     const delivered = await gw.sendMessage({ text: 'hi', chatId: 'chan-1' });
-    cfg.discordBotToken = prevToken;
-    cfg.discordAllowedChannelIds = prevChannels;
+    config.discordBotToken = prevToken;
+    config.discordAllowedChannelIds = prevChannels;
     expect(delivered.ok).toBe(true);
     expect(delivered.status).toBe('delivered');
     expect(fetchImpl).toHaveBeenCalled();
@@ -128,9 +128,8 @@ describe('Priority channel live densification', () => {
     const broker = { processMessage };
     const gw = new WhatsAppGateway(broker as any);
     applyLiveGatewayWebhookCompat(gw as any, 'whatsapp');
-    const { config: cfg } = await import('../../src/config/index');
-    const prevProvider = cfg.whatsappProvider;
-    cfg.whatsappProvider = 'cloud-api';
+    const prevProvider = config.whatsappProvider;
+    config.whatsappProvider = 'cloud-api';
     await gw.initialize();
     const result = await gw.handleWebhookEvent({
       body: {
@@ -149,7 +148,7 @@ describe('Priority channel live densification', () => {
         }],
       },
     });
-    cfg.whatsappProvider = prevProvider;
+    config.whatsappProvider = prevProvider;
     expect(result.statusCode).toBe(200);
     expect((result.body as any).ok).toBe(true);
     expect(processMessage).toHaveBeenCalled();
