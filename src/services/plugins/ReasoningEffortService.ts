@@ -1,4 +1,4 @@
-﻿export type ReasoningEffort = 'low' | 'medium' | 'high';
+export type ReasoningEffort = 'low' | 'medium' | 'high';
 
 export interface ReasoningConfig {
   effort: ReasoningEffort;

@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import type { Task } from '../../contracts/TaskContract.js';
 import type { PendingZavorthBridgeSession } from '../AgentBridgeManager.js';

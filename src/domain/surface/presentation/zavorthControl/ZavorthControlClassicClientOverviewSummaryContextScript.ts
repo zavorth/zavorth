@@ -1,4 +1,4 @@
-﻿import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
 
 declare function escapeHtml(value: unknown): string;
 declare function formatRelativeTime(value: unknown): string;

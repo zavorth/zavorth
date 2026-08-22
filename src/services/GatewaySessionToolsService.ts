@@ -1,4 +1,4 @@
-﻿import type { MessageChannel } from '../contracts/PlatformContract.js';
+import type { MessageChannel } from '../contracts/PlatformContract.js';
 import type { SurfaceTaskDispatcherLike } from './SurfaceRuntime.js';
 import { GatewayChannelRouterService } from './GatewayChannelRouterService.js';
 import { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';

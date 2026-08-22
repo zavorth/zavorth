@@ -1,4 +1,4 @@
-﻿import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
 import { asErrorLike } from '../../../../utils/errorLike.js';
 
 declare function escapeHtml(value: unknown): string;

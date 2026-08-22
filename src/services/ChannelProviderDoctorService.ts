@@ -1,4 +1,4 @@
-﻿import { logger } from '../logger.js';
+import { logger } from '../logger.js';
 import fs from 'fs';
 import { config } from '../config/index.js';
 import { ChannelGatewayFactory } from '../gateways/ChannelGatewayFactory.js';

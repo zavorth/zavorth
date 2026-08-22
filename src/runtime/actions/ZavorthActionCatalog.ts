@@ -1,4 +1,4 @@
-﻿import { ZavorthCapabilityActionExposureService } from '../../services/ZavorthCapabilityActionExposureService.js';
+import { ZavorthCapabilityActionExposureService } from '../../services/ZavorthCapabilityActionExposureService.js';
 import { type GoalLoopLlmRuntime } from '../../services/GoalLoopService.js';
 import { type GoalLoopAgentRunner } from '../../services/GoalLoopWorkerService.js';
 import {

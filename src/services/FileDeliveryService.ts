@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { config } from '../config/index.js';

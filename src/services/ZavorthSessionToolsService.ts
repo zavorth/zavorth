@@ -1,4 +1,4 @@
-﻿import { SurfaceIdentityService } from './SurfaceIdentityService.js';
+import { SurfaceIdentityService } from './SurfaceIdentityService.js';
 import { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';
 import {
   SessionContinuityService,

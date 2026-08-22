@@ -1,4 +1,4 @@
-﻿export const runtimeShellScriptPart2Seg2: string = [
+export const runtimeShellScriptPart2Seg2: string = [
     "  for (const artifact of (Array.isArray(replay?.recentArtifacts) ? replay.recentArtifacts : []).slice(0, 2)) {",
     "    const artifactLabel = escapeHtml(artifact?.label || artifact?.path || artifact?.id || 'Recent delivery');",
     "    const artifactSummary = normalizeText(artifact?.summary) ? escapeHtml(artifact.summary) : '';",

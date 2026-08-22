@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Backward-compatible adapters for IMemoryBackend v2.
  *
  * Wraps any backend (v1 string-only or partial v2) into a full v2 surface

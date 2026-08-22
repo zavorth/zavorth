@@ -1,1367 +1,1367 @@
 /*
-Zavorth Nexus — Core Layout
-Dock-based navigation at bottom, bridge telemetry at top, viewport in center.
-
-
-═══ Core Frame ═══ */
-re-frame {
--dock-height: 72px;
--bridge-height: 54px;
-osition: relative;
-solation: isolate;
-idth: 100%;
-ax-width: 100vw;
-eight: 100vh;
-isplay: grid;
-rid-template-rows: var(--bridge-height) 1fr var(--dock-height);
-rid-template-areas:
- "bridge"
- "viewport"
- "dock";
-verflow: hidden;
-ackground: var(--b-app-gradient);
-nimation: b-frame-enter 0.3s var(--b-ease-out);
-}
-
-Light mode must be designed, not inverted over the dark shell. */
-ta-theme="light"] .core-frame {
-ackground:
- linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-}
-
-ta-theme="light"] .core-frame::before {
-pacity: 0.24;
-ilter: blur(46px);
-}
-
-ta-theme="light"] .core-frame::after {
-pacity: 0.08;
-}
-
-ta-theme="light"] .sidebar,
-ta-theme="light"] .nexus-dock {
-ackground: rgba(255, 255, 255, 0.94);
-order-right-color: rgba(15, 23, 42, 0.12);
-}
-
-ta-theme="light"] .bridge {
-ackground: rgba(255, 255, 255, 0.9);
-order-bottom-color: rgba(15, 23, 42, 0.1);
-}
-
-ta-theme="light"] .bridge__search,
-ta-theme="light"] .bridge__action-btn,
-ta-theme="light"] .dock-sys-info {
-ackground: rgba(248, 250, 252, 0.94);
-olor: #334155;
-}
-
-ta-theme="light"] .dock-node {
-olor: #475569;
-}
-
-ta-theme="light"] .dock-node.active {
-ackground: rgba(5, 150, 105, 0.09);
-olor: #064e3b;
-}
-re-frame::before,
-re-frame::after {
-ontent: "";
-osition: absolute;
-nset: 0;
--index: 0;
-ointer-events: none;
-}
-Calm brand wash. */
-re-frame::before {
-ackground: var(--b-aurora-layer);
-ackground-size: 100% 100%;
-ilter: blur(48px);
-pacity: 0.28;
-ransform: translateZ(0);
-nimation: none;
-}
-re-frame::after {
-ackground:
- linear-gradient(180deg, color-mix(in srgb, var(--b-surface) 12%, transparent) 0%, transparent 20%),
- linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--b-pulse) 3%, transparent) 50%, transparent 100%);
-pacity: 0.32;
-}
-pports (height: 100dvh) {
-core-frame { height: 100dvh; }
-}
-
-═══ Bridge (Top Telemetry) ═══ */
-idge {
-rid-area: bridge;
-osition: relative;
-in-width: 0;
-isplay: flex;
-lign-items: center;
-ustify-content: space-between;
-adding: 0 20px;
-in-height: var(--bridge-height);
-order-bottom: 1px solid color-mix(in srgb, var(--b-shell) 60%, transparent);
-ackground: color-mix(in srgb, var(--b-glass-strong) 72%, transparent);
-ox-shadow: inset 0 -1px 0 var(--b-glass-highlight);
-ackdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
-webkit-backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
--index: 40;
-}
-
-idge__left {
-isplay: flex;
-lign-items: center;
-ap: 14px;
-in-width: 0;
-}
-
-idge__menu-trigger {
-isplay: none;
-lign-items: center;
-ustify-content: center;
-idth: 36px;
-eight: 36px;
-adding: 0;
-order: 1px solid var(--b-shell);
-order-radius: var(--b-radius-md);
-ackground: color-mix(in srgb, var(--b-glass) 72%, transparent);
-olor: var(--b-signal-muted);
-ursor: pointer;
-}
-idge__menu-trigger svg {
-troke: currentColor; fill: none;
-troke-width: 1.5px; stroke-linecap: round;
-}
-idge__menu-trigger:hover { color: var(--b-signal); background: var(--b-void-hover); }
-
-idge__brand {
-isplay: flex;
-lign-items: center;
-ap: 10px;
-}
-
-idge__logo {
-idth: 32px; height: 32px;
-lex-shrink: 0;
-isplay: flex;
-lign-items: center;
-ustify-content: center;
-verflow: hidden;
-order-radius: 10px;
-ackground: color-mix(in srgb, var(--b-chrome-strong) 88%, black);
-ox-shadow: inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 20%, transparent);
-}
-idge__logo-svg {
-idth: 100%; height: 100%;
-isplay: block;
-}
-idge__logo-img {
-idth: 100%;
-eight: 100%;
-isplay: block;
-bject-fit: cover;
-}
-
-idge__brand-text {
-isplay: flex;
-lex-direction: column;
-ap: 1px;
-}
-
-idge__brand-eyebrow {
-ont-size: 9px;
-ont-weight: 700;
-etter-spacing: 0.1em;
-olor: var(--b-pulse);
-ext-transform: uppercase;
-ont-family: var(--b-font-display);
-}
-
-idge__brand-name {
-ont-size: 15px;
-ont-weight: 800;
-etter-spacing: -0.03em;
-olor: var(--b-signal-strong);
-ont-family: var(--b-font-display);
-}
-
-idge__center {
-isplay: flex;
-lign-items: center;
-ap: 6px;
-ont-size: 13px;
-osition: absolute;
-eft: 50%;
-ransform: translateX(-50%);
-}
-
-idge__path { color: var(--b-signal-muted); }
-idge__path-sep { color: var(--b-signal-dim); }
-idge__path-current {
-olor: var(--b-pulse);
-ont-weight: 650;
-ont-family: var(--b-font-display);
-}
-
-idge__right {
-isplay: flex;
-lign-items: center;
-ap: 12px;
-}
-
-idge__telemetry {
-isplay: flex;
-lign-items: center;
-ap: 10px;
-}
-
-idge__pulse {
-isplay: flex;
-lign-items: center;
-ap: 6px;
-ont-size: 11px;
-ont-weight: 600;
-olor: var(--b-ok);
-adding: 4px 10px 4px 8px;
-order: 1px solid color-mix(in srgb, var(--b-ok) 20%, transparent);
-order-radius: var(--b-radius-full);
-ackground: var(--b-ok-subtle);
-}
-
-idge__pulse-dot {
-idth: 7px; height: 7px;
-order-radius: 50%;
-ackground: var(--b-ok);
-ox-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
-nimation: b-pulse-subtle 2s ease-in-out infinite;
-}
-
-idge__pulse[data-auth-state="protected"] {
-olor: var(--b-warn);
-order-color: color-mix(in srgb, var(--b-warn) 28%, transparent);
-ackground: var(--b-warn-subtle);
-}
-idge__pulse[data-auth-state="protected"] .bridge__pulse-dot {
-ackground: var(--b-warn);
-ox-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
-}
-
-idge__pulse[data-auth-state="unlocked"] {
-olor: var(--b-ok);
-order-color: color-mix(in srgb, var(--b-ok) 28%, transparent);
-ackground: var(--b-ok-subtle);
-}
-idge__pulse[data-auth-state="unlocked"] .bridge__pulse-dot {
-ackground: var(--b-ok);
-ox-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
-}
-
-idge__pulse[data-auth-state="local"],
-idge__pulse[data-auth-state="checking"] {
-olor: var(--b-info);
-order-color: color-mix(in srgb, var(--b-info) 24%, transparent);
-ackground: color-mix(in srgb, var(--b-info) 8%, transparent);
-}
-idge__pulse[data-auth-state="local"] .bridge__pulse-dot,
-idge__pulse[data-auth-state="checking"] .bridge__pulse-dot {
-ackground: var(--b-info);
-ox-shadow: 0 0 8px rgba(59, 130, 246, 0.42);
-}
-
-idge__pulse-label { font-family: var(--b-font-body); font-size: 11px; text-transform: none; letter-spacing: 0; }
-
-idge__action-btn {
-isplay: flex;
-lign-items: center;
-ustify-content: center;
-idth: 34px; height: 34px;
-order: 1px solid var(--b-shell);
-order-radius: var(--b-radius-md);
-ackground: color-mix(in srgb, var(--b-glass) 72%, transparent);
-olor: var(--b-signal-muted);
-ursor: pointer;
-ransition: all var(--b-duration-fast) ease;
-}
-idge__action-btn:hover {
-olor: var(--b-signal);
-ackground: var(--b-void-hover);
-order-color: var(--b-shell-strong);
-}
-
-idge__search {
-isplay: inline-flex;
-lign-items: center;
-ap: 10px;
-in-height: 34px;
-adding: 0 12px;
-order: 1px solid color-mix(in srgb, var(--b-shell) 88%, transparent);
-order-radius: var(--b-radius-full);
-ackground: color-mix(in srgb, var(--b-glass) 82%, transparent);
-ox-shadow: inset 0 1px 0 var(--b-glass-highlight);
-ackdrop-filter: blur(calc(var(--b-glass-blur) * 0.55)) saturate(var(--b-glass-saturate));
-webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.55)) saturate(var(--b-glass-saturate));
-olor: var(--b-signal-muted);
-ont-size: 12px;
-ursor: pointer;
-osition: relative;
-ransition: border-color var(--b-duration-fast) ease, background var(--b-duration-fast) ease;
-in-width: 180px;
-}
-idge__search:hover {
-order-color: var(--b-shell-strong);
-ackground: var(--b-void-hover);
-olor: var(--b-signal);
-}
-idge__search-label { flex: 1; text-align: left; }
-idge__search-kbd {
-adding: 2px 5px;
-order: 1px solid var(--b-shell);
-order-radius: var(--b-radius-sm);
-ackground: var(--b-void);
-ont-family: var(--b-mono);
-ont-size: 10px;
-olor: var(--b-signal-muted);
-}
-idge__search-ghost {
-osition: absolute;
-nset: 0;
-ackground: transparent;
-order: none;
-ursor: pointer;
-}
-
-═══ Viewport ═══ */
-ewport {
-rid-area: viewport;
-osition: relative;
--index: 1;
-in-width: 0;
-isplay: flex;
-lex-direction: column;
-in-height: 0;
-verflow: hidden;
-}
-
-═══ Nexus Dock (Bottom Navigation) ═══ */
-xus-dock {
-rid-area: dock;
-osition: relative;
-in-width: 0;
-isplay: flex;
-lign-items: center;
-ustify-content: center;
-ap: 16px;
-adding: 0 20px;
-order-top: 1px solid color-mix(in srgb, var(--b-shell) 50%, transparent);
-ackground: color-mix(in srgb, var(--b-glass-strong) 76%, transparent);
-ox-shadow: inset 0 1px 0 var(--b-glass-highlight);
-ackdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
-webkit-backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
--index: 40;
-verflow: hidden;
-}
-
-xus-dock__rail {
-isplay: flex;
-lign-items: center;
-ap: 6px;
-in-width: 0;
-ax-width: 900px;
-verflow-x: auto;
-crollbar-width: none;
-adding: 8px 0;
-}
-xus-dock__rail::-webkit-scrollbar { display: none; }
-
-ck-group {
-isplay: flex;
-lign-items: center;
-ap: 4px;
-}
-
-ck-more {
-osition: relative;
-isplay: flex;
-lign-items: center;
-}
-
-ck-more__trigger {
-order: none;
-ont: inherit;
-ppearance: none;
-webkit-appearance: none;
-}
-
-ck-more__panel {
-osition: absolute;
-ottom: calc(100% + 10px);
-eft: 50%;
-ransform: translateX(-50%);
--index: 60;
-isplay: grid;
-rid-template-columns: repeat(3, minmax(0, 1fr));
-ap: 4px;
-in-width: 240px;
-ax-width: min(360px, 80vw);
-adding: 8px;
-order: 1px solid color-mix(in srgb, var(--b-glass-border) 80%, transparent);
-order-radius: 14px;
-ackground: color-mix(in srgb, var(--b-glass-strong) 94%, transparent);
-ox-shadow: var(--b-glass-shadow);
-ackdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
-webkit-backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
-}
-
-ck-more__panel[hidden] {
-isplay: none !important;
-}
-
-ck-more.is-open .dock-more__panel {
-isplay: grid;
-}
-
-ck-more__item {
-in-width: 0;
-adding: 8px 6px;
-}
-
-ck-more__item .dock-node__label {
-ont-size: 10px;
-ext-transform: none;
-etter-spacing: 0.02em;
-}
-
-ck-more.has-active .dock-more__trigger,
-ck-more__trigger.active {
-olor: var(--b-signal-strong);
-}
-
-ck-divider {
-idth: 1px;
-eight: 28px;
-ackground: var(--b-shell);
-argin: 0 6px;
-lex-shrink: 0;
-}
-
-Dock Node */
-ck-node {
-isplay: flex;
-lex-direction: column;
-lign-items: center;
-ap: 3px;
-adding: 6px 10px;
-order-radius: var(--b-radius-md);
-order: 1px solid transparent;
-ackground: transparent;
-olor: var(--b-signal-muted);
-ursor: pointer;
-ext-decoration: none;
-ransition: all var(--b-duration-fast) ease;
-in-width: 52px;
-}
-
-ck-node__glyph {
-idth: 20px; height: 20px;
-isplay: flex;
-lign-items: center;
-ustify-content: center;
-pacity: 0.65;
-ransition: opacity var(--b-duration-fast) ease;
-}
-ck-node__glyph svg {
-idth: 18px; height: 18px;
-troke: currentColor;
-ill: none;
-troke-width: 1.5px;
-troke-linecap: round;
-troke-linejoin: round;
-}
-
-ck-node__label {
-ont-size: 9px;
-ont-weight: 700;
-ext-transform: uppercase;
-etter-spacing: 0.06em;
-hite-space: nowrap;
-ont-family: var(--b-font-display);
-}
-
-ck-node:hover {
-olor: var(--b-signal);
-ackground: color-mix(in srgb, var(--b-glass) 76%, transparent);
-order-color: color-mix(in srgb, var(--b-shell) 72%, transparent);
-ox-shadow: var(--b-glass-shadow-soft);
-ext-decoration: none;
-}
-ck-node:hover .dock-node__glyph { opacity: 1; }
-
-ck-node.active {
-olor: var(--b-signal-strong);
-ackground:
- linear-gradient(145deg, color-mix(in srgb, var(--b-pulse) 16%, transparent), transparent 58%),
- color-mix(in srgb, var(--b-glass) 86%, transparent);
-order-color: color-mix(in srgb, var(--b-pulse) 22%, transparent);
-ox-shadow: 0 -2px 12px color-mix(in srgb, var(--b-pulse) 10%, transparent);
-}
-ck-node.active .dock-node__glyph {
-pacity: 1;
-olor: var(--b-pulse);
-}
-
-Dock system info */
-ck-sys-info {
-isplay: flex;
-lign-items: center;
-ap: 8px;
-adding: 0 14px;
-ont-size: 10px;
-ont-family: var(--b-mono);
-olor: var(--b-signal-dim);
-lex-shrink: 0;
-}
-ck-sys-info__status {
-idth: 7px; height: 7px;
-order-radius: 50%;
-lex-shrink: 0;
-}
-ck-sys-info__status--live {
-ackground: var(--b-ok);
-ox-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
-}
-ck-sys-info__status--offline {
-ackground: var(--b-danger);
-ox-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
-}
-
-═══ Mobile ═══ */
-dia (max-width: 768px) {
-core-frame {
- --dock-height: calc(66px + env(safe-area-inset-bottom));
- --bridge-height: 52px;
-
-bridge {
- padding: 0 12px;
- min-height: var(--bridge-height);
-
-bridge__left { gap: 8px; }
-bridge__menu-trigger { display: none; }
-bridge__brand-text { display: none; }
-bridge__logo { width: 34px; height: 34px; }
-bridge__center { display: none; }
-bridge__right { gap: 8px; }
-bridge__action-btn {
- width: 38px;
- height: 38px;
- border-radius: 50%;
- background: color-mix(in srgb, var(--b-glass) 78%, transparent);
-
-bridge__search {
- min-width: 38px;
- width: 38px;
- height: 38px;
- padding: 0;
- justify-content: center;
- border-radius: 50%;
-
-bridge__search-label { display: none; }
-bridge__search-kbd { display: none; }
-bridge__telemetry { display: none; }
-
-nexus-dock {
- align-items: flex-start;
- justify-content: flex-start;
- padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
- overflow: hidden;
-
-nexus-dock::before,
-nexus-dock::after {
- content: "";
- position: absolute;
- top: 0;
- bottom: 0;
- z-index: 2;
- width: 18px;
- pointer-events: none;
-
-nexus-dock::before {
- left: 0;
- background: linear-gradient(90deg, color-mix(in srgb, var(--b-glass-strong) 88%, transparent), transparent);
-
-nexus-dock::after {
- right: 0;
- background: linear-gradient(270deg, color-mix(in srgb, var(--b-glass-strong) 88%, transparent), transparent);
-
-nexus-dock__rail {
- width: 100%;
- max-width: none;
- justify-content: flex-start;
- gap: 4px;
- padding: 0 10px;
- scroll-snap-type: x proximity;
- -webkit-overflow-scrolling: touch;
-
-dock-group { gap: 4px; }
-dock-divider { display: none; }
-dock-node__label { display: none; }
-dock-node {
- min-width: 46px;
- height: 46px;
- padding: 0;
- justify-content: center;
- border-radius: 17px;
- scroll-snap-align: center;
-
-dock-node__glyph { width: 22px; height: 22px; }
-dock-node__glyph svg { width: 20px; height: 20px; }
-dock-node.active {
- border-color: color-mix(in srgb, var(--b-pulse) 34%, transparent);
- box-shadow: 0 6px 22px color-mix(in srgb, var(--b-pulse) 16%, transparent), inset 0 1px 0 var(--b-glass-highlight);
-
-dock-sys-info { display: none; }
-}
-
-dia (max-width: 420px) {
-bridge { padding: 0 10px; }
-bridge__logo { width: 32px; height: 32px; }
-bridge__action-btn,
-bridge__search {
- width: 36px;
- height: 36px;
-
-nexus-dock {
- padding-left: 6px;
- padding-right: 6px;
-
-dock-node {
- min-width: 44px;
- height: 44px;
- border-radius: 16px;
-
-}
-
-Premium dashboard shell: desktop sidebar, compact top bar, mobile keeps bottom nav */
-dia (min-width: 981px) {
-core-frame {
- --dock-width: 292px;
- --bridge-height: 64px;
- grid-template-columns: var(--dock-width) minmax(0, 1fr);
- grid-template-rows: var(--bridge-height) minmax(0, 1fr);
- grid-template-areas:
-   "dock bridge"
-   "dock viewport";
-
-
-bridge {
- padding: 0 28px;
- background: color-mix(in srgb, var(--b-chrome-strong) 82%, transparent);
-
-
-bridge__left .bridge__brand { display: none; }
-
-bridge__center {
- position: static;
- transform: none;
- margin-right: auto;
- padding-left: 2px;
-
-
-bridge__right { margin-left: auto; }
-bridge__search { min-width: 260px; }
-
-nexus-dock {
- align-items: stretch;
- justify-content: flex-start;
- flex-direction: column;
- gap: 18px;
- height: 100%;
- padding: 22px 18px;
- border-top: 0;
- border-right: 1px solid color-mix(in srgb, var(--b-shell) 66%, transparent);
- background:
-   linear-gradient(180deg, color-mix(in srgb, var(--b-glass-highlight) 7%, transparent), transparent 34%),
-   color-mix(in srgb, var(--b-chrome-strong) 92%, transparent);
- overflow: hidden;
-
-
-nexus-dock::before {
- content: "Zavorth\A Control";
- white-space: pre;
- display: block;
- min-height: 64px;
- padding: 8px 10px 18px 52px;
- color: var(--b-signal-strong);
- font-family: var(--b-font-display);
- font-size: 18px;
- font-weight: 800;
- line-height: 1.1;
- letter-spacing: 0;
- border-bottom: 1px solid color-mix(in srgb, var(--b-shell) 60%, transparent);
- background: linear-gradient(135deg, color-mix(in srgb, var(--b-pulse) 10%, transparent), transparent 55%);
- position: relative;
-
-
-nexus-dock::after {
- content: "";
- position: absolute;
- top: 28px;
- left: 28px;
- display: grid;
- place-items: center;
- width: 34px;
- height: 34px;
- border-radius: 11px;
- border: 1px solid color-mix(in srgb, var(--b-pulse) 30%, transparent);
- background:
-   url("../assets/zavorth-mascot-mark.svg") center / cover no-repeat,
-   color-mix(in srgb, var(--b-chrome-strong) 88%, black);
- color: var(--b-pulse);
- font-family: var(--b-font-display);
- font-weight: 800;
- box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 16%, transparent);
-
-
-nexus-dock__rail {
- display: flex;
- flex-direction: column;
- align-items: stretch;
- gap: 16px;
- width: 100%;
- max-width: none;
- min-height: 0;
- overflow-y: auto;
- overflow-x: hidden;
- padding: 0 2px 84px;
-
-
-dock-group {
- display: grid;
- gap: 6px;
-
-
-dock-group::before {
- color: var(--b-signal-muted);
- font-family: var(--b-mono);
- font-size: 10px;
- font-weight: 800;
- letter-spacing: 0.12em;
- text-transform: uppercase;
- padding: 0 10px 4px;
-
-
-dock-group:nth-of-type(1)::before,
-dock-group--primary::before { content: "Navigate"; }
-dock-group:nth-of-type(2)::before { content: "More"; }
-dock-group:nth-of-type(3)::before { content: "System"; }
-dock-divider { display: none; }
-
-dock-more {
- display: contents;
-
-
-dock-more__trigger {
- display: none;
-
-
-dock-more__panel,
-dock-more.is-open .dock-more__panel {
- position: static;
- transform: none;
- display: grid;
- grid-template-columns: 1fr;
- min-width: 0;
- max-width: none;
- padding: 0;
- border: 0;
- border-radius: 0;
- background: transparent;
- box-shadow: none;
- backdrop-filter: none;
- -webkit-backdrop-filter: none;
-
-
-dock-more__panel[hidden] {
- display: grid !important;
-
-
-dock-more__item {
- width: 100%;
- min-height: 44px;
- justify-content: flex-start;
- padding: 0 12px;
-
-
-dock-node {
- flex-direction: row;
- justify-content: flex-start;
- gap: 12px;
- min-width: 0;
- min-height: 48px;
- width: 100%;
- padding: 0 12px;
- border-radius: 12px;
- color: color-mix(in srgb, var(--b-signal) 74%, transparent);
-
-
-dock-node:hover {
- background: color-mix(in srgb, var(--b-glass-highlight) 24%, transparent);
- color: var(--b-signal-strong);
-
-
-dock-node.active {
- border-color: color-mix(in srgb, var(--b-pulse) 24%, var(--b-glass-border));
- background:
-   linear-gradient(135deg, color-mix(in srgb, var(--b-pulse) 12%, transparent), transparent 66%),
-   color-mix(in srgb, var(--b-glass-highlight) 28%, transparent);
- color: var(--b-signal-strong);
-
-
-dock-node__glyph {
- width: 21px;
- height: 21px;
- opacity: 0.88;
-
-
-dock-node__label {
- display: inline;
- font-size: 14px;
- font-weight: 700;
- text-transform: none;
- letter-spacing: 0;
-
-
-dock-sys-info {
- position: absolute;
- left: 18px;
- right: 18px;
- bottom: 18px;
- display: flex;
- justify-content: space-between;
- min-height: 48px;
- padding: 0 14px;
- border: 1px solid var(--b-glass-border);
- border-radius: 16px;
- background: color-mix(in srgb, var(--b-glass-highlight) 16%, transparent);
-
-}
-
-dia (max-width: 980px) {
-bridge__center { display: none; }
-}
-
-Platform polish: compact navigation and calm operator chrome */
-dia (min-width: 981px) {
-core-frame {
- --dock-width: 236px;
- --bridge-height: 56px;
-
-
-bridge {
- padding: 0 22px;
- border-bottom-color: color-mix(in srgb, var(--b-shell) 42%, transparent);
- background: color-mix(in srgb, #07110f 92%, transparent);
-
-
-bridge__center {
- font-size: 12px;
-
-
-bridge__search {
- min-width: 220px;
- min-height: 32px;
- border-radius: 16px;
-
-
-bridge__action-btn {
- width: 32px;
- height: 32px;
- border-radius: 12px;
-
-
-bridge__pulse {
- min-height: 30px;
- padding: 3px 10px 3px 8px;
-
-
-nexus-dock {
- gap: 12px;
- padding: 18px 14px;
- background:
-   linear-gradient(180deg, color-mix(in srgb, var(--b-pulse) 5%, transparent), transparent 28%),
-   color-mix(in srgb, #04100d 96%, transparent);
-
-
-nexus-dock::before {
- min-height: 54px;
- padding: 6px 8px 14px 44px;
- font-size: 16px;
- border-bottom-color: color-mix(in srgb, var(--b-shell) 52%, transparent);
- background: transparent;
-
-
-nexus-dock::after {
- top: 23px;
- left: 22px;
- width: 32px;
- height: 32px;
- border-radius: 10px;
-
-
-nexus-dock__rail {
- gap: 12px;
- padding: 0 0 78px;
-
-
-dock-group {
- gap: 2px;
-
-
-dock-group::before {
- padding: 0 8px 5px;
- font-size: 9px;
- letter-spacing: 0.14em;
-
-
-dock-node {
- min-height: 38px;
- gap: 10px;
- padding: 0 10px;
- border-radius: 10px;
- border-color: transparent;
- color: color-mix(in srgb, var(--b-signal-muted) 88%, transparent);
- box-shadow: none;
-
-
-dock-node:hover {
- background: color-mix(in srgb, var(--b-glass-highlight) 14%, transparent);
- box-shadow: none;
-
-
-dock-node.active {
- border-color: color-mix(in srgb, var(--b-pulse) 34%, transparent);
- background: color-mix(in srgb, var(--b-pulse) 9%, transparent);
- box-shadow: none;
-
-
-dock-node__glyph {
- width: 18px;
- height: 18px;
-
-
-dock-node__glyph svg {
- width: 17px;
- height: 17px;
-
-
-dock-node__label {
- font-size: 12.5px;
- font-weight: 700;
-
-
-dock-sys-info {
- left: 14px;
- right: 14px;
- bottom: 14px;
- min-height: 34px;
- padding: 0 11px;
- border-radius: 12px;
- background: color-mix(in srgb, var(--b-glass-highlight) 10%, transparent);
-
-}
-
-==========================================================================
-Everyday Product Polish
-Keeps the chat-first shell calm while preserving all existing controls.
-========================================================================== */
-
-re-frame {
-ackground:
- radial-gradient(circle at 50% 28%, color-mix(in srgb, var(--b-pulse) 7%, transparent), transparent 32rem),
- linear-gradient(180deg, #080b0c 0%, #060809 100%);
-ackground-size: auto;
-}
-
-re-frame::before {
-pacity: 0.22;
-ilter: blur(56px);
-nimation: none;
-}
-
-re-frame::after {
-ackground:
- linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 16%),
- linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--b-pulse) 3%, transparent) 50%, transparent 100%);
-pacity: 0.28;
-}
-
-idge {
-in-height: 58px;
-adding-inline: 18px;
-order-bottom-color: color-mix(in srgb, var(--b-glass-border) 76%, transparent);
-ackground:
- linear-gradient(180deg, color-mix(in srgb, var(--b-glass-highlight) 12%, transparent), transparent),
- color-mix(in srgb, var(--b-chrome-strong) 82%, transparent);
-}
-
-idge__logo {
-order-radius: 8px;
-ox-shadow:
- inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 22%, transparent),
- 0 0 18px color-mix(in srgb, var(--b-pulse) 10%, transparent);
-}
-
-idge__brand-eyebrow {
-olor: var(--b-signal-muted);
-etter-spacing: 0.08em;
-}
-
-idge__path-current {
-olor: var(--b-signal-strong);
-}
-
-idge__search,
-idge__action-btn,
-idge__pulse {
-order-color: color-mix(in srgb, var(--b-glass-border) 82%, transparent);
-ackground: color-mix(in srgb, var(--b-glass) 56%, transparent);
-}
-
-idge__search:hover,
-idge__action-btn:hover {
-order-color: color-mix(in srgb, var(--b-pulse) 28%, var(--b-glass-border));
-ackground: color-mix(in srgb, var(--b-glass-strong) 72%, transparent);
-}
-
-ck-node {
-order-radius: 8px;
-}
-
-ck-node.active {
-ox-shadow:
- inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 28%, transparent),
- 0 8px 24px color-mix(in srgb, var(--b-pulse) 8%, transparent);
-}
-
-ta-theme="light"] .core-frame {
-ackground:
- radial-gradient(circle at 50% 30%, rgba(5, 150, 105, 0.06), transparent 28rem),
- linear-gradient(180deg, #ffffff 0%, #f4faf7 54%, #f8fafc 100%);
-ackground-size: auto;
-}
-
-==========================================================================
-Operator Workbench Shell
-Quiet dark surface with brand green wash — no gold / grid noise.
-========================================================================== */
-
-re-frame {
-ackground:
- radial-gradient(circle at 50% 26%, rgba(0, 232, 143, 0.055), transparent 30rem),
- linear-gradient(180deg, #080b0c 0%, #060809 100%);
-ackground-size: auto;
-}
-
-re-frame::before {
-pacity: 0.18;
-ilter: blur(60px);
-nimation: none;
-ackground: radial-gradient(circle at 50% 16%, rgba(0, 232, 143, 0.07), transparent 48%);
-}
-
-re-frame::after {
-pacity: 0.14;
-ackground:
- linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 20%);
-}
-
-idge {
-in-height: 56px;
-order-bottom-color: rgba(255, 255, 255, 0.08);
-ackground:
- linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
- rgba(6, 8, 9, 0.94);
-ox-shadow: none;
-ackdrop-filter: blur(12px) saturate(1.1);
-webkit-backdrop-filter: blur(12px) saturate(1.1);
-}
-
-idge__logo {
-order-radius: 9px;
-ox-shadow: inset 0 0 0 1px rgba(225, 232, 240, 0.08);
-}
-
-idge__path-current,
-idge__brand-name {
-olor: #e7e9ee;
-}
-
-idge__brand-eyebrow,
-idge__path,
-idge__path-sep {
-olor: #727b88;
-}
-
-idge__pulse {
-olor: #7fa7ff;
-order-color: rgba(90, 134, 220, 0.22);
-ackground: rgba(57, 85, 137, 0.10);
-ox-shadow: none;
-}
-
-idge__pulse-dot {
-ackground: #528bff;
-ox-shadow: 0 0 0 3px rgba(82, 139, 255, 0.13);
-}
-
-idge__search,
-idge__action-btn {
-order-color: rgba(225, 232, 240, 0.075);
-ackground: rgba(17, 20, 25, 0.72);
-ox-shadow: none;
-}
-
-idge__search:hover,
-idge__action-btn:hover {
-order-color: rgba(0, 232, 143, 0.28);
-ackground: rgba(16, 20, 24, 0.92);
-}
-
-dia (min-width: 981px) {
-nexus-dock {
- background:
-   linear-gradient(180deg, rgba(255, 255, 255, 0.026), transparent 20%),
-   rgba(6, 8, 9, 0.98);
- border-right-color: rgba(255, 255, 255, 0.08);
-
-
-nexus-dock::before {
- border-bottom-color: rgba(255, 255, 255, 0.08);
-
-
-dock-node {
- color: #9aa6a0;
- border-color: transparent;
- background: transparent;
-
-
-dock-node:hover {
- color: #eef2f0;
- background: rgba(255, 255, 255, 0.045);
-
-
-dock-node.active {
- color: #f5f7f6;
- border-color: rgba(0, 232, 143, 0.22);
- background: rgba(0, 232, 143, 0.10);
- box-shadow: inset 0 0 0 1px rgba(0, 232, 143, 0.12);
-
-
-dock-sys-info {
- border-color: rgba(255, 255, 255, 0.08);
- background: rgba(255, 255, 255, 0.035);
-
-}
-
-ta-theme="light"] .core-frame {
-ackground:
- radial-gradient(circle at 50% 30%, rgba(5, 150, 105, 0.05), transparent 28rem),
- linear-gradient(180deg, #ffffff 0%, #f4faf7 50%, #f8fafc 100%);
-ackground-size: auto;
-}
-
-Sidebar collapse control */
-idge__sidebar-toggle {
-isplay: none;
-lign-items: center;
-ustify-content: center;
-idth: 34px;
-eight: 34px;
-adding: 0;
-order: 1px solid rgba(225, 232, 240, 0.08);
-order-radius: 11px;
-ackground: rgba(17, 20, 25, 0.68);
-olor: #8c95a4;
-ursor: pointer;
-ransition:
- color 160ms ease,
- border-color 160ms ease,
- background 160ms ease,
- transform 160ms ease;
-}
-
-idge__sidebar-toggle:hover {
-olor: #f5f7f6;
-order-color: rgba(0, 232, 143, 0.32);
-ackground: rgba(16, 20, 24, 0.92);
-}
-
-ta-theme="light"] .bridge__sidebar-toggle {
-olor: #475569;
-order-color: rgba(15, 23, 42, 0.14);
-ackground: rgba(248, 250, 252, 0.92);
-}
-
-ta-theme="light"] .bridge__sidebar-toggle:hover {
-olor: #0f172a;
-order-color: rgba(5, 150, 105, 0.42);
-ackground: #fff;
-}
-
-idge__sidebar-toggle:active {
-ransform: translateY(1px);
-}
-
-idge__sidebar-toggle:focus-visible {
-utline: 2px solid rgba(0, 232, 143, 0.55);
-utline-offset: 2px;
-}
-
-idge__sidebar-toggle-icon {
-idth: 18px;
-eight: 18px;
-troke: currentcolor;
-ill: none;
-troke-width: 1.7px;
-troke-linecap: round;
-troke-linejoin: round;
-}
-
-idge__sidebar-toggle-icon--expand {
-isplay: none;
-}
-
-dia (min-width: 981px) {
-bridge__sidebar-toggle {
- display: inline-flex;
- flex: 0 0 auto;
-
-
-core-frame {
- transition: grid-template-columns 220ms ease;
-
-
-core-frame.is-sidebar-collapsed {
- --dock-width: 76px;
-
- grid-template-columns: var(--dock-width) minmax(0, 1fr);
-
-
-core-frame.is-sidebar-collapsed .bridge__sidebar-toggle-icon--collapse {
- display: none;
-
-
-core-frame.is-sidebar-collapsed .bridge__sidebar-toggle-icon--expand {
- display: block;
-
-
-core-frame.is-sidebar-collapsed .nexus-dock {
- align-items: center;
- gap: 12px;
- padding: 18px 10px;
-
-
-core-frame.is-sidebar-collapsed .nexus-dock::before {
- content: "";
- width: 42px;
- min-height: 50px;
- padding: 0;
- border-bottom-color: rgba(225, 232, 240, 0.06);
- background: transparent;
-
-
-core-frame.is-sidebar-collapsed .nexus-dock::after {
- top: 22px;
- left: 22px;
- width: 32px;
- height: 32px;
-
-
-core-frame.is-sidebar-collapsed .nexus-dock__rail {
- align-items: center;
- gap: 10px;
- padding: 0 0 76px;
-
-
-core-frame.is-sidebar-collapsed .dock-group {
- gap: 6px;
-
-
-core-frame.is-sidebar-collapsed .dock-group::before,
-core-frame.is-sidebar-collapsed .dock-node__label,
-core-frame.is-sidebar-collapsed .dock-sys-info__version {
- display: none;
-
-
-core-frame.is-sidebar-collapsed .dock-more {
- display: flex;
- position: relative;
- justify-content: center;
-
-
-core-frame.is-sidebar-collapsed .dock-more__trigger {
- display: flex;
-
-
-core-frame.is-sidebar-collapsed .dock-more__panel,
-core-frame.is-sidebar-collapsed .dock-more.is-open .dock-more__panel {
- position: absolute;
- left: calc(100% + 10px);
- top: 0;
- bottom: auto;
- transform: none;
- grid-template-columns: 1fr;
- min-width: 160px;
- padding: 8px;
- border: 1px solid color-mix(in srgb, var(--b-glass-border) 80%, transparent);
- border-radius: 14px;
- background: color-mix(in srgb, var(--b-glass-strong) 94%, transparent);
- box-shadow: var(--b-glass-shadow);
-
-
-core-frame.is-sidebar-collapsed .dock-more__panel[hidden] {
- display: none !important;
-
-
-core-frame.is-sidebar-collapsed .dock-more.is-open .dock-more__panel {
- display: grid;
-
-
-core-frame.is-sidebar-collapsed .dock-more__item {
- width: 100%;
- min-height: 36px;
- justify-content: flex-start;
- padding: 0 10px;
-
-
-core-frame.is-sidebar-collapsed .dock-more__item .dock-node__label {
- display: inline;
-
-
-core-frame.is-sidebar-collapsed .dock-node {
- justify-content: center;
- width: 44px;
- min-width: 44px;
- min-height: 42px;
- padding: 0;
- border-radius: 12px;
-
-
-core-frame.is-sidebar-collapsed .dock-node__glyph {
- width: 19px;
- height: 19px;
-
-
-core-frame.is-sidebar-collapsed .dock-node__glyph svg {
- width: 18px;
- height: 18px;
-
-
-core-frame.is-sidebar-collapsed .dock-sys-info {
- left: 12px;
- right: 12px;
- justify-content: center;
- min-height: 36px;
- padding: 0;
-
+ * Zavorth Nexus — Core Layout
+ * Dock-based navigation at bottom, bridge telemetry at top, viewport in center.
+ */
+
+/* ═══ Core Frame ═══ */
+.core-frame {
+  --dock-height: 72px;
+  --bridge-height: 54px;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  max-width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: var(--bridge-height) 1fr var(--dock-height);
+  grid-template-areas:
+    "bridge"
+    "viewport"
+    "dock";
+  overflow: hidden;
+  background: var(--b-app-gradient);
+  animation: b-frame-enter 0.3s var(--b-ease-out);
+}
+
+/* Light mode must be designed, not inverted over the dark shell. */
+[data-theme="light"] .core-frame {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+[data-theme="light"] .core-frame::before {
+  opacity: 0.24;
+  filter: blur(46px);
+}
+
+[data-theme="light"] .core-frame::after {
+  opacity: 0.08;
+}
+
+[data-theme="light"] .sidebar,
+[data-theme="light"] .nexus-dock {
+  background: rgba(255, 255, 255, 0.94);
+  border-right-color: rgba(15, 23, 42, 0.12);
+}
+
+[data-theme="light"] .bridge {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom-color: rgba(15, 23, 42, 0.1);
+}
+
+[data-theme="light"] .bridge__search,
+[data-theme="light"] .bridge__action-btn,
+[data-theme="light"] .dock-sys-info {
+  background: rgba(248, 250, 252, 0.94);
+  color: #334155;
+}
+
+[data-theme="light"] .dock-node {
+  color: #475569;
+}
+
+[data-theme="light"] .dock-node.active {
+  background: rgba(5, 150, 105, 0.09);
+  color: #064e3b;
+}
+.core-frame::before,
+.core-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+/* Calm brand wash. */
+.core-frame::before {
+  background: var(--b-aurora-layer);
+  background-size: 100% 100%;
+  filter: blur(48px);
+  opacity: 0.28;
+  transform: translateZ(0);
+  animation: none;
+}
+.core-frame::after {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--b-surface) 12%, transparent) 0%, transparent 20%),
+    linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--b-pulse) 3%, transparent) 50%, transparent 100%);
+  opacity: 0.32;
+}
+@supports (height: 100dvh) {
+  .core-frame { height: 100dvh; }
+}
+
+/* ═══ Bridge (Top Telemetry) ═══ */
+.bridge {
+  grid-area: bridge;
+  position: relative;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  min-height: var(--bridge-height);
+  border-bottom: 1px solid color-mix(in srgb, var(--b-shell) 60%, transparent);
+  background: color-mix(in srgb, var(--b-glass-strong) 72%, transparent);
+  box-shadow: inset 0 -1px 0 var(--b-glass-highlight);
+  backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
+  z-index: 40;
+}
+
+.bridge__left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.bridge__menu-trigger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--b-shell);
+  border-radius: var(--b-radius-md);
+  background: color-mix(in srgb, var(--b-glass) 72%, transparent);
+  color: var(--b-signal-muted);
+  cursor: pointer;
+}
+.bridge__menu-trigger svg {
+  stroke: currentColor; fill: none;
+  stroke-width: 1.5px; stroke-linecap: round;
+}
+.bridge__menu-trigger:hover { color: var(--b-signal); background: var(--b-void-hover); }
+
+.bridge__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bridge__logo {
+  width: 32px; height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--b-chrome-strong) 88%, black);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 20%, transparent);
+}
+.bridge__logo-svg {
+  width: 100%; height: 100%;
+  display: block;
+}
+.bridge__logo-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.bridge__brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.bridge__brand-eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--b-pulse);
+  text-transform: uppercase;
+  font-family: var(--b-font-display);
+}
+
+.bridge__brand-name {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--b-signal-strong);
+  font-family: var(--b-font-display);
+}
+
+.bridge__center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bridge__path { color: var(--b-signal-muted); }
+.bridge__path-sep { color: var(--b-signal-dim); }
+.bridge__path-current {
+  color: var(--b-pulse);
+  font-weight: 650;
+  font-family: var(--b-font-display);
+}
+
+.bridge__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bridge__telemetry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bridge__pulse {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--b-ok);
+  padding: 4px 10px 4px 8px;
+  border: 1px solid color-mix(in srgb, var(--b-ok) 20%, transparent);
+  border-radius: var(--b-radius-full);
+  background: var(--b-ok-subtle);
+}
+
+.bridge__pulse-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--b-ok);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+  animation: b-pulse-subtle 2s ease-in-out infinite;
+}
+
+.bridge__pulse[data-auth-state="protected"] {
+  color: var(--b-warn);
+  border-color: color-mix(in srgb, var(--b-warn) 28%, transparent);
+  background: var(--b-warn-subtle);
+}
+.bridge__pulse[data-auth-state="protected"] .bridge__pulse-dot {
+  background: var(--b-warn);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+}
+
+.bridge__pulse[data-auth-state="unlocked"] {
+  color: var(--b-ok);
+  border-color: color-mix(in srgb, var(--b-ok) 28%, transparent);
+  background: var(--b-ok-subtle);
+}
+.bridge__pulse[data-auth-state="unlocked"] .bridge__pulse-dot {
+  background: var(--b-ok);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+.bridge__pulse[data-auth-state="local"],
+.bridge__pulse[data-auth-state="checking"] {
+  color: var(--b-info);
+  border-color: color-mix(in srgb, var(--b-info) 24%, transparent);
+  background: color-mix(in srgb, var(--b-info) 8%, transparent);
+}
+.bridge__pulse[data-auth-state="local"] .bridge__pulse-dot,
+.bridge__pulse[data-auth-state="checking"] .bridge__pulse-dot {
+  background: var(--b-info);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.42);
+}
+
+.bridge__pulse-label { font-family: var(--b-font-body); font-size: 11px; text-transform: none; letter-spacing: 0; }
+
+.bridge__action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  border: 1px solid var(--b-shell);
+  border-radius: var(--b-radius-md);
+  background: color-mix(in srgb, var(--b-glass) 72%, transparent);
+  color: var(--b-signal-muted);
+  cursor: pointer;
+  transition: all var(--b-duration-fast) ease;
+}
+.bridge__action-btn:hover {
+  color: var(--b-signal);
+  background: var(--b-void-hover);
+  border-color: var(--b-shell-strong);
+}
+
+.bridge__search {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in srgb, var(--b-shell) 88%, transparent);
+  border-radius: var(--b-radius-full);
+  background: color-mix(in srgb, var(--b-glass) 82%, transparent);
+  box-shadow: inset 0 1px 0 var(--b-glass-highlight);
+  backdrop-filter: blur(calc(var(--b-glass-blur) * 0.55)) saturate(var(--b-glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.55)) saturate(var(--b-glass-saturate));
+  color: var(--b-signal-muted);
+  font-size: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color var(--b-duration-fast) ease, background var(--b-duration-fast) ease;
+  min-width: 180px;
+}
+.bridge__search:hover {
+  border-color: var(--b-shell-strong);
+  background: var(--b-void-hover);
+  color: var(--b-signal);
+}
+.bridge__search-label { flex: 1; text-align: left; }
+.bridge__search-kbd {
+  padding: 2px 5px;
+  border: 1px solid var(--b-shell);
+  border-radius: var(--b-radius-sm);
+  background: var(--b-void);
+  font-family: var(--b-mono);
+  font-size: 10px;
+  color: var(--b-signal-muted);
+}
+.bridge__search-ghost {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* ═══ Viewport ═══ */
+.viewport {
+  grid-area: viewport;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ═══ Nexus Dock (Bottom Navigation) ═══ */
+.nexus-dock {
+  grid-area: dock;
+  position: relative;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 0 20px;
+  border-top: 1px solid color-mix(in srgb, var(--b-shell) 50%, transparent);
+  background: color-mix(in srgb, var(--b-glass-strong) 76%, transparent);
+  box-shadow: inset 0 1px 0 var(--b-glass-highlight);
+  backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
+  z-index: 40;
+  overflow: hidden;
+}
+
+.nexus-dock__rail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 900px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 8px 0;
+}
+.nexus-dock__rail::-webkit-scrollbar { display: none; }
+
+.dock-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dock-more {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dock-more__trigger {
+  border: none;
+  font: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.dock-more__panel {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 240px;
+  max-width: min(360px, 80vw);
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, var(--b-glass-border) 80%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--b-glass-strong) 94%, transparent);
+  box-shadow: var(--b-glass-shadow);
+  backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
+}
+
+.dock-more__panel[hidden] {
+  display: none !important;
+}
+
+.dock-more.is-open .dock-more__panel {
+  display: grid;
+}
+
+.dock-more__item {
+  min-width: 0;
+  padding: 8px 6px;
+}
+
+.dock-more__item .dock-node__label {
+  font-size: 10px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.dock-more.has-active .dock-more__trigger,
+.dock-more__trigger.active {
+  color: var(--b-signal-strong);
+}
+
+.dock-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--b-shell);
+  margin: 0 6px;
+  flex-shrink: 0;
+}
+
+/* Dock Node */
+.dock-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 10px;
+  border-radius: var(--b-radius-md);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--b-signal-muted);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--b-duration-fast) ease;
+  min-width: 52px;
+}
+
+.dock-node__glyph {
+  width: 20px; height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.65;
+  transition: opacity var(--b-duration-fast) ease;
+}
+.dock-node__glyph svg {
+  width: 18px; height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.5px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dock-node__label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  font-family: var(--b-font-display);
+}
+
+.dock-node:hover {
+  color: var(--b-signal);
+  background: color-mix(in srgb, var(--b-glass) 76%, transparent);
+  border-color: color-mix(in srgb, var(--b-shell) 72%, transparent);
+  box-shadow: var(--b-glass-shadow-soft);
+  text-decoration: none;
+}
+.dock-node:hover .dock-node__glyph { opacity: 1; }
+
+.dock-node.active {
+  color: var(--b-signal-strong);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--b-pulse) 16%, transparent), transparent 58%),
+    color-mix(in srgb, var(--b-glass) 86%, transparent);
+  border-color: color-mix(in srgb, var(--b-pulse) 22%, transparent);
+  box-shadow: 0 -2px 12px color-mix(in srgb, var(--b-pulse) 10%, transparent);
+}
+.dock-node.active .dock-node__glyph {
+  opacity: 1;
+  color: var(--b-pulse);
+}
+
+/* Dock system info */
+.dock-sys-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  font-size: 10px;
+  font-family: var(--b-mono);
+  color: var(--b-signal-dim);
+  flex-shrink: 0;
+}
+.dock-sys-info__status {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dock-sys-info__status--live {
+  background: var(--b-ok);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+}
+.dock-sys-info__status--offline {
+  background: var(--b-danger);
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+}
+
+/* ═══ Mobile ═══ */
+@media (max-width: 768px) {
+  .core-frame {
+    --dock-height: calc(66px + env(safe-area-inset-bottom));
+    --bridge-height: 52px;
+  }
+  .bridge {
+    padding: 0 12px;
+    min-height: var(--bridge-height);
+  }
+  .bridge__left { gap: 8px; }
+  .bridge__menu-trigger { display: none; }
+  .bridge__brand-text { display: none; }
+  .bridge__logo { width: 34px; height: 34px; }
+  .bridge__center { display: none; }
+  .bridge__right { gap: 8px; }
+  .bridge__action-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--b-glass) 78%, transparent);
+  }
+  .bridge__search {
+    min-width: 38px;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .bridge__search-label { display: none; }
+  .bridge__search-kbd { display: none; }
+  .bridge__telemetry { display: none; }
+
+  .nexus-dock {
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+    overflow: hidden;
+  }
+  .nexus-dock::before,
+  .nexus-dock::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 2;
+    width: 18px;
+    pointer-events: none;
+  }
+  .nexus-dock::before {
+    left: 0;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--b-glass-strong) 88%, transparent), transparent);
+  }
+  .nexus-dock::after {
+    right: 0;
+    background: linear-gradient(270deg, color-mix(in srgb, var(--b-glass-strong) 88%, transparent), transparent);
+  }
+  .nexus-dock__rail {
+    width: 100%;
+    max-width: none;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 0 10px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  .dock-group { gap: 4px; }
+  .dock-divider { display: none; }
+  .dock-node__label { display: none; }
+  .dock-node {
+    min-width: 46px;
+    height: 46px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 17px;
+    scroll-snap-align: center;
+  }
+  .dock-node__glyph { width: 22px; height: 22px; }
+  .dock-node__glyph svg { width: 20px; height: 20px; }
+  .dock-node.active {
+    border-color: color-mix(in srgb, var(--b-pulse) 34%, transparent);
+    box-shadow: 0 6px 22px color-mix(in srgb, var(--b-pulse) 16%, transparent), inset 0 1px 0 var(--b-glass-highlight);
+  }
+  .dock-sys-info { display: none; }
+}
+
+@media (max-width: 420px) {
+  .bridge { padding: 0 10px; }
+  .bridge__logo { width: 32px; height: 32px; }
+  .bridge__action-btn,
+  .bridge__search {
+    width: 36px;
+    height: 36px;
+  }
+  .nexus-dock {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+  .dock-node {
+    min-width: 44px;
+    height: 44px;
+    border-radius: 16px;
+  }
+}
+
+/* Premium dashboard shell: desktop sidebar, compact top bar, mobile keeps bottom nav */
+@media (min-width: 981px) {
+  .core-frame {
+    --dock-width: 292px;
+    --bridge-height: 64px;
+    grid-template-columns: var(--dock-width) minmax(0, 1fr);
+    grid-template-rows: var(--bridge-height) minmax(0, 1fr);
+    grid-template-areas:
+      "dock bridge"
+      "dock viewport";
+  }
+
+  .bridge {
+    padding: 0 28px;
+    background: color-mix(in srgb, var(--b-chrome-strong) 82%, transparent);
+  }
+
+  .bridge__left .bridge__brand { display: none; }
+
+  .bridge__center {
+    position: static;
+    transform: none;
+    margin-right: auto;
+    padding-left: 2px;
+  }
+
+  .bridge__right { margin-left: auto; }
+  .bridge__search { min-width: 260px; }
+
+  .nexus-dock {
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: 18px;
+    height: 100%;
+    padding: 22px 18px;
+    border-top: 0;
+    border-right: 1px solid color-mix(in srgb, var(--b-shell) 66%, transparent);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--b-glass-highlight) 7%, transparent), transparent 34%),
+      color-mix(in srgb, var(--b-chrome-strong) 92%, transparent);
+    overflow: hidden;
+  }
+
+  .nexus-dock::before {
+    content: "Zavorth\A Control";
+    white-space: pre;
+    display: block;
+    min-height: 64px;
+    padding: 8px 10px 18px 52px;
+    color: var(--b-signal-strong);
+    font-family: var(--b-font-display);
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--b-shell) 60%, transparent);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--b-pulse) 10%, transparent), transparent 55%);
+    position: relative;
+  }
+
+  .nexus-dock::after {
+    content: "";
+    position: absolute;
+    top: 28px;
+    left: 28px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    border: 1px solid color-mix(in srgb, var(--b-pulse) 30%, transparent);
+    background:
+      url("../assets/zavorth-mascot-mark.svg") center / cover no-repeat,
+      color-mix(in srgb, var(--b-chrome-strong) 88%, black);
+    color: var(--b-pulse);
+    font-family: var(--b-font-display);
+    font-weight: 800;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 16%, transparent);
+  }
+
+  .nexus-dock__rail {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 2px 84px;
+  }
+
+  .dock-group {
+    display: grid;
+    gap: 6px;
+  }
+
+  .dock-group::before {
+    color: var(--b-signal-muted);
+    font-family: var(--b-mono);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0 10px 4px;
+  }
+
+  .dock-group:nth-of-type(1)::before,
+  .dock-group--primary::before { content: "Navigate"; }
+  .dock-group:nth-of-type(2)::before { content: "More"; }
+  .dock-group:nth-of-type(3)::before { content: "System"; }
+  .dock-divider { display: none; }
+
+  .dock-more {
+    display: contents;
+  }
+
+  .dock-more__trigger {
+    display: none;
+  }
+
+  .dock-more__panel,
+  .dock-more.is-open .dock-more__panel {
+    position: static;
+    transform: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    min-width: 0;
+    max-width: none;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .dock-more__panel[hidden] {
+    display: grid !important;
+  }
+
+  .dock-more__item {
+    width: 100%;
+    min-height: 44px;
+    justify-content: flex-start;
+    padding: 0 12px;
+  }
+
+  .dock-node {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    min-width: 0;
+    min-height: 48px;
+    width: 100%;
+    padding: 0 12px;
+    border-radius: 12px;
+    color: color-mix(in srgb, var(--b-signal) 74%, transparent);
+  }
+
+  .dock-node:hover {
+    background: color-mix(in srgb, var(--b-glass-highlight) 24%, transparent);
+    color: var(--b-signal-strong);
+  }
+
+  .dock-node.active {
+    border-color: color-mix(in srgb, var(--b-pulse) 24%, var(--b-glass-border));
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--b-pulse) 12%, transparent), transparent 66%),
+      color-mix(in srgb, var(--b-glass-highlight) 28%, transparent);
+    color: var(--b-signal-strong);
+  }
+
+  .dock-node__glyph {
+    width: 21px;
+    height: 21px;
+    opacity: 0.88;
+  }
+
+  .dock-node__label {
+    display: inline;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .dock-sys-info {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid var(--b-glass-border);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--b-glass-highlight) 16%, transparent);
+  }
+}
+
+@media (max-width: 980px) {
+  .bridge__center { display: none; }
+}
+
+/* Platform polish: compact navigation and calm operator chrome */
+@media (min-width: 981px) {
+  .core-frame {
+    --dock-width: 236px;
+    --bridge-height: 56px;
+  }
+
+  .bridge {
+    padding: 0 22px;
+    border-bottom-color: color-mix(in srgb, var(--b-shell) 42%, transparent);
+    background: color-mix(in srgb, #07110f 92%, transparent);
+  }
+
+  .bridge__center {
+    font-size: 12px;
+  }
+
+  .bridge__search {
+    min-width: 220px;
+    min-height: 32px;
+    border-radius: 16px;
+  }
+
+  .bridge__action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 12px;
+  }
+
+  .bridge__pulse {
+    min-height: 30px;
+    padding: 3px 10px 3px 8px;
+  }
+
+  .nexus-dock {
+    gap: 12px;
+    padding: 18px 14px;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--b-pulse) 5%, transparent), transparent 28%),
+      color-mix(in srgb, #04100d 96%, transparent);
+  }
+
+  .nexus-dock::before {
+    min-height: 54px;
+    padding: 6px 8px 14px 44px;
+    font-size: 16px;
+    border-bottom-color: color-mix(in srgb, var(--b-shell) 52%, transparent);
+    background: transparent;
+  }
+
+  .nexus-dock::after {
+    top: 23px;
+    left: 22px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .nexus-dock__rail {
+    gap: 12px;
+    padding: 0 0 78px;
+  }
+
+  .dock-group {
+    gap: 2px;
+  }
+
+  .dock-group::before {
+    padding: 0 8px 5px;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+  }
+
+  .dock-node {
+    min-height: 38px;
+    gap: 10px;
+    padding: 0 10px;
+    border-radius: 10px;
+    border-color: transparent;
+    color: color-mix(in srgb, var(--b-signal-muted) 88%, transparent);
+    box-shadow: none;
+  }
+
+  .dock-node:hover {
+    background: color-mix(in srgb, var(--b-glass-highlight) 14%, transparent);
+    box-shadow: none;
+  }
+
+  .dock-node.active {
+    border-color: color-mix(in srgb, var(--b-pulse) 34%, transparent);
+    background: color-mix(in srgb, var(--b-pulse) 9%, transparent);
+    box-shadow: none;
+  }
+
+  .dock-node__glyph {
+    width: 18px;
+    height: 18px;
+  }
+
+  .dock-node__glyph svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .dock-node__label {
+    font-size: 12.5px;
+    font-weight: 700;
+  }
+
+  .dock-sys-info {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    min-height: 34px;
+    padding: 0 11px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--b-glass-highlight) 10%, transparent);
+  }
+}
+
+/* ==========================================================================
+   Everyday Product Polish
+   Keeps the chat-first shell calm while preserving all existing controls.
+   ========================================================================== */
+
+.core-frame {
+  background:
+    radial-gradient(circle at 50% 28%, color-mix(in srgb, var(--b-pulse) 7%, transparent), transparent 32rem),
+    linear-gradient(180deg, #080b0c 0%, #060809 100%);
+  background-size: auto;
+}
+
+.core-frame::before {
+  opacity: 0.22;
+  filter: blur(56px);
+  animation: none;
+}
+
+.core-frame::after {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 16%),
+    linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--b-pulse) 3%, transparent) 50%, transparent 100%);
+  opacity: 0.28;
+}
+
+.bridge {
+  min-height: 58px;
+  padding-inline: 18px;
+  border-bottom-color: color-mix(in srgb, var(--b-glass-border) 76%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--b-glass-highlight) 12%, transparent), transparent),
+    color-mix(in srgb, var(--b-chrome-strong) 82%, transparent);
+}
+
+.bridge__logo {
+  border-radius: 8px;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 22%, transparent),
+    0 0 18px color-mix(in srgb, var(--b-pulse) 10%, transparent);
+}
+
+.bridge__brand-eyebrow {
+  color: var(--b-signal-muted);
+  letter-spacing: 0.08em;
+}
+
+.bridge__path-current {
+  color: var(--b-signal-strong);
+}
+
+.bridge__search,
+.bridge__action-btn,
+.bridge__pulse {
+  border-color: color-mix(in srgb, var(--b-glass-border) 82%, transparent);
+  background: color-mix(in srgb, var(--b-glass) 56%, transparent);
+}
+
+.bridge__search:hover,
+.bridge__action-btn:hover {
+  border-color: color-mix(in srgb, var(--b-pulse) 28%, var(--b-glass-border));
+  background: color-mix(in srgb, var(--b-glass-strong) 72%, transparent);
+}
+
+.dock-node {
+  border-radius: 8px;
+}
+
+.dock-node.active {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 28%, transparent),
+    0 8px 24px color-mix(in srgb, var(--b-pulse) 8%, transparent);
+}
+
+[data-theme="light"] .core-frame {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(5, 150, 105, 0.06), transparent 28rem),
+    linear-gradient(180deg, #ffffff 0%, #f4faf7 54%, #f8fafc 100%);
+  background-size: auto;
+}
+
+/* ==========================================================================
+   Operator Workbench Shell
+   Quiet dark surface with brand green wash — no gold / grid noise.
+   ========================================================================== */
+
+.core-frame {
+  background:
+    radial-gradient(circle at 50% 26%, rgba(0, 232, 143, 0.055), transparent 30rem),
+    linear-gradient(180deg, #080b0c 0%, #060809 100%);
+  background-size: auto;
+}
+
+.core-frame::before {
+  opacity: 0.18;
+  filter: blur(60px);
+  animation: none;
+  background: radial-gradient(circle at 50% 16%, rgba(0, 232, 143, 0.07), transparent 48%);
+}
+
+.core-frame::after {
+  opacity: 0.14;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 20%);
+}
+
+.bridge {
+  min-height: 56px;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    rgba(6, 8, 9, 0.94);
+  box-shadow: none;
+  backdrop-filter: blur(12px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+}
+
+.bridge__logo {
+  border-radius: 9px;
+  box-shadow: inset 0 0 0 1px rgba(225, 232, 240, 0.08);
+}
+
+.bridge__path-current,
+.bridge__brand-name {
+  color: #e7e9ee;
+}
+
+.bridge__brand-eyebrow,
+.bridge__path,
+.bridge__path-sep {
+  color: #727b88;
+}
+
+.bridge__pulse {
+  color: #7fa7ff;
+  border-color: rgba(90, 134, 220, 0.22);
+  background: rgba(57, 85, 137, 0.10);
+  box-shadow: none;
+}
+
+.bridge__pulse-dot {
+  background: #528bff;
+  box-shadow: 0 0 0 3px rgba(82, 139, 255, 0.13);
+}
+
+.bridge__search,
+.bridge__action-btn {
+  border-color: rgba(225, 232, 240, 0.075);
+  background: rgba(17, 20, 25, 0.72);
+  box-shadow: none;
+}
+
+.bridge__search:hover,
+.bridge__action-btn:hover {
+  border-color: rgba(0, 232, 143, 0.28);
+  background: rgba(16, 20, 24, 0.92);
+}
+
+@media (min-width: 981px) {
+  .nexus-dock {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.026), transparent 20%),
+      rgba(6, 8, 9, 0.98);
+    border-right-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .nexus-dock::before {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .dock-node {
+    color: #9aa6a0;
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .dock-node:hover {
+    color: #eef2f0;
+    background: rgba(255, 255, 255, 0.045);
+  }
+
+  .dock-node.active {
+    color: #f5f7f6;
+    border-color: rgba(0, 232, 143, 0.22);
+    background: rgba(0, 232, 143, 0.10);
+    box-shadow: inset 0 0 0 1px rgba(0, 232, 143, 0.12);
+  }
+
+  .dock-sys-info {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.035);
+  }
+}
+
+[data-theme="light"] .core-frame {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(5, 150, 105, 0.05), transparent 28rem),
+    linear-gradient(180deg, #ffffff 0%, #f4faf7 50%, #f8fafc 100%);
+  background-size: auto;
+}
+
+/* Sidebar collapse control */
+.bridge__sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(225, 232, 240, 0.08);
+  border-radius: 11px;
+  background: rgba(17, 20, 25, 0.68);
+  color: #8c95a4;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.bridge__sidebar-toggle:hover {
+  color: #f5f7f6;
+  border-color: rgba(0, 232, 143, 0.32);
+  background: rgba(16, 20, 24, 0.92);
+}
+
+[data-theme="light"] .bridge__sidebar-toggle {
+  color: #475569;
+  border-color: rgba(15, 23, 42, 0.14);
+  background: rgba(248, 250, 252, 0.92);
+}
+
+[data-theme="light"] .bridge__sidebar-toggle:hover {
+  color: #0f172a;
+  border-color: rgba(5, 150, 105, 0.42);
+  background: #fff;
+}
+
+.bridge__sidebar-toggle:active {
+  transform: translateY(1px);
+}
+
+.bridge__sidebar-toggle:focus-visible {
+  outline: 2px solid rgba(0, 232, 143, 0.55);
+  outline-offset: 2px;
+}
+
+.bridge__sidebar-toggle-icon {
+  width: 18px;
+  height: 18px;
+  stroke: currentcolor;
+  fill: none;
+  stroke-width: 1.7px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bridge__sidebar-toggle-icon--expand {
+  display: none;
+}
+
+@media (min-width: 981px) {
+  .bridge__sidebar-toggle {
+    display: inline-flex;
+    flex: 0 0 auto;
+  }
+
+  .core-frame {
+    transition: grid-template-columns 220ms ease;
+  }
+
+  .core-frame.is-sidebar-collapsed {
+    --dock-width: 76px;
+
+    grid-template-columns: var(--dock-width) minmax(0, 1fr);
+  }
+
+  .core-frame.is-sidebar-collapsed .bridge__sidebar-toggle-icon--collapse {
+    display: none;
+  }
+
+  .core-frame.is-sidebar-collapsed .bridge__sidebar-toggle-icon--expand {
+    display: block;
+  }
+
+  .core-frame.is-sidebar-collapsed .nexus-dock {
+    align-items: center;
+    gap: 12px;
+    padding: 18px 10px;
+  }
+
+  .core-frame.is-sidebar-collapsed .nexus-dock::before {
+    content: "";
+    width: 42px;
+    min-height: 50px;
+    padding: 0;
+    border-bottom-color: rgba(225, 232, 240, 0.06);
+    background: transparent;
+  }
+
+  .core-frame.is-sidebar-collapsed .nexus-dock::after {
+    top: 22px;
+    left: 22px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .core-frame.is-sidebar-collapsed .nexus-dock__rail {
+    align-items: center;
+    gap: 10px;
+    padding: 0 0 76px;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-group {
+    gap: 6px;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-group::before,
+  .core-frame.is-sidebar-collapsed .dock-node__label,
+  .core-frame.is-sidebar-collapsed .dock-sys-info__version {
+    display: none;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-more {
+    display: flex;
+    position: relative;
+    justify-content: center;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-more__trigger {
+    display: flex;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-more__panel,
+  .core-frame.is-sidebar-collapsed .dock-more.is-open .dock-more__panel {
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 0;
+    bottom: auto;
+    transform: none;
+    grid-template-columns: 1fr;
+    min-width: 160px;
+    padding: 8px;
+    border: 1px solid color-mix(in srgb, var(--b-glass-border) 80%, transparent);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--b-glass-strong) 94%, transparent);
+    box-shadow: var(--b-glass-shadow);
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-more__panel[hidden] {
+    display: none !important;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-more.is-open .dock-more__panel {
+    display: grid;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-more__item {
+    width: 100%;
+    min-height: 36px;
+    justify-content: flex-start;
+    padding: 0 10px;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-more__item .dock-node__label {
+    display: inline;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-node {
+    justify-content: center;
+    width: 44px;
+    min-width: 44px;
+    min-height: 42px;
+    padding: 0;
+    border-radius: 12px;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-node__glyph {
+    width: 19px;
+    height: 19px;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-node__glyph svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-sys-info {
+    left: 12px;
+    right: 12px;
+    justify-content: center;
+    min-height: 36px;
+    padding: 0;
+  }
 }

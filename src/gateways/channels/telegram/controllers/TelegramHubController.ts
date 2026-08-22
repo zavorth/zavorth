@@ -1,4 +1,4 @@
-﻿import { Context, InlineKeyboard } from 'grammy';
+import { Context, InlineKeyboard } from 'grammy';
 import { ZavorthBridgePreferenceStore } from '../../../../agents/ZavorthBridgePreferenceStore.js';
 import { PermissionService } from '../../../../services/PermissionService.js';
 import { PermissionRequest, PermissionStatus } from '../../../../contracts/PermissionRequest.js';

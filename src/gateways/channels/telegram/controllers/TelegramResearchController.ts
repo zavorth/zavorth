@@ -1,4 +1,4 @@
-﻿import { Context } from 'grammy';
+import { Context } from 'grammy';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 
 export class TelegramResearchController {

@@ -1,4 +1,4 @@
-﻿import { logger } from '../logger.js';
+import { logger } from '../logger.js';
 import { SkillLoader, SkillMetadata } from './SkillLoader.js';
 
 export interface ActiveSkill {

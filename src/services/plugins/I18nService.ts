@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 
 export type SupportedLocale = 'en' | 'pt' | 'es' | 'fr' | 'de' | 'ja' | 'zh' | 'ko' | 'ru' | 'ar';

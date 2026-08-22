@@ -1,4 +1,4 @@
-﻿import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
+import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { cpus, freemem, hostname, loadavg, platform, totalmem, uptime, arch } from 'node:os';
 import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';

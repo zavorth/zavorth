@@ -1,4 +1,4 @@
-﻿import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
+import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
 
 import * as crypto from 'crypto';
 import * as fs from 'fs';

@@ -1,4 +1,4 @@
-﻿
+
 import { ArtifactPipelineService } from '../runtime/artifacts/ArtifactPipelineService.js';
 import type { PermissionRequest } from '../contracts/PermissionRequest.js';
 import type { Task } from '../contracts/TaskContract.js';

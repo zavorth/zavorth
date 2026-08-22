@@ -1,4 +1,4 @@
-﻿import path from 'path';
+import path from 'path';
 import type { PendingZavorthBridgeSession } from '../AgentBridgeManager.js';
 import { config } from '../../config/index.js';
 import type { Task } from '../../contracts/TaskContract.js';

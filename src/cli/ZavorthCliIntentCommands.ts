@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Intent verbs: one short command per everyday intention.
  * Keeps platform namespaces available but off the default mental model.
  */

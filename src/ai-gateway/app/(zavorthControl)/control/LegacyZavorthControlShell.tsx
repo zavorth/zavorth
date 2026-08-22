@@ -1,4 +1,4 @@
-﻿import { readLegacyZavorthControlSegments } from "./legacyZavorthControlSource";
+import { readLegacyZavorthControlSegments } from "./legacyZavorthControlSource";
 import { TerminalInboxSector } from "./TerminalInboxSector";
 import { ZavorthControlBridge } from "./ZavorthControlBridge";
 import { ZavorthControlDock } from "./ZavorthControlDock";

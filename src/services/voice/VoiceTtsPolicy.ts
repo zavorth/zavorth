@@ -1,4 +1,4 @@
-﻿/**
+/**
  * TTS only under user VoicePreference; no silent provider cascade as product policy.
  */
 

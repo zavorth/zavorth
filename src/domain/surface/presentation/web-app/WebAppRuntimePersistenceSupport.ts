@@ -1,4 +1,4 @@
-﻿import * as http from 'http';
+import * as http from 'http';
 import fs from 'fs';
 import path from 'path';
 import type { HybridMemoryRecallInput, HybridMemoryRecallResult, HybridMemorySourcesResult } from '../../../../contracts/HybridMemoryContract.js';

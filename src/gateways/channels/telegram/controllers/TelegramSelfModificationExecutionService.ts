@@ -55,7 +55,7 @@ export class TelegramSelfModificationExecutionService {
         metadata: { target_file: filePath },
       })
       .catch((err) => {
-        logger.warn('[auto-fix] Empty catch block', err);
+        logger.warn('[TelegramSelfModificationExecution] Selfmod preview request audit-log append failed', err);
       });
 
     const result = await this.deps.selfModificationService.createPreview(filePath, instruction, userId);
@@ -83,7 +83,7 @@ export class TelegramSelfModificationExecutionService {
         metadata: { preview_id: previewId },
       })
       .catch((err) => {
-        logger.warn('[auto-fix] Empty catch block', err);
+        logger.warn('[TelegramSelfModificationExecution] Selfmod apply request audit-log append failed', err);
       });
 
     const result = await this.deps.selfModificationService.applyPreview(previewId, userId);
@@ -120,7 +120,7 @@ export class TelegramSelfModificationExecutionService {
         },
       })
       .catch((err) => {
-        logger.warn('[auto-fix] Empty catch block', err);
+        logger.warn('[TelegramSelfModificationExecution] Selfmod apply outcome audit-log append failed', err);
       });
 
     await SmartOutputService.reply(ctx, this.formatApplyReply(result));
@@ -147,7 +147,7 @@ export class TelegramSelfModificationExecutionService {
         metadata: { goal },
       })
       .catch((err) => {
-        logger.warn('[auto-fix] Empty catch block', err);
+        logger.warn('[TelegramSelfModificationExecution] Selfmod goal preview request audit-log append failed', err);
       });
 
     const result = await this.deps.selfModificationService.createGoalPreview(goal, userId);
@@ -189,7 +189,7 @@ export class TelegramSelfModificationExecutionService {
         },
       })
       .catch((err) => {
-        logger.warn('[auto-fix] Empty catch block', err);
+        logger.warn('[TelegramSelfModificationExecution] Selfmod rollback outcome audit-log append failed', err);
       });
 
     await SmartOutputService.reply(ctx, this.formatRollbackReply(result));
@@ -237,7 +237,7 @@ export class TelegramSelfModificationExecutionService {
         },
       })
       .catch((err) => {
-        logger.warn('[auto-fix] Empty catch block', err);
+        logger.warn('[TelegramSelfModificationExecution] Selfmod preview outcome audit-log append failed', err);
       });
 
     // Proposal-time card: Apply/Reject buttons when surface supports them.
@@ -258,7 +258,9 @@ export class TelegramSelfModificationExecutionService {
           maxActionsPerRow: 2,
         });
         return;
-      } catch {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        logger.warn('[TelegramSelfModificationExecution] Selfmod proposal card delivery failed, falling back to text reply', { error: message });
         await SmartOutputService.reply(ctx, card.text);
         return;
       }
