@@ -13,7 +13,7 @@ export type EchoPendingExecutionRecord = {
   kind: EchoPendingExecutionKind;
   prompt: string;
   toolName: string | null;
-  args: Record<string, any>;
+  args: Record<string, unknown>;
   category?: ToolCategory;
   sessionId?: string | null;
   requestedAt: string;

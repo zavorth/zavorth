@@ -1,10 +1,11 @@
-import path from 'path';
+﻿import path from 'path';
 import type { PendingZavorthBridgeSession } from '../AgentBridgeManager.js';
 import { config } from '../../config/index.js';
 import type { Task } from '../../contracts/TaskContract.js';
 import { asErrorLike } from '../../utils/errorLike.js';
 
 export type RealZavorthBridgeWatcherCompanionSupportHost = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   logRepo: { log(level: string, source: string, message: string, meta?: Record<string, any>): void };
   bridgeManager: {
     saveSession(session: PendingZavorthBridgeSession): Promise<void>;
@@ -19,6 +20,7 @@ export type RealZavorthBridgeWatcherCompanionSupportHost = {
   };
   companionBridge: {
     isOnline(): Promise<boolean>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     readStatus(): Promise<Record<string, any> | null>;
     openHandoff(
       handoffFile: string,
@@ -42,6 +44,7 @@ export type RealZavorthBridgeWatcherCompanionSupportHost = {
 
 export type ScopedCompanionUiTarget = {
   targetInstanceId?: string;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   liveStatus: Record<string, any> | null;
   targetProcessId?: number;
   exactInstanceMatch: boolean;
@@ -94,11 +97,13 @@ export class RealZavorthBridgeWatcherCompanionSupport {
     }
   }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async getLiveCompanionStatus(targetInstanceId?: string): Promise<Record<string, any> | null> {
     if (!(await this.host.companionBridge.isOnline())) {
       return null;
     }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     const status = (await this.host.companionBridge.readStatus()) as Record<string, any> | null;
     if (!status) {
       return null;
@@ -152,6 +157,7 @@ export class RealZavorthBridgeWatcherCompanionSupport {
     session: PendingZavorthBridgeSession,
     reason: 'stalled' | 'log_error',
     attempts: number,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     status: Record<string, any> | null,
   ): Promise<string[]> {
     if (!status) {

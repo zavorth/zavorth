@@ -83,10 +83,10 @@ export function injectSkills(options: InjectionOptions): unknown[] {
 }
 
 export function injectSkillTools(
-  messages: any[],
+  messages: unknown[],
   provider: "openai" | "anthropic" | "google" | "other",
   apiKeyId: string
-): any[] {
+): unknown[] {
   const tools = injectSkills({ provider, apiKeyId });
 
   if (tools.length === 0) {

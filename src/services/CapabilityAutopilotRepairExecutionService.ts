@@ -245,7 +245,7 @@ export class CapabilityAutopilotRepairExecutionService {
         metadata: output.metadata || {},
       });
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       logger.warn('[Capability Autopilot Repair Execution] lifecycle operation failed', error);
     return this.stepResult(input.step, 'failed', input.startedAt, this.now().toISOString(), {
         summary: 'Runner de repair failed.',

@@ -386,7 +386,7 @@ function normalizeLimit(value: number | null | undefined): number {
   return Math.max(3, Math.min(16, Math.floor(numeric)));
 }
 
-function normalizeText(value: any, fallback: string): string {
+function normalizeText(value: unknown, fallback: string): string {
   const text = String(value || '').trim();
   return text || fallback;
 }

@@ -442,7 +442,7 @@ export class LlmRoleRoutingService {
     userMessage: string;
   }> {
     const parse = await this.classifySetupWithLlm(userText, llm);
-    const scopeProbe = 'parse-only';
+    
 
     if (parse.intent === 'defer') {
       return {
@@ -515,7 +515,7 @@ export class LlmRoleRoutingService {
         confirmationMessage: null,
         userMessage: 'ready_one_for_both',
         // consumer applies via setRoles
-      } as any;
+      } as never;
     }
 
     const defaultBinding = defaultResolved.binding;
@@ -616,7 +616,7 @@ export class LlmRoleRoutingService {
     const cfg = this.store.load(scopeId);
     cfg.pendingConfirmation = {
       kind,
-      proposed: proposed as any,
+      proposed: proposed as never,
       userUtterance,
       createdAt: new Date().toISOString(),
     };

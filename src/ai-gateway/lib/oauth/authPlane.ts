@@ -10,12 +10,12 @@ export interface ZavorthProviderAuthHandler {
   flowType: ZavorthOAuthFlowType | string;
   fixedPort?: number;
   callbackPath?: string;
-  buildAuthUrl?: (...args: any[]) => string;
-  exchangeToken?: (...args: any[]) => Promise<Record<string, unknown>>;
-  requestDeviceCode?: (...args: any[]) => Promise<Record<string, unknown>>;
-  pollToken?: (...args: any[]) => Promise<{ ok: boolean; data: Record<string, unknown> }>;
-  postExchange?: (...args: any[]) => Promise<Record<string, unknown>>;
-  mapTokens: (...args: any[]) => Record<string, unknown>;
+  buildAuthUrl?: (...args: unknown[]) => string;
+  exchangeToken?: (...args: unknown[]) => Promise<Record<string, unknown>>;
+  requestDeviceCode?: (...args: unknown[]) => Promise<Record<string, unknown>>;
+  pollToken?: (...args: unknown[]) => Promise<{ ok: boolean; data: Record<string, unknown> }>;
+  postExchange?: (...args: unknown[]) => Promise<Record<string, unknown>>;
+  mapTokens: (...args: unknown[]) => Record<string, unknown>;
 }
 
 export interface ZavorthProviderAuthDescriptor {

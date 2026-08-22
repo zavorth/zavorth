@@ -72,7 +72,7 @@ export class StructuralIntentClassifier implements ISemanticIntentClassifier {
     return 'unknown';
   }
 
-  private detectSourceAuthority(query: string): SemanticSourceAuthority {
+  private detectSourceAuthority(_query: string): SemanticSourceAuthority {
     return 'any';
   }
 

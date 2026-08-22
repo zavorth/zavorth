@@ -193,7 +193,7 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
   private buildCompatibilityPaths(
     official: RuntimeOfficialAccessReport,
     candidates: RuntimeOfficialRemoteRolloutCandidate[],
-    state: RuntimeOfficialRemoteRolloutState,
+    _state: RuntimeOfficialRemoteRolloutState,
   ): RuntimeOfficialRemoteAccessReport['paths'] {
     const officialSteps: RuntimeOfficialRemoteAccessReport['paths'][number]['steps'] = [
       {

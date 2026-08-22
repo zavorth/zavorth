@@ -22,11 +22,11 @@ export class WebChannelAdapter implements GatewayChannelAdapter {
     logger.info('[Gateway] Web Channel closed.');
   }
 
-  async onMessageReceived(payload: unknown): Promise<void> {
+  async onMessageReceived(_payload: unknown): Promise<void> {
     // Traffic that comes from socket
   }
 
-  async sendMessage(payload: unknown): Promise<void> {
+  async sendMessage(_payload: unknown): Promise<void> {
     // Broadcast via SSE or WS to web clients hooked in this channel
   }
 }

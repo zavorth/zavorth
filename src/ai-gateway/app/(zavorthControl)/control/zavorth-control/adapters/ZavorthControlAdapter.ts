@@ -1,4 +1,4 @@
-import { buildOperatorWorkbench, buildNexusWorkbench } from './ZavorthControlOperatorWorkbenchAdapter';
+import { buildNexusWorkbench } from './ZavorthControlOperatorWorkbenchAdapter';
 import { mapZavorthControlRunObservatory } from './ZavorthControlRunObservatory';
 import type {
   ZavorthControlAgentTeamCompilerSnapshot,
@@ -6,7 +6,7 @@ import type {
 
 export const ZAVORTH_CONTROL_RUNTIME_CONTRACT_VERSION = 'zavorthControl-runtime-contract/v1' as const;
 
-type AnyRecord = Record<string, any>;
+type AnyRecord = Record<string, unknown>;
 
 function record(value: unknown): AnyRecord {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as AnyRecord : {};
@@ -22,7 +22,7 @@ function firstNonEmptyRecord(...values: unknown[]): AnyRecord {
   return {};
 }
 
-function array<T = any>(value: unknown): T[] {
+function array<T = unknown>(value: unknown): T[] {
   return Array.isArray(value) ? value as T[] : [];
 }
 
@@ -855,7 +855,7 @@ function normalizeAgentSelfConfig(value: unknown): AnyRecord | null {
 }
 
 // buildProviderDashboard(input) is projection-only; provider probes stay behind approved runtime routes.
-export function buildProviderDashboard(input: any) {
+export function buildProviderDashboard(input: unknown) {
   return input?.providerDashboard || input?.providerCockpit || input?.runtime?.providerDashboard || input?.runtime?.providerCockpit || { status: 'ready' };
 }
 

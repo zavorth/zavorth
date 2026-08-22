@@ -99,9 +99,9 @@ async function webSearchHandler(input: ZavorthActionHandlerInput): Promise<Zavor
 
   try {
     const service = new SearchQueryService();
-    const mode = (input.args.mode as any) || 'deep';
+    const mode = (input.args.mode as never) || 'deep';
     const limit = typeof input.args.limit === 'number' ? input.args.limit : 5;
-    const evidenceDomain = (input.args.evidenceDomain as any) || 'auto';
+    const evidenceDomain = (input.args.evidenceDomain as never) || 'auto';
     const extractPages = typeof input.args.extractPages === 'boolean' ? input.args.extractPages : undefined;
 
     const res = await service.search({

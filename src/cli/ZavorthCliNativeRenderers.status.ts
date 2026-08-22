@@ -215,87 +215,10 @@ function resolveStatusPrimaryAction(
   };
 }
 
-function formatStatusRuntimeLine(snapshot: CliStatusSnapshot): string {
-  if (!snapshot.gateway) {
-    return '- Zavorth could not build a service snapshot yet.';
-  }
 
-  const { channelsReady, channelsTotal, runtimeModesReady } = snapshot.gateway;
-  const readiness = channelsTotal > 0 && channelsReady === channelsTotal && runtimeModesReady > 0
-    ? 'ready'
-    : channelsReady > 0 || runtimeModesReady > 0
-      ? 'partial'
-      : 'pending';
 
-  switch (readiness) {
-    case 'ready':
-      return '- Zavorth is ready to use.';
-    case 'partial':
-      return '- Zavorth is partially ready to use.';
-    default:
-      return '- Zavorth is not ready to use yet.';
-  }
-}
 
-function formatStatusConversationLine(snapshot: CliStatusSnapshot): string {
-  if (!snapshot.sessions) {
-    return '- The conversation cannot be evaluated in this snapshot yet.';
-  }
 
-  const readiness = snapshot.sessions.sendReady && snapshot.sessions.spawnReady ? 'ready to continue and open new sessions'
-    : snapshot.sessions.sendReady || snapshot.sessions.spawnReady ? 'partial'
-      : 'still limited';
-
-  if (readiness === 'ready to continue and open new sessions') {
-    return '- The conversation is ready to continue.';
-  }
-
-  if (readiness === 'partial') {
-    return '- The conversation is partially ready.';
-  }
-
-  return '- The conversation is still limited.';
-}
-
-function formatStatusDomainsLine(snapshot: CliStatusSnapshot): string | null {
-  if (!snapshot.domains) {
-    return null;
-  }
-
-  if (snapshot.domains.pending === 0) {
-    return '- Core resources are already loaded.';
-  }
-
-  return '- Some core resources still need attention.';
-}
-
-function formatStatusNodesLine(snapshot: CliStatusSnapshot): string | null {
-  if (!snapshot.nodes) {
-    return null;
-  }
-
-  if (snapshot.nodes.total === 0) {
-    return null;
-  }
-
-  if (snapshot.nodes.online === snapshot.nodes.total) {
-    return `- ${snapshot.nodes.total} device${snapshot.nodes.total === 1 ? '' : 's'} connected${snapshot.nodes.total === 1 ? '' : 's'} now.`;
-  }
-
-  return `- ${snapshot.nodes.online}/${snapshot.nodes.total} devices are online now.`;
-}
-
-function formatStatusCatalogLine(snapshot: CliStatusSnapshot): string | null {
-  if (!snapshot.platform) {
-    return null;
-  }
-
-  if (snapshot.platform.plugins <= 0) {
-    return null;
-  }
-
-  return '- As integrations principais already foram carregadas.';
-}
 
 function buildStatusAttentionItems(snapshot: CliStatusSnapshot): string[] {
   const items = new Set<string>();
@@ -325,37 +248,6 @@ function buildStatusAttentionItems(snapshot: CliStatusSnapshot): string[] {
   return Array.from(items);
 }
 
-function buildStatusSummaryLines(snapshot: CliStatusSnapshot, attentionItems: string[]): string[] {
-  const lines: Array<string | null> = [
-    formatStatusRuntimeLine(snapshot),
-    formatStatusConversationLine(snapshot),
-    ...attentionItems.slice(0, 2).map((item) => `- ${item}`),
-  ];
-
-  if (attentionItems.length === 0) {
-    lines.push('- No block imediato apareceu neste retrato.');
-  }
-
-  if (lines.filter(Boolean).length < 4) {
-    const domainsLine = formatStatusDomainsLine(snapshot);
-    if (snapshot.domains?.pending && domainsLine) {
-      lines.push(domainsLine);
-    }
-  }
-
-  if (lines.filter(Boolean).length < 4) {
-    const nodesLine = formatStatusNodesLine(snapshot);
-    if (snapshot.nodes?.total && nodesLine) {
-      lines.push(nodesLine);
-    }
-  }
-
-  if (lines.filter(Boolean).length < 4) {
-    lines.push(formatStatusCatalogLine(snapshot));
-  }
-
-  return lines.filter((entry): entry is string => Boolean(entry)).slice(0, 4);
-}
 
 async function buildCliStatusSnapshot(
   runtime: ZavorthCliRuntime,

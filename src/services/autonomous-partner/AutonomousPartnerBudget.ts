@@ -6,7 +6,6 @@ import type {
 import type { ZavorthMutationRiskLevel } from '../../contracts/ZavorthMutationPlaneContract.js';
 import {
   cleanText,
-  nonNegative,
   normalizeBudgetScope,
   normalizeRisk,
   positiveNumber,

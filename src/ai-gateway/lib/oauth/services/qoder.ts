@@ -11,7 +11,7 @@ import { asErrorLike } from '../../../../utils/errorLike.js';
  * Uses Authorization Code flow with Basic Auth
  */
 export class QoderService {
-  config: any;
+  config: unknown;
 
   constructor() {
     this.config = QODER_CONFIG;
@@ -113,7 +113,7 @@ export class QoderService {
   /**
    * Save Qoder tokens to server
    */
-  async saveTokens(tokens: any, userInfo: any) {
+  async saveTokens(tokens: unknown, userInfo: unknown) {
     const { server, token, userId } = getServerCredentials();
 
     const response = await fetch(`${server}/api/cli/providers/qoder`, {
@@ -150,7 +150,7 @@ export class QoderService {
       spinner.text = "Starting local server...";
 
       // Start local server for callback
-      let callbackParams: any = null;
+      let callbackParams: unknown = null;
       const { port, close } = await startLocalServer((params) => {
         callbackParams = params;
       });

@@ -1,5 +1,6 @@
 import { CURSOR_CONFIG } from "../constants/oauth";
-import { logger } from '@/shared/utils/logger';/**
+import { logger } from '@/shared/utils/logger';
+/**
  * Cursor IDE OAuth Service
  * Supports Import Token method from Cursor IDE's local SQLite database
  *
@@ -14,7 +15,7 @@ import { logger } from '@/shared/utils/logger';/**
  */
 
 export class CursorService {
-  config: any;
+  config: unknown;
 
   constructor() {
     this.config = CURSOR_CONFIG;

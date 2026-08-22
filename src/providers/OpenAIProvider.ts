@@ -43,7 +43,7 @@ export class OpenAIProvider implements ILlmProvider {
     tools?: ToolDefinition[],
     options?: ProviderChatOptions,
   ): Promise<LlmResponse> {
-    let lastError: any;
+    let lastError: unknown;
     for (let attempt = 0; attempt < this.clients.length; attempt += 1) {
       const clientIndex = (this.currentClientIndex + attempt) % this.clients.length;
       const client = this.clients[clientIndex];
@@ -90,7 +90,7 @@ export class OpenAIProvider implements ILlmProvider {
     tools?: ToolDefinition[],
     options?: ProviderChatOptions,
   ): AsyncIterable<LlmStreamEvent> {
-    let lastError: any;
+    let lastError: unknown;
     for (let attempt = 0; attempt < this.clients.length; attempt += 1) {
       const clientIndex = (this.currentClientIndex + attempt) % this.clients.length;
       const client = this.clients[clientIndex];

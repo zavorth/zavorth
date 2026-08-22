@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
-import { getBestProvider, getAvailableProviders, callVisionProvider, listProviders } from './MultimodalProviderSelector.js';
+import { getBestProvider, getAvailableProviders, callVisionProvider } from './MultimodalProviderSelector.js';
 import { logger } from '../../logger.js';
 
 export class ZavorthVisionService extends BaseTool {
@@ -111,7 +111,7 @@ export class ZavorthVisionService extends BaseTool {
     return this.analyzeImage({ ...args, prompt: 'Describe this image in detail. What do you see...' });
   }
 
-  private async compareImages(args: Record<string, unknown>): Promise<string> {
+  private async compareImages(_args: Record<string, unknown>): Promise<string> {
     return 'Image comparison requires two images. Provide image_path and second_image_path.';
   }
 

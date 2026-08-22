@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     const settings = (await getSettings()) as Record<string, unknown>;
     return NextResponse.json(normalizeMemorySettings(settings));
   } catch (error: unknown) {
-    const err = asErrorLike(error);
+    asErrorLike(error);
     logger.warn('[route] string operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
@@ -58,7 +58,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(normalizeMemorySettings(settings));
   } catch (error: unknown) {
-    const err = asErrorLike(error);
+    asErrorLike(error);
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }

@@ -142,9 +142,12 @@ export class ZavorthEchoOrchestrator {
     public async executePipeline(
         originalPrompt: string,
         functionName: string,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         rawParams: any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         context?: Record<string, any>,
-    ): Promise<{ response: string; data?: any }> {
+    ): Promise<{ response: string; // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data?: any }> {
         const startTime = Date.now();
         const toolCall: EchoToolCall = {
             toolName: functionName,
@@ -214,9 +217,10 @@ export class ZavorthEchoOrchestrator {
         tool: IZavorthTool,
         functionName: string,
         rawParams: unknown,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         context?: Record<string, any>,
     ): Promise<ToolExecutionResult> {
-        let safeParams: Record<string, any> | null = null;
+        let safeParams: Record<string, unknown> | null = null;
         const actorId = String(context?.traceId || context?.actorId || '').trim() || null;
         const sealed = await this.continuityKernel.runMutation({
             request: {

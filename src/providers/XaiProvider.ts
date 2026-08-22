@@ -13,7 +13,7 @@ import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayl
 
 import { buildProviderRequestOptions } from './ProviderAbort.js';
 
-const XAI_NATIVE_TOOLS = ['web_search', 'deep_search', 'citations'] as const;
+
 
 export class XaiProvider implements ILlmProvider {
   public readonly name = 'xai';
@@ -52,7 +52,7 @@ export class XaiProvider implements ILlmProvider {
       tools: mergedTools.length > 0 ? mergedTools : undefined,
       tool_choice: mergedTools.length > 0 ? 'auto' : undefined,
       ...nativeToolPayload.extraBody,
-    } as any, buildProviderRequestOptions(options) as any);
+    } as never, buildProviderRequestOptions(options) as never);
 
     const choice = response.choices[0];
 

@@ -868,7 +868,7 @@ export class PluginOsHttpApiService {
       const injection = this.promptInjection.buildInjection({
         root: projectRoot,
         recordTelemetry: false,
-        mode: body.injectMode as any,
+        mode: body.injectMode as never,
       });
       return {
         ok: injection.injected || injection.reason.startsWith('disabled') || injection.reason === 'ab_sample_miss',
@@ -908,7 +908,7 @@ export class PluginOsHttpApiService {
           };
         }
         const saved = this.promptInjection.savePrefs({
-          injectMode: body.injectMode as any,
+          injectMode: body.injectMode as never,
           injectSamplePercent: body.injectSamplePercent,
         }, projectRoot);
         return {
@@ -956,7 +956,7 @@ export class PluginOsHttpApiService {
       if (body.injectMode || body.wizard?.injectMode) {
         state = this.wizard.setInject(
           state,
-          String(body.injectMode || body.wizard?.injectMode || 'compact') as any,
+          String(body.injectMode || body.wizard?.injectMode || 'compact') as never,
           Number(body.injectSamplePercent ?? body.wizard?.injectSamplePercent ?? 100),
           { root: projectRoot },
         );
@@ -995,7 +995,7 @@ export class PluginOsHttpApiService {
       if (body.injectMode || body.wizard?.injectMode) {
         state = this.wizard.setInject(
           state,
-          String(body.injectMode || body.wizard?.injectMode || 'compact') as any,
+          String(body.injectMode || body.wizard?.injectMode || 'compact') as never,
           Number(body.injectSamplePercent ?? body.wizard?.injectSamplePercent ?? 100),
           { root: projectRoot },
         );

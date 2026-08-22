@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { DEFAULT_LOCALE, KNOWN_LOCALES } from './types.js';
+import { DEFAULT_LOCALE } from './types.js';
 import type { LocaleSource } from './types.js';
 const ENV_PRIORITY = [
   'ZAVORTH_LANG',

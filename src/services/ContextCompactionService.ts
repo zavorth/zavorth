@@ -18,6 +18,7 @@ export type ContextCompactionMessage = {
   toolName?: string | null;
   status?: 'ok' | 'error' | 'blocked' | 'pending' | null;
   metadata?: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   toolCalls?: any[] | null;
   toolCallId?: string | null;
 };
@@ -67,13 +68,6 @@ export type ContextCompactionDecision = {
   };
 };
 
-const SECRET_PATTERNS: RegExp[] = [
-  /\bsk-[A-Za-z0-9_-]{16,}\b/g,
-  /\bhf_[A-Za-z0-9]{16,}\b/g,
-  /\bAIza[0-9A-Za-z_-]{20,}\b/g,
-  /\b(?:api[_-]?key|token|secret|password)\s*[:=]\s*["']?[A-Za-z0-9_-]{8,}/gi,
-];
-
 function normalizeDate(value: string | Date | null | undefined): Date | null {
   if (!value) {
     return null;
@@ -121,11 +115,11 @@ function hasApprovalSignal(value: string): boolean {
   return normalized.split('break glass').length > 1 || normalized.split('persistent permission').length > 1;
 }
 
-function looksPending(text: string): boolean {
+function looksPending(_text: string): boolean {
   return false;
 }
 
-function looksDiscarded(text: string): boolean {
+function looksDiscarded(_text: string): boolean {
   return false;
 }
 

@@ -47,6 +47,6 @@ async function refreshCredentials(
   return null;
 }
 
-export function getExecutor(provider: string): ProviderExecutor {
+export function getExecutor(_provider: string): ProviderExecutor {
   return { needsRefresh, refreshCredentials };
 }

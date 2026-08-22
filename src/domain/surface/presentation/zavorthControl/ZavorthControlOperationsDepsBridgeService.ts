@@ -57,11 +57,11 @@ export type ZavorthControlOperationsDepsBridgeSource = {
     | 'readControlPlaneCatalogSnapshot'
   >;
   operationalSnapshots: {
-    readContinuitySnapshot: (deps: ZavorthControlOperationalSnapshotDeps) => Record<string, any>;
-    readMemoryPlaneSnapshot: (deps: ZavorthControlOperationalSnapshotDeps) => Promise<Record<string, any>>;
-    readReplaySnapshot: (deps: ZavorthControlOperationalSnapshotDeps) => Record<string, any>;
-    readLifecycleSnapshot: (deps: ZavorthControlOperationalSnapshotDeps) => Record<string, any>;
-    readHandoffSnapshot: (deps: ZavorthControlOperationalSnapshotDeps) => Record<string, any>;
+    readContinuitySnapshot: (deps: ZavorthControlOperationalSnapshotDeps) => Record<string, unknown>;
+    readMemoryPlaneSnapshot: (deps: ZavorthControlOperationalSnapshotDeps) => Promise<Record<string, unknown>>;
+    readReplaySnapshot: (deps: ZavorthControlOperationalSnapshotDeps) => Record<string, unknown>;
+    readLifecycleSnapshot: (deps: ZavorthControlOperationalSnapshotDeps) => Record<string, unknown>;
+    readHandoffSnapshot: (deps: ZavorthControlOperationalSnapshotDeps) => Record<string, unknown>;
   };
   responseWriter: {
     writeJson: ZavorthControlOperationsRouteDeps['writeJson'];
@@ -157,7 +157,7 @@ export class ZavorthControlOperationsDepsBridgeService {
       sessionReplay: source.sessionReplay,
       sessionHandoff: source.sessionHandoff,
       workflowRuns: source.workflowRuns,
-      taskManager: (source.reportTaskManager as any) || null,
+      taskManager: (source.reportTaskManager as never) || null,
       hostActions: source.executionGateway,
     };
   }

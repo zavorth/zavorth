@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { createHash } from 'crypto';
 import { logger } from '../../logger.js';
 import type {
   AutonomousMissionCheckpoint,
@@ -14,8 +13,6 @@ import {
   cleanText,
   normalizeAutonomyLevel,
   normalizeCheckpointStatus,
-  normalizeEvidenceKind,
-  normalizeEvidenceStatus,
   normalizeId,
   normalizeList,
   normalizeMissionStatus,

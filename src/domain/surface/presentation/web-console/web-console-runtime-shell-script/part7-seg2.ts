@@ -1,4 +1,3 @@
-import { asErrorLike } from '../../../../../utils/errorLike';
 export const runtimeShellScriptPart7Seg2: string = [
     "      mode === 'extensions-open' ? 'Opening extensions panel...' : 'Updating extensions catalog...',",
     "    );",

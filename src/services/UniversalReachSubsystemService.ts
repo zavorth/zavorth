@@ -13,14 +13,12 @@ import { ChannelSynthesisService, type ChannelSynthesisInput } from './reach/Cha
  */
 
 import crypto from 'node:crypto';
-import path from 'node:path';
 
 import {
   UNIVERSAL_REACH_FABRIC_CONTRACT_VERSION,
   type ReachChannelEntry,
   type ReachChannelFamily,
   type ReachChannelReadiness,
-  type ReachChannelTier,
   type ReachFabricReceipt,
   type ReachFabricSnapshot,
   type ReachNodeCapability,
@@ -31,7 +29,7 @@ import {
   type ReachReadinessProof,
 } from '../contracts/UniversalReachFabricContract.js';
 
-
+import type { NodeMeshRegistryEntry, NodeInvocationResult } from '../contracts/NodeMeshContract.js';
 import { NodeRegistryService } from './NodeRegistryService.js';
 import { NodeOnboardingService } from './NodeOnboardingService.js';
 import { NodePairingService } from './NodePairingService.js';
@@ -262,20 +260,22 @@ export class UniversalReachSubsystemService {
       try {
         const native = this.nodePairing.createPairingDraft({
           nodeId,
-          profileId: profileId as any,
-          capabilityIds: capabilityIds as any,
+          profileId,
+          capabilityIds,
           label: input.label || nodeId,
         });
+        const nativeRecord = native as unknown as Record<string, unknown>;
+        const nativeEntry = (native.entry ?? {}) as unknown as Record<string, unknown>;
         const code = String(
-          (native as any)?.pairingCode
-          || (native as any)?.code
-          || (native as any)?.entry?.pairingCode
+          native.pairingCode
+          || nativeRecord.code
+          || nativeEntry.pairingCode
           || pairingCode,
         );
-        const resolvedNodeId = String((native as any)?.entry?.id || (native as any)?.nodeId || nodeId);
+        const resolvedNodeId = String(nativeEntry.id || nativeRecord.nodeId || nodeId);
         const draft = this.toPairingDraft(
           resolvedNodeId,
-          String((native as any)?.entry?.profileId || profileId),
+          String(nativeEntry.profileId || profileId),
           capabilityIds,
           code,
           createdAt,
@@ -310,14 +310,15 @@ export class UniversalReachSubsystemService {
 
     if (this.nodeInvoke) {
       try {
-        const result = this.nodeInvoke.preview({
+        const result: NodeInvocationResult = this.nodeInvoke.preview({
           nodeId: input.nodeId,
-          capabilityId: input.capabilityId as any,
-          action: (input.action || 'invoke') as any,
+          capabilityId: input.capabilityId,
+          action: input.action || 'invoke',
           payload: input.payload || null,
-        } as any);
-        allowed = Boolean(result && (result as any).ok !== false && (result as any).allowed !== false);
-        reason = String((result as any)?.reason || (result as any)?.summary || reason);
+        });
+        const resultRecord = result as unknown as Record<string, unknown>;
+        allowed = Boolean(result && result.ok !== false && resultRecord.allowed !== false);
+        reason = String(result.reason || resultRecord.summary || reason);
       } catch (error: unknown) {
         const err = asErrorLike(error);
         allowed = false;
@@ -357,7 +358,7 @@ export class UniversalReachSubsystemService {
     const hostIds = new Set(buildNodeCapabilitiesRegistry().map((h) => h.id));
     return NODE_CAPABILITY_CATALOG.map((cap) => ({
       ...cap,
-      description: hostIds.has(cap.id as any)
+      description: hostIds.has(cap.id)
         ? cap.description
         : `${cap.description} (declared; host support may vary)`,
     }));
@@ -461,7 +462,7 @@ export class UniversalReachSubsystemService {
   }
 
   private buildNodes(): ReachNodeEntry[] {
-    let registered: any[] = [];
+    let registered: NodeMeshRegistryEntry[] = [];
     try {
       registered = this.nodeRegistry.listNodes?.() || [];
     } catch {
@@ -469,10 +470,20 @@ export class UniversalReachSubsystemService {
     }
 
     // Merge live sessions when available
-    let live: any[] = [];
+    let live: Record<string, unknown>[] = [];
     try {
-      const snap = (this.liveNodes as any).snapshot?.() || (this.liveNodes as any).list?.() || [];
-      live = Array.isArray(snap) ? snap : snap?.sessions || snap?.nodes || [];
+      const liveNodeRecord = this.liveNodes as unknown as Record<string, unknown>;
+      const snap = (typeof liveNodeRecord.snapshot === 'function'
+        ? (liveNodeRecord.snapshot as () => unknown)()
+        : (typeof liveNodeRecord.list === 'function'
+          ? (liveNodeRecord.list as () => unknown)()
+          : [])) || [];
+      if (Array.isArray(snap)) {
+        live = snap as Record<string, unknown>[];
+      } else {
+        const snapRecord = snap as Record<string, unknown>;
+        live = (snapRecord.sessions || snapRecord.nodes || []) as Record<string, unknown>[];
+      }
     } catch {
       live = [];
     }
@@ -488,20 +499,20 @@ export class UniversalReachSubsystemService {
       const existing = byId.get(id);
       if (existing) {
         existing.status = 'online';
-        existing.lastSeenAt = session.lastSeenAt || session.updatedAt || existing.lastSeenAt;
+        existing.lastSeenAt = (session.lastSeenAt as string | undefined) || (session.updatedAt as string | undefined) || existing.lastSeenAt;
         existing.canInvoke = existing.paired || existing.canInvoke;
       } else {
         byId.set(id, {
           nodeId: id,
           label: String(session.label || id),
           status: 'online',
-          profileId: session.profileId || null,
+          profileId: (session.profileId as string | undefined) || null,
           paired: true,
-          declaredCapabilities: session.capabilityIds || [],
-          approvedCapabilities: session.approvedCapabilityIds || session.capabilityIds || [],
+          declaredCapabilities: asStringArray(session.capabilityIds),
+          approvedCapabilities: asStringArray(session.approvedCapabilityIds || session.capabilityIds),
           needsCapabilityReapproval: false,
           canInvoke: true,
-          lastSeenAt: session.lastSeenAt || null,
+          lastSeenAt: (session.lastSeenAt as string | undefined) || null,
           nextSafeAction: 'Node is live; invoke only approved capabilities.',
         });
       }
@@ -509,7 +520,7 @@ export class UniversalReachSubsystemService {
     return [...byId.values()].sort((a, b) => a.nodeId.localeCompare(b.nodeId));
   }
 
-  private toNodeEntry(node: any): ReachNodeEntry {
+  private toNodeEntry(node: Record<string, unknown>): ReachNodeEntry {
     const nodeId = String(node.id || node.nodeId || 'node');
     const declared = asStringArray(node.capabilityIds);
     const approved = asStringArray(node.approvedCapabilityIds);
@@ -521,13 +532,13 @@ export class UniversalReachSubsystemService {
       nodeId,
       label: String(node.label || nodeId),
       status,
-      profileId: node.profileId || null,
+      profileId: (node.profileId as string | undefined) || null,
       paired,
       declaredCapabilities: declared,
       approvedCapabilities: approved,
       needsCapabilityReapproval,
       canInvoke,
-      lastSeenAt: node.lastSeenAt || null,
+      lastSeenAt: (node.lastSeenAt as string | undefined) || null,
       nextSafeAction: needsCapabilityReapproval ? 'Approve new capabilities before invoke.'
         : !paired ? 'Complete pairing with companion bootstrap.'
           : canInvoke ? 'Node ready for governed invokes.'
@@ -535,7 +546,7 @@ export class UniversalReachSubsystemService {
     };
   }
 
-  private nodeStatus(node: any, paired: boolean, needsReapproval: boolean): ReachNodeStatus {
+  private nodeStatus(node: Record<string, unknown>, paired: boolean, needsReapproval: boolean): ReachNodeStatus {
     if (node.status === 'blocked' || node.pairingStatus === 'revoked') return 'blocked';
     if (needsReapproval) return 'paired';
     if (node.status === 'online' || node.canInvoke) return node.canInvoke ? 'ready' : 'online';

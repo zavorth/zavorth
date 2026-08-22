@@ -455,7 +455,7 @@ export class BrowserCdpSupervisorEnhanced extends EventEmitter {
     return remoteObj?.value;
   }
 
-  private async getFrameContextId(frameId: string): Promise<number | undefined> {
+  private async getFrameContextId(_frameId: string): Promise<number | undefined> {
     try {
       const result = await this.send('Runtime.evaluate', {
         expression: 'window',

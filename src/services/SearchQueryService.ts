@@ -174,8 +174,8 @@ export class SearchQueryService {
     // 5. Normalize results with evidence scoring + relevance filtering.
     const limit = Math.min(request.limit || 5, MAX_RESULTS);
     const scoredItems = resolvedSeedItems.length > 0
-      ? this.mergeAdapterOutputs(adapterOutput, resolvedSeedItems, evidenceDomain, profile)
-      : this.scoreAndNormalize(adapterOutput, evidenceDomain, profile);
+      ? this.mergeAdapterOutputs(adapterOutput, resolvedSeedItems, evidenceDomain)
+      : this.scoreAndNormalize(adapterOutput, evidenceDomain);
     const combinedItems = await this.applyRelevanceFilter(scoredItems, augmentedRequest.query, intent);
 
     // 6. Diversifica hosts.
@@ -385,13 +385,7 @@ export class SearchQueryService {
     primary: AdapterSearchOutput,
     seedItems: AdapterSearchItem[],
     evidenceDomain: SearchEvidenceDomain,
-    profile: EvidenceDomainProfile,
   ): SearchResultItem[] {
-    const seedAsAdapter: AdapterSearchOutput = {
-      providerId: 'seed-sources',
-      items: seedItems,
-    };
-
     const allItems: AdapterSearchItem[] = [
       ...seedItems.map((item) => ({ ...item, originalRank: item.originalRank - 1000 })),
       ...primary.items,
@@ -468,7 +462,6 @@ export class SearchQueryService {
   private scoreAndNormalize(
     output: AdapterSearchOutput,
     evidenceDomain: SearchEvidenceDomain,
-    profile: EvidenceDomainProfile,
   ): SearchResultItem[] {
     return output.items.filter((item) => !this.isPrivateUrl(item.url)).map((item) => {
       const score = scoreEvidenceSource(

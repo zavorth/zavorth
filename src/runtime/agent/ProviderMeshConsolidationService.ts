@@ -228,9 +228,6 @@ function recordOrNull(value: unknown): Record<string, unknown> | null {
     : null;
 }
 
-function compactList(values: string[]): string[] {
-  return Array.from(new Set(values.map((value) => normalizeText(value)).filter(Boolean)));
-}
 
 function resolveRequestedCapability(run: UniversalAgentRun): ModelCapabilityKind | null {
   const discovery = recordOrNull(run.metadata.naturalCapabilityDiscovery);

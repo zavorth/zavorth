@@ -14,7 +14,7 @@ import type {
   ChatMessage,
   ToolDefinition,
 } from '../providers/ILlmProvider.js';
-import type { ExecutionBoundaryService, EchoExecutionBoundaryService } from '../domain/execution/infrastructure/ExecutionBoundaryService.js';
+import type { EchoExecutionBoundaryService } from '../domain/execution/infrastructure/ExecutionBoundaryService.js';
 import type { EchoPendingExecutionStoreService } from '../domain/execution/infrastructure/EchoPendingExecutionStoreService.js';
 import type { LlmRunOptions, LlmRuntimeService } from './llm/LlmRuntimeService.js';
 import type {

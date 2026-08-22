@@ -18,7 +18,7 @@ import { ToolUsageTracker } from '../cognitive-firewall/ToolUsageTracker.js';
 import { ToolResultCache } from '../cognitive-firewall/ToolResultCache.js';
 import { ContextAwareInjector } from '../cognitive-firewall/ContextAwareInjector.js';
 import { EpisodicMemoryBridge } from './EpisodicMemoryBridge.js';
-import { AdaptivePersonaEngine, type PersonaResolution } from './AdaptivePersonaEngine.js';
+import { AdaptivePersonaEngine } from './AdaptivePersonaEngine.js';
 
 import { sanitizeTrustPlaneText } from '../runtime/agent/security/index.js';
 import { wrapUntrustedContent } from '../security/UntrustedContent.js';

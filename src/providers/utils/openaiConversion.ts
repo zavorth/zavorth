@@ -1,7 +1,6 @@
 import type OpenAI from 'openai';
 import type { ChatMessage, InlineData, ToolDefinition } from '../ILlmProvider.js';
 
-type OpenAIContentPart = Record<string, any>;
 
 export function convertChatMessagesToOpenAI(
   messages: ChatMessage[],
@@ -115,6 +114,7 @@ export function buildOpenAIUserContent(
   return content.length > 0 ? content : textContent;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function convertToolDefinitions(tools?: ToolDefinition[]): any[] | undefined {
   if (!tools || tools.length === 0) return undefined;
   return tools.map((tool) => ({

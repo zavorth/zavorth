@@ -79,6 +79,7 @@ export type ZavorthCloudSandboxExecutionResult = {
 type Runtime = {
   env?: Record<string, string | undefined>;
   now?: () => number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   importer?: (moduleName: string) => Promise<any>;
   localExecutor?: (input: ZavorthCloudSandboxExecutorInput) => Promise<ZavorthCloudSandboxExecutorOutput>;
   localDockerExecutor?: (input: ZavorthCloudSandboxExecutorInput) => Promise<ZavorthCloudSandboxExecutorOutput>;
@@ -109,6 +110,7 @@ const MAX_TTL_MS = 24 * 60 * 60_000;
 export class ZavorthCloudSandboxAdapterService {
   private readonly env: Record<string, string | undefined>;
   private readonly now: () => number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private readonly importer: (moduleName: string) => Promise<any>;
   private readonly localExecutor: (input: ZavorthCloudSandboxExecutorInput) => Promise<ZavorthCloudSandboxExecutorOutput>;
   private readonly localDockerExecutor: (input: ZavorthCloudSandboxExecutorInput) => Promise<ZavorthCloudSandboxExecutorOutput>;
@@ -340,7 +342,7 @@ export class ZavorthCloudSandboxAdapterService {
     };
   }
 
-  private async importSdk(moduleName: string, installCommand: string): Promise<any> {
+  private async importSdk(moduleName: string, installCommand: string): Promise<ImportedSdkModule> {
     try {
       return await this.importer(moduleName);
     } catch (error: unknown) {
@@ -569,6 +571,67 @@ async function readProcessText(stream: unknown): Promise<string> {
   return String(stream);
 }
 
+type DaytonaSandboxLike = {
+  process: {
+    executeCommand(command: string, options: { timeout: number }): Promise<{
+      result?: unknown;
+      stdout?: unknown;
+      stderr?: unknown;
+      exitCode?: number | null;
+      code?: number | null;
+    }>;
+  };
+  delete?: () => Promise<unknown>;
+  stop?: () => Promise<unknown>;
+  destroy?: () => Promise<unknown>;
+};
+
+type DaytonaClientLike = {
+  create(options: {
+    language: string;
+    envVars: Record<string, string>;
+    resources: { memory: number };
+    autoStopInterval: number;
+    network: ZavorthCloudSandboxNetworkPolicy;
+  }): Promise<DaytonaSandboxLike>;
+  delete?: (sandbox: DaytonaSandboxLike) => Promise<unknown>;
+};
+
+type ModalClientLike = {
+  apps: {
+    fromName(name: string, options: { createIfMissing: boolean }): Promise<unknown>;
+  };
+  images: {
+    fromRegistry(name: string): unknown;
+  };
+  sandboxes: {
+    create(app: unknown, image: unknown, options: {
+      environment: Record<string, string>;
+      timeout: number;
+      networkAccess: boolean;
+      memory: number;
+    }): Promise<{
+      exec(command: string[], options: { timeout: number }): Promise<{
+        stdout: unknown;
+        stderr: unknown;
+        returncode?: number | null;
+        exitCode?: number | null;
+        status?: number | null;
+      }>;
+      terminate?: () => Promise<unknown>;
+    }>;
+  };
+};
+
+type ImportedSdkModule = {
+  ModalClient?: new () => ModalClientLike;
+  Daytona?: new (options: { apiKey: string; apiUrl?: string; target?: string }) => DaytonaClientLike;
+  default?: {
+    ModalClient?: new () => ModalClientLike;
+    Daytona?: new (options: { apiKey: string; apiUrl?: string; target?: string }) => DaytonaClientLike;
+  } | null;
+};
+
 function normalizeExitCode(value: unknown): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return value;
   if (value === null || value === undefined) return 0;
@@ -576,7 +639,10 @@ function normalizeExitCode(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-async function cleanupDaytonaSandbox(daytona: any, sandbox: any): Promise<void> {
+async function cleanupDaytonaSandbox(
+  daytona: { delete?: (sandbox: DaytonaSandboxLike) => Promise<unknown> },
+  sandbox: DaytonaSandboxLike,
+): Promise<void> {
   if (typeof sandbox.delete === 'function') {
     await sandbox.delete();
     return;

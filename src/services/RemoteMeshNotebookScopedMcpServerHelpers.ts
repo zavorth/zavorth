@@ -16,11 +16,9 @@ import type {
   RemoteMeshNotebookProjectFileRootConfig,
   RemoteMeshNotebookScopedMcpSelfTest,
   RemoteMeshNotebookScopedMcpServerConfig,
-  RemoteMeshNotebookScopedMcpServerConfigSnapshot,
   RemoteMeshNotebookScopedMcpServerGuard,
   RemoteMeshNotebookScopedMcpServerGuardId,
   RemoteMeshNotebookScopedMcpServerGuardStatus,
-  RemoteMeshNotebookScopedMcpServerStatus,
   RemoteMeshNotebookScopedMcpToolName,
 } from '../contracts/RemoteMeshNotebookScopedMcpServerContract.js';
 

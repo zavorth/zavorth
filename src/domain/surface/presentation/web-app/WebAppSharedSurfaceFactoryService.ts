@@ -75,7 +75,7 @@ import type { ComputerUseWatchModeStateFileService } from '../../../../services/
 import type { ComputerUseWatchModeService } from '../../../../services/ComputerUseWatchModeService.js';
 import type { ChannelSetupAssistantService } from '../../../../services/ChannelSetupAssistantService.js';
 import type { SelfModificationCommandService } from '../../../../services/SelfModificationCommandService.js';
-import type { SystemSupervisorControlService, SystemOverlordControlService } from '../../../../services/SystemSupervisorControlService.js';
+import type { SystemOverlordControlService } from '../../../../services/SystemSupervisorControlService.js';
 import type { EngineeringCoreService } from '../../../../services/EngineeringCoreService.js';
 import type { SharedSurfaceConsistencyService } from '../../../../services/SharedSurfaceConsistencyService.js';
 

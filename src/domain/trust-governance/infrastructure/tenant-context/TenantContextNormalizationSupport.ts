@@ -8,8 +8,8 @@ import type {
   TenantType,
 } from './TenantContextTypes.js';
 
-export function asTenantContextRecord(value: unknown): Record<string, any> {
-  return value && typeof value === 'object' ? (value as Record<string, any>) : {};
+export function asTenantContextRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
 }
 
 export function optionalTenantString(value: unknown): string | null {

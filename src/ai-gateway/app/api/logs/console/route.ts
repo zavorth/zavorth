@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
     const oneHourAgo = Date.now() - 60 * 60 * 1000;
     const minLevel = LEVEL_ORDER[levelFilter] || 0;
 
-    const entries: any[] = [];
+    const entries: unknown[] = [];
 
     for (const line of lines) {
       try {

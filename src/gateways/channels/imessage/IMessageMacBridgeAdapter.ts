@@ -51,6 +51,7 @@ export class IMessageMacBridgeAdapter implements GatewayChannelAdapter {
     logger.info('[ChannelMesh] iMessage Mac bridge detached.');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async onMessageReceived(payload: any): Promise<void> {
     const userId = String(payload?.sender || payload?.handle || payload?.userId || payload?.from || '').trim();
     const chatId = String(payload?.chatId || payload?.conversationId || userId || 'imessage').trim();
@@ -75,6 +76,7 @@ export class IMessageMacBridgeAdapter implements GatewayChannelAdapter {
     }));
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async sendMessage(outboundPayload: any): Promise<void> {
     if (this.readOnly) {
       throw new Error('iMessage Mac bridge is in read-only mode; promote the bridge before sending.');

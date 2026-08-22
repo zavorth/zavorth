@@ -153,7 +153,7 @@ export class CustomCompatibleProviderOnboardingService {
       explanation: [
         `Onboarding prepairu ${input.label} como ${input.compatibility}.`,
         ...classification.explanation,
-        'O manifest declara authKind, base URL e origem de catalog before chegar ao runtime.',
+        'The manifest declares authKind, base URL, and catalog origin before reaching the runtime.',
       ],
     };
   }

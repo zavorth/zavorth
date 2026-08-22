@@ -112,7 +112,9 @@ export type SystemSupervisorActionRecord = {
   error?: string | null;
   auditTrail: string[];
   metadata?: Record<string, unknown> | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   decision?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   request?: any;
   stdout?: string | null;
   stderr?: string | null;
@@ -203,6 +205,7 @@ export type SystemSupervisorControlSnapshot = {
   };
   killSwitch: SystemSupervisorKillSwitchState;
   capabilities: SystemSupervisorCapabilityDescriptor[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adapters: any[];
   approvalQueue: SystemSupervisorApprovalQueueItem[];
   recentActions: SystemSupervisorActionRecord[];

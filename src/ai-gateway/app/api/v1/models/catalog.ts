@@ -205,10 +205,9 @@ export async function getUnifiedModelsResponse(
 
     // Get active provider connections
     let connections = [];
-    let totalConnectionCount = 0; // Track if DB has ANY connections (even disabled)
+     // Track if DB has ANY connections (even disabled)
     try {
       connections = await getProviderConnections();
-      totalConnectionCount = connections.length;
       // Filter to only active connections
       connections = connections.filter((c) => c.isActive !== false);
     } catch (error: unknown) { // If database not available, show no provider models (safe default)

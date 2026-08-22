@@ -178,9 +178,6 @@ function asRecord(value: unknown): Record<string, unknown> | null {
     : null;
 }
 
-function asArray<T = unknown>(value: unknown): T[] {
-  return Array.isArray(value) ? value as T[] : [];
-}
 
 function text(value: unknown, fallback = ''): string {
   const normalized = String(value ?? '').trim();

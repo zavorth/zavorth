@@ -234,7 +234,7 @@ export class IntegrationActionExecutionSupport {
       this.monitorSupport.trackBackgroundAction(record, child, context);
       return record;
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       this.writeFileSyncImpl(
         logFd,
         `[${this.now().toISOString()}] Failed to start action: ${errorMessage(error)}${lineBreak}`,

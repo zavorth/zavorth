@@ -2,7 +2,6 @@ import type {
   CapabilityAutopilotAudience,
   CapabilityAutopilotSurface,
   CapabilityDiagnosis,
-  CapabilityOperationalDescriptor,
   CapabilityReadinessSnapshot,
   CapabilityReceipt,
   CapabilityRepairPlan,

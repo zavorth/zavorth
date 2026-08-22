@@ -1,7 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
 import {
-  DANGEROUS_PATH_CHARS,
   isPathWithin,
   isSafePath,
 } from "./cliRuntimePathSecurity.ts";

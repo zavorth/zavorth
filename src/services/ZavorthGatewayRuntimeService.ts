@@ -24,7 +24,6 @@ import type { GatewayChannelRouterService } from './GatewayChannelRouterService.
 import type { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';
 import type { GatewaySessionService } from '../runtime/sessions/GatewaySessionService.js';
 import type { GatewaySessionStoreService } from '../runtime/sessions/GatewaySessionStoreService.js';
-import type { GatewaySessionToolsService } from '../runtime/sessions/GatewaySessionToolsService.js';
 import type { IntegrationHubService } from './IntegrationHubService.js';
 import type { OperationsHealthService } from '../observability/OperationsHealthService.js';
 import type {
@@ -412,8 +411,8 @@ export class ZavorthGatewayRuntimeService {
     const runtime = this.getRuntime();
     const gatewayAny = gatewayService as
       | (ZavorthGatewayService & {
-          buildSnapshot?: (input?: Record<string, any>) => any;
-          buildShellSnapshot?: (input?: Record<string, any>) => any;
+          buildSnapshot?: (input?: Record<string, unknown>) => unknown;
+          buildShellSnapshot?: (input?: Record<string, unknown>) => unknown;
         })
       | null;
     const hasContext = Boolean(
@@ -688,9 +687,9 @@ export class ZavorthGatewayRuntimeService {
     };
   }
 
-  private asGatewayControlRecord(value: unknown): Record<string, any> {
+  private asGatewayControlRecord(value: unknown): Record<string, unknown> {
     return value && typeof value === 'object' && !Array.isArray(value)
-      ? value as Record<string, any>
+      ? value as Record<string, unknown>
       : {};
   }
 

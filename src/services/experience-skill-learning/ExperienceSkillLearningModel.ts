@@ -407,7 +407,7 @@ export function goalSimilarity(
   const goalSlug = slugify(msg);
   if (!goalSlug || goalSlug === 'skill') return 0;
 
-  const fingerprint = crypto
+  crypto
     .createHash('sha256')
     .update(`|${goalSlug}`)
     .digest('hex')

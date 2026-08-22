@@ -26,13 +26,13 @@ export class TelegramPersistedPermissionPolicyService {
       executor,
       'workspace_access',
       workspace,
-      tenantMetadataMatch as any,
+      tenantMetadataMatch as never,
     );
     const allowedCommandPolicies = await this.deps.permissionService.listApprovedRequests(
       executor,
       'command_access',
       workspace,
-      tenantMetadataMatch as any,
+      tenantMetadataMatch as never,
     );
 
     const taskLocalAllowedPaths = Array.isArray(task.metadata?.extra_allowed_paths)
@@ -106,7 +106,7 @@ export class TelegramPersistedPermissionPolicyService {
       ]),
     );
 
-    const nextMetadata: Record<string, any> = {
+    const nextMetadata: Record<string, unknown> = {
       ...(task.metadata || {}),
       extra_allowed_paths: extraAllowedPaths,
       extra_allowed_commands: extraAllowedCommands,
@@ -120,7 +120,7 @@ export class TelegramPersistedPermissionPolicyService {
         'external_executor',
         'agent_binding',
         workspace,
-        tenantMetadataMatch as any,
+        tenantMetadataMatch as never,
       );
       const agentBindings: Record<string, string> = {};
       const permissionIds: Record<string, string> = {};
@@ -154,13 +154,13 @@ export class TelegramPersistedPermissionPolicyService {
         'aistudio',
         'builtin_tool_access',
         workspace,
-        tenantMetadataMatch as any,
+        tenantMetadataMatch as never,
       );
       const approvedServicePolicies = await this.deps.permissionService.listApprovedRequests(
         'aistudio',
         'service_access',
         workspace,
-        tenantMetadataMatch as any,
+        tenantMetadataMatch as never,
       );
 
       const taskLocalAllowedTools = Array.isArray(task.metadata?.aistudio_allowed_tools)

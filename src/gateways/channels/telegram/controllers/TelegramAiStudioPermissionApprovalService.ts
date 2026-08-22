@@ -46,7 +46,7 @@ export class TelegramAiStudioPermissionApprovalService {
         approved.metadata?.suggested_model ||
         existingTask.metadata?.aistudio_model ||
         config.aiStudioModel,
-    } as Record<string, any>;
+    } as Record<string, unknown>;
 
     if (permission.kind === 'builtin_tool_access') {
       nextMetadata.aistudio_allowed_tools = this.deps.permissionPolicy.mergeNormalizedValues(

@@ -1,4 +1,6 @@
 import * as http from 'http';
+// Dynamic service bag: route handlers access operations services by key.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type OperationsSnapshotDynamic = any;
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;

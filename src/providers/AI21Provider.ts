@@ -49,7 +49,7 @@ export class AI21Provider implements ILlmProvider {
       tool_choice: openaiTools ? 'auto' : undefined,
       ...nativeToolPayload.extraBody,
       ...buildOpenAiReasoningEffortBody(options),
-    } as any, buildProviderRequestOptions(options) as any);
+    } as never, buildProviderRequestOptions(options) as never);
 
     const choice = response.choices[0];
 

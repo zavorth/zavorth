@@ -7,7 +7,6 @@ import type {
 } from '../../application/surface-response/index.js';
 import { resolveSurfaceProfileForChannel } from '../../application/surface-affordance/index.js';
 import {
-  getSurfaceProjector,
   projectResponseForChannel,
   registerPendingSurfaceApproval,
   type SurfaceProjectorOutput,
@@ -147,8 +146,7 @@ export function buildSharedSurfaceReplyOptions(
   native: unknown,
 ): Record<string, unknown> | null {
   // Delegate to projector path for telegram/discord consistency.
-  const channel =
-    target === 'plain' || target === 'cli' || target === 'web'
+  target === 'plain' || target === 'cli' || target === 'web'
       ? target
       : String(target);
   // Reconstruct minimal output from an already-rendered native by reusing projector internals

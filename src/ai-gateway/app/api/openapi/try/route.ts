@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
 
     // Read response
     const contentType = res.headers.get("content-type") || "";
-    let responseBody: any;
+    let responseBody: unknown;
 
     if (contentType.includes("application/json")) {
       responseBody = await res.json();

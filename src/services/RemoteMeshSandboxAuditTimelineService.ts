@@ -1,11 +1,8 @@
 import type {
   RemoteExecutionReceipt,
-  RemoteMeshJson,
-  RemoteMeshRiskTier,
 } from '../contracts/RemoteMeshSandboxContract.js';
 import type {
   RemoteMeshAuditTimelineEntry,
-  RemoteMeshAuditTimelineEntryKind,
   RemoteMeshAuditTimelineEntryStatus,
   RemoteMeshAuditTimelineIndexes,
   RemoteMeshAuditTimelineStatus,

@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
@@ -255,7 +254,7 @@ export class ZavorthDatabaseAdminTool extends BaseTool {
     if (!migrationName) return 'Error: "migration_name" is required.';
 
     try {
-      const { execFileSync } = await import('child_process');
+      await import('child_process');
 
       if (fs.existsSync('knexfile.ts') || fs.existsSync('knexfile.js')) {
         return `Migration:\n${await this.runCmd('npx', ['knex', 'migrate:latest'])}`;

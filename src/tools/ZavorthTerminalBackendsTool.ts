@@ -170,7 +170,7 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
       case 'execute': {
         if (!backend) return 'Error: "backend" is required for execute action.';
         if (!command) return 'Error: "command" is required for execute action.';
-        const result = this.executeOnBackend(backend, command, { timeout_ms, working_directory, ...options });
+        this.executeOnBackend(backend, command, { timeout_ms, working_directory, ...options });
         return this.executeAsString(backend, command, { timeout_ms, working_directory });
       }
       case 'log':
@@ -303,7 +303,7 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
   }
 
   private executeWSL(command: string, timeout: number): ExecuteResult {
-    const distro = 'default';
+    
     const result = execFileSync('wsl', ['--', 'bash', '-c', command], { timeout, windowsHide: true, maxBuffer: 5 * 1024 * 1024, encoding: 'utf-8' });
     return { stdout: String(result), stderr: '', exitCode: 0, backend: 'wsl', duration_ms: 0 };
   }

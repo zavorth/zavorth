@@ -1,4 +1,4 @@
-import { Context, InputFile } from 'grammy';
+import { Context, InputFile, Bot } from 'grammy';
 import { config } from '../../../../config/index.js';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { LogRepository } from '../../../../storage/LogRepository.js';
@@ -84,7 +84,7 @@ type VideoHandlerLike = {
 };
 
 type BotGatewayRuntimeTarget = {
-  bot: { api: Record<string, unknown> };
+  bot: { api: Bot['api'] };
   swarmController: unknown;
   taskOrchestrationController: TelegramTaskOrchestrationController;
   surfaceTaskDispatcher: SurfaceTaskDispatchService;
@@ -257,7 +257,7 @@ export function initializeTelegramTaskRuntime(
     workspaceProfileService: gateway.workspaceProfileService,
     workspaceOperationalMemoryService: new WorkspaceOperationalMemoryService(
       taskManager,
-      gateway.permissionService as any,
+      gateway.permissionService as unknown as ConstructorParameters<typeof WorkspaceOperationalMemoryService>[1],
     ),
     executionController: gateway.executionController,
     zavorthBridgeController: gateway.zavorthBridgeController,
@@ -270,20 +270,26 @@ export function initializeTelegramTaskRuntime(
       taskManager,
     ),
     videoHandler: gateway.videoHandler,
-    workflowController: gateway.pipelineController as any,
+    workflowController: gateway.pipelineController as unknown as ConstructorParameters<
+      typeof TelegramTaskOrchestrationController
+    >[0]['workflowController'],
   });
   gateway.surfaceTaskDispatcher = new SurfaceTaskDispatchService({
     parser: gateway.parser,
-    taskOrchestrationController: gateway.taskOrchestrationController as any,
-    surfaceIdentityService: gateway.surfaceIdentityService as any,
+    taskOrchestrationController: gateway.taskOrchestrationController as unknown as ConstructorParameters<
+      typeof SurfaceTaskDispatchService
+    >[0]['taskOrchestrationController'],
+    surfaceIdentityService: gateway.surfaceIdentityService as unknown as ConstructorParameters<
+      typeof SurfaceTaskDispatchService
+    >[0]['surfaceIdentityService'],
   });
   gateway.zavorthControlService.attachChatRuntime({
     permissionService: gateway.permissionService,
-    taskManager: taskManager as any,
+    taskManager: taskManager as unknown as TaskManagerLike,
     workflowRunService,
     parser: gateway.parser,
-    taskOrchestrationController: gateway.taskOrchestrationController as any,
-    workflowController: gateway.pipelineController as any,
+    taskOrchestrationController: gateway.taskOrchestrationController as unknown as TaskOrchestrationControllerLike,
+    workflowController: gateway.pipelineController as unknown as WorkflowControllerLike,
     surfaceTaskDispatcher: gateway.surfaceTaskDispatcher,
     legacyUnifiedGateway: gateway.legacyUnifiedGateway || null,
     echoOutputStage: gateway.echoOutputStage || null,

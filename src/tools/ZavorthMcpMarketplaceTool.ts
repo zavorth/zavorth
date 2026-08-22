@@ -296,7 +296,7 @@ export class ZavorthMcpMarketplaceTool extends BaseTool {
     return `Updates available:\n${updates.join('\n')}`;
   }
 
-  private publishServer(args: Record<string, unknown>): string {
+  private publishServer(_args: Record<string, unknown>): string {
     return 'MCP server publishing is coming soon. Submit to the Zavorth MCP registry.';
   }
 

@@ -1,6 +1,6 @@
 
 import { readFileSync, existsSync } from 'fs';
-import { join, extname } from 'path';
+import { join } from 'path';
 import type { ProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { createMinimalProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { sanitizeModelId, sanitizeProviderId, sanitizeLabel } from './ModelIdSanitizer.js';

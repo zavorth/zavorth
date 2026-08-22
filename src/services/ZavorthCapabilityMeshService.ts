@@ -3,10 +3,8 @@ import { config } from '../config/index.js';
 import {
   ZAVORTH_CAPABILITY_MESH_CONTRACT_VERSION,
   type ZavorthCapabilityMeshCandidate,
-  type ZavorthCapabilityMeshCandidateKind,
   type ZavorthCapabilityMeshCoverage,
   type ZavorthCapabilityMeshDecision,
-  type ZavorthCapabilityMeshRisk,
   type ZavorthCapabilityMeshSnapshot,
   type ZavorthCapabilityMeshStatus,
 } from '../contracts/ZavorthCapabilityMeshContract.js';

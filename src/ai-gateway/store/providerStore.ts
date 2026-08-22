@@ -2,7 +2,7 @@ import { create } from "zustand";
 "use client";
 
 
-const useProviderStore = create((set, get) => ({
+const useProviderStore = create((set, _get) => ({
   providers: [],
   loading: false,
   error: null,

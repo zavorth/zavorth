@@ -11,7 +11,7 @@ import { OperationalPreferenceLearner } from './OperationalPreferenceLearner.js'
 import { ProjectConstitutionLoader } from './ProjectConstitutionLoader.js';
 import { SkillMiningService } from './SkillMiningService.js';
 import { ZavorthCapabilityBuilderService } from './ZavorthCapabilityBuilderService.js';
-import { ZavorthIntelligencePipelineService, ZavorthIntelligenceFabricService } from './ZavorthIntelligencePipelineService.js';
+import { ZavorthIntelligenceFabricService } from './ZavorthIntelligencePipelineService.js';
 import { ZavorthPolicyCompilerService } from './ZavorthPolicyCompilerService.js';
 import { ZavorthSecurityRedTeamService } from './ZavorthSecurityRedTeamService.js';
 import type { LearningCandidateSnapshot } from './ZavorthLearningPlaneService.js';

@@ -36,18 +36,18 @@ const readSettings = async () => {
 };
 
 // Check if settings has ZavorthGateway customModels
-const hasZavorthGatewayConfig = (settings: any) => {
+const hasZavorthGatewayConfig = (settings: unknown) => {
   if (!settings || !settings.customModels) return false;
   return settings.customModels.some((m) => m.id === "custom:ZavorthGateway-0");
 };
 
-const redactDroidSettings = (settings: any) => {
+const redactDroidSettings = (settings: unknown) => {
   if (!settings?.customModels || !Array.isArray(settings.customModels)) {
     return settings;
   }
   return {
     ...settings,
-    customModels: settings.customModels.map((model: any) => ({
+    customModels: settings.customModels.map((model: unknown) => ({
       ...model,
       apiKey: model?.apiKey ? "[redacted]" : model?.apiKey,
     })),
@@ -151,7 +151,7 @@ export async function POST(request: Request) {
     await createBackup("droid", settingsPath);
 
     // Read existing settings or create new
-    let settings: Record<string, any> = {};
+    let settings: Record<string, unknown> = {};
     try {
       const existingSettings = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(existingSettings);
@@ -218,7 +218,7 @@ export async function DELETE(request: Request) {
     await createBackup("droid", settingsPath);
 
     // Read existing settings
-    let settings: Record<string, any> = {};
+    let settings: Record<string, unknown> = {};
     try {
       const existingSettings = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(existingSettings);

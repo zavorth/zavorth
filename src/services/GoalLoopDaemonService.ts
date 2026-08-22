@@ -187,7 +187,7 @@ export class GoalLoopDaemonService {
   }
 
   public async run(input: GoalLoopDaemonRunInput = {}): Promise<GoalLoopDaemonSnapshot> {
-    const daemonId = normalize(input.daemonId, 'goal-loop-daemon');
+    normalize(input.daemonId, 'goal-loop-daemon');
     const config = this.resolveConfig(input);
     const maxTicks = clampInt(Number(input.maxTicks || 1), 1, 10_000);
     let last = this.snapshot(input);

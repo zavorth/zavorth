@@ -167,7 +167,7 @@ async function driveSearch(input: ZavorthActionHandlerInput): Promise<ZavorthAct
     operation: input.operation,
     status: data.ok === true ? 'applied' : 'blocked',
     summary: String(data.summary || 'Google Drive search finished.'),
-    lines: Array.isArray(data.files) ? data.files.map((file: any) => `${file.name || file.id}: ${file.mimeType || 'unknown'}`) : [String(data.summary || '')],
+    lines: Array.isArray(data.files) ? data.files.map((file: any) => `${file.name || file.id}: ${file.mimeType || 'unknown'}`) : [String(data.summary || '')], // eslint-disable-line @typescript-eslint/no-explicit-any
     data,
   });
 }
@@ -332,7 +332,7 @@ async function computerScreenshot(input: ZavorthActionHandlerInput): Promise<Zav
   const preview = previewOnly(input, 'Computer screenshot preview.', { mode: text(input.args.mode, 'fullscreen'), localScreenCapture: true });
   if (preview) return preview;
   const executed = await new SystemScreenshotTool().execute({
-    mode: text(input.args.mode, 'fullscreen') as any,
+    mode: text(input.args.mode, 'fullscreen') as 'fullscreen' | 'active_window',
     returnBase64: input.args.includeBase64 === true,
     savePath: text(input.args.outputPath, ''),
   });
@@ -344,7 +344,7 @@ async function computerVision(input: ZavorthActionHandlerInput): Promise<Zavorth
   if (preview) return preview;
   const executed = await new SystemVisionAnalysisTool().execute({
     question: text(input.args.task || input.args.prompt, 'describe screen'),
-    mode: text(input.args.mode, 'active_window') as any,
+    mode: text(input.args.mode, 'active_window') as 'fullscreen' | 'active_window',
     returnBase64: input.args.includeImage === true,
     savePath: text(input.args.outputPath, ''),
   });

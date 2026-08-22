@@ -10,223 +10,255 @@ import { ServiceTokens } from './ServiceTokens.js';
 import { initializeBuiltinCommands, globalCommandRegistry } from '../domain/commands/index.js';
 import { CommandBackedTool, buildCommandSecurityDefinition } from '../domain/commands/CommandBackedTool.js';
 import { logger } from '../logger.js';
-export function createBootstrapToolRuntime(logRepo: LogRepository) {
-  const { ToolRegistry } = require('../tools/ToolRegistry.js');
 
-  const { ToolExecutor } = require('../execution/ToolExecutor.js');
-  const { ToolCatalogService } = require('../services/tools/ToolCatalogService.js');
-  const { UnifiedSearchTool } = require('../tools/UnifiedSearchTool.js');
-  const { DeepSearchTool } = require('../tools/DeepSearchTool.js');
-  const { CreateFileTool } = require('../tools/CreateFileTool.js');
-  const { ReadFileTool } = require('../tools/ReadFileTool.js');
-  const { ListDirectoryTool } = require('../tools/ListDirectoryTool.js');
-  const {
-    WorkspaceApplyPatchTool,
-    HashlineFileEditorTool,
-    WorkspaceEditTool,
-    WorkspaceListTool,
-    WorkspaceReadTool,
-    WorkspaceWriteTool,
-    WorkspaceCommandProposeTool,
-    WorkspaceCommandRunTool,
-    WorkspaceTaskMandateProposeTool,
-    HostCommandProposeTool,
-    HostCommandRunTool,
-    PtySessionProposeTool,
-    PtyWriteTool,
-    PtyTerminateTool,
-  } = require('../tools/workspace/index.js');
-  const { DateTimeTool } = require('../tools/DateTimeTool.js');
-  const { RemoteShellTool } = require('../tools/RemoteShellTool.js');
-  const { QueryExternalAiTool } = require('../tools/QueryExternalAiTool.js');
-  const { SandboxExecutionTool } = require('../tools/SandboxExecutionTool.js');
-  const { AgentCodeModeTool } = require('../tools/AgentCodeModeTool.js');
-  const { Mem0Tool } = require('../tools/Mem0Tool.js');
-  const { DesktopAutomationTool } = require('../tools/DesktopAutomationTool.js');
-  const { PlanMnemosScopeTool } = require('../tools/PlanMnemosScopeTool.js');
-  const { EnableMnemosTool } = require('../tools/EnableMnemosTool.js');
-  const { ToolRuntimeHandsTool: EchoHandsTool } = require('../tools/ToolRuntimeHandsTool.js');
-  const { ConfigureLlmProfileTool } = require('../tools/ConfigureLlmProfileTool.js');
-  const { ZavorthActionTool } = require('../tools/ZavorthActionTool.js');
-  const { AutoSkillCreatorTool } = require('../tools/AutoSkillCreatorTool.js');
-  const { UseLearnedSkillTool } = require('../tools/UseLearnedSkillTool.js');
-  const { ConversationRecallTool } = require('../tools/ConversationRecallTool.js');
-  const { KnowledgeRecallTool } = require('../tools/KnowledgeRecallTool.js');
-  const { ImageGenerationTool } = require('../tools/ImageGenerationTool.js');
-  const { MediaAnalysisTool } = require('../tools/MediaAnalysisTool.js');
-  const { NodeMeshTool } = require('../tools/NodeMeshTool.js');
-  const { VideoGenerationTool } = require('../tools/VideoGenerationTool.js');
-  const { KanbanTool } = require('../tools/KanbanTool.js');
-  const { SkillFeedbackCollectorTool } = require('../tools/SkillFeedbackCollectorTool.js');
-  const { BatchTrajectoryTool } = require('../tools/BatchTrajectoryTool.js');
-  const { MultiBackendTerminalTool } = require('../tools/MultiBackendTerminalTool.js');
-  const { EmailTool } = require('../tools/EmailTool.js');
-  const { CalendarTool } = require('../tools/CalendarTool.js');
-  const { PluginRecommendTool } = require('../tools/PluginRecommendTool.js');
-  const { PluginSuggestTool } = require('../tools/PluginSuggestTool.js');
-  const { CodeReviewTool } = require('../tools/CodeReviewTool.js');
-  const { DatabaseQueryTool } = require('../tools/DatabaseQueryTool.js');
-  const { ZavorthCronSchedulerTool } = require('../tools/ZavorthCronSchedulerTool.js');
-  const { ZavorthDelegateTool } = require('../tools/ZavorthDelegateTool.js');
-  const { ZavorthComputerUseTool } = require('../tools/ZavorthComputerUseTool.js');
-  const { ZavorthVoiceModeTool } = require('../tools/ZavorthVoiceModeTool.js');
-  const { ZavorthSessionSearchTool } = require('../tools/ZavorthSessionSearchTool.js');
-  const { SessionSearchFts5Tool } = require('../tools/SessionSearchFts5Tool.js');
-  const {
-    SessionContinuumService,
-    resolveSessionContinuumStorePath,
-  } = require('../services/SessionContinuumService.js');
-  const { config: runtimeConfig } = require('../config/index.js');
-  const path = require('node:path');
-  const { ZavorthChannelSendTool } = require('../tools/ZavorthChannelSendTool.js');
-  const { ZavorthDocumentExtractorTool } = require('../tools/ZavorthDocumentExtractorTool.js');
-  const { ZavorthTtsTool } = require('../tools/ZavorthTtsTool.js');
-  const { ZavorthSttTool } = require('../tools/ZavorthSttTool.js');
-  const { SttBackendRegistry } = require('../adapters/speech/stt/SttBackendRegistry.js');
-  const { SttProviderPackLoader } = require('../adapters/speech/stt/SttProviderPackLoader.js');
-  const { builtinSttProviderConfigs } = require('../adapters/speech/stt/builtinSttProviderConfigs.js');
-  const { TtsBackendRegistry } = require('../adapters/speech/tts/TtsBackendRegistry.js');
-  const { TtsProviderPackLoader } = require('../adapters/speech/tts/TtsProviderPackLoader.js');
-  const { builtinTtsProviderConfigs } = require('../adapters/speech/tts/builtinTtsProviderConfigs.js');
-  const { ZavorthReceiptSearchTool } = require('../tools/ZavorthReceiptSearchTool.js');
-  const { ZavorthPolicyEnforcerTool } = require('../tools/ZavorthPolicyEnforcerTool.js');
-  const { ZavorthApiClientTool } = require('../tools/ZavorthApiClientTool.js');
-  const { ZavorthTrajectoryExportTool } = require('../tools/ZavorthTrajectoryExportTool.js');
-  const { ZavorthMacroTool } = require('../tools/ZavorthMacroTool.js');
-  const { ZavorthCheckpointTool } = require('../tools/ZavorthCheckpointTool.js');
-  const { ZavorthBm25SearchTool } = require('../tools/ZavorthBm25SearchTool.js');
-  const { ZavorthLspDiagnosticsTool } = require('../tools/ZavorthLspDiagnosticsTool.js');
-  const { ZavorthPowerLockTool } = require('../tools/ZavorthPowerLockTool.js');
-  const { ZavorthCodebaseGraphTool } = require('../tools/ZavorthCodebaseGraphTool.js');
-  const { ZavorthSnapshotRollbackTool } = require('../tools/ZavorthSnapshotRollbackTool.js');
-  const { ZavorthTrajectoryCompressorTool } = require('../tools/ZavorthTrajectoryCompressorTool.js');
-  const { ZavorthAutoRepairTool } = require('../tools/ZavorthAutoRepairTool.js');
-  const { ZavorthBenchmarkTool } = require('../tools/ZavorthBenchmarkTool.js');
-  const { ZavorthBlueprintTool } = require('../tools/ZavorthBlueprintTool.js');
-  const { ZavorthContextMeterTool } = require('../tools/ZavorthContextMeterTool.js');
-  const { ZavorthMcpDoctorTool } = require('../tools/ZavorthMcpDoctorTool.js');
-  const { ZavorthStealthBrowseTool } = require('../tools/ZavorthStealthBrowseTool.js');
-  const { ZavorthSchedulerTool } = require('../tools/ZavorthSchedulerTool.js');
-  const { ZavorthPluginSdkTool } = require('../tools/ZavorthPluginSdkTool.js');
-  const { ZavorthWorktreeTool } = require('../tools/ZavorthWorktreeTool.js');
-  const { ZavorthMemoryGraphTool } = require('../tools/ZavorthMemoryGraphTool.js');
-  const { ZavorthSelfRepairTool } = require('../tools/ZavorthSelfRepairTool.js');
+import { ToolRegistry } from '../tools/ToolRegistry.js';
+import { ToolExecutor } from '../execution/ToolExecutor.js';
+import { ToolCatalogService } from '../services/tools/ToolCatalogService.js';
+import { UnifiedSearchTool } from '../tools/UnifiedSearchTool.js';
+import { DeepSearchTool } from '../tools/DeepSearchTool.js';
+import { CreateFileTool } from '../tools/CreateFileTool.js';
+import { ReadFileTool } from '../tools/ReadFileTool.js';
+import { ListDirectoryTool } from '../tools/ListDirectoryTool.js';
+import {
+  HashlineFileEditorTool,
+  HostCommandProposeTool,
+  HostCommandRunTool,
+  PtySessionProposeTool,
+  PtyTerminateTool,
+  PtyWriteTool,
+  WorkspaceApplyPatchTool,
+  WorkspaceCommandProposeTool,
+  WorkspaceCommandRunTool,
+  WorkspaceEditTool,
+  WorkspaceListTool,
+  WorkspaceReadTool,
+  WorkspaceTaskMandateProposeTool,
+  WorkspaceWriteTool,
+} from '../tools/workspace/index.js';
+import { DateTimeTool } from '../tools/DateTimeTool.js';
+import { RemoteShellTool } from '../tools/RemoteShellTool.js';
+import { QueryExternalAiTool } from '../tools/QueryExternalAiTool.js';
+import { SandboxExecutionTool } from '../tools/SandboxExecutionTool.js';
+import { AgentCodeModeTool } from '../tools/AgentCodeModeTool.js';
+import { Mem0Tool } from '../tools/Mem0Tool.js';
+import { DesktopAutomationTool } from '../tools/DesktopAutomationTool.js';
+import { PlanMnemosScopeTool } from '../tools/PlanMnemosScopeTool.js';
+import { EnableMnemosTool } from '../tools/EnableMnemosTool.js';
+import {
+  ToolRuntimeHandsTool as EchoHandsTool,
+} from '../tools/ToolRuntimeHandsTool.js';
+import { ConfigureLlmProfileTool } from '../tools/ConfigureLlmProfileTool.js';
+import { ZavorthActionTool } from '../tools/ZavorthActionTool.js';
+import { AutoSkillCreatorTool } from '../tools/AutoSkillCreatorTool.js';
+import { UseLearnedSkillTool } from '../tools/UseLearnedSkillTool.js';
+import { ConversationRecallTool } from '../tools/ConversationRecallTool.js';
+import { KnowledgeRecallTool } from '../tools/KnowledgeRecallTool.js';
+import { ImageGenerationTool } from '../tools/ImageGenerationTool.js';
+import { MediaAnalysisTool } from '../tools/MediaAnalysisTool.js';
+import { NodeMeshTool } from '../tools/NodeMeshTool.js';
+import { VideoGenerationTool } from '../tools/VideoGenerationTool.js';
+import { KanbanTool } from '../tools/KanbanTool.js';
+import { SkillFeedbackCollectorTool } from '../tools/SkillFeedbackCollectorTool.js';
+import { BatchTrajectoryTool } from '../tools/BatchTrajectoryTool.js';
+import { MultiBackendTerminalTool } from '../tools/MultiBackendTerminalTool.js';
+import { EmailTool } from '../tools/EmailTool.js';
+import { CalendarTool } from '../tools/CalendarTool.js';
+import { PluginRecommendTool } from '../tools/PluginRecommendTool.js';
+import { PluginSuggestTool } from '../tools/PluginSuggestTool.js';
+import { CodeReviewTool } from '../tools/CodeReviewTool.js';
+import { DatabaseQueryTool } from '../tools/DatabaseQueryTool.js';
+import { ZavorthCronSchedulerTool } from '../tools/ZavorthCronSchedulerTool.js';
+import { ZavorthDelegateTool } from '../tools/ZavorthDelegateTool.js';
+import { ZavorthComputerUseTool } from '../tools/ZavorthComputerUseTool.js';
+import { ZavorthVoiceModeTool } from '../tools/ZavorthVoiceModeTool.js';
+import { ZavorthSessionSearchTool } from '../tools/ZavorthSessionSearchTool.js';
+import { SessionSearchFts5Tool } from '../tools/SessionSearchFts5Tool.js';
+import {
+  SessionContinuumService,
+  resolveSessionContinuumStorePath,
+} from '../services/SessionContinuumService.js';
+import {
+  config as runtimeConfig,
+} from '../config/index.js';
+import path from 'node:path';
+import { ZavorthChannelSendTool } from '../tools/ZavorthChannelSendTool.js';
+import { ZavorthDocumentExtractorTool } from '../tools/ZavorthDocumentExtractorTool.js';
+import { ZavorthTtsTool } from '../tools/ZavorthTtsTool.js';
+import { ZavorthSttTool } from '../tools/ZavorthSttTool.js';
+import { SttBackendRegistry } from '../adapters/speech/stt/SttBackendRegistry.js';
+import { SttProviderPackLoader } from '../adapters/speech/stt/SttProviderPackLoader.js';
+import { builtinSttProviderConfigs } from '../adapters/speech/stt/builtinSttProviderConfigs.js';
+import { TtsBackendRegistry } from '../adapters/speech/tts/TtsBackendRegistry.js';
+import { TtsProviderPackLoader } from '../adapters/speech/tts/TtsProviderPackLoader.js';
+import { builtinTtsProviderConfigs } from '../adapters/speech/tts/builtinTtsProviderConfigs.js';
+import { ZavorthReceiptSearchTool } from '../tools/ZavorthReceiptSearchTool.js';
+import { ZavorthPolicyEnforcerTool } from '../tools/ZavorthPolicyEnforcerTool.js';
+import { ZavorthApiClientTool } from '../tools/ZavorthApiClientTool.js';
+import { ZavorthTrajectoryExportTool } from '../tools/ZavorthTrajectoryExportTool.js';
+import { ZavorthMacroTool } from '../tools/ZavorthMacroTool.js';
+import { ZavorthCheckpointTool } from '../tools/ZavorthCheckpointTool.js';
+import { ZavorthBm25SearchTool } from '../tools/ZavorthBm25SearchTool.js';
+import { ZavorthLspDiagnosticsTool } from '../tools/ZavorthLspDiagnosticsTool.js';
+import { ZavorthPowerLockTool } from '../tools/ZavorthPowerLockTool.js';
+import { ZavorthCodebaseGraphTool } from '../tools/ZavorthCodebaseGraphTool.js';
+import { ZavorthSnapshotRollbackTool } from '../tools/ZavorthSnapshotRollbackTool.js';
+import { ZavorthTrajectoryCompressorTool } from '../tools/ZavorthTrajectoryCompressorTool.js';
+import { ZavorthAutoRepairTool } from '../tools/ZavorthAutoRepairTool.js';
+import { ZavorthBenchmarkTool } from '../tools/ZavorthBenchmarkTool.js';
+import { ZavorthBlueprintTool } from '../tools/ZavorthBlueprintTool.js';
+import { ZavorthContextMeterTool } from '../tools/ZavorthContextMeterTool.js';
+import { ZavorthMcpDoctorTool } from '../tools/ZavorthMcpDoctorTool.js';
+import { ZavorthStealthBrowseTool } from '../tools/ZavorthStealthBrowseTool.js';
+import { ZavorthSchedulerTool } from '../tools/ZavorthSchedulerTool.js';
+import { ZavorthPluginSdkTool } from '../tools/ZavorthPluginSdkTool.js';
+import { ZavorthWorktreeTool } from '../tools/ZavorthWorktreeTool.js';
+import { ZavorthMemoryGraphTool } from '../tools/ZavorthMemoryGraphTool.js';
+import { ZavorthSelfRepairTool } from '../tools/ZavorthSelfRepairTool.js';
+import { SecurityGuidanceService } from '../services/plugins/SecurityGuidanceService.js';
+import { ProviderNovitaTool } from '../services/plugins/ProviderNovitaTool.js';
+import { ProviderReplicateTool } from '../services/plugins/ProviderReplicateTool.js';
+import { ProviderHuggingFaceTool } from '../services/plugins/ProviderHuggingFaceTool.js';
+import { WebFirecrawlTool } from '../services/plugins/WebFirecrawlTool.js';
+import { ImageGenFalTool } from '../services/plugins/ImageGenFalTool.js';
+import { ImageGenComfyUITool } from '../services/plugins/ImageGenComfyUITool.js';
+import { SearchSearXNGTool } from '../services/plugins/SearchSearXNGTool.js';
+import { VideoGenRunwayTool } from '../services/plugins/VideoGenRunwayTool.js';
+import { SpotifyPlayerTool } from '../services/plugins/SpotifyPlayerTool.js';
+import { ZavorthDockerComposeTool } from '../tools/ZavorthDockerComposeTool.js';
+import { ZavorthCodeIntelligenceTool } from '../tools/ZavorthCodeIntelligenceTool.js';
+import { ZavorthSshTunnelTool } from '../tools/ZavorthSshTunnelTool.js';
+import { ZavorthChartGeneratorTool } from '../tools/ZavorthChartGeneratorTool.js';
+import { ZavorthFileWatcherTool } from '../tools/ZavorthFileWatcherTool.js';
+import { ZavorthNetworkTool } from '../tools/ZavorthNetworkTool.js';
+import { ZavorthWebhookReceiverTool } from '../tools/ZavorthWebhookReceiverTool.js';
+import { ZavorthMcpMarketplaceTool } from '../tools/ZavorthMcpMarketplaceTool.js';
+import { ZavorthSkillMarketplaceTool } from '../tools/ZavorthSkillMarketplaceTool.js';
+import { ZavorthAgentGovernanceTool } from '../tools/ZavorthAgentGovernanceTool.js';
+import { ZavorthRagBuilderTool } from '../tools/ZavorthRagBuilderTool.js';
+import { ZavorthAgentEvalTool } from '../tools/ZavorthAgentEvalTool.js';
+import { ZavorthPrivacyVaultTool } from '../tools/ZavorthPrivacyVaultTool.js';
+import { ZavorthGitLockTool } from '../tools/ZavorthGitLockTool.js';
+import { ZavorthMultiRepoTool } from '../tools/ZavorthMultiRepoTool.js';
+import { ZavorthDocProviderTool } from '../tools/ZavorthDocProviderTool.js';
+import { ZavorthPromptLibraryTool } from '../tools/ZavorthPromptLibraryTool.js';
+import { ZavorthTokenBudgetTool } from '../tools/ZavorthTokenBudgetTool.js';
+import { ZavorthSandboxCloudTool } from '../tools/ZavorthSandboxCloudTool.js';
+import { ZavorthWorkflowBuilderTool } from '../tools/ZavorthWorkflowBuilderTool.js';
+import { ZavorthEdgeComputingTool } from '../tools/ZavorthEdgeComputingTool.js';
+import { ZavorthBrowserAutomationTool } from '../tools/ZavorthBrowserAutomationTool.js';
+import { ZavorthCodeFormatterTool } from '../tools/ZavorthCodeFormatterTool.js';
+import { ZavorthDependencyAnalyzerTool } from '../tools/ZavorthDependencyAnalyzerTool.js';
+import { ZavorthGitAdvancedTool } from '../tools/ZavorthGitAdvancedTool.js';
+import { ZavorthDataScienceTool } from '../tools/ZavorthDataScienceTool.js';
+import { ZavorthMlOpsTool } from '../tools/ZavorthMlOpsTool.js';
+import { ZavorthContainerManagerTool } from '../tools/ZavorthContainerManagerTool.js';
+import { ZavorthDatabaseAdminTool } from '../tools/ZavorthDatabaseAdminTool.js';
+import { ZavorthFileSystemAdvancedTool } from '../tools/ZavorthFileSystemAdvancedTool.js';
+import { ZavorthNetworkDiagnosticsTool } from '../tools/ZavorthNetworkDiagnosticsTool.js';
+import { ZavorthSecurityScannerTool } from '../tools/ZavorthSecurityScannerTool.js';
+import { ZavorthCloudStorageTool } from '../tools/ZavorthCloudStorageTool.js';
+import { ZavorthEmailAdvancedTool } from '../tools/ZavorthEmailAdvancedTool.js';
+import { ZavorthCalendarAdvancedTool } from '../tools/ZavorthCalendarAdvancedTool.js';
+import { ZavorthNotificationTool } from '../tools/ZavorthNotificationTool.js';
+import { ZavorthApiBuilderTool } from '../tools/ZavorthApiBuilderTool.js';
+import { ZavorthTerminalBackendsTool } from '../tools/ZavorthTerminalBackendsTool.js';
+import { AgentManagerTool } from '../tools/AgentManagerTool.js';
+import { CapabilityDiscoveryTool } from '../tools/CapabilityDiscoveryTool.js';
+import {
+  AgentConsensusTool,
+  ConsensusWithFallbackTool,
+} from '../tools/AgentConsensusTool.js';
+import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
+import { LLMRouterService } from '../services/plugins/LLMRouterService.js';
+import { ContextCompressorService } from '../services/plugins/ContextCompressorService.js';
+import { ReasoningEffortService } from '../services/plugins/ReasoningEffortService.js';
+import { PromptCacheService } from '../services/plugins/PromptCacheService.js';
+import { LLMSelfEditContextService } from '../services/plugins/LLMSelfEditContextService.js';
+import { LLMModelSwitcherService } from '../services/plugins/LLMModelSwitcherService.js';
+import { LLMDriftDetectorService } from '../services/plugins/LLMDriftDetectorService.js';
+import { StreamingLLMService } from '../services/plugins/StreamingLLMService.js';
+import { AutoSkillGeneratorService } from '../services/plugins/AutoSkillGeneratorService.js';
+import { ZavorthVisionService } from '../services/plugins/ZavorthVisionService.js';
+import { ZavorthAudioAnalyzerService } from '../services/plugins/ZavorthAudioAnalyzerService.js';
+import { ZavorthVideoAnalyzerService } from '../services/plugins/ZavorthVideoAnalyzerService.js';
+import { UsageAnalyticsService } from '../services/plugins/UsageAnalyticsService.js';
+import { CostAnalyticsService } from '../services/plugins/CostAnalyticsService.js';
+import { QualityMetricsService } from '../services/plugins/QualityMetricsService.js';
+import { MultiUserService } from '../services/plugins/MultiUserService.js';
+import { SharedWorkspaceService } from '../services/plugins/SharedWorkspaceService.js';
+import { RoleBasedAccessService } from '../services/plugins/RoleBasedAccessService.js';
+import { CircuitBreakerService } from '../services/plugins/CircuitBreakerService.js';
+import { RetryService } from '../services/plugins/RetryService.js';
+import { HealthCheckService } from '../services/plugins/HealthCheckService.js';
+import { BackupService } from '../services/plugins/BackupService.js';
+import { ZavorthPluginMarketplaceService } from '../services/plugins/ZavorthPluginMarketplaceService.js';
+import { DocumentIntelligenceService } from '../services/plugins/DocumentIntelligenceService.js';
+import { CodeIntelligenceService } from '../services/plugins/CodeIntelligenceService.js';
+import { DataPipelineService } from '../services/plugins/DataPipelineService.js';
+import { NotificationCenterService } from '../services/plugins/NotificationCenterService.js';
+import { VersionControlService } from '../services/plugins/VersionControlService.js';
+import { MemorySupermemoryService } from '../services/plugins/MemorySupermemoryService.js';
+import { MemoryByteroverService } from '../services/plugins/MemoryByteroverService.js';
+import { MemoryHindsightService } from '../services/plugins/MemoryHindsightService.js';
+import { MemoryHolographicService } from '../services/plugins/MemoryHolographicService.js';
+import { MemoryRetainDBService } from '../services/plugins/MemoryRetainDBService.js';
+import { MemorySemanticCacheService } from '../services/plugins/MemorySemanticCacheService.js';
+import { CompanionIOSService } from '../services/plugins/CompanionIOSService.js';
+import { CompanionAndroidService } from '../services/plugins/CompanionAndroidService.js';
+import { ActiveMemoryService } from '../services/plugins/ActiveMemoryService.js';
+import { DiagnosticsPrometheusService } from '../services/plugins/DiagnosticsPrometheusService.js';
+import { KanbanSQLiteDispatcherService } from '../services/plugins/KanbanSQLiteDispatcherService.js';
+import { MemoryLanceDBService } from '../services/plugins/MemoryLanceDBService.js';
+import { MemoryHonchoService } from '../services/plugins/MemoryHonchoService.js';
+import { DiagnosticsOtelService } from '../services/plugins/DiagnosticsOtelService.js';
+import { AchievementsService } from '../services/plugins/AchievementsService.js';
+import { SkinEngineService } from '../services/plugins/SkinEngineService.js';
+import { TrajectoryResearchService } from '../services/plugins/TrajectoryResearchService.js';
+import { DiskCleanupService } from '../services/plugins/DiskCleanupService.js';
+import { CodexSupervisorService } from '../services/plugins/CodexSupervisorService.js';
+import { BrowserPlaywrightService } from '../services/plugins/BrowserPlaywrightService.js';
+import { SearchExaService } from '../services/plugins/SearchExaService.js';
+import { MemoryQdrantService } from '../services/plugins/MemoryQdrantService.js';
+import { TaskPlaneService } from '../services/TaskPlaneService.js';
+import { bindAutonomySchedulePlane } from '../services/AutonomySchedulePlane.js';
+import {
+  runPluginOsHook,
+  setPluginOsHookPipeline,
+} from '../services/PluginOsHookPipelineAccess.js';
+import { PluginRuntimeService } from '../services/PluginRuntimeService.js';
+import { PluginRegistryService } from '../services/PluginRegistryService.js';
+import { PluginStateBridgeService } from '../services/PluginStateBridgeService.js';
+import { PluginOsBootstrapCatalogService } from '../services/PluginOsBootstrapCatalogService.js';
+import {
+  setPluginOsMcpRuntime,
+  setPluginOsMcpRuntime as clearMcp,
+} from '../services/PluginOsMcpRuntimeAccess.js';
+import { createPluginOsWireAdapterStores } from '../services/PluginOsWireAdapterStores.js';
+import {
+  setPluginOsReadyPromise,
+  waitForPluginOsReady,
+} from '../services/PluginOsAgentReadiness.js';
+import { PluginOsObservabilityService } from '../services/PluginOsObservabilityService.js';
+import { PluginOsRuntimeWatchService } from '../services/PluginOsRuntimeWatchService.js';
+import { PluginOsTelemetryService } from '../services/PluginOsTelemetryService.js';
+import * as bridge from '../services/SkillToolRegistryBridge.js';
+
+export function createBootstrapToolRuntime(logRepo: LogRepository) {
+
 
   // ── Plugin tools (BaseTool) ──
-  const { SecurityGuidanceService } = require('../services/plugins/SecurityGuidanceService.js');
-  const { ProviderNovitaTool } = require('../services/plugins/ProviderNovitaTool.js');
-  const { ProviderReplicateTool } = require('../services/plugins/ProviderReplicateTool.js');
-  const { ProviderHuggingFaceTool } = require('../services/plugins/ProviderHuggingFaceTool.js');
-  const { WebFirecrawlTool } = require('../services/plugins/WebFirecrawlTool.js');
-  const { ImageGenFalTool } = require('../services/plugins/ImageGenFalTool.js');
-  const { ImageGenComfyUITool } = require('../services/plugins/ImageGenComfyUITool.js');
-  const { SearchSearXNGTool } = require('../services/plugins/SearchSearXNGTool.js');
-  const { VideoGenRunwayTool } = require('../services/plugins/VideoGenRunwayTool.js');
-  const { SpotifyPlayerTool } = require('../services/plugins/SpotifyPlayerTool.js');
 
-  const { ZavorthDockerComposeTool } = require('../tools/ZavorthDockerComposeTool.js');
-  const { ZavorthCodeIntelligenceTool } = require('../tools/ZavorthCodeIntelligenceTool.js');
-  const { ZavorthSshTunnelTool } = require('../tools/ZavorthSshTunnelTool.js');
-  const { ZavorthChartGeneratorTool } = require('../tools/ZavorthChartGeneratorTool.js');
-  const { ZavorthFileWatcherTool } = require('../tools/ZavorthFileWatcherTool.js');
-  const { ZavorthNetworkTool } = require('../tools/ZavorthNetworkTool.js');
-  const { ZavorthWebhookReceiverTool } = require('../tools/ZavorthWebhookReceiverTool.js');
 
   // ── Innovative tools ──
-  const { ZavorthMcpMarketplaceTool } = require('../tools/ZavorthMcpMarketplaceTool.js');
-  const { ZavorthSkillMarketplaceTool } = require('../tools/ZavorthSkillMarketplaceTool.js');
-  const { ZavorthAgentGovernanceTool } = require('../tools/ZavorthAgentGovernanceTool.js');
-  const { ZavorthRagBuilderTool } = require('../tools/ZavorthRagBuilderTool.js');
-  const { ZavorthAgentEvalTool } = require('../tools/ZavorthAgentEvalTool.js');
-  const { ZavorthPrivacyVaultTool } = require('../tools/ZavorthPrivacyVaultTool.js');
-  const { ZavorthGitLockTool } = require('../tools/ZavorthGitLockTool.js');
 
   // ── Medium priority tools ──
-  const { ZavorthMultiRepoTool } = require('../tools/ZavorthMultiRepoTool.js');
-  const { ZavorthDocProviderTool } = require('../tools/ZavorthDocProviderTool.js');
-  const { ZavorthPromptLibraryTool } = require('../tools/ZavorthPromptLibraryTool.js');
-  const { ZavorthTokenBudgetTool } = require('../tools/ZavorthTokenBudgetTool.js');
 
   // ── Low priority tools ──
-  const { ZavorthSandboxCloudTool } = require('../tools/ZavorthSandboxCloudTool.js');
-  const { ZavorthWorkflowBuilderTool } = require('../tools/ZavorthWorkflowBuilderTool.js');
-  const { ZavorthEdgeComputingTool } = require('../tools/ZavorthEdgeComputingTool.js');
 
   // ── Gap-closing tools ──
-  const { ZavorthBrowserAutomationTool } = require('../tools/ZavorthBrowserAutomationTool.js');
-  const { ZavorthCodeFormatterTool } = require('../tools/ZavorthCodeFormatterTool.js');
-  const { ZavorthDependencyAnalyzerTool } = require('../tools/ZavorthDependencyAnalyzerTool.js');
-  const { ZavorthGitAdvancedTool } = require('../tools/ZavorthGitAdvancedTool.js');
-  const { ZavorthDataScienceTool } = require('../tools/ZavorthDataScienceTool.js');
-  const { ZavorthMlOpsTool } = require('../tools/ZavorthMlOpsTool.js');
-  const { ZavorthContainerManagerTool } = require('../tools/ZavorthContainerManagerTool.js');
-  const { ZavorthDatabaseAdminTool } = require('../tools/ZavorthDatabaseAdminTool.js');
-  const { ZavorthFileSystemAdvancedTool } = require('../tools/ZavorthFileSystemAdvancedTool.js');
-  const { ZavorthNetworkDiagnosticsTool } = require('../tools/ZavorthNetworkDiagnosticsTool.js');
-  const { ZavorthSecurityScannerTool } = require('../tools/ZavorthSecurityScannerTool.js');
-  const { ZavorthCloudStorageTool } = require('../tools/ZavorthCloudStorageTool.js');
-  const { ZavorthEmailAdvancedTool } = require('../tools/ZavorthEmailAdvancedTool.js');
-  const { ZavorthCalendarAdvancedTool } = require('../tools/ZavorthCalendarAdvancedTool.js');
-  const { ZavorthNotificationTool } = require('../tools/ZavorthNotificationTool.js');
-  const { ZavorthApiBuilderTool } = require('../tools/ZavorthApiBuilderTool.js');
-  const { ZavorthTerminalBackendsTool } = require('../tools/ZavorthTerminalBackendsTool.js');
-  const { AgentManagerTool } = require('../tools/AgentManagerTool.js');
-  const { CapabilityDiscoveryTool } = require('../tools/CapabilityDiscoveryTool.js');
-  const { AgentConsensusTool, ConsensusWithFallbackTool } = require('../tools/AgentConsensusTool.js');
-  const { LlmRuntimeService } = require('../services/llm/LlmRuntimeService.js');
 
-  const { LLMRouterService } = require('../services/plugins/LLMRouterService.js');
-  const { ContextCompressorService } = require('../services/plugins/ContextCompressorService.js');
-  const { ReasoningEffortService } = require('../services/plugins/ReasoningEffortService.js');
-  const { PromptCacheService } = require('../services/plugins/PromptCacheService.js');
-  const { LLMSelfEditContextService } = require('../services/plugins/LLMSelfEditContextService.js');
-  const { LLMModelSwitcherService } = require('../services/plugins/LLMModelSwitcherService.js');
-  const { LLMDriftDetectorService } = require('../services/plugins/LLMDriftDetectorService.js');
-  const { StreamingLLMService } = require('../services/plugins/StreamingLLMService.js');
-  const { AutoSkillGeneratorService } = require('../services/plugins/AutoSkillGeneratorService.js');
-  const { ZavorthVisionService } = require('../services/plugins/ZavorthVisionService.js');
-  const { ZavorthAudioAnalyzerService } = require('../services/plugins/ZavorthAudioAnalyzerService.js');
-  const { ZavorthVideoAnalyzerService } = require('../services/plugins/ZavorthVideoAnalyzerService.js');
-  const { UsageAnalyticsService } = require('../services/plugins/UsageAnalyticsService.js');
-  const { CostAnalyticsService } = require('../services/plugins/CostAnalyticsService.js');
-  const { QualityMetricsService } = require('../services/plugins/QualityMetricsService.js');
-  const { MultiUserService } = require('../services/plugins/MultiUserService.js');
-  const { SharedWorkspaceService } = require('../services/plugins/SharedWorkspaceService.js');
-  const { RoleBasedAccessService } = require('../services/plugins/RoleBasedAccessService.js');
-  const { CircuitBreakerService } = require('../services/plugins/CircuitBreakerService.js');
-  const { RetryService } = require('../services/plugins/RetryService.js');
-  const { HealthCheckService } = require('../services/plugins/HealthCheckService.js');
-  const { BackupService } = require('../services/plugins/BackupService.js');
-  const { ZavorthPluginMarketplaceService } = require('../services/plugins/ZavorthPluginMarketplaceService.js');
-  const { DocumentIntelligenceService } = require('../services/plugins/DocumentIntelligenceService.js');
-  const { CodeIntelligenceService } = require('../services/plugins/CodeIntelligenceService.js');
-  const { DataPipelineService } = require('../services/plugins/DataPipelineService.js');
-  const { NotificationCenterService } = require('../services/plugins/NotificationCenterService.js');
-  const { VersionControlService } = require('../services/plugins/VersionControlService.js');
-  const { MemorySupermemoryService } = require('../services/plugins/MemorySupermemoryService.js');
-  const { MemoryByteroverService } = require('../services/plugins/MemoryByteroverService.js');
-  const { MemoryHindsightService } = require('../services/plugins/MemoryHindsightService.js');
-  const { MemoryHolographicService } = require('../services/plugins/MemoryHolographicService.js');
-  const { MemoryRetainDBService } = require('../services/plugins/MemoryRetainDBService.js');
-  const { MemorySemanticCacheService } = require('../services/plugins/MemorySemanticCacheService.js');
-  const { CompanionIOSService } = require('../services/plugins/CompanionIOSService.js');
-  const { CompanionAndroidService } = require('../services/plugins/CompanionAndroidService.js');
 
   // ── Plugin services (runtime dependencies) ──
-  const { ActiveMemoryService } = require('../services/plugins/ActiveMemoryService.js');
-  const { DiagnosticsPrometheusService } = require('../services/plugins/DiagnosticsPrometheusService.js');
-  const { KanbanSQLiteDispatcherService } = require('../services/plugins/KanbanSQLiteDispatcherService.js');
-  const { MemoryLanceDBService } = require('../services/plugins/MemoryLanceDBService.js');
-  const { MemoryHonchoService } = require('../services/plugins/MemoryHonchoService.js');
-  const { DiagnosticsOtelService } = require('../services/plugins/DiagnosticsOtelService.js');
-  const { AchievementsService } = require('../services/plugins/AchievementsService.js');
-  const { SkinEngineService } = require('../services/plugins/SkinEngineService.js');
-  const { TrajectoryResearchService } = require('../services/plugins/TrajectoryResearchService.js');
-  const { DiskCleanupService } = require('../services/plugins/DiskCleanupService.js');
-  const { CodexSupervisorService } = require('../services/plugins/CodexSupervisorService.js');
-  const { BrowserPlaywrightService } = require('../services/plugins/BrowserPlaywrightService.js');
-  const { SearchExaService } = require('../services/plugins/SearchExaService.js');
-  const { MemoryQdrantService } = require('../services/plugins/MemoryQdrantService.js');
 
   const toolRegistry = new ToolRegistry();
   toolRegistry.register(new UnifiedSearchTool());
@@ -311,8 +343,6 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthMemoryGraphTool());
   toolRegistry.register(new ZavorthSelfRepairTool());
   {
-    const { TaskPlaneService } = require('../services/TaskPlaneService.js');
-    const { bindAutonomySchedulePlane } = require('../services/AutonomySchedulePlane.js');
     const runtimeDir =
       runtimeConfig.runtimeDir || path.join(runtimeConfig.projectRoot || process.cwd(), 'data', 'runtime');
     const taskPlane = new TaskPlaneService({
@@ -483,7 +513,6 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
     );
   }
   try {
-    const { setPluginOsHookPipeline } = require('../services/PluginOsHookPipelineAccess.js');
     setPluginOsHookPipeline(hookPipelineService);
   } catch {
     /* optional plugin OS hook surface */
@@ -554,11 +583,6 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
 
   logger.info('[BOOT] plugins-ready (55 services + 10 tools)');
 
-  const { PluginRuntimeService } = require('../services/PluginRuntimeService.js');
-  const { PluginRegistryService } = require('../services/PluginRegistryService.js');
-  const { PluginStateBridgeService } = require('../services/PluginStateBridgeService.js');
-  const { PluginOsBootstrapCatalogService } = require('../services/PluginOsBootstrapCatalogService.js');
-  const { setPluginOsMcpRuntime } = require('../services/PluginOsMcpRuntimeAccess.js');
 
   const pluginOsProjectRoot = runtimeConfig?.projectRoot || process.env.ZAVORTH_PROJECT_ROOT || process.cwd();
   const pluginOsRegistry = new PluginRegistryService();
@@ -570,8 +594,6 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
     /* soft-fail */
   }
 
-  const { createPluginOsWireAdapterStores } = require('../services/PluginOsWireAdapterStores.js');
-  const { setPluginOsReadyPromise } = require('../services/PluginOsAgentReadiness.js');
   const pluginOsWireAdapters = createPluginOsWireAdapterStores();
 
   const pluginOsRuntime = new PluginRuntimeService({
@@ -593,7 +615,6 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
     projectRoot: pluginOsProjectRoot,
     stateBridge: pluginOsBridge,
   });
-  const { PluginOsObservabilityService } = require('../services/PluginOsObservabilityService.js');
   const pluginOsObservability = new PluginOsObservabilityService({
     projectRoot: pluginOsProjectRoot,
     stateBridge: pluginOsBridge,
@@ -622,14 +643,13 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
     logger.warn(`[BOOT] plugin-os discovery failed: ${message}`);
   }
 
-  const { PluginOsRuntimeWatchService } = require('../services/PluginOsRuntimeWatchService.js');
   const pluginOsWatch = new PluginOsRuntimeWatchService({
     projectRoot: pluginOsProjectRoot,
     runtime: pluginOsRuntime,
   });
   // Avoid late async BOOT logs / requires after tests or dispose tear down.
   let toolRuntimeDisposed = false;
-  let pluginOsBootstrapPromise = Promise.resolve(null);
+  let pluginOsBootstrapPromise: Promise<{ summary?: { loaded?: number; wired?: number; failed?: number } } | null> = Promise.resolve(null);
   if (process.env.ZAVORTH_PLUGIN_OS_RUNTIME !== '0') {
     pluginOsBootstrapPromise = pluginOsRuntime
       .bootstrap({
@@ -674,12 +694,6 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   void pluginOsBootstrapPromise.then(() => {
     if (toolRuntimeDisposed) return;
     try {
-      const bridge = require('../services/SkillToolRegistryBridge.js') as {
-        reconcileSkillToolsWithRegistry?: (registry: unknown) => {
-          dropped?: string[];
-          kept?: string[];
-        };
-      };
       const reconcile = bridge?.reconcileSkillToolsWithRegistry;
       if (typeof reconcile !== 'function') return;
       const result = reconcile(toolRegistry);
@@ -717,7 +731,6 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
         }
         if (toolRuntimeDisposed) return;
         try {
-          const { PluginOsTelemetryService } = require('../services/PluginOsTelemetryService.js');
           const telemetry = new PluginOsTelemetryService({
             projectRoot: pluginOsProjectRoot,
             observability: pluginOsObservability,
@@ -753,14 +766,12 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
       }
     }
     try {
-      const { setPluginOsHookPipeline, runPluginOsHook } = require('../services/PluginOsHookPipelineAccess.js');
       void runPluginOsHook({ event: 'shutdown.before', context: { source: 'bootstrapToolRuntime.dispose' } });
       setPluginOsHookPipeline(null);
     } catch {
       /* ignore */
     }
     try {
-      const { setPluginOsMcpRuntime: clearMcp } = require('../services/PluginOsMcpRuntimeAccess.js');
       clearMcp(null);
     } catch {
       /* ignore */
@@ -848,7 +859,6 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
       bridge: pluginOsBridge,
       ready: pluginOsBootstrapPromise,
       waitUntilReady: (timeoutMs?: number) => {
-        const { waitForPluginOsReady } = require('../services/PluginOsAgentReadiness.js');
         return waitForPluginOsReady({ timeoutMs });
       },
       wireAdapters: pluginOsWireAdapters,

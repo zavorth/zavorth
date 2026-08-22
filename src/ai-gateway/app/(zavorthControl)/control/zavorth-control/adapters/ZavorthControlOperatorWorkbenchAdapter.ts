@@ -1,4 +1,4 @@
-type AnyRecord = Record<string, any>;
+type AnyRecord = Record<string, unknown>;
 
 function record(value: unknown): AnyRecord {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as AnyRecord : {};

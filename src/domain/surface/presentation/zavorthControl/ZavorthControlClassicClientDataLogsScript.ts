@@ -1,6 +1,8 @@
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
 function zavorthControlClassicClientDataLogs() {
   type LogRow = { timestamp?: string; level?: string; category?: string; message?: string };
+  // Consumed at runtime via extractFunctionBody(); invoked by the logs refresh button.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function loadLogs() {
     try {
       const res = await fetch('/api/logs');

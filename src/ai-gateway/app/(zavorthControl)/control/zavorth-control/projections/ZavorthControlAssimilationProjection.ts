@@ -32,13 +32,13 @@ export function scanZavorthControlSnapshotForSourceIdentityLeaks(
   };
 }
 
-type AnyRecord = Record<string, any>;
+type AnyRecord = Record<string, unknown>;
 
 function record(value: unknown): AnyRecord {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as AnyRecord : {};
 }
 
-function array<T = any>(value: unknown): T[] {
+function array<T = unknown>(value: unknown): T[] {
   return Array.isArray(value) ? value as T[] : [];
 }
 

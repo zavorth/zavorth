@@ -5,7 +5,6 @@ import { logger } from '../logger.js';
 import type {
 ZavorthDaySchedule,
   ZavorthTimeWindow,
-  ZavorthTimeAutomationPolicy,
 } from '../contracts/TimeAutomationContract.js';
 
 type FileSystemLike = {
@@ -23,7 +22,7 @@ export type TimeAutomationServiceOptions = {
 
 type DayOfWeek = ZavorthDaySchedule['day'];
 
-const ALL_DAYS: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
 
 const DEFAULT_TIME_AUTOMATION = `# TIME-AUTOMATION.md - Time & Automation Policies
 

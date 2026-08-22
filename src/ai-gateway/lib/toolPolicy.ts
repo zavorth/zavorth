@@ -112,7 +112,7 @@ export function evaluateToolPolicy(toolNames: string[]): ToolPolicyResult {
 /**
  * Extract tool names from an OpenAI-compatible request body.
  */
-export function extractToolNames(body: any): string[] {
+export function extractToolNames(body: unknown): string[] {
   const tools: string[] = [];
 
   // tools array (new format)
@@ -144,7 +144,7 @@ export function extractToolNames(body: any): string[] {
 /**
  * Convenience: validate an entire request body against the tool policy.
  */
-export function validateToolsInRequest(body: any): ToolPolicyResult {
+export function validateToolsInRequest(body: unknown): ToolPolicyResult {
   const toolNames = extractToolNames(body);
   return evaluateToolPolicy(toolNames);
 }

@@ -10,13 +10,14 @@ type BotApiLike = {
 };
 
 type JulesClientLike = {
-  inspectSession: (sessionId: string) => Promise<any>;
+  inspectSession: (sessionId: string) => Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
 type WorkerDeps = {
   taskManager: TaskManager;
   botApi: BotApiLike;
-  log: (level: 'info' | 'warn' | 'error', category: string, message: string, metadata?: Record<string, any>) => void;
+  log: (level: 'info' | 'warn' | 'error', category: string, message: string, // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    metadata?: Record<string, any>) => void;
   julesClient?: JulesClientLike;
 };
 
@@ -219,7 +220,7 @@ export class JulesQueueWorker {
     }
   }
 
-  private withQueueUnlocked(metadata: Record<string, any> | undefined): Record<string, any> {
+  private withQueueUnlocked(metadata: Record<string, any> | undefined): Record<string, any> { // eslint-disable-line @typescript-eslint/no-explicit-any
     return {
       ...(metadata || {}),
       queue_lock: null,

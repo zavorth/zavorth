@@ -43,10 +43,5 @@ export async function POST(request) {
 }
 
 // GET /api/sync/status - Check sync initialization status
-export async function GET(request) {
-  return NextResponse.json({
-    initialized: syncInitialized,
-    modelSyncInitialized,
-    message: syncInitialized ? "Cloud sync is running" : "Cloud sync not initialized",
-  });
-}
+export async function GET(_request) {
+  }

@@ -2,7 +2,7 @@ import type { PermissionService } from './PermissionService.js';
 import type { TaskManager } from '../orchestrator/TaskManager.js';
 import type { Task } from '../contracts/TaskContract.js';
 import type { RuntimeDiagnosticsService } from './RuntimeDiagnosticsService.js';
-import { OperationsDashboardService, OperationsCockpitService } from './OperationsDashboardService.js';
+import { OperationsCockpitService } from './OperationsDashboardService.js';
 import type { OperatorBriefService } from '../observability/OperatorBriefService.js';
 import type { ProductObservabilityService } from '../observability/ProductObservabilityService.js';
 import type {

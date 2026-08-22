@@ -51,6 +51,67 @@ const SETUP_PAGES = ['overview', 'provider', 'channels', 'skills', 'hatch'] as c
 type SetupPage = typeof SETUP_PAGES[number];
 type SearchMode = 'provider' | 'channel' | null;
 type TextField = 'modelId' | null;
+type InkBox = typeof import('ink').Box;
+type InkText = typeof import('ink').Text;
+
+type HeaderProps = {
+  Box: InkBox;
+  Text: InkText;
+  snapshot: ZavorthSetupStudioSnapshot;
+  page: SetupPage;
+  pageIndex: number;
+  motionFrame: string;
+};
+
+type LeftRailProps = {
+  Box: InkBox;
+  Text: InkText;
+  snapshot: ZavorthSetupStudioSnapshot;
+  selectedStepIndex: number;
+  page: SetupPage;
+  compactLayout: boolean;
+};
+
+type CenterPanelProps = {
+  Box: InkBox;
+  Text: InkText;
+  snapshot: ZavorthSetupStudioSnapshot;
+  selectedStepIndex: number;
+  channelIndex: number;
+  page: SetupPage;
+  searchMode: SearchMode;
+  searchBuffer: string;
+  searchSelectedIndex: number;
+  compactLayout: boolean;
+};
+
+type RightRailProps = {
+  Box: InkBox;
+  Text: InkText;
+  snapshot: ZavorthSetupStudioSnapshot;
+  secrets: SecretState;
+  activeSecretField: SecretField | null;
+  secretBuffer: string;
+  activeTextField: TextField;
+  textBuffer: string;
+  compactLayout: boolean;
+  motionFrame: string;
+};
+
+type FooterProps = {
+  Box: InkBox;
+  Text: InkText;
+  snapshot: ZavorthSetupStudioSnapshot;
+  hint: string;
+  interactive: boolean;
+  activeSecretField: SecretField | null;
+  secretBuffer: string;
+  searchMode: SearchMode;
+  searchBuffer: string;
+  activeTextField: TextField;
+  textBuffer: string;
+  motionFrame: string;
+};
 
 const PAGE_LABELS: Record<SetupPage, string> = {
   overview: 'overview',
@@ -569,8 +630,8 @@ function SetupStudioInkApp(props: {
   );
 }
 
-function Header({ Box, Text, snapshot, page, pageIndex, motionFrame }: any) {
-  const ready = snapshot.steps.filter((step: any) => step.status === 'ready').length;
+function Header({ Box, Text, snapshot, page, pageIndex }: HeaderProps) {
+  const ready = snapshot.steps.filter((step) => step.status === 'ready').length;
   const total = snapshot.steps.length;
   const pageNumber = Number(pageIndex) + 1;
 
@@ -585,7 +646,8 @@ function Header({ Box, Text, snapshot, page, pageIndex, motionFrame }: any) {
   });
 
   return createElement(
-    Box,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Box as any,
     { flexDirection: 'column', borderStyle: 'none', paddingX: 2, paddingY: 1, marginBottom: 1 },
     createElement(
       Box,
@@ -617,7 +679,7 @@ function Header({ Box, Text, snapshot, page, pageIndex, motionFrame }: any) {
   );
 }
 
-function LeftRail({ Box, Text, snapshot, selectedStepIndex, page, compactLayout }: any) {
+function LeftRail({ Box, Text, snapshot, selectedStepIndex, page, compactLayout }: LeftRailProps) {
   const checklist = compactLayout ? snapshot.steps.slice(0, 8) : snapshot.steps;
   return createElement(
     Box,
@@ -632,7 +694,7 @@ function LeftRail({ Box, Text, snapshot, selectedStepIndex, page, compactLayout 
     ))),
     createElement(Text, { color: COLORS.muted }, ''),
     createElement(Text, { color: COLORS.amber, bold: true }, 'Checklist'),
-    ...checklist.map((step: any, index: number) => createElement(
+    ...checklist.map((step, index: number) => createElement(
       Text,
       { key: `step:${step.id}`, color: colorForStatus(step.status) },
       `${index === selectedStepIndex ? '>' : ' '} ${symbolForStatus(step.status)} ${truncate(step.title, compactLayout ? 24 : 12)}`,
@@ -649,7 +711,7 @@ function LeftRail({ Box, Text, snapshot, selectedStepIndex, page, compactLayout 
   );
 }
 
-function CenterPanel({ Box, Text, snapshot, selectedStepIndex, channelIndex, page, searchMode, searchBuffer, searchSelectedIndex, compactLayout }: any) {
+function CenterPanel({ Box, Text, snapshot, selectedStepIndex, channelIndex, page, searchMode, searchBuffer, searchSelectedIndex, compactLayout }: CenterPanelProps) {
   const selectedStep = snapshot.steps[selectedStepIndex] || snapshot.steps[0];
   const pageLines = renderPageLines(snapshot, page, channelIndex);
   const searchMatches = renderSearchMatches(snapshot, searchMode, searchBuffer, searchSelectedIndex);
@@ -744,7 +806,7 @@ function renderPageLines(
   ];
 }
 
-function RightRail({ Box, Text, snapshot, secrets, activeSecretField, secretBuffer, activeTextField, textBuffer, compactLayout, motionFrame }: any) {
+function RightRail({ Box, Text, snapshot, secrets, activeSecretField, secretBuffer, activeTextField, textBuffer, compactLayout, motionFrame }: RightRailProps) {
   const providerConfigured = snapshot.plan.provider.id !== 'deferred';
   const channelCount = Object.values(snapshot.plan.channels).filter((value) => value !== 'skip').length;
   return createElement(
@@ -808,20 +870,7 @@ function Footer({
   activeTextField,
   textBuffer,
   motionFrame,
-}: {
-  Box: any;
-  Text: any;
-  snapshot: ZavorthSetupStudioSnapshot;
-  hint: string;
-  interactive: boolean;
-  activeSecretField: SecretField | null;
-  secretBuffer: string;
-  searchMode: SearchMode;
-  searchBuffer: string;
-  activeTextField: TextField;
-  textBuffer: string;
-  motionFrame: string;
-}) {
+}: FooterProps) {
   return createElement(
     Box,
     { marginTop: 1, borderStyle: 'round', borderColor: activeSecretField || activeTextField || searchMode ? COLORS.cyan : COLORS.orange, paddingX: 1 },

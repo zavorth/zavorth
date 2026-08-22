@@ -100,7 +100,7 @@ export class RetryService {
         }
         return result;
       } catch (error: unknown) {
-        const err = asErrorLike(error);
+        asErrorLike(error);
         lastError = error instanceof Error ? error : new Error(String(error));
         const errorMsg = lastError.message;
 

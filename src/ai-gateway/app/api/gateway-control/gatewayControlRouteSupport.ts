@@ -6,7 +6,6 @@ import { AIGatewayProxyService } from "../../../../services/AIGatewayProxyServic
 
 import { ProviderControlPlaneService } from "../../../../services/ProviderControlPlaneService.js";
 import { PermissionService } from "../../../../services/PermissionService.js";
-import type { PermissionRequest } from "../../../../contracts/PermissionRequest.js";
 import { logger } from '@/shared/utils/logger';
 export type GatewayControlReadResource =
   | "overview"
@@ -397,7 +396,7 @@ function createGatewayControlReadService(): Pick<ZavorthGatewayRuntimeService, "
       source: "runtime-file",
       tokenFile: "",
     }),
-  } as any);
+  } as never);
   service.attachOperations({
     providerControlPlane: new ProviderControlPlaneService(),
     aiGatewayGateway: new AIGatewayProxyService(),

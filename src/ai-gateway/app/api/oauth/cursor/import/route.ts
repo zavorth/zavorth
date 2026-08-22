@@ -18,7 +18,7 @@ import { asErrorLike } from '../../../../../../utils/errorLike.js';
  * - accessToken: string - Access token from cursorAuth/accessToken
  * - machineId: string - Machine ID from storage.serviceMachineId
  */
-export async function POST(request: any) {
+export async function POST(request: unknown) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
 
@@ -58,7 +58,7 @@ export async function POST(request: any) {
     const userInfo = cursorService.extractUserInfo(tokenData.accessToken);
 
     // Save to database
-    const connection: any = await createProviderConnection({
+    const connection: unknown = await createProviderConnection({
       provider: "cursor",
       authType: "oauth",
       accessToken: tokenData.accessToken,

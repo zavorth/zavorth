@@ -1,4 +1,5 @@
 import type { Context } from 'grammy';
+import type { KanbanComment } from '../../../../services/plugins/KanbanSQLiteDispatcherService.js';
 import { normalizeSharedSurfaceCommandCallback } from '../../../../domain/surface/presentation/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
 import { logger } from '../../../../logger';
 import { asErrorLike } from '../../../../utils/errorLike.js';
@@ -119,6 +120,7 @@ export class GatewayCallbackRouter {
             });
             await ctx.answerCallbackQuery();
           } else if (action === 'view') {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const card = (kanban as any).db.prepare('SELECT * FROM cards WHERE id = ?').get(cardId) as any;
             if (!card) {
               await ctx.answerCallbackQuery({ text: 'Task not found.' });
@@ -126,7 +128,7 @@ export class GatewayCallbackRouter {
             }
             const comments = kanban.getComments(cardId);
             const commentsStr =
-              comments.map((c: any) => `• ${c.author}: ${c.content}`).join('\n') || 'No comments.';
+              comments.map((c: KanbanComment) => `• ${c.author}: ${c.content}`).join('\n') || 'No comments.';
             const details =
               `📋 *Task:* ${card.title}\n` +
               `*ID:* \`${card.id}\`\n` +

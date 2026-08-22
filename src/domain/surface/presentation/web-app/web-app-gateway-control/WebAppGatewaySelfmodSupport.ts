@@ -8,7 +8,7 @@ export class WebAppGatewaySelfmodSupport {
   public async buildSelfmodPlane(
     sessionId: string,
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     const plans = deps.mutationPlane
       ? deps.mutationPlane.listPlans({ limit: 20, includeExpired: false })
         .filter((plan) => plan.domain === 'selfmod' || planTouchesSession(plan, sessionId))
@@ -46,7 +46,7 @@ export class WebAppGatewaySelfmodSupport {
       requestedBy?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     if (!deps.selfModification) {
       throw new Error('Selfmod unavailable in this runtime.');
     }
@@ -73,7 +73,7 @@ export class WebAppGatewaySelfmodSupport {
       requestedBy?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     if (!deps.selfModification) {
       throw new Error('Selfmod unavailable in this runtime.');
     }
@@ -196,7 +196,7 @@ export class WebAppGatewaySelfmodSupport {
       requestedBy?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     if (!deps.selfModification) {
       throw new Error('Selfmod unavailable in this runtime.');
     }

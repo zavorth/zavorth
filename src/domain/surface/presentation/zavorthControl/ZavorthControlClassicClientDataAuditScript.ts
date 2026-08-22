@@ -91,10 +91,14 @@ function zavorthControlClassicClientDataAudit() {
     }
   }
 
+  // Consumed at runtime via extractFunctionBody(); bound by the audit log toolbar.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function auditPrev() {
     auditOffset = Math.max(0, auditOffset - auditLimit);
     loadAudit();
   }
+  // Consumed at runtime via extractFunctionBody(); bound by the audit log toolbar.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function auditNext() {
     auditOffset += auditLimit;
     loadAudit();

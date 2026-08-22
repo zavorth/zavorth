@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import { applyPatch, createTwoFilesPatch } from 'diff';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
 import { DiskMutationGateService } from '../../services/DiskMutationGateService.js';

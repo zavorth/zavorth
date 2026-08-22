@@ -5,6 +5,8 @@ import { NodeMeshTransportRouteService } from './NodeMeshTransportRouteService.j
 import { NodeOnboardingService } from './NodeOnboardingService.js';
 import type { SharedSurfaceRuntime } from './SurfaceRuntime.js';
 import { errorMessage } from '../utils/errorLike.js';
+// Dynamic service bag: route handlers access node services by key.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NodeRouteDynamic = any;
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;

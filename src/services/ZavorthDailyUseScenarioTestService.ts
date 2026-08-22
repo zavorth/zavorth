@@ -284,7 +284,7 @@ export class ZavorthDailyUseScenarioTestService {
       sessionId: 'daily-use-telegram',
       workspace: this.projectRoot,
     });
-    const text = result.text;
+    
     const hasReceipt = Boolean(result.receipt.runId && result.receipt.receiptReturnedToTelegram);
     const hasPolicy = result.receipt.externalMutationBeforeApproval === false;
     const confusionSignals = [
@@ -387,6 +387,7 @@ export class ZavorthDailyUseScenarioTestService {
   private createTelegramDryRun(): TelegramDailyAssistantService {
     const runs: UniversalAgentRun[] = [];
     const gateway = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       handle: async (request: any) => {
         const run = createDryRunRun({
           text: request.text,

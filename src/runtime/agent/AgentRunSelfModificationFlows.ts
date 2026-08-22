@@ -1,5 +1,6 @@
 import type { UniversalAgentRequest, UniversalAgentRun, UniversalAgentRunResult, UniversalApprovalRequest } from './UniversalAgentRuntimeTypes.js';
-import { type AgentRunFlowHost, normalizeText, recordOrNull, type SelfModificationActionOperation, type SelfModificationActionRequest } from './AgentRunSpecializedFlowUtils.js';
+import { type AgentRunFlowHost, normalizeText, normalizeStringList, recordOrNull, type SelfModificationActionOperation, type SelfModificationActionRequest } from './AgentRunSpecializedFlowUtils.js';
+import type { SelfModificationPreviewResult } from '../../services/selfmod-command/SelfModificationCommandTypes.js';
 
 export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { prototype: AgentRunFlowHost }): void {
   const proto = AgentRunServiceClass.prototype;

@@ -48,7 +48,7 @@ export class OpsFacade extends DomainFacadeBase<OpsDomainSnapshot> {
     const readySidecars = sidecars.filter((entry) => entry.enabled && entry.ready).length;
     const recentErrors = Array.isArray(snapshot.errors.recent) ? snapshot.errors.recent.length : 0;
     const channelsHealthy = ['telegram', 'discordBridge', 'whatsapp', 'slack']
-      .map((key) => (snapshot.channels as Record<string, any> | undefined)?.[key] || null)
+      .map((key) => (snapshot.channels as Record<string, any> | undefined)?.[key] || null) // eslint-disable-line @typescript-eslint/no-explicit-any
       .filter((entry) => entry && entry.enabled && (entry.ready || entry.started || entry.configured)).length;
 
     return this.composeSnapshot({

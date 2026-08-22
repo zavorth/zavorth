@@ -1244,7 +1244,7 @@ private readonly audioTranscription = new AudioTranscriptionService({
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         require('./ModeEscalationPresentation.js') as typeof import('./ModeEscalationPresentation.js');
       const card = buildModeEscalationPendingCard({
-        request: request as any,
+        request: request as never,
         channel: 'web',
       });
       body = card.text;

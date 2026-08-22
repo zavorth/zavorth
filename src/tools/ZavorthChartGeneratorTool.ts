@@ -83,7 +83,7 @@ export class ZavorthChartGeneratorTool extends BaseTool {
     const width = typeof args.width === 'number' ? args.width : 800;
     const height = typeof args.height === 'number' ? args.height : 600;
     const darkMode = args.dark_mode === true;
-    const outputFormat = String(args.format || 'svg');
+    String(args.format || 'svg');
     const outputPath = typeof args.output_path === 'string' ? args.output_path : undefined;
 
     const svg = this.generateSVG(chartType, data, {

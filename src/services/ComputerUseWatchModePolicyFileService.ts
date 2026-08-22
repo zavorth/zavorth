@@ -78,7 +78,7 @@ export class ComputerUseWatchModePolicyFileService {
       if (!this.existsSyncImpl(this.policyFile)) {
         return { ...DEFAULT_POLICY };
       }
-      return this.normalizeDocument(JSON.parse(this.readFileSyncImpl(this.policyFile, 'utf8')) as Record<string, any>);
+      return this.normalizeDocument(JSON.parse(this.readFileSyncImpl(this.policyFile, 'utf8')) as Record<string, unknown>);
     } catch (error: unknown) {logger.warn('[Computer Use Watch Mode  File] JSON parse failed', error);
     return { ...DEFAULT_POLICY };
   }

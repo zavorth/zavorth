@@ -318,7 +318,7 @@ function validateFeedUrl(feedUrl: string, allowedHosts: Set<string>): { ok: bool
   }
 }
 
-function normalizeCategory(value: ZavorthInnovationRadarCategory | null | undefined, text: string): ZavorthInnovationRadarCategory {
+function normalizeCategory(value: ZavorthInnovationRadarCategory | null | undefined, _text: string): ZavorthInnovationRadarCategory {
   if (value && VALID_CATEGORIES.has(value)) return value;
   return 'unknown';
 }

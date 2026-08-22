@@ -74,9 +74,6 @@ function normalizeText(value: unknown, fallback = ''): string {
   return text || fallback;
 }
 
-function normalizeMode(value: unknown): string {
-  return normalizeText(value, 'default').toLowerCase();
-}
 
 function normalizeTarget(value: unknown): ExecutionEscalationTarget | null {
   const normalized = normalizeText(value).toLowerCase().replace(/-/g, '_');

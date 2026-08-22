@@ -15,7 +15,7 @@ import {
 } from '../domain/surface/infrastructure/EchoVoiceAssetStoreService.js';
 import type { ZavorthEchoService } from './ZavorthEchoService.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
-import { ZavorthOperatorFacadeService, NexusFacadeService } from './ZavorthOperatorFacadeService.js';
+import { NexusFacadeService } from './ZavorthOperatorFacadeService.js';
 import type {
   NormalizedInboundMessage,
   UniversalAgentRunResult,
@@ -314,7 +314,7 @@ export class ZavorthControlEchoRouteService {
     }
     try {
       return JSON.parse(raw);
-    } catch (error: unknown) { const err = asErrorLike(error); const errorMessage = new Error('Payload JSON invalid.') as RequestBodyTooLargeError;
+    } catch (error: unknown) { const err = asErrorLike(error); new Error('Payload JSON invalid.') as RequestBodyTooLargeError;
       Object.assign(error as object, { statusCode: 400 });
       err.code = 'invalid_json';
       throw error;

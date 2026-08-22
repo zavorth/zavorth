@@ -18,7 +18,6 @@ import type {
 } from '../contracts/runtime/ZavorthGovernedSubagentContract.js';
 import type {
   ZavorthUniversalSkillCandidate,
-  ZavorthUniversalSkillIntakePreview,
   ZavorthUniversalSkillSourceKind,
 } from '../contracts/ZavorthUniversalSkillIntakeContract.js';
 import {

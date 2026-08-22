@@ -19,7 +19,7 @@ async function buildGatewayCore(env: NodeJS.ProcessEnv): Promise<GatewayCoreBund
   const runtime = new GatewayRuntime();
   const apiRouter = new PublicApiRouter();
   configureCanonicalPublicApi(apiRouter, new CanonicalPublicApiService({
-    getRuntime: () => ({ webUserId: 'gateway-core' } as any),
+    getRuntime: () => ({ webUserId: 'gateway-core' } as never),
     getGateway: () => null,
     getSessionPlane: () => null,
     getNodeMesh: () => null,

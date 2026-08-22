@@ -107,7 +107,7 @@ export async function listBackups(toolId: string) {
   } catch (error: unknown) { logger.warn('[backup] filesystem operation failed', error); return []; }
 
   const metaFiles = entries.filter((e) => e.endsWith(".meta.json"));
-  const backups: any[] = [];
+  const backups: unknown[] = [];
 
   for (const metaFile of metaFiles) {
     try {
@@ -217,14 +217,14 @@ async function rotateBackups(toolId: string) {
   const all = await listBackups(toolId);
 
   // Group by original file basename
-  const groups: Record<string, any[]> = {};
+  const groups: Record<string, unknown[]> = {};
   for (const b of all) {
     const key = path.basename(b.originalPath);
     if (!groups[key]) groups[key] = [];
     groups[key].push(b);
   }
 
-  for (const [, group] of Object.entries(groups) as [string, any[]][]) {
+  for (const [, group] of Object.entries(groups) as [string, unknown[]][]) {
     // Already sorted newest first
     if (group.length > MAX_BACKUPS_PER_TOOL) {
       const toDelete = group.slice(MAX_BACKUPS_PER_TOOL);

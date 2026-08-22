@@ -1,4 +1,4 @@
-import type { ILlmProvider, ChatMessage, LlmResponse, LlmStreamEvent, ToolDefinition, ProviderChatOptions } from '../ILlmProvider.js';
+import type { ILlmProvider, ChatMessage, ToolDefinition } from '../ILlmProvider.js';
 
 export type ApiMode =
   | 'openai_completions'
@@ -196,7 +196,7 @@ export interface EnhancedProviderPluginManifest {
 
 export interface EnhancedProviderPlugin {
   manifest: EnhancedProviderPluginManifest;
-  create: (target: any) => ILlmProvider;
+  create: (target: unknown) => ILlmProvider;
   transport?: TransportAdapter;
   compat?: CompatLayer;
   auth?: AuthProvider;

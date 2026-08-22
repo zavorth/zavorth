@@ -6,13 +6,6 @@ import { asErrorLike } from '../../../../utils/errorLike.js';
 
 type SidecarSummaryReader = () => unknown;
 
-interface HealthStats {
-  uptime_seconds?: number;
-  ram_mb_rss?: number;
-  ram_mb_heap?: number;
-  cpu_arch?: string;
-  [key: string]: unknown;
-}
 
 interface ServiceStats {
   uptime?: string;

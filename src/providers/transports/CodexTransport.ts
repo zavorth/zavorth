@@ -78,7 +78,7 @@ export class CodexTransport implements TransportAdapter {
           params.reasoning = { effort: mapReasoningEffort(options.reasoningEffort) };
         }
 
-        const response = await (client as any).responses.create(
+        const response = await (client as any).responses.create( // eslint-disable-line @typescript-eslint/no-explicit-any
           params,
           options?.signal ? { signal: options.signal } : undefined,
         );
@@ -126,7 +126,7 @@ export class CodexTransport implements TransportAdapter {
           params.reasoning = { effort: mapReasoningEffort(options.reasoningEffort) };
         }
 
-        const stream = await (client as any).responses.stream(
+        const stream = await (client as any).responses.stream( // eslint-disable-line @typescript-eslint/no-explicit-any
           params,
           options?.signal ? { signal: options.signal } : undefined,
         );

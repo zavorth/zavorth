@@ -19,7 +19,6 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { config } from '../../config/index.js';
 import { logger } from '../../logger.js';
 import type {
-  ISearchQueryAdapter,
   SearchQueryMode,
   SearchQueryRequest,
   AdapterSearchOutput,
@@ -72,7 +71,7 @@ export class GeminiGroundingSearchAdapter implements ISearchAdapter {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
       model: config.geminiModel || 'gemini-2.0-flash',
-      tools: [{ googleSearch: {} }],
+      tools: [{ googleSearch: {} } as any], // eslint-disable-line @typescript-eslint/no-explicit-any
     });
 
     const result = await model.generateContent({

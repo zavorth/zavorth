@@ -59,7 +59,7 @@ export class SkillLifecycleCuratorService {
   }
 
   public auditSkillLifecycles(customSkillsDir?: string): SkillLifecycleAuditReport {
-    const skillsDir = customSkillsDir || path.join(this.projectRoot, '.zavorth', 'skills');
+    customSkillsDir || path.join(this.projectRoot, '.zavorth', 'skills');
     const now = Date.now();
     const STALE_THRESHOLD_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
     const ARCHIVE_THRESHOLD_MS = 90 * 24 * 60 * 60 * 1000; // 90 days

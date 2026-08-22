@@ -1,7 +1,6 @@
 import type { SwarmRole } from '../../runtime/sessions/v2/SwarmOrchestrator.js';
 import type { LlmRunOptions, LlmRuntimeService } from '../../services/llm/LlmRuntimeService.js';
 import { logger } from '../../logger.js';
-import { asErrorLike } from '../../utils/errorLike';
 import type {
   RawToolSpecInput,
   SwarmV2RoleLibraryEntry,

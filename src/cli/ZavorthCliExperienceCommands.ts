@@ -4,6 +4,11 @@ import {
   projectRoot,
   readFlexibleStringFlag,
 } from './ZavorthCliCommandRuntime.js';
+import {
+  silenceConsoleLogToStderr,
+  runRuntimeGuidedFixes,
+  runRuntimeReadinessFix,
+} from './ZavorthCliAcpCommands.js';
 
 export {
   silenceConsoleLogToStderr,

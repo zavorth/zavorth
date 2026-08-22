@@ -304,7 +304,7 @@ export class DeveloperWorkspaceSurfaceService {
         }),
       };
     } catch (error: unknown) {
-  const err = asErrorLike(error);logger.warn('[Developer Workspace Surface] load operation failed', error);
+  asErrorLike(error);logger.warn('[Developer Workspace Surface] load operation failed', error);
     return {
         ok: false,
         error: error instanceof Error ? error : new Error(String(error || 'unknown manifest error')),

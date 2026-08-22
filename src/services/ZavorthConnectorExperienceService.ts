@@ -1,4 +1,4 @@
-﻿import { ChannelProviderDoctorService, type ChannelProviderDoctorReport } from './ChannelProviderDoctorService.js';
+import { ChannelProviderDoctorService, type ChannelProviderDoctorReport } from './ChannelProviderDoctorService.js';
 import {
   ChannelSetupAssistantService,
   type ChannelSetupAssistantApplyResult,
@@ -106,7 +106,7 @@ export class ZavorthConnectorExperienceService {
         channelId,
         apply: false,
         status: 'preview',
-        summary: `${labelConnector(channelId)} setup preview ready; rode com --apply para escrever somente scaffold/allowlist.`,
+        summary: `${labelConnector(channelId)} setup preview ready; run with --apply to write only scaffold/allowlist.`,
         assistant,
         applyResult: null,
         connector,

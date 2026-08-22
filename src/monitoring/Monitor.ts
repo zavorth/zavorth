@@ -26,7 +26,7 @@ export class Monitor {
     }
   }
 
-  public getHealthStats(): Record<string, any> {
+  public getHealthStats(): Record<string, unknown> {
     const memory = process.memoryUsage();
     return {
       uptime_seconds: Math.floor(process.uptime()),

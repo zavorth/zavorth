@@ -91,7 +91,7 @@ export function startExternalLauncherReload(
       summary: 'External supervised launcher prepared successfully.',
     };
   } catch (error: unknown) {
-    const err = asErrorLike(error);
+    asErrorLike(error);
     return {
       accepted: false,
       summary: errorMessage(error),

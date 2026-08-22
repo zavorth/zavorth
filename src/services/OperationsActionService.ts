@@ -190,7 +190,7 @@ export class OperationsActionService {
       child.unref();
       this.closeSyncImpl(logFd);
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       this.writeFileSyncImpl(
         logFd,
         `[${this.now().toISOString()}] Failed to start action: ${errorMessage(error)}${lineBreak}`,

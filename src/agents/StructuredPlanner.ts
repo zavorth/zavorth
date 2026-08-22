@@ -105,7 +105,7 @@ export class StructuredPlanner {
           decisionTrace,
         };
       } catch (error: unknown) {
-        const err = asErrorLike(error);
+        asErrorLike(error);
         logger.warn('[Structured Planner] validation failed', error);
     lastError = error instanceof Error ? error : new Error(String(error));
   }
@@ -150,11 +150,11 @@ export class StructuredPlanner {
     return {
       plan_id: uuidv4(),
       task_id: task.task_id,
-      objective: cleaned.objective || 'Task execution through Zavorth',
-      context: cleaned.context || 'Context inferred by the planner',
+      objective: (cleaned.objective as string | undefined) || 'Task execution through Zavorth',
+      context: (cleaned.context as string | undefined) || 'Context inferred by the planner',
       assumptions: Array.isArray(cleaned.assumptions) ? cleaned.assumptions : [],
-      executor_recommendation: cleaned.executor_recommendation || 'local_executor',
-      workspace_recommendation: cleaned.workspace_recommendation || null,
+      executor_recommendation: (cleaned.executor_recommendation as string | undefined) || 'local_executor',
+      workspace_recommendation: (cleaned.workspace_recommendation as string | null | undefined) || null,
       risk_level: typeof cleaned.risk_level === 'number' ? cleaned.risk_level : 1,
       requires_approval:
         typeof cleaned.requires_approval === 'boolean'
@@ -162,8 +162,8 @@ export class StructuredPlanner {
           : (typeof cleaned.risk_level === 'number' ? cleaned.risk_level : 1) >= 2,
       steps: Array.isArray(cleaned.steps) ? cleaned.steps : [],
       validation_steps: Array.isArray(cleaned.validation_steps) ? cleaned.validation_steps : [],
-      success_condition: cleaned.success_condition || 'Instructions executed successfully',
-      rollback_condition: cleaned.rollback_condition || 'No rollback condition defined',
+      success_condition: (cleaned.success_condition as string | undefined) || 'Instructions executed successfully',
+      rollback_condition: (cleaned.rollback_condition as string | undefined) || 'No rollback condition defined',
       notes: this.buildDecisionNotes(Array.isArray(cleaned.notes) ? cleaned.notes : [], trace, providerUsed),
     };
   }

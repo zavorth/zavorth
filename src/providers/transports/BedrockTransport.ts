@@ -8,7 +8,7 @@ import type {
   ToolCall,
 } from '../ILlmProvider.js';
 import type { TransportAdapter } from './TransportAdapter.js';
-import { extractSystemPrompt, toAnthropicTool, asRecord } from '../utils/anthropicConversion.js';
+import { extractSystemPrompt, asRecord } from '../utils/anthropicConversion.js';
 import { isProviderAbortError } from '../ProviderAbort.js';
 import { logger } from '../../logger.js';
 import { errorMessage } from '../../utils/errorLike.js';
@@ -16,13 +16,6 @@ import { errorMessage } from '../../utils/errorLike.js';
 interface BedrockMessage {
   role: 'user' | 'assistant';
   content: Array<{ text?: string; toolResult?: unknown; toolUse?: unknown }>;
-}
-
-interface BedrockToolResult {
-  toolResult: {
-    toolUseId: string;
-    content: Array<{ text: string }>;
-  };
 }
 
 export class BedrockTransport implements TransportAdapter {
@@ -67,9 +60,9 @@ export class BedrockTransport implements TransportAdapter {
         }
 
         const abortSignal = options?.signal;
-        const command = new ConverseCommand(requestParams as any);
+        const command = new ConverseCommand(requestParams as any); // eslint-disable-line @typescript-eslint/no-explicit-any
         const response = await this.client.send(command, {
-          abortSignal: abortSignal as any,
+          abortSignal: abortSignal as any, // eslint-disable-line @typescript-eslint/no-explicit-any
         });
 
         if (attempt > 0) {
@@ -112,9 +105,9 @@ export class BedrockTransport implements TransportAdapter {
         }
 
         const abortSignal = options?.signal;
-        const command = new ConverseStreamCommand(requestParams as any);
+        const command = new ConverseStreamCommand(requestParams as any); // eslint-disable-line @typescript-eslint/no-explicit-any
         const response = await this.client.send(command, {
-          abortSignal: abortSignal as any,
+          abortSignal: abortSignal as any, // eslint-disable-line @typescript-eslint/no-explicit-any
         });
 
         if (attempt > 0) {
@@ -136,7 +129,7 @@ export class BedrockTransport implements TransportAdapter {
 
   private async *processStream(response: Record<string, unknown>): AsyncIterable<LlmStreamEvent> {
     const stream = response.body;
-    if (!stream || typeof (stream as any)[Symbol.asyncIterator] !== 'function') {
+    if (!stream || typeof (stream as any)[Symbol.asyncIterator] !== 'function') { // eslint-disable-line @typescript-eslint/no-explicit-any
       throw new Error('Bedrock transport: no stream in response');
     }
 
@@ -149,7 +142,6 @@ export class BedrockTransport implements TransportAdapter {
     yield { type: 'start', accumulated: '', done: false };
 
     for await (const event of stream as AsyncIterable<Record<string, unknown>>) {
-      const eventType = String(event.bytes ? 'contentBlockDelta' : Object.keys(event)[0] || '');
 
       if (event.contentBlockStart) {
         const block = asRecord(event.contentBlockStart);

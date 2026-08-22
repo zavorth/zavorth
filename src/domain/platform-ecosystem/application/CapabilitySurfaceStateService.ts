@@ -45,7 +45,7 @@ export class EchoCapabilitySurfaceStateService {
       capabilityId: `echo:${String(tool.name || '').trim()}`,
       toolName: String(tool.name || '').trim(),
       category: String(tool.category || '').trim().toLowerCase(),
-      dangerLevel: String((tool as any).dangerLevel || '').trim() || null,
+      dangerLevel: String((tool as unknown as Record<string, unknown>).dangerLevel || '').trim() || null,
       requiresPermission: tool.requiresPermission === true,
       lifecycle,
     };

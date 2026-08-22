@@ -27,6 +27,7 @@ export type MnemosSessionEvent = {
   timestamp: string;
   sessionId: string;
   type: MnemosEventType;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload: Record<string, any>;
   source?: {
     surface: 'zavorthControl' | 'cli' | 'telegram' | 'api' | 'runtime-adapter' | 'runtime' | 'unknown';

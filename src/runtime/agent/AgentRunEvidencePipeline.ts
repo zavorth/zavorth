@@ -404,8 +404,8 @@ export class AgentRunEvidencePipeline {
         status: 'fallback-inline',
       });
     } catch (fallbackError: unknown) {
-      const err = asErrorLike(fallbackError);
-      const error = err;
+      asErrorLike(fallbackError);
+      
       this.appendWorkerReceipt(context, {
         jobId: job.id,
         stage: job.stage,

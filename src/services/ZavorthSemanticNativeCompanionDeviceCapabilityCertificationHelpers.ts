@@ -7,7 +7,6 @@ import type {
   ZavorthNativeRuntimeTarget,
 } from '../contracts/native/ZavorthNativeCompanionDeviceContract.js';
 import type {
-  ZavorthSemanticNativeCompanionDeviceCapabilityCertificationSnapshot,
   ZavorthSemanticNativeCompanionDeviceCapabilityClaim,
   ZavorthSemanticNativeCompanionDeviceCapabilityClaimPriority,
   ZavorthSemanticNativeCompanionDeviceCapabilityClaimStatus,

@@ -1,7 +1,6 @@
 import type OpenAI from 'openai';
 import type { ChatMessage, InlineData } from './ILlmProvider.js';
 
-type OpenAIContentPart = Record<string, any>;
 
 export function convertChatMessagesToOpenAI(
   messages: ChatMessage[],

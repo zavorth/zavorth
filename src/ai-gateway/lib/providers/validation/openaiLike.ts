@@ -15,7 +15,7 @@ export async function validateOpenAILikeProvider({
   providerSpecificData = {},
   modelId = "gpt-4o-mini",
   modelsUrl: customModelsUrl,
-}: any) {
+}: unknown) {
   if (!baseUrl) {
     return connectionFailed("Missing base URL");
   }

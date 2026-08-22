@@ -96,7 +96,7 @@ export class TrustDecisionService {
   public async evaluate(input: TrustDecisionInput): Promise<TrustDecision> {
     const domain = input.domain;
     const actionId = this.normalizeActionId(input.actionId);
-    const profile = this.runtimeProfile.getProfile();
+    this.runtimeProfile.getProfile();
     const capabilityId = this.nullableText(input.capabilityId);
     const actionKey = this.buildActionKey(domain, actionId, input.payload || {});
     const scope = input.approvalScope || 'once';

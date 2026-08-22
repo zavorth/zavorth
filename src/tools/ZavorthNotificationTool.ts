@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
@@ -165,7 +164,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
     } catch (error: unknown) {logger.warn('[Zavorth Notification] process execution failed', error); return ''; }
   }
 
-  private async pushNotification(args: Record<string, unknown>): Promise<string> {
+  private async pushNotification(_args: Record<string, unknown>): Promise<string> {
     return 'Push notifications require a push service configuration (Firebase, OneSignal, etc.). Use webhook or slack action for immediate notifications.';
   }
 
@@ -267,12 +266,12 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
 
     try {
       const { execFileSync } = await import('child_process');
-      const result = execFileSync('curl', [
+      execFileSync('curl', [
         '-s', '-X', 'POST',
         '-H', 'Content-Type: application/json',
         '-d', JSON.stringify(payload),
         webhookUrl,
-      ], { timeout: 10000 }).toString();
+      ], { timeout: 10000 });
 
       return `Discord notification sent: ${title}`;
     } catch (error: unknown) {logger.warn('[Zavorth Notification] process execution failed', error); return ''; }

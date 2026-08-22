@@ -104,7 +104,7 @@ export class ComposerPayloadService {
       : [];
     const payload =
       mention.payload && typeof mention.payload === 'object' && !Array.isArray(mention.payload)
-        ? (mention.payload as Record<string, any>)
+        ? (mention.payload as Record<string, unknown>)
         : undefined;
 
     return {
@@ -246,7 +246,7 @@ export class ComposerPayloadService {
     const status = String(skill.status || '').trim() || null;
     const payload =
       skill.payload && typeof skill.payload === 'object' && !Array.isArray(skill.payload)
-        ? (skill.payload as Record<string, any>)
+        ? (skill.payload as Record<string, unknown>)
         : undefined;
 
     return {

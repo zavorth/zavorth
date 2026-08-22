@@ -237,6 +237,7 @@ export class ZavorthHost {
 
     this.scheduleBootTimeout();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.worker.on('message', (msg: any) => {
       if (msg?.type === 'heartbeat') {
         this.missedHeartbeats = 0;
@@ -346,6 +347,7 @@ export class ZavorthHost {
       this.setTimeoutImpl(() => this.spawnWorker(), this.restartDelayMs);
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.worker.on('error', (err: any) => {
       this.log(`Worker error: ${err.message}`);
     });
@@ -450,6 +452,7 @@ export class ZavorthHost {
     this.worker?.send?.({ type: 'backup_done' });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private handleHandoffReload(message: any): void {
     const requestId = String(message?.requestId || '').trim() || `reload-${this.now()}`;
     const payload = message?.payload || {};
@@ -589,6 +592,7 @@ export class ZavorthHost {
     this.logFn(`[${ts}] [Host] ${message}`);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private handleWorkerStats(stats: any): void {
     if (!stats || typeof stats !== 'object') {
       this.consecutiveResourceBreaches = 0;

@@ -1,7 +1,6 @@
 import type {
   CapabilityDiagnosis,
   CapabilityFallbackOption,
-  CapabilityFailureKind,
   CapabilityOperationalDescriptor,
   CapabilityPermissionRequirement,
   CapabilityReadinessSnapshot,

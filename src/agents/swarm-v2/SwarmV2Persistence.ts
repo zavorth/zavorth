@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { logger } from '../../logger.js';
-import { asErrorLike } from '../../utils/errorLike';
 import { defaultRoleLibrary, normalizeKey } from './SwarmV2Planner.js';
 import type {
   RawRoleLibraryEntry,

@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import type { ToolDefinition, ToolParameter } from '../../providers/ILlmProvider';
 import type { IZavorthTool } from './IZavorthTool';
-import { logger } from '../../logger.js';/**
+import { logger } from '../../logger.js';
+/**
  * ToolSchemaHelper converts IZavorthTool Zod schemas into OpenAI/Ollama-compatible
  * function-calling ToolDefinition JSON Schema objects.
  *
@@ -62,6 +63,7 @@ export class ToolSchemaHelper {
         return current.shape;
       }
       if ('_def' in current) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const def = (current as any)._def;
         if (def.innerType) {
           current = def.innerType;
@@ -86,6 +88,7 @@ export class ToolSchemaHelper {
     const unwrapped = this.unwrapField(field);
 
     if (unwrapped instanceof z.ZodEnum) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const def = (unwrapped as any)._def;
       const enumValues = def.entries
         ? Object.keys(def.entries)
@@ -138,10 +141,12 @@ export class ToolSchemaHelper {
     let current = field;
     while (current) {
       if (current instanceof z.ZodOptional || current instanceof z.ZodNullable) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         current = (current as any)._def.innerType;
         continue;
       }
       if (current instanceof z.ZodDefault) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         current = (current as any)._def.innerType;
         continue;
       }
@@ -156,7 +161,9 @@ export class ToolSchemaHelper {
   private static isOptionalField(field: z.ZodTypeAny): boolean {
     if (field instanceof z.ZodOptional) return true;
     if (field instanceof z.ZodDefault) return true;
-    if ('_def' in field && (field as any)._def.innerType) {
+    if ('_def' in field && // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (field as any)._def.innerType) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return this.isOptionalField((field as any)._def.innerType);
     }
     return false;

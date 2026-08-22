@@ -25,11 +25,11 @@ export class FileDeliveryRequestParser {
     };
   }
 
-  public parseTimeFilter(rawRequest: string): TimeFilter {
+  public parseTimeFilter(_rawRequest: string): TimeFilter {
     return { sinceMs: null, untilMs: null, label: null };
   }
 
-  public detectRootHints(loweredRequest: string): RootKey[] {
+  public detectRootHints(_loweredRequest: string): RootKey[] {
     return ['downloads', 'desktop', 'documents', 'workspace'];
   }
 

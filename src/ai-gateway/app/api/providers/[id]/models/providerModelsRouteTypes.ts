@@ -17,14 +17,14 @@ export type ProviderModelsConfigEntry = {
   authPrefix?: string;
   authQuery?: string;
   body?: unknown;
-  parseResponse: (data: any) => any;
+  parseResponse: (data: unknown) => unknown;
 };
 
 export type ProviderModelsRouteContext = {
   params: Promise<{ id: string }> | { id: string };
 };
 
-export type BuildModelsResponse = (payload: any, statusConfig?: ResponseInit) => Response;
+export type BuildModelsResponse = (payload: unknown, statusConfig?: ResponseInit) => Response;
 
 export type ProviderModelsHandlerContext = {
   request: Request;

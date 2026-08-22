@@ -2,7 +2,6 @@
 import { Worker } from 'worker_threads';
 import { config } from '../../config/index.js';
 import type { ISandboxRuntime, SandboxRequest, SandboxResult } from './ISandboxRuntime.js';
-import { asErrorLike } from '../../utils/errorLike.js';
 
 export type WasmSandboxRequest = {
   moduleBase64: string;

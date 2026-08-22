@@ -4,7 +4,7 @@ import { TrustedDeviceAccessService, type TrustedDeviceAccessScope } from './Tru
 import { asErrorLike } from '../utils/errorLike.js';
 
 type LocalAccessRouteDeps = {
-  readJsonBody: (req: http.IncomingMessage) => Promise<Record<string, any>>;
+  readJsonBody: (req: http.IncomingMessage) => Promise<Record<string, unknown>>;
   writeJson: (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
   authService?: {
     resolveAuthenticatedIdentity: (req: http.IncomingMessage) => {
@@ -139,7 +139,7 @@ export class TrustedDeviceAccessRouteService {
     return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
   }
 
-  private readDeviceTtlMs(body: Record<string, any>): number | null | undefined {
+  private readDeviceTtlMs(body: Record<string, unknown>): number | null | undefined {
     if (!Object.prototype.hasOwnProperty.call(body, 'deviceTtlMs')) {
       return undefined;
     }

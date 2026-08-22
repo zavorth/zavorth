@@ -55,7 +55,7 @@ function renderCliPanel(panel: CliVisualPanel, mode: 'hero' | 'compact'): string
 }
 
 function renderHeroHeader(screen: CliVisualScreen): string {
-  const subtitle = String(screen.summary || '').trim();
+  String(screen.summary || '').trim();
   const commandLine = 'zavorth <ask|setup|approve|open>';
   const banner = ZAVORTH_BLOCK_BANNER.join('\n');
   return [banner, '', paintCliTone(commandLine, 'muted')].join('\n');

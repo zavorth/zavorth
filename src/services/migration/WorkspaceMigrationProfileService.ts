@@ -122,7 +122,7 @@ export class WorkspaceMigrationProfileService {
       }
     };
 
-    const packageNameIs = (name: string): boolean => {
+    (name: string): boolean => {
       const pkgPath = path.join(resolved, 'package.json');
       if (!existsSync(pkgPath)) return false;
       try {

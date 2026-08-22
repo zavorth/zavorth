@@ -6,7 +6,6 @@ import {
   SessionContinuityService,
   type SessionContinuitySnapshot,
 } from '../runtime/context/SessionContinuityService.js';
-import { mergeWorkflowRunIntoWorkspaceContinuityContext } from '../runtime/context/WorkspaceContinuityContext.js';
 import {
   SessionHandoffService,
   type SessionHandoffSnapshot,

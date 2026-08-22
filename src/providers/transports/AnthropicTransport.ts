@@ -70,7 +70,7 @@ export class AnthropicTransport implements TransportAdapter {
         }
 
         const response = await client.messages.create(
-          requestParams as any,
+          requestParams as never,
           options?.signal ? { signal: options.signal } : undefined,
         );
 
@@ -119,7 +119,7 @@ export class AnthropicTransport implements TransportAdapter {
         }
 
         const stream = await client.messages.stream(
-          requestParams as any,
+          requestParams as never,
           options?.signal ? { signal: options.signal } : undefined,
         );
 

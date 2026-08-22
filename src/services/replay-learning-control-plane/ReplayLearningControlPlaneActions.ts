@@ -8,7 +8,7 @@ export function buildReplayLearningActions(input: {
   summary: ZavorthReplayLearningControlPlaneSnapshot['summary'];
   artifacts: ZavorthReplayLearningArtifactEntry[];
   learningCandidates: ZavorthReplayLearningControlPlaneSnapshot['learningCandidates'];
-  memoryPlane: any;
+  memoryPlane: unknown;
   workflowRuns: WorkflowRunSnapshot[];
 }): ZavorthReplayLearningControlPlaneSnapshot['actions'] {
   const actions: ZavorthReplayLearningControlPlaneSnapshot['actions'] = [];

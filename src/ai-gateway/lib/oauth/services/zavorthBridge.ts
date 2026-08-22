@@ -13,7 +13,7 @@ const CODE_ASSIST_FALLBACK_TIER_ID = "legacy-tier";
  * Uses standard OAuth2 Authorization Code flow (similar to Gemini)
  */
 export class ZavorthBridgeService {
-  config: any;
+  config: unknown;
 
   constructor() {
     this.config = ZAVORTH_BRIDGE_CONFIG;
@@ -212,7 +212,7 @@ export class ZavorthBridgeService {
   /**
    * Save ZavorthBridge tokens to server
    */
-  async saveTokens(tokens: any, userInfo: any, projectId: string) {
+  async saveTokens(tokens: unknown, userInfo: unknown, projectId: string) {
     const { server, token, userId } = getServerCredentials();
 
     const response = await fetch(`${server}/api/cli/providers/zavorthBridge`, {
@@ -250,7 +250,7 @@ export class ZavorthBridgeService {
       spinner.text = "Starting local server...";
 
       // Start local server for callback
-      let callbackParams: any = null;
+      let callbackParams: unknown = null;
       const { port, close } = await startLocalServer((params) => {
         callbackParams = params;
       });

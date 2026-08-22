@@ -10,7 +10,6 @@ import {
   type ZavorthHandoffEnvelopeInput,
   type ZavorthHandoffEnvelopeSnapshot,
   type ZavorthHandoffEnvelopeSection,
-  type ZavorthHandoffEnvelopeSectionId,
 } from '../contracts/ZavorthHandoffEnvelopeContract.js';
 
 import { logger } from '../logger.js';

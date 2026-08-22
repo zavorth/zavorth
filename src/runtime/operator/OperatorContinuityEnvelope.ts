@@ -5,7 +5,6 @@ import type {
 } from '../../security/SecurityPolicyBroker.js';
 import type {
   ZavorthActionGatewayInput,
-  ZavorthActionReceipt,
   ZavorthActionResult,
 } from '../actions/ZavorthActionContracts.js';
 

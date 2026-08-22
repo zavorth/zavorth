@@ -152,6 +152,7 @@ export class AntiSpamService {
 
     if (existing) {
       const sets: string[] = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const params: any[] = [];
       for (const [key, value] of Object.entries(fields)) {
         sets.push(`${key} = ?`);
@@ -162,6 +163,7 @@ export class AntiSpamService {
       params.push(chatId);
       this.db.run(`UPDATE group_antispam SET ${sets.join(', ')} WHERE chat_id = ?`, params);
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const all: any = {
         chat_id: chatId,
         antilink_enabled: 0,

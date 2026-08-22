@@ -22,14 +22,18 @@ export interface IMessageContext {
   transport?: MessageTransportKind;
   attachments?: MessageAttachment[];
   inlineData?: Array<{ mimeType: string; data: string }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   composerPayload?: Record<string, any> | null;
   nativeCommand?: {
     name: string;
     args?: string | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     options?: Record<string, any> | null;
   } | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reply: (text: string, options?: any) => Promise<void>;
   editMessage: (messageId: string, text: string) => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   __naturalRoute?: any;
 }
 

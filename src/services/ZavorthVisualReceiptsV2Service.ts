@@ -8,7 +8,6 @@ import {
 } from '../contracts/ZavorthVisualReceiptsV2Contract.js';
 import type {
   ZavorthVisualReceiptUxCard,
-  ZavorthVisualReceiptUxSnapshot,
 } from '../contracts/ZavorthVisualReceiptUxContract.js';
 import {
   ZavorthVisualReceiptUxService,

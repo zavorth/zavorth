@@ -3,6 +3,7 @@ export interface PlanStep {
   type: string;
   description: string;
   tool: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args: any | null;
   command: string | null;
   file_targets: string[];

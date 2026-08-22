@@ -13,7 +13,6 @@ import { TaskResponseEnvelopeService } from '@zavorth/services/TaskResponseEnvel
 import { UserFacingResponseService } from '@zavorth/services/UserFacingResponseService.js';
 import { WorkspaceProfileService } from '@zavorth/services/WorkspaceProfileService.js';
 import { WorkspaceOperationalMemoryService } from '@zavorth/runtime/context/WorkspaceOperationalMemoryService.js';
-import type { WorkspaceRoutingAdvice } from '@zavorth/runtime/context/WorkspaceRoutingAdvisor.js';
 import type {
   WorkflowRunCreateOptions,
   WorkflowWorkspaceContext,

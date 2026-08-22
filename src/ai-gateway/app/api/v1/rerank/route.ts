@@ -6,7 +6,7 @@ import {
   extractApiKey,
   isValidApiKey,
 } from "@/sse/services/auth";
-import { parseRerankModel, getRerankProvider } from "@zavorth/ai-gateway/open-sse/config/rerankRegistry.ts";
+import { parseRerankModel } from "@zavorth/ai-gateway/open-sse/config/rerankRegistry.ts";
 
 import { errorResponse } from "@zavorth/ai-gateway/open-sse/utils/error.ts";
 import { HTTP_STATUS } from "@zavorth/ai-gateway/open-sse/config/constants.ts";
@@ -35,7 +35,7 @@ export async function OPTIONS() {
  * local OpenAI-compatible backends (oMLX, vLLM, etc.) expose /v1/rerank
  * under the same base URL as chat.
  */
-function buildDynamicRerankProvider(node: any) {
+function buildDynamicRerankProvider(node: unknown) {
   // Strip trailing /v1 if present — we'll add /rerank
   let base = node.baseUrl || "";
   if (base.endsWith("/v1")) base = base.slice(0, -3);
@@ -85,7 +85,7 @@ export async function POST(request) {
   try {
     const nodes = await getProviderNodes();
     localProviders = (Array.isArray(nodes) ? nodes : [])
-      .filter((n: any) => {
+      .filter((n: unknown) => {
         try {
           const hostname = new URL(n.baseUrl).hostname;
           // Strictly matching 172.16.0.0/12 (Docker/local) and explicitly blocking ::1 per SSRF hardening
@@ -107,7 +107,7 @@ export async function POST(request) {
     }
 
   // Try cloud registry first
-  const { provider, model: modelId } = parseRerankModel(body.model);
+  const { provider } = parseRerankModel(body.model);
 
   if (provider) {
     // Cloud provider matched

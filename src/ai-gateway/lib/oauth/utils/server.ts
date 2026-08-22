@@ -10,7 +10,7 @@ import { URL } from "url";
 export function startLocalServer(
   onCallback: (params: Record<string, string>) => void,
   fixedPort: number | null = null
-): Promise<{ server: any; port: number; close: () => void }> {
+): Promise<{ server: unknown; port: number; close: () => void }> {
   return new Promise((resolve, reject) => {
     const server = http.createServer((req, res) => {
       const url = new URL(req.url || "/", `http://localhost`);
@@ -78,7 +78,7 @@ export function startLocalServer(
       });
     });
 
-    server.on("error", (err: any) => {
+    server.on("error", (err: unknown) => {
       if (err.code === "EADDRINUSE" && fixedPort) {
         reject(
           new Error(
@@ -117,6 +117,6 @@ export function waitForCallback(timeoutMs = 300000) {
     };
 
     // Return the callback function
-    (resolve as any).__onCallback = onCallback;
+    (resolve as unknown as Record<string, unknown>).__onCallback = onCallback;
   });
 }

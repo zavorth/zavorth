@@ -11,7 +11,7 @@ import type {
 
 import { MQTTPublisher } from '../tool-runtime/tools/iot/MQTTPublisher.js';
 import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
-import { TrustDecisionService, type TrustDecision } from './TrustDecisionService.js';
+import { TrustDecisionService } from './TrustDecisionService.js';
 import { TrustPlanePolicyLedgerService } from './TrustPlanePolicyLedgerService.js';
 import { logger } from '../logger.js';
 import {

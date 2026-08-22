@@ -40,6 +40,18 @@ import {
 import { resolveSurfaceProfileForChannel } from '../../../../domain/surface/application/surface-affordance/index.js';
 import { config } from '../../../../config/index.js';
 
+type TelegramMessageEditContext = {
+  api?: {
+    editMessageText?: (
+      chatId: number | string | undefined,
+      messageId: number,
+      text: string,
+      options?: Record<string, unknown>,
+    ) => Promise<unknown>;
+  };
+  editMessageReplyMarkup?: (other: unknown) => Promise<unknown>;
+};
+
 type ZavorthBridgeCompanionBridgeLike = Pick<ZavorthBridgeCompanionBridge, 'readStatus' | 'isOnline'>;
 
 export type TelegramPermissionControllerDeps = {
@@ -176,7 +188,7 @@ export class TelegramPermissionController {
    * F5e — Telegram message_reaction → semantic permission choice.
    */
   public async handleMessageReaction(ctx: Context): Promise<void> {
-    const reactionUpdate = (ctx as any).messageReaction || (ctx as any).update?.message_reaction;
+    const reactionUpdate = ctx.messageReaction || ctx.update?.message_reaction;
     if (!reactionUpdate) return;
 
     const newReactions: Array<{ type?: string; emoji?: string }> = Array.isArray(
@@ -362,7 +374,7 @@ export class TelegramPermissionController {
         }
         await ctx.answerCallbackQuery({ text: 'Undoing task...' }).catch(() => undefined);
         await this.deps.handleUndo(ctx, taskId);
-        await (ctx as any).editMessageReplyMarkup({ reply_markup: undefined }).catch(() => undefined);
+        await (ctx as unknown as TelegramMessageEditContext).editMessageReplyMarkup?.({ reply_markup: undefined }).catch(() => undefined);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         await ctx.answerCallbackQuery({ text: message.slice(0, 180) }).catch(() => undefined);
@@ -397,7 +409,8 @@ export class TelegramPermissionController {
         await this.taskApproval.handleApproval(ctx, `${taskId} ${choice}`);
       }
       // F5a — clear controls after decision (lifecycle op; best-effort)
-      const messageId = String((ctx.callbackQuery as any)?.message?.message_id || '').trim();
+      const messageId = String(ctx.callbackQuery?.message?.message_id || '').trim();
+      const messageCtx = ctx as unknown as TelegramMessageEditContext;
       for (const op of buildPostDecisionLifecycle({
         surface: 'telegram',
         choice,
@@ -408,26 +421,20 @@ export class TelegramPermissionController {
           {
             surface: 'telegram',
             editMessage: async (id, text, options) => {
-              await (ctx as any)
-                .api?.editMessageText?.(ctx.chat?.id, Number(id), text, options)
-                .catch(() => undefined);
-              if (options && (ctx as any).editMessageReplyMarkup) {
-                await (ctx as any)
-                  .editMessageReplyMarkup({ reply_markup: options.reply_markup ?? { inline_keyboard: [] } })
-                  .catch(() => undefined);
+              await messageCtx.api?.editMessageText?.(ctx.chat?.id, Number(id), text, options).catch(() => undefined);
+              if (options && messageCtx.editMessageReplyMarkup) {
+                await messageCtx.editMessageReplyMarkup({ reply_markup: options.reply_markup ?? { inline_keyboard: [] } }).catch(() => undefined);
               }
             },
             editReplyMarkup: async () => {
-              await (ctx as any)
-                .editMessageReplyMarkup({ reply_markup: { inline_keyboard: [] } })
-                .catch(() => undefined);
+              await messageCtx.editMessageReplyMarkup?.({ reply_markup: { inline_keyboard: [] } }).catch(() => undefined);
             },
           },
           op,
           { surface: 'telegram', messageId: messageId || null, approvalId: taskId, choice },
         ).catch(() => undefined);
       }
-      await (ctx as any).editMessageReplyMarkup({ reply_markup: undefined }).catch(() => undefined);
+      await messageCtx.editMessageReplyMarkup?.({ reply_markup: undefined }).catch(() => undefined);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       await ctx.answerCallbackQuery({ text: message.slice(0, 180) }).catch(() => undefined);

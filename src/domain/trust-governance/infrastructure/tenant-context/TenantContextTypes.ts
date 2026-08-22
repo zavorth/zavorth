@@ -19,7 +19,7 @@ export type TenantResolutionInput = {
   runtimeUserId?: string | null;
   sessionId?: string | null;
   threadId?: string | null;
-  composerPayload?: Record<string, any> | null;
+  composerPayload?: Record<string, unknown> | null;
   publicServerMode?: boolean | null;
 };
 

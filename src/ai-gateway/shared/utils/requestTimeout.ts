@@ -38,7 +38,7 @@ export async function fetchWithTimeout(url: string, options: RequestInit & Timeo
   } catch (error: unknown) {
     const err = asErrorLike(error);
     if (err.name === "AbortError" || controller.signal.aborted) {
-      const timeoutError: any = new Error(`${label} timed out after ${timeoutMs}ms`);
+      const timeoutError: unknown = new Error(`${label} timed out after ${timeoutMs}ms`);
       timeoutError.name = "TimeoutError";
       timeoutError.originalUrl = url;
       timeoutError.timeoutMs = timeoutMs;
@@ -67,7 +67,7 @@ export async function withTimeout<T>(
 ): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const timeoutId = setTimeout(() => {
-      const error: any = new Error(`${label} timed out after ${timeoutMs}ms`);
+      const error: unknown = new Error(`${label} timed out after ${timeoutMs}ms`);
       error.name = "TimeoutError";
       error.timeoutMs = timeoutMs;
       reject(error);

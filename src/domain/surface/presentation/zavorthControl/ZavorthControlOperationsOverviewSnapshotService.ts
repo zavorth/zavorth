@@ -1,4 +1,6 @@
 import { ZavorthOperationalOverviewService } from '../../../../services/ZavorthOperationalOverviewService.js';
+// Dynamic service bag: route handlers access dozens of services by key.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LooseRecord = any;
 
 import { ZavorthTrustOverviewService } from '../../../../services/ZavorthTrustOverviewService.js';

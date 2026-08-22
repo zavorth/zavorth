@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   CapabilityPermissionRequirement,
   CapabilityReceipt,
   CapabilityRepairPlan,
@@ -12,14 +12,16 @@ type PermissionServiceLike = {
     task_id?: string | null;
     executor: string;
     kind: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     scope?: any;
     workspace?: string | null;
     requested_value?: string | null;
     resolved_value?: string | null;
     reason: string;
     requested_by?: string | null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     metadata?: Record<string, any>;
-  }): Promise<any>;
+  }): Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
 export type CapabilityAutopilotPermissionRequestInput = {
@@ -212,7 +214,8 @@ export class CapabilityAutopilotPermissionService {
     resumeIntent: OriginalIntentEnvelope | null;
     mapping: CapabilityAutopilotPermissionMapping;
     generatedAt: string;
-  }): Record<string, unknown> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  }): Record<string, any> {
     return {
       ...(input.requirement.metadata || {}),
       capability_autopilot: true,

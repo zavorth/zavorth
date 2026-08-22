@@ -412,11 +412,13 @@ export class GeminiVideoAnalyzer {
     return textParts;
   }
 
-  private extractTextParts(payload: any): string {
+  private extractTextParts(
+    payload: { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> },
+  ): string {
     const candidates = Array.isArray(payload?.candidates) ? payload.candidates : [];
-    const parts = candidates.flatMap((candidate: any) => candidate?.content?.parts || []);
+    const parts = candidates.flatMap((candidate) => candidate?.content?.parts || []);
     const text = parts
-      .map((part: any) => (typeof part?.text === 'string' ? part.text : ''))
+      .map((part) => (typeof part?.text === 'string' ? part.text : ''))
       .join('\n')
       .trim();
 

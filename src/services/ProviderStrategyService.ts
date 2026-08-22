@@ -33,6 +33,7 @@ type ResolveProviderStrategyInput = {
   taskSubtype: WorkspaceTaskSubtype;
   configuredProviderName?: string;
   isProviderUsable?: (name: string) => boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workspaceMemory?: Record<string, any> | null | undefined;
 };
 
@@ -194,7 +195,8 @@ export class ProviderStrategyService {
   }
 
   private resolveLearnedRecommendation(
-    workspaceMemory: Record<string, any> | null | undefined,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  workspaceMemory: Record<string, any> | null | undefined,
     taskKind: WorkspaceTaskKind,
     taskSubtype: WorkspaceTaskSubtype,
   ): {
@@ -212,7 +214,7 @@ export class ProviderStrategyService {
       ? workspaceMemory!.task_kind_llm_recommendations
       : [];
 
-    const subtypeRecommendation = subtypeRecommendations.find((entry: any) => {
+    const subtypeRecommendation = subtypeRecommendations.find((entry: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
       return String(entry?.kind || '').trim().toLowerCase() === taskKind
         && String(entry?.subtype || '').trim().toLowerCase() === taskSubtype;
     });
@@ -220,7 +222,7 @@ export class ProviderStrategyService {
       return subtypeRecommendation;
     }
 
-    return kindRecommendations.find((entry: any) => {
+    return kindRecommendations.find((entry: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
       return String(entry?.kind || '').trim().toLowerCase() === taskKind
         && String(entry?.subtype || '').trim().toLowerCase() === 'general';
     }) || null;

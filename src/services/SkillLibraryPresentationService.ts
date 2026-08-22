@@ -19,7 +19,6 @@ import {
 import type {
   VendorLicenseDecision,
   VendorReleaseIndexEntry,
-  VendorReleaseIndexSnapshot,
 } from '../contracts/VendorPlaneContract.js';
 
 export type SkillLibraryVendorCard = {

@@ -19,7 +19,7 @@ export async function validateProviderApiKey({
   provider,
   apiKey,
   providerSpecificData = {},
-}: any): Promise<ProviderValidationResult> {
+}: unknown): Promise<ProviderValidationResult> {
   if (!provider || !apiKey) {
     return { valid: false, error: "Provider and API key required", unsupported: false };
   }

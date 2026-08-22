@@ -278,6 +278,7 @@ export class ToolExposurePolicy {
     });
 
     // Apply workspace policy validation
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const workspaceMeta = input.metadata?.workspace as any;
     const perms = workspaceMeta?.workspacePermissions;
 

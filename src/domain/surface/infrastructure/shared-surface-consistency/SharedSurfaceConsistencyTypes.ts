@@ -70,7 +70,7 @@ export type SurfaceConsistencyActionContextTask = {
     name?: string | null;
     summary?: string | null;
   }> | null;
-  metadata?: Record<string, any> | null;
+  metadata?: Record<string, unknown> | null;
 };
 
 export type SurfaceConsistencyActionContextPermission = {

@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     const email = kiroService.extractEmailFromJWT(tokenData.accessToken);
 
     // Save to database
-    const connection: any = await createProviderConnection({
+    const connection: unknown = await createProviderConnection({
       provider: "kiro",
       authType: "oauth",
       accessToken: tokenData.accessToken,

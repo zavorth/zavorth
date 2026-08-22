@@ -9,7 +9,8 @@ import {
 } from "../../../../../services/providers/catalog/ModelCatalogAggregationService.js";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 
-import { logger } from '@/shared/utils/logger';/**
+import { logger } from '@/shared/utils/logger';
+/**
  * GET /api/models/catalog
  * Returns all models grouped by provider, with metadata (type, custom flag)
  */
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
         label: AI_PROVIDERS[providerId]?.name || alias,
         active: activeProviders.has(providerId),
         source: "provider_catalog",
-        models: (models as any[]).map((model) => ({
+        models: (models as unknown as unknown[]).map((model) => ({
           id: model.id,
           name: model.name || model.id,
           type: "chat",
@@ -39,7 +40,7 @@ export async function GET(request: Request) {
     });
 
     const localCatalogs: ModelCatalogProviderInput[] = [
-      ...getAllEmbeddingModels().map((emb: any) => {
+      ...getAllEmbeddingModels().map((emb: unknown) => {
         const provAlias = String(emb.id || "").split("/")[0] || emb.provider || "embedding";
         return {
           providerId: emb.provider || provAlias,
@@ -56,7 +57,7 @@ export async function GET(request: Request) {
           }],
         };
       }),
-      ...getAllImageModels().map((img: any) => ({
+      ...getAllImageModels().map((img: unknown) => ({
         providerId: img.provider,
         alias: img.provider,
         label: AI_PROVIDERS[img.provider]?.name || img.provider,
@@ -82,7 +83,7 @@ export async function GET(request: Request) {
         label: AI_PROVIDERS[providerId]?.name || alias,
         active: activeProviders.has(providerId),
         source: "custom_model",
-        models: (models as any[]).map((model) => ({
+        models: (models as unknown as unknown[]).map((model) => ({
           id: model.id,
           name: model.name || model.id,
           type: "chat",
@@ -106,7 +107,7 @@ export async function GET(request: Request) {
     return Response.json({ catalog });
   } catch (error: unknown) {logger.warn('[route] operation failed', error);
     return Response.json(
-      { error: { message: (error as any).message, type: "server_error" } },
+      { error: { message: (error as unknown as Record<string, unknown>).message, type: "server_error" } },
       { status: 500 }
     );
   }

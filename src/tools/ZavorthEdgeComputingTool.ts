@@ -107,7 +107,7 @@ export class ZavorthEdgeComputingTool extends BaseTool {
         fs.writeFileSync(wranglerToml, `name = "${workerName}"\nmain = "${scriptFile}"\ncompatibility_date = "2024-01-01"\n`);
 
         try {
-          const result = execFileSync('npx', ['wrangler', 'deploy', '--config', wranglerToml], {
+          execFileSync('npx', ['wrangler', 'deploy', '--config', wranglerToml], {
             timeout: 60000,
             cwd: this.storageDir,
           }).toString();

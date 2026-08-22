@@ -2,6 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../../config/index.js';
 import type { PendingZavorthBridgeSession } from '../AgentBridgeManager.js';
+import type { PermissionRequest } from '../../contracts/core/PermissionRequest.js';
+import type { ZavorthBridgeUiCaptureService } from '../../services/ZavorthBridgeUiCaptureService.js';
+import type { ZavorthBridgeLogEvent } from './RealZavorthBridgeWatcherArtifactLogHelpers.js';
+import type { ScopedCompanionUiTarget } from './RealZavorthBridgeWatcherWorkflowTypes.js';
 import { asErrorLike } from '../../utils/errorLike.js';
 
 interface BridgeTaskMetadata {
@@ -24,7 +28,6 @@ interface BridgeTask {
   approval_status?: string;
   error_summary?: string | null;
   metadata?: BridgeTaskMetadata;
-  [key: string]: any;
 }
 
 interface BridgeArtifact {
@@ -35,25 +38,11 @@ interface BridgeArtifact {
   updatedAtMs: number;
 }
 
-interface LogEvent {
-  timestampMs: number;
-  timestampIso: string;
-  line: string;
-}
-
-interface PermissionRequest {
-  permission_id: string;
-  executor: string;
-  kind: string;
-  task_id?: string | null;
-  status: string;
-  [key: string]: any;
-}
 
 interface PermissionService {
-  listRequests?(status?: any, limit?: number): Promise<any>;
-  getRequest(id: string): Promise<any>;
-  rejectRequest(id: string, system: string, reason: string): Promise<any>;
+  listRequests?(status?: string, limit?: number): Promise<PermissionRequest[]>;
+  getRequest(id: string): Promise<PermissionRequest | undefined>;
+  rejectRequest(id: string, system: string, reason: string): Promise<unknown>;
 }
 
 interface TaskManager {
@@ -71,19 +60,6 @@ interface LogRepo {
   log(level: string, source: string, message: string, data?: Record<string, unknown>): void;
 }
 
-interface UiCaptureService {
-  captureLatestResponse(options: {
-    taskId: string;
-    processId: string;
-    windowTitle: string;
-    expectedModel?: string;
-  }): Promise<{
-    ok: boolean;
-    responseText: string;
-    hasPermissionPrompt: boolean;
-    confidence: number;
-  } | null>;
-}
 
 interface Broadcaster {
   broadcast(message: string): Promise<void>;
@@ -97,15 +73,15 @@ interface RealZavorthBridgeWatcherHost {
   bridgeManager: BridgeManager;
   logRepo: LogRepo;
   broadcaster: Broadcaster;
-  uiCaptureService: any;
+  uiCaptureService: ZavorthBridgeUiCaptureService;
   responseDir: string;
   logsDir: string;
-  isZavorthBridgeTask(task: any): boolean;
+  isZavorthBridgeTask(task: unknown): boolean;
   isSessionActive(session: PendingZavorthBridgeSession): boolean;
   isTrackingFileCompleted(filePath: string): boolean;
   clearPendingPermissionMetadata(task: BridgeTask): void;
   getTask(taskId: string): BridgeTask | null;
-  isTaskTerminal(task: any): boolean;
+  isTaskTerminal(task: BridgeTask | null | undefined): boolean;
   queueSessionDelivery(
     session: PendingZavorthBridgeSession,
     message: string,
@@ -129,24 +105,24 @@ interface RealZavorthBridgeWatcherHost {
     artifact: BridgeArtifact,
   ): string;
   humanizeArtifactType(type: string): string;
-  notifyPermissionRequest: any;
-  wasPermissionRecentlyNotified: any;
-  tryQueuePromptContractDelivery: any;
-  resolveScopedCompanionUiTarget: any;
-  canCaptureScopedSessionUi: any;
-  sanitizeVisibleResponse: any;
-  isVisibleResponseCaptureReady: any;
-  normalizeVisibleResponse: any;
-  sendDeliveryToOriginChat: any;
-  markTaskDelivered: any;
-  collectRecentLogEvents: any;
-  maybeHandlePermissionPrompt: any;
-  isAutomationTriggerLogLine: any;
-  tryAutomationRescue: any;
-  tryQueueLocalDirectoryFallback: any;
-  failStalledSession: any;
-  resolveCompanionTargetInstanceId: any;
-  getLiveCompanionStatus: any;
+  notifyPermissionRequest(session: unknown, permission: unknown): Promise<void>;
+  wasPermissionRecentlyNotified(session: unknown, permissionId: unknown, notifiedAt: unknown): boolean;
+  tryQueuePromptContractDelivery(session: unknown): Promise<boolean>;
+  resolveScopedCompanionUiTarget(session: unknown): Promise<ScopedCompanionUiTarget>;
+  canCaptureScopedSessionUi(target: unknown): boolean;
+  sanitizeVisibleResponse(value: unknown, promptText: unknown): string;
+  isVisibleResponseCaptureReady(snapshot: unknown, visibleResponse: unknown, promptText: unknown): boolean;
+  normalizeVisibleResponse(value: unknown): string;
+  sendDeliveryToOriginChat(session: unknown, message: unknown): Promise<void>;
+  markTaskDelivered(taskId: unknown, summary: unknown): Promise<void>;
+  collectRecentLogEvents(): Promise<ZavorthBridgeLogEvent[]>;
+  maybeHandlePermissionPrompt(session: unknown, task: unknown, trigger: unknown, snapshotOverride?: unknown): Promise<boolean>;
+  isAutomationTriggerLogLine(line: unknown): boolean;
+  tryAutomationRescue(session: unknown, reason: unknown): Promise<void>;
+  tryQueueLocalDirectoryFallback(session: unknown, workspace: unknown): Promise<boolean>;
+  failStalledSession(session: unknown, errorReason: unknown): Promise<void>;
+  resolveCompanionTargetInstanceId(session: unknown): string | undefined;
+  getLiveCompanionStatus(targetInstanceId?: unknown): Promise<unknown>;
 }
 
 export class RealZavorthBridgeWatcherTickHandlers {
@@ -635,7 +611,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
       const task = this.host.getTask(session.taskId);
       const launchedAtMs = new Date(session.launchedAt).getTime();
       const lastDeliveredMs = session.lastDeliveredLogAt ? Date.parse(session.lastDeliveredLogAt) : launchedAtMs - 1;
-      const relevantEvents = events.filter((event: any) => event.timestampMs > lastDeliveredMs && event.timestampMs >= launchedAtMs);
+      const relevantEvents = events.filter((event) => event.timestampMs > lastDeliveredMs && event.timestampMs >= launchedAtMs);
       if (relevantEvents.length === 0) {
         continue;
       }
@@ -660,7 +636,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
         task?.status !== 'waiting_approval' &&
         session.automationEnabled !== false &&
         session.sessionKind !== 'prompt-panel' &&
-        relevantEvents.some((event: any) => this.host.isAutomationTriggerLogLine(event.line))
+        relevantEvents.some((event) => this.host.isAutomationTriggerLogLine(event.line))
       ) {
         await this.host.tryAutomationRescue(session, 'log_error');
       }

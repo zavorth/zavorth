@@ -440,6 +440,7 @@ function createDefaultSender(env: NodeJS.ProcessEnv, fetchImpl: typeof fetch): C
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function readTelegramResponse(response: Response): Promise<any> {
   try {
     return await response.json();

@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { getProviderConnections, getSettings } from "@/lib/localDb";
 import { APP_CONFIG } from "@/shared/constants/config";
-import { AI_PROVIDERS } from "@/shared/constants/providers";/**
+import { AI_PROVIDERS } from "@/shared/constants/providers";
+/**
  * GET /api/monitoring/health — System health overview
  *
  * Returns system info, provider health (circuit breakers),
@@ -44,9 +45,9 @@ export async function GET() {
       };
     }
 
-    const configuredProviders = new Set(connections.map((c: any) => c.provider));
+    const configuredProviders = new Set(connections.map((c: unknown) => c.provider));
     const activeProviders = new Set(
-      connections.filter((c: any) => c.isActive !== false).map((c: any) => c.provider)
+      connections.filter((c: unknown) => c.isActive !== false).map((c: unknown) => c.provider)
     );
 
     return NextResponse.json({

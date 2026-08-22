@@ -41,7 +41,7 @@ export class AgentLLMRuntime {
 
   private buildDefaultRegistry(): AdapterRegistry {
     const reg = new AdapterRegistry();
-    const costEstimator = (model: string, usage: any) => DynamicCostEstimator.estimateCost(model, usage);
+    const costEstimator = (model: string, usage: any) => DynamicCostEstimator.estimateCost(model, usage); // eslint-disable-line @typescript-eslint/no-explicit-any
     const toolCallRepair = (raw: string) => ToolCallRepairService.repair(raw);
 
     reg.register(new AnthropicAdapter({ costEstimator }));

@@ -20,7 +20,7 @@ const PERMISSION_NOTIFICATION_COOLDOWN_MS = 60_000;
 
 type RealZavorthBridgeWatcherPermissionSupportOptions = {
   getLogRepo: () => {
-    log(level: string, source: string, message: string, meta?: Record<string, any>): void;
+    log(level: string, source: string, message: string, meta?: Record<string, unknown>): void;
   };
   getDeps: () => RealZavorthBridgeWatcherDeps;
   getBridgeManager: () => AgentBridgeManager;
@@ -551,7 +551,7 @@ export class RealZavorthBridgeWatcherPermissionSupport {
     if (this.deps.botApi?.sendMessage) {
       try {
         await this.deps.botApi.sendMessage(
-          session.chatId as any,
+          session.chatId as never,
           text,
           this.deps.buildPermissionKeyboard
             ? { reply_markup: this.deps.buildPermissionKeyboard(permission) }

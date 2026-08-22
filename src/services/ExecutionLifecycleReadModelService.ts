@@ -5,6 +5,8 @@ import type {
 } from '../contracts/ExecutionLifecycleContract.js';
 import type { Task } from '../contracts/TaskContract.js';
 import type { WorkflowRunSnapshot } from './WorkflowRunService.js';
+// Dynamic service bag: read model accepts arbitrary execution snapshot shapes.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ExecutionLifecycleDynamic = any;
 
 export type ExecutionLifecycleReadModelOrigin =

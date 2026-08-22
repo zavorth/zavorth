@@ -439,8 +439,8 @@ export class AgentRunService {
     });
     this.swarmHierarchyService = runtime.swarmHierarchyService || null;
     this.swarmScalePlaneService = runtime.swarmScalePlaneService || new SwarmScalePlaneService({
-      llmRuntime: runtime.llmRuntime as any || null,
-      toolRuntime: runtime.toolRuntime as any || null,
+      llmRuntime: runtime.llmRuntime as any || null, // eslint-disable-line @typescript-eslint/no-explicit-any
+      toolRuntime: runtime.toolRuntime as any || null, // eslint-disable-line @typescript-eslint/no-explicit-any
     });
     this.selfModificationService = runtime.selfModificationService || null;
     this.watchModeService = runtime.watchModeService || null;
@@ -450,7 +450,7 @@ export class AgentRunService {
       executor: this.executor,
       toolRuntime: this.toolRuntime,
       llmRuntimeExecutor: this.llmRuntimeExecutor,
-      echoHandsExecutor: this.toolRuntimeHandsExecutor as any,
+      echoHandsExecutor: this.toolRuntimeHandsExecutor as any, // eslint-disable-line @typescript-eslint/no-explicit-any
     });
     this.toolPolicy = runtime.toolPolicy || new ToolExposurePolicy();
     this.runBudgetPolicy = runtime.runBudgetPolicy || new RunBudgetPolicy();
@@ -892,7 +892,7 @@ export class AgentRunService {
 
       const universalPreview = this.createUniversalPreviewResultIfRequested(run, input);
       if (universalPreview) {
-        return universalPreview;
+        return universalPreview as UniversalAgentRunResult;
       }
 
       const memoryContinuity = this.createNaturalFirstMemoryContinuityIfNeeded(run, input);
@@ -909,35 +909,35 @@ export class AgentRunService {
 
       const swarmProposal = this.createSwarmEscalationProposalIfNeeded(run, input);
       if (swarmProposal) {
-        return swarmProposal;
+        return swarmProposal as UniversalAgentRunResult;
       }
 
       try {
         const selfModificationPreview = await this.createSelfModificationPreviewIfNeeded(run, input);
         if (selfModificationPreview) {
-          return selfModificationPreview;
+          return selfModificationPreview as UniversalAgentRunResult;
         }
       } catch (error: unknown) {return this.buildFailureResult(run, error, 'selfmod');
       }
 
       const selfModificationActionProposal = this.createSelfModificationActionProposalIfNeeded(run, input);
       if (selfModificationActionProposal) {
-        return selfModificationActionProposal;
+        return selfModificationActionProposal as UniversalAgentRunResult;
       }
 
       const watchModeVisualProposal = this.createWatchModeVisualProposalIfNeeded(run, input);
       if (watchModeVisualProposal) {
-        return watchModeVisualProposal;
+        return watchModeVisualProposal as UniversalAgentRunResult;
       }
 
       const capabilityNegotiationProposal = this.createCapabilityNegotiationProposalIfNeeded(run, input);
       if (capabilityNegotiationProposal) {
-        return capabilityNegotiationProposal;
+        return capabilityNegotiationProposal as UniversalAgentRunResult;
       }
 
       const toolRehearsalProposal = this.createToolRehearsalProposalIfNeeded(run, input);
       if (toolRehearsalProposal) {
-        return toolRehearsalProposal;
+        return toolRehearsalProposal as UniversalAgentRunResult;
       }
 
       const naturalFirstApprovalFallback = this.createNaturalFirstApprovalFallbackIfNeeded(run, input);

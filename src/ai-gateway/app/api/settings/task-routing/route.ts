@@ -63,7 +63,7 @@ export async function PUT(request: Request) {
     setTaskRoutingConfig(config);
 
     // Persist to database (excluding stats)
-    const { stats, ...persistable } = getTaskRoutingConfig();
+    const { ...persistable } = getTaskRoutingConfig();
     await updateSettings({ taskRouting: JSON.stringify(persistable) });
 
     return NextResponse.json({ success: true, ...getTaskRoutingConfig() });

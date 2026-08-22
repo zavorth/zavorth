@@ -304,7 +304,7 @@ export class HybridMemoryService {
       summary: this.normalizeText(entry.summary, 'Memory without short summary.'),
       source: this.normalizeText(entry.source, 'layered-memory'),
       score: this.normalizeScore(entry.confidence),
-      reason: `Lembrei porque o ledger ${entry.memoryLayer} corresponde a consulta e tem prioridade factual.`,
+      reason: `${entry.memoryLayer} corresponde a consulta e tem prioridade factual.`,
       lastValidatedAt: entry.lastValidatedAt || null,
       metadata: {
         ...(entry.metadata || {}),
@@ -331,7 +331,7 @@ export class HybridMemoryService {
         summary: this.normalizeText(entry.summary, 'Evento do memory plane.'),
         source: this.normalizeText(entry.source, 'memory-plane'),
         score: entry.status === 'current' ? 0.8 : 0.58,
-        reason: 'Lembrei porque este evento is no memory plane factual da session.',
+        reason: 'I recalled because this event is on the factual memory plane of the session.',
         lastValidatedAt: entry.happenedAt || null,
         metadata: {
           category: entry.category,
@@ -376,7 +376,7 @@ export class HybridMemoryService {
         summary,
         source: 'session-replay',
         score: 0.76,
-        reason: 'Lembrei porque este artifact foi produzido or reutilizado na session.',
+        reason: 'I recalled because this artifact was produced or reused in the session.',
         lastValidatedAt: this.normalizeText(artifact.createdAt) || null,
         metadata: {
           kind: artifact.kind || null,

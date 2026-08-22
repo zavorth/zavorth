@@ -549,9 +549,9 @@ export class WebRemoteTransportService {
     };
   }
 
-  private asRecord(value: unknown): Record<string, any> {
+  private asRecord(value: unknown): Record<string, any> { // eslint-disable-line @typescript-eslint/no-explicit-any
     return value && typeof value === 'object' && !Array.isArray(value)
-      ? value as Record<string, any>
+      ? value as Record<string, unknown>
       : {};
   }
 }

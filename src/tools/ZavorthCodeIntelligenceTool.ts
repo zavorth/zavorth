@@ -65,7 +65,7 @@ export class ZavorthCodeIntelligenceTool extends BaseTool {
     }
   }
 
-  private analyzeCode(filePath: string, args: Record<string, unknown>): string {
+  private analyzeCode(filePath: string, _args: Record<string, unknown>): string {
     const resolved = path.resolve(filePath);
     if (!fs.existsSync(resolved)) return `Error: "${filePath}" not found.`;
 
@@ -152,7 +152,7 @@ export class ZavorthCodeIntelligenceTool extends BaseTool {
 
       if (!result.trim()) return `No lint issues found in ${filePath}.`;
       return `Lint results for ${filePath}:\n${result.slice(0, 3000)}`;
-    } catch (error: unknown) { const e = asErrorLike(error);
+    } catch (error: unknown) { asErrorLike(error);
       const err = error as { stdout?: Buffer; message?: string };
       const output = err.stdout?.toString() || err.message || '';
       if (!output.trim()) return `No lint issues found in ${filePath}.`;

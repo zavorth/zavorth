@@ -472,7 +472,7 @@ export class WebAppService {
     return false;
   }
 
-  private buildPublicZavorthControlFallbackSnapshot(): Record<string, any> {
+  private buildPublicZavorthControlFallbackSnapshot(): Record<string, unknown> {
     const generatedAt = new Date().toISOString();
     return {
       ok: true,

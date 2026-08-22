@@ -5,7 +5,7 @@
  */
 
 import { KnowledgeGraphStore } from './KnowledgeGraphStore.js';
-import type { ExtractedFact, ConsolidationResult, GraphNodeCategory, GraphRelationType } from './types.js';
+import type { ExtractedFact, ConsolidationResult } from './types.js';
 import { logger } from '../../logger.js';
 
 export class MemoryGraphConsolidator {

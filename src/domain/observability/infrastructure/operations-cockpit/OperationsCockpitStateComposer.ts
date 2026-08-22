@@ -1,6 +1,5 @@
 import type { OperationsHealthSnapshot } from '../../../../observability/OperationsHealthService.js';
 import type {
-  CockpitAction,
   CockpitAlert,
   CockpitStatus,
   OperationsCockpitSnapshot,

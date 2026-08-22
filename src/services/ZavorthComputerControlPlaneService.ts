@@ -8,7 +8,6 @@ import {
   type ZavorthComputerPlanStep,
   type ZavorthComputerPlanStepKind,
   type ZavorthComputerRiskKind,
-  type ZavorthComputerTargetKind,
 } from '../contracts/ZavorthComputerControlPlaneContract.js';
 
 import crypto from 'node:crypto';

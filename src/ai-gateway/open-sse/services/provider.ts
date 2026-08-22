@@ -85,8 +85,8 @@ export function buildProviderUrl(
 export function buildProviderHeaders(
   provider: string,
   credentials: unknown,
-  isPreview: boolean,
-  body?: unknown
+  _isPreview: boolean,
+  _body?: unknown
 ): Record<string, string> {
   const creds = asRecord(credentials);
   const apiKey =

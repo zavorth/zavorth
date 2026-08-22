@@ -14,7 +14,7 @@ import { asErrorLike } from '../../../../utils/errorLike';
 export const VALID_RUNTIME_MODES = new Set(["auto", "host", "container"]);
 export const FALSE_VALUES = new Set(["0", "false", "no", "off"]);
 
-export const CLI_TOOLS: Record<string, any> = {
+export const CLI_TOOLS: Record<string, unknown> = {
   claude: {
     defaultCommand: "claude",
     envBinKey: "CLI_CLAUDE_BIN",

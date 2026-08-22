@@ -7,6 +7,8 @@ import { PublishHistoryService } from './PublishHistoryService.js';
 import { ZavorthRuntimeStabilityControlPlaneService } from './ZavorthRuntimeStabilityControlPlaneService.js';
 import type { ZavorthReadinessGate } from '../contracts/ZavorthMutationPlaneContract.js';
 import { logger } from '../logger.js';
+// Dynamic service bag: accepts arbitrary rollout service snapshot shapes.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type RolloutDynamic = any;
 
 type RolloutPosture = 'healthy' | 'attention' | 'critical';

@@ -275,6 +275,3 @@ export class NaturalChannelSetupTurnService {
   }
 }
 
-function normalizeLegacyChannelMode(value: string): string {
-  return value === 'local' ? 'local' : value;
-}

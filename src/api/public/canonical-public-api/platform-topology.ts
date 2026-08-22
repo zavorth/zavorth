@@ -1,6 +1,6 @@
 import type { ArtifactDTO, NodeListDTO, TransportDTO } from '../../../contracts/public/rest/dto.js';
 import type { PlatformCatalogDTO, PlatformStatusDTO } from '../../../contracts/public/rest/platform-ops-dto.js';
-import type { CanonicalPublicApiSharedSupport } from './shared.js';
+import type { CanonicalPublicApiSharedSupport, PlatformRegistryEntry } from './shared.js';
 import type { ArtifactQuery, CanonicalPublicApiRuntime } from './types.js';
 
 export function readPlatformStatus(
@@ -27,18 +27,19 @@ export function readPlatformStatus(
   }
 
   const snapshot = platformRegistry.buildSnapshot();
+  const entries = snapshot.entries as PlatformRegistryEntry[];
   const snapshotSummary = snapshot.summary || {
-    total: snapshot.entries.length,
-    plugins: snapshot.entries.filter((entry) => entry.kind === 'plugin').length,
-    skills: snapshot.entries.filter((entry) => entry.kind === 'skill').length,
-    mcps: snapshot.entries.filter((entry) => entry.kind === 'mcp').length,
-    trusted: snapshot.entries.filter((entry) => entry.trust === 'trusted').length,
-    reviewPending: snapshot.entries.filter((entry) => support.resolvePlatformReviewState(entry) === 'pending').length,
-    quarantined: snapshot.entries.filter((entry) => support.resolvePlatformOrigin(entry) === 'quarantined').length,
-    learnedLocal: snapshot.entries.filter((entry) => support.resolvePlatformOrigin(entry) === 'learned-local').length,
+    total: entries.length,
+    plugins: entries.filter((entry) => entry.kind === 'plugin').length,
+    skills: entries.filter((entry) => entry.kind === 'skill').length,
+    mcps: entries.filter((entry) => entry.kind === 'mcp').length,
+    trusted: entries.filter((entry) => entry.trust === 'trusted').length,
+    reviewPending: entries.filter((entry) => support.resolvePlatformReviewState(entry) === 'pending').length,
+    quarantined: entries.filter((entry) => support.resolvePlatformOrigin(entry) === 'quarantined').length,
+    learnedLocal: entries.filter((entry) => support.resolvePlatformOrigin(entry) === 'learned-local').length,
   };
-  const items = snapshot.entries.map((entry) => support.mapPlatformItem(entry));
-  const plugins = snapshot.entries
+  const items = entries.map((entry) => support.mapPlatformItem(entry));
+  const plugins = entries
     .filter((entry) => entry.kind === 'plugin')
     .map((entry) => support.mapPlugin(entry));
 
@@ -159,7 +160,7 @@ export function readPlatformCatalog(
       official: Number(snapshot.summary?.official || 0) || 0,
       trustedThirdParty: Number(snapshot.summary?.trustedThirdParty || 0) || 0,
     },
-    items: snapshot.entries.map((entry) => support.mapPlatformItem(entry)),
+    items: (snapshot.entries as PlatformRegistryEntry[]).map((entry) => support.mapPlatformItem(entry)),
     collections: (snapshot.collections || []).map((entry) => ({
       id: entry.id,
       label: entry.label,

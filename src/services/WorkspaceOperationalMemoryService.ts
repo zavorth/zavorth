@@ -70,11 +70,12 @@ export class WorkspaceOperationalMemoryService {
     return memory;
   }
 
-  public buildTaskMetadata(memory: WorkspaceOperationalMemory): Record<string, any> {
+  public buildTaskMetadata(memory: WorkspaceOperationalMemory): Record<string, any> { // eslint-disable-line @typescript-eslint/no-explicit-any
     return buildWorkspaceOperationalMemoryMetadata(memory);
   }
 
-  public buildPlanNotes(memory: WorkspaceOperationalMemory | Record<string, any> | null | undefined): string[] {
+  public buildPlanNotes(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    memory: WorkspaceOperationalMemory | Record<string, any> | null | undefined): string[] {
     return this.notesBuilder.buildPlanNotes(memory);
   }
 

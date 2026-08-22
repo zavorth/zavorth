@@ -139,7 +139,7 @@ export class TelegramHubController {
       if (structured.complete) {
         const done = service.complete({
           language: structured.language || service.buildSnapshot().state.language || 'en',
-          surface: (structured.surface as any) || 'telegram',
+          surface: (structured.surface as never) || 'telegram',
           allowLearning: structured.allowLearning || true,
         });
         await ctx.reply(done.summary);

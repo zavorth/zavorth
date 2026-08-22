@@ -26,7 +26,6 @@ import { PluginNewService } from '../../services/PluginNewService.js';
 import { PluginRouterService } from '../../services/PluginRouterService.js';
 import { PluginForgeService } from '../../services/PluginForgeService.js';
 import { PluginMcpBridgeService } from '../../services/PluginMcpBridgeService.js';
-import { PluginCuratedMarketplaceService } from '../../services/PluginCuratedMarketplaceService.js';
 import { PluginOsMarketplaceService } from '../../services/PluginOsMarketplaceService.js';
 import { ExperienceSkillLearningLoopService } from '../../services/ExperienceSkillLearningLoopService.js';
 import { PluginOsObservabilityService } from '../../services/PluginOsObservabilityService.js';
@@ -185,6 +184,7 @@ export async function runPlugins(root: string, args: string[]) {
     const loadWizardState = async () => {
       if (!existsSync(stateFile)) return wizard.start({ root });
       try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const raw = (await readJson(stateFile, null)) as any;
         if (!raw || !raw.step) return wizard.start({ root });
         // rebuild from saved fields
@@ -211,7 +211,8 @@ export async function runPlugins(root: string, args: string[]) {
       }
     };
 
-    const saveWizardState = async (state: any) => {
+    const saveWizardState = async (// eslint-disable-next-line @typescript-eslint/no-explicit-any
+      state: any) => {
       await writeJson(stateFile, {
         step: state.step,
         profile: state.profile,
@@ -264,7 +265,7 @@ export async function runPlugins(root: string, args: string[]) {
       return render(args, 'Zavorth plugin wizard', state.formatText().split('\n'), { ok: true, state });
     }
     if (sub === 'inject') {
-      const mode = String(args[2] || readFlag(args, 'mode') || 'compact').trim() as any;
+      const mode = String(args[2] || readFlag(args, 'mode') || 'compact').trim() as 'off' | 'compact' | 'standard' | 'full' | 'ab';
       const sample = Number(readFlag(args, 'sample') || args[3] || 100) || 100;
       state = wizard.setInject(state, mode, sample, { root });
       await saveWizardState(state);
@@ -598,7 +599,7 @@ export async function runPlugins(root: string, args: string[]) {
   }
 
   if (action === 'inject-mode' || action === 'inject') {
-    const mode = String(args[1] || readFlag(args, 'mode') || '').trim();
+    const mode = String(args[1] || readFlag(args, 'mode') || '').trim() as 'off' | 'compact' | 'standard' | 'full' | 'ab' | '';
     const injection = new PluginOsPromptInjectionService({ projectRoot: root });
     if (!mode) {
       const prefs = injection.loadPrefs(root);
@@ -617,7 +618,7 @@ export async function runPlugins(root: string, args: string[]) {
     const sample = Number(readFlag(args, 'sample') || 100) || 100;
     const saved = injection.savePrefs(
       {
-        injectMode: mode as any,
+        injectMode: mode,
         injectSamplePercent: sample,
       },
       root,

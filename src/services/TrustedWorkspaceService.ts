@@ -57,7 +57,8 @@ export class TrustedWorkspaceService {
     return this.mapRow(row);
   }
 
-  private mapRow(row: any): TrustedWorkspaceEntry {
+  private mapRow(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    row: any): TrustedWorkspaceEntry {
     return {
       workspaceId: row.workspace_id,
       rootHash: row.root_hash,

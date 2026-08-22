@@ -1,4 +1,4 @@
-export function getProviderCockpitMetadata(metadata: any) {
+export function getProviderCockpitMetadata(metadata: unknown) {
   return {
     providerCockpit: metadata?.providerCockpit
   };

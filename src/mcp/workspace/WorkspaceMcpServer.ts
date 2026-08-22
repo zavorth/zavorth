@@ -30,7 +30,7 @@ if (!sessionId) {
 let pathGuard: WorkspacePathGuard;
 try {
   pathGuard = new WorkspacePathGuard(workspaceRoot);
-} catch (error: unknown) { const err = asErrorLike(error); const e = err;
+} catch (error: unknown) { const err = asErrorLike(error);
   logger.error(`Failed to initialize path guard: ${err.message}`);
   process.exit(1);
 }
@@ -197,7 +197,7 @@ function resolveAndValidatePathForMcp(
       ? pathGuard.resolveExisting(inputPath)
       : pathGuard.resolveForWrite(inputPath);
     return { resolved, bypassApproval: false };
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) { const err = asErrorLike(error);
     if (err.message.includes('Access to sensitive file') || err.message.includes('Access to Git metadata directory')) {
       throw err;
     }
@@ -721,7 +721,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
 
     throw new Error(`Unknown tool: ${toolName}`);
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) { const err = asErrorLike(error);
     let msg = err.message;
     if (msg.includes('not a git repository')) {
       msg = 'Error: The workspace directory is not a Git repository.';

@@ -32,6 +32,8 @@ import { SkillRegistryOpsHttpApiService } from './SkillRegistryOpsHttpApiService
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 type ReadJsonBody = (req: http.IncomingMessage) => Promise<RouteCompatRecord>;
+// Dynamic service bag: route handlers access operations services by key.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type RouteCompatPayload = any;
 type RouteCompatRecord = Record<string, RouteCompatPayload>;
 

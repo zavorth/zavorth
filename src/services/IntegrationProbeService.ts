@@ -380,7 +380,7 @@ export class IntegrationProbeService {
         latencyMs,
       });
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       logger.warn('[Integration Probe] network request failed', error);
     return this.createSnapshot(manifest, {
         status: 'failed',
@@ -535,7 +535,7 @@ export class IntegrationProbeService {
         latencyMs,
       };
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       const aborted = asErrorLike(error).name === 'AbortError';
       return {
         generatedAt: this.now().toISOString(),

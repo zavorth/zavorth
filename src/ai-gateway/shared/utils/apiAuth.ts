@@ -56,7 +56,7 @@ const PUBLIC_API_PREFIX_ROUTES = [
  *
  * @returns null if authenticated, error message string if not
  */
-export async function verifyAuth(request: any): Promise<string | null> {
+export async function verifyAuth(request: unknown): Promise<string | null> {
   // 1. Check JWT cookie (zavorthControl session)
   const token = request.cookies.get("auth_token")?.value;
   if (token && process.env.JWT_SECRET) {

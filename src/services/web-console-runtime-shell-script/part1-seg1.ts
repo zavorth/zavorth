@@ -1,4 +1,3 @@
-import { asErrorLike } from '../../utils/errorLike';
 export const runtimeShellScriptPart1Seg1: string = [
     "const root = document.querySelector('#runtime-handoff');",
     "const runtimeStatus = document.querySelector('#runtime-shell-status');",

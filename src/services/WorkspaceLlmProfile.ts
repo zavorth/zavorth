@@ -15,6 +15,7 @@ export type WorkspaceLlmStrategy = {
 type ResolveWorkspaceLlmStrategyOptions = {
   configuredProviderName?: string;
   isProviderUsable?: (name: string) => boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workspaceMemory?: Record<string, any> | null | undefined;
   roleScopeId?: string | null;
   forceStrong?: boolean | null;
@@ -175,6 +176,7 @@ function pickModel(...candidates: Array<string | undefined>): string | undefined
 }
 
 function resolveLearnedWorkspaceLlmRecommendation(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workspaceMemory: Record<string, any> | null | undefined,
   taskKind: WorkspaceTaskKind,
   taskSubtype: WorkspaceTaskSubtype,
@@ -193,7 +195,7 @@ function resolveLearnedWorkspaceLlmRecommendation(
     ? workspaceMemory!.task_kind_llm_recommendations
     : [];
 
-  const subtypeRecommendation = subtypeRecommendations.find((entry: any) => {
+  const subtypeRecommendation = subtypeRecommendations.find((entry: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     return (
       String(entry?.kind || '')
         .trim()
@@ -207,7 +209,7 @@ function resolveLearnedWorkspaceLlmRecommendation(
     return subtypeRecommendation;
   }
 
-  const kindRecommendation = kindRecommendations.find((entry: any) => {
+  const kindRecommendation = kindRecommendations.find((entry: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     return (
       String(entry?.kind || '')
         .trim()

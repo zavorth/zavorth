@@ -16,7 +16,7 @@ export function normalizeClaudeCodeCompatibleBaseUrl(baseUrl: string) {
   return stripClaudeCodeCompatibleEndpointSuffix(baseUrl || "");
 }
 
-export function resolveBaseUrl(entry: any, providerSpecificData: any = {}) {
+export function resolveBaseUrl(entry: unknown, providerSpecificData: unknown = {}) {
   if (providerSpecificData?.baseUrl) return normalizeBaseUrl(providerSpecificData.baseUrl);
   if (entry?.baseUrl) return normalizeBaseUrl(entry.baseUrl);
   return "";
@@ -25,7 +25,7 @@ export function resolveBaseUrl(entry: any, providerSpecificData: any = {}) {
 export function resolveChatUrl(
   provider: string,
   baseUrl: string,
-  providerSpecificData: any = {}
+  providerSpecificData: unknown = {}
 ) {
   const normalized = normalizeBaseUrl(baseUrl);
   if (!normalized) return "";

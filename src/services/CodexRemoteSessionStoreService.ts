@@ -56,7 +56,7 @@ export type CodexRemoteSessionRecord = {
   lastOutput: string | null;
   lastError: string | null;
   lastExitCode: number | null;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   events: CodexRemoteSessionEvent[];
 };
 
@@ -77,15 +77,15 @@ const EMPTY_STATE: CodexRemoteSessionStoreState = {
   sessions: [],
 };
 
-function isPlainObject(value: unknown): value is Record<string, any> {
+function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
 function mergeMetadata(
-  current: Record<string, any>,
-  patch: Record<string, any>,
-): Record<string, any> {
-  const next: Record<string, any> = { ...current };
+  current: Record<string, unknown>,
+  patch: Record<string, unknown>,
+): Record<string, unknown> {
+  const next: Record<string, unknown> = { ...current };
 
   for (const [key, value] of Object.entries(patch)) {
     if (isPlainObject(next[key]) && isPlainObject(value)) {
@@ -137,7 +137,7 @@ export class CodexRemoteSessionStoreService {
     requestedBy: string;
     sourceSurface?: string | null;
     sourceChatId?: string | null;
-    metadata?: Record<string, any> | null;
+    metadata?: Record<string, unknown> | null;
     maxRuntimeSeconds?: number | null;
   }): CodexRemoteSessionRecord {
     const now = this.now().toISOString();

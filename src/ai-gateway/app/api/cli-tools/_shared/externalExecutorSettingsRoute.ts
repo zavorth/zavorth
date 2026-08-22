@@ -47,7 +47,7 @@ const readSettings = async () => {
   }
 };
 
-const hasZavorthGatewayConfig = (settings: any) => {
+const hasZavorthGatewayConfig = (settings: unknown) => {
   if (!settings || !settings.models || !settings.models.providers) return false;
   return !!settings.models.providers["ZavorthGateway"];
 };
@@ -131,7 +131,7 @@ export async function POST(request: Request) {
     await fs.mkdir(executorDir, { recursive: true });
     await createBackup(EXTERNAL_EXECUTOR_TOOL_ID, settingsPath);
 
-    let settings: Record<string, any> = {};
+    let settings: Record<string, unknown> = {};
     try {
       const existingSettings = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(existingSettings);
@@ -191,7 +191,7 @@ export async function DELETE(request: Request) {
 
     await createBackup(EXTERNAL_EXECUTOR_TOOL_ID, settingsPath);
 
-    let settings: Record<string, any> = {};
+    let settings: Record<string, unknown> = {};
     try {
       const existingSettings = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(existingSettings);

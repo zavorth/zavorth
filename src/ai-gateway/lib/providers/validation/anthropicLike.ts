@@ -18,7 +18,7 @@ export async function validateAnthropicLikeProvider({
   chatPath,
   headers = {},
   providerSpecificData = {},
-}: any) {
+}: unknown) {
   const normalizedBaseUrl = normalizeAnthropicBaseUrl(baseUrl);
   if (!normalizedBaseUrl) {
     return connectionFailed("No base URL configured for Anthropic compatible provider");

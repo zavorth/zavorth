@@ -6,6 +6,8 @@ declare function escapeHtml(value: unknown): string;
 type CapabilityCatalogErrorPayload = { error: unknown };
 
 function zavorthControlClassicClientOverviewSummaryCapabilities() {
+  // Consumed at runtime via extractFunctionBody(); renders the capabilities card.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function renderOperationsCapabilities(
     capabilities: ZavorthCapabilityCatalogSnapshot | CapabilityCatalogErrorPayload | null | undefined,
   ) {

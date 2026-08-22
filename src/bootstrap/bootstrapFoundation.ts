@@ -5,7 +5,6 @@ import { GoalLoopDaemonService } from '../services/GoalLoopDaemonService.js';
 import { GoalLoopService } from '../services/GoalLoopService.js';
 import { GoalLoopWorkerService } from '../services/GoalLoopWorkerService.js';
 import { GoalPlaneService } from '../services/GoalPlaneService.js';
-import { McpRuntimeService } from '../mcp/McpRuntimeService.js';
 import { TaskManager } from '../orchestrator/TaskManager.js';
 import { TaskPlaneService } from '../services/TaskPlaneService.js';
 import { Database } from '../storage/Database.js';

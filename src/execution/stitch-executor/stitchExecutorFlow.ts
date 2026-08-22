@@ -10,6 +10,9 @@ import {
   StitchSdkModule,
   StitchSuccessSummaryInput,
 } from './stitchExecutorTypes.js';
+
+type StitchToolClient = InstanceType<StitchSdkModule['StitchToolClient']>;
+
 type ExecuteStitchSdkRouteInput = {
   request: ExecutionRequest;
   result: ExecutionResult;
@@ -28,11 +31,11 @@ type ExecuteStitchSdkRouteInput = {
     timeout: number,
   ) => Record<string, unknown>;
   buildProjectTitle: (prompt: string, taskId: string) => string;
-  resolveProjectId: (project: any) => string;
-  generateScreenWithRetry: (client: any, input: StitchRetryInput) => Promise<any>;
-  extractGeneratedScreen: (raw: any) => StitchGeneratedScreen | null;
+  resolveProjectId: (project: unknown) => string;
+  generateScreenWithRetry: (client: StitchToolClient, input: StitchRetryInput) => Promise<unknown>;
+  extractGeneratedScreen: (raw: unknown) => StitchGeneratedScreen | null;
   resolveScreenId: (screen: StitchGeneratedScreen | null) => string;
-  extractDownloadUrl: (value: any) => string | null;
+  extractDownloadUrl: (value: unknown) => string | null;
   persistArtifacts: (input: {
     artifactDir: string;
     prompt: string;
@@ -63,7 +66,7 @@ type ProbeStitchSdkConnectionInput = {
 };
 
 type GenerateStitchScreenWithRetryInput = {
-  client: any;
+  client: StitchToolClient;
   input: StitchRetryInput;
   isRetriableGenerationError: (error: unknown) => boolean;
   buildTimeoutFallbackPrompt: (prompt: string, currentPrompt: string, request: ExecutionRequest) => string;
@@ -211,7 +214,7 @@ export async function probeStitchSdkConnection(
 
 export async function generateStitchScreenWithRetry(
   input: GenerateStitchScreenWithRetryInput,
-): Promise<any> {
+): Promise<unknown> {
   const primaryPayload = {
     projectId: input.input.projectId,
     prompt: input.input.generationPrompt,
@@ -245,11 +248,11 @@ export async function generateStitchScreenWithRetry(
 }
 
 async function resolveStitchRemoteArtifacts(input: {
-  client: any;
+  client: StitchToolClient;
   projectId: string;
   screenId: string;
   generatedScreen: StitchGeneratedScreen;
-  extractDownloadUrl: (value: any) => string | null;
+  extractDownloadUrl: (value: unknown) => string | null;
 }): Promise<{ imageUrl: string | null; htmlUrl: string | null }> {
   let imageUrl = input.extractDownloadUrl(input.generatedScreen.screenshot);
   let htmlUrl = input.extractDownloadUrl(input.generatedScreen.htmlCode);

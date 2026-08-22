@@ -420,7 +420,7 @@ export class ProviderControlPlaneService {
     taskKind: WorkspaceTaskKind,
     taskSubtype: WorkspaceTaskSubtype,
     options: {
-      workspaceMemory?: Record<string, any> | null | undefined;
+      workspaceMemory?: Record<string, unknown> | null | undefined;
     } = {},
   ): ProviderProfileRecommendation {
     const strategy = resolveWorkspaceLlmStrategy(taskKind, taskSubtype, {

@@ -71,7 +71,8 @@ export function createLlmRuntimeChatPort(runtime: LlmRuntimeChatLike): LlmChatPo
  */
 export function createTimeoutSignal(timeoutMs: number, parent?: AbortSignal): AbortSignal {
   const ms = Math.max(1_000, Math.floor(timeoutMs || 60_000));
-  if (typeof AbortSignal !== 'undefined' && typeof (AbortSignal as any).timeout === 'function') {
+  if (typeof AbortSignal !== 'undefined' && typeof (AbortSignal as any).timeout === 'function') { // eslint-disable-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const timed = (AbortSignal as any).timeout(ms) as AbortSignal;
     if (!parent) return timed;
     return anySignal([parent, timed]);

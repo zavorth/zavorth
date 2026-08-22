@@ -9,7 +9,7 @@ import {
 ZavorthRemoteTransportService,
   type ZavorthRemoteTransportEntry,
 } from './ZavorthRemoteTransportService.js';
-import { asErrorLike, errorMessage } from '../utils/errorLike.js';
+import { errorMessage } from '../utils/errorLike.js';
 export type RemoteTransportDoctorItem = {
   transportId: string;
   label: string;
@@ -279,7 +279,6 @@ export class RemoteTransportDoctorService {
         detail: `Active probe confirmed reachability at ${endpoint} (HTTP ${response.status}).`,
       };
     } catch (error: unknown) {
-      const err = asErrorLike(error);
       logger.warn('[Remote Transport Doctor] network request failed', error);
     return {
         status: 'failed',
@@ -304,7 +303,6 @@ export class RemoteTransportDoctorService {
       const sidecar = await this.aiGatewaySidecar.start();
       details.push(sidecar.message);
     } catch (error: unknown) {
-      const err = asErrorLike(error);
       details.push(`Sidecar start attempt failed: ${errorMessage(error)}`);
       return details;
     }
@@ -313,7 +311,6 @@ export class RemoteTransportDoctorService {
       const gateway = await this.gatewayLauncher.ensureStarted();
       details.push(gateway.message || 'Gateway AIGateway reconciliado before do probe.');
     } catch (error: unknown) {
-      const err = asErrorLike(error);
       details.push(`Gateway start attempt failed: ${errorMessage(error)}`);
     }
 

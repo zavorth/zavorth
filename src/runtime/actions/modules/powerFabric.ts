@@ -5,7 +5,7 @@ import type {
   ZavorthActionResult,
   ZavorthActionSchema,
 } from '../ZavorthActionContracts.js';
-import { UniversalPowerSubsystemService, UniversalPowerFabricService } from '../../../services/UniversalPowerSubsystemService.js';
+import { UniversalPowerFabricService } from '../../../services/UniversalPowerSubsystemService.js';
 
 import type { PowerBackendId } from '../../../contracts/UniversalPowerFabricContract.js';
 

@@ -240,6 +240,7 @@ export class ZavorthReplayLearningRegistryService {
     if (!Array.isArray(value)) {
       return [];
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return value.map((entry: any) => ({
       id: this.normalizeToken(entry?.id),
       summary: String(entry?.summary || '').trim(),

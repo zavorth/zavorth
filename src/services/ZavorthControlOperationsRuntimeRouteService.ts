@@ -2,18 +2,33 @@ import * as http from 'http';
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 
+type ZavorthControlSnapshotInput = {
+  sessionId?: string;
+  chatId?: string;
+  userId?: string;
+  platform?: string;
+  sourceUserId?: string;
+  selectedId?: string | null;
+  query?: string | null;
+};
+
+type ZavorthControlHydratedSnapshot = {
+  controlPlane?: unknown;
+  domains?: unknown;
+};
+
 type SnapshotBuilder = {
-  buildSnapshot: (input?: any) => any;
+  buildSnapshot: (input?: ZavorthControlSnapshotInput) => unknown;
 };
 
 type AsyncSnapshotBuilder = {
-  buildSnapshot: (input?: any) => Promise<any>;
+  buildSnapshot: (input?: ZavorthControlSnapshotInput) => Promise<unknown>;
 };
 
 type HydratedGatewayBuilder = {
-  buildHydratedSnapshot: (input: any) => Promise<any>;
-  buildDomainSummarySnapshot?: () => any;
-  buildDomainSnapshot?: () => any;
+  buildHydratedSnapshot: (input: ZavorthControlSnapshotInput) => Promise<ZavorthControlHydratedSnapshot>;
+  buildDomainSummarySnapshot?: () => unknown;
+  buildDomainSnapshot?: () => unknown;
 };
 
 export type ZavorthControlOperationsRuntimeRouteDeps = {

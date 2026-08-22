@@ -4,6 +4,7 @@ import type {
 import type { WorkflowRunSnapshot } from '../WorkflowRunService.js';
 
 export function resolveReplayLearningResumeReady(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   memoryPlane: any,
   workflowRuns: WorkflowRunSnapshot[],
   artifacts: ZavorthReplayLearningArtifactEntry[],
@@ -17,6 +18,7 @@ export function resolveReplayLearningResumeReady(
 }
 
 export function resolveReplayLearningRestoreReady(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   memoryPlane: any,
   workflowRuns: WorkflowRunSnapshot[],
 ): boolean {

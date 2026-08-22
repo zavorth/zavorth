@@ -181,7 +181,7 @@ export class WorkspaceRoutingAdvisor {
         source: 'subtype_memory',
         confidence: applyApprovalFrictionPenalty(0.92, subtypeFriction),
         rationale: appendApprovalFrictionRationale(
-          `Historico recente do workspace aponta ${subtypeExecutor} como melhor executor para ${taskProfile.subtype}.`,
+          `Recent workspace history points to ${subtypeExecutor} as the best executor for ${taskProfile.subtype}.`,
           subtypeFriction,
         ),
       });
@@ -201,7 +201,7 @@ export class WorkspaceRoutingAdvisor {
         source: 'kind_memory',
         confidence: applyApprovalFrictionPenalty(0.82, kindFriction),
         rationale: appendApprovalFrictionRationale(
-          `Historico recente do workspace favorece ${kindExecutor} para tarefas do tipo ${taskProfile.kind}.`,
+          `Recent workspace history favors ${kindExecutor} for tasks of type ${taskProfile.kind}.`,
           kindFriction,
         ),
       });
@@ -220,7 +220,7 @@ export class WorkspaceRoutingAdvisor {
         source: 'profile_default',
         confidence: applyApprovalFrictionPenalty(0.68, profileFriction),
         rationale: appendApprovalFrictionRationale(
-          `Perfil do workspace define ${profileExecutor} como default para ${taskProfile.kind}.`,
+          `Workspace profile sets ${profileExecutor} as the default for ${taskProfile.kind}.`,
           profileFriction,
         ),
       });
@@ -470,7 +470,7 @@ export class WorkspaceRoutingAdvisor {
         confidence: Math.min(0.96, workflowRecommendation.confidence + 0.04),
         rationale: `${workflowRecommendation.rationale} ${workflowApprovedPolicy.rationale}`.trim(),
       };
-      rationale.push(`Workflow ${workflowRecommendation.workflow} ganhou trust extra porque already existe approved policy para ${selectedCandidate?.executor || 'o executor selecionado'}.`);
+      rationale.push(`Workflow ${workflowRecommendation.workflow} gained extra trust because an approved policy already exists for ${selectedCandidate?.executor || 'the selected executor'}.`);
     }
     if (
       workflowRecommendation

@@ -377,10 +377,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     return lines.join('\n');
   }
 
-  private testPolicy(args: Record<string, unknown>): string {
-    const toolName = String(args.tool_name || 'test_tool');
-    const riskLevel = String(args.risk_level || 'medium');
-
+  private testPolicy(_args: Record<string, unknown>): string {
     const testCases = [
       { tool: 'send_email', args: { to: 'user@example.com', subject: 'Test' }, risk: 'high' },
       { tool: 'remote_shell', args: { command: 'rm -rf /tmp/test' }, risk: 'critical' },
@@ -529,7 +526,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     return false;
   }
 
-  private suggestAlternative(policy: PolicyRule, toolName: string): string | undefined {
+  private suggestAlternative(policy: PolicyRule, _toolName: string): string | undefined {
     switch (policy.category) {
       case 'execution':
         return `Use a sandbox (SandboxExecutionTool) for dangerous commands.`;

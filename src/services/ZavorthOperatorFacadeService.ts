@@ -1,4 +1,6 @@
 import type { ZavorthEchoService } from './ZavorthEchoService.js';
+import type { PermissionRequest } from './ZavorthProactivePermissionService.js';
+import type { EchoExecutionEntry, EchoToolCall } from '../tool-runtime/types/ToolRuntimeTypes.js';
 import type {
   NormalizedInboundMessage,
   UniversalApprovalIntentDecisionResult,
@@ -162,7 +164,7 @@ export class ZavorthOperatorFacadeService {
     const capabilityLifecycle = Array.isArray(echoSnapshot.capabilityLifecycle) ? echoSnapshot.capabilityLifecycle : [];
     const history = input.echo.getHistory(10);
     const categoryCounts = this.toRecord(summary.categoryCounts);
-    const firstNonStableCapability = maturitySnapshot.consoleRows.find((row: any) => row.status !== 'stable') || null;
+    const firstNonStableCapability = maturitySnapshot.consoleRows.find((row) => row.status !== 'stable') || null;
     const provisionedEdges = this.buildProvisionedEdgeReadiness(maturitySnapshot);
     const operatorExperience = this.buildOperatorExperiencePayload({
       agentGatewayAvailable: input.agentGatewayAvailable,
@@ -186,19 +188,19 @@ export class ZavorthOperatorFacadeService {
       },
       execution: {
         recentCount: history.length,
-        recent: history.map((entry: any) => ({
+        recent: history.map((entry: EchoExecutionEntry) => ({
           id: entry.id,
           timestamp: entry.timestamp,
           prompt: entry.prompt,
           status: entry.status,
           durationMs: entry.durationMs,
-          tools: Array.isArray(entry.toolCalls) ? entry.toolCalls.map((toolCall: any) => toolCall.toolName) : [],
+          tools: Array.isArray(entry.toolCalls) ? entry.toolCalls.map((toolCall: EchoToolCall) => toolCall.toolName) : [],
           finalResponse: entry.finalResponse,
         })),
       },
       approvals: {
         pendingCount: pendingPermissions.length,
-        pending: pendingPermissions.map((permission: any) => ({
+        pending: pendingPermissions.map((permission: PermissionRequest) => ({
           id: permission.id,
           action: permission.action,
           reason: permission.reason,

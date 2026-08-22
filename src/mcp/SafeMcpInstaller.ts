@@ -177,20 +177,6 @@ function isSchemaObject(input: unknown): boolean {
   return Boolean(input && typeof input === 'object' && !Array.isArray(input));
 }
 
-function isDangerousTool(toolName: string, risk: McpDiscoveredToolRisk): boolean {
-  const normalized = toolName.toLowerCase();
-  return risk === 'unknown'
-    || risk === 'critical'
-    || risk === 'high'
-    || normalized.includes('provider_secret')
-    || normalized.includes('provider.secret')
-    || normalized.includes('rawkey')
-    || normalized.includes('hpm')
-    || normalized.includes('pty')
-    || normalized.includes('shell')
-    || normalized.includes('terminal')
-    || normalized.includes('network');
-}
 
 export class McpDiscoverySandbox {
   private readonly sandboxCwd: string;

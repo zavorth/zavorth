@@ -3,7 +3,8 @@ import { homedir } from "os";
 import { join } from "path";
 import Database from "better-sqlite3";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { logger } from '@/shared/utils/logger';/**
+import { logger } from '@/shared/utils/logger';
+/**
  * GET /api/oauth/cursor/auto-import
  * Auto-detect and extract Cursor tokens from local SQLite database.
  *
@@ -46,7 +47,7 @@ export async function GET(request: Request) {
         .prepare("SELECT key, value FROM itemTable WHERE key IN (..., ...)")
         .all("cursorAuth/accessToken", "storage.serviceMachineId");
 
-      const tokens: Record<string, any> = {};
+      const tokens: Record<string, unknown> = {};
       for (const row of rows) {
         if (row.key === "cursorAuth/accessToken") {
           tokens.accessToken = row.value;
@@ -73,10 +74,10 @@ export async function GET(request: Request) {
     } catch (error: unknown) {db?.close();
       return NextResponse.json({
         found: false,
-        error: `Failed to read database: ${(error as any).message}`,
+        error: `Failed to read database: ${(error as unknown as Record<string, unknown>).message}`,
       });
     }
   } catch (error: unknown) {console.log("Cursor auto-import error:", error);
-    return NextResponse.json({ found: false, error: (error as any).message }, { status: 500 });
+    return NextResponse.json({ found: false, error: (error as unknown as Record<string, unknown>).message }, { status: 500 });
   }
 }

@@ -5,19 +5,14 @@ import {
   createZavorthNativeIntegrationRegistryFixture,
   createZavorthNativeSessionHistoryRegistryFixture,
 } from '../../../../../../contracts/runtime/CommandCenterRuntimeBoundaryContract.js';
-import type { ZavorthControlProviderCockpitSnapshot } from '../contracts/zavorthControlObservabilityContracts';
 
 export const ZAVORTH_CONTROL_NATIVE_FIRST_RUNTIME_PROJECTION_VERSION = 'zavorth-control-native-first-runtime-projection/v1' as const;
 export const ZAVORTH_CONTROL_NATIVE_FIRST_RUNTIME_NOW = '2026-05-19T00:00:00.000Z' as const;
 
-type AnyRecord = Record<string, any>;
+type AnyRecord = Record<string, unknown>;
 
-type ZavorthControlRuntimeProjectionProviderCockpit = {
-  providerCockpit?: ZavorthControlProviderCockpitSnapshot | null;
-  perceptionControl?: AnyRecord | null;
-};
 
-function array<T = any>(value: unknown): T[] {
+function array<T = unknown>(value: unknown): T[] {
   return Array.isArray(value) ? value as T[] : [];
 }
 

@@ -7,6 +7,15 @@ export interface HybridConfig {
   maxDirectDuration: number;
 }
 
+export interface HybridExecutionResult {
+  mode: "direct" | "sandbox";
+  result: Record<string, unknown>;
+}
+
+export interface HybridExecutorLike {
+  execute: (skillName: string, input: Record<string, unknown>, context?: unknown) => Promise<HybridExecutionResult>;
+}
+
 const defaultHybridConfig: HybridConfig = {
   defaultMode: "direct",
   autoUpgrade: true,
@@ -15,19 +24,21 @@ const defaultHybridConfig: HybridConfig = {
 
 export class HybridExecutor {
   private config: HybridConfig;
-  private directExecutor: any;
-  private sandboxRunner: any;
+  private directExecutor: HybridExecutorLike | null;
+  private sandboxRunner: HybridExecutorLike | null;
 
   constructor(config: Partial<HybridConfig> = {}) {
     this.config = { ...defaultHybridConfig, ...config };
+    this.directExecutor = null;
+    this.sandboxRunner = null;
   }
 
   setConfig(config: Partial<HybridConfig>): void {
     this.config = { ...this.config, ...config };
   }
 
-  async execute(skillName: string, input: any, _context: any): Promise<any> {
-    const estimatedDuration = input.estimatedDuration || 0;
+  async execute(skillName: string, input: Record<string, unknown>, _context: unknown): Promise<HybridExecutionResult> {
+    const estimatedDuration = Number(input.estimatedDuration) || 0;
 
     if (this.shouldUseSandbox(estimatedDuration)) {
       return this.executeInSandbox();
@@ -50,15 +61,15 @@ export class HybridExecutor {
     return estimatedDuration > this.config.maxDirectDuration;
   }
 
-  private async executeDirect(): Promise<any> {
+  private async executeDirect(): Promise<HybridExecutionResult> {
     return { mode: "direct", result: {} };
   }
 
-  private async executeInSandbox(): Promise<any> {
+  private async executeInSandbox(): Promise<HybridExecutionResult> {
     return { mode: "sandbox", result: {} };
   }
 
-  private isRetryable(err: any): boolean {
+  private isRetryable(err: { message?: string }): boolean {
     if (err?.message?.includes("timeout")) return true;
     if (err?.message?.includes("memory")) return true;
     return false;

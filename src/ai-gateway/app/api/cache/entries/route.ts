@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error: unknown) {
-    const err = asErrorLike(error);
+    asErrorLike(error);
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
@@ -102,7 +102,7 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ error: "Provide signature or model parameter" }, { status: 400 });
   } catch (error: unknown) {
-    const err = asErrorLike(error);
+    asErrorLike(error);
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }

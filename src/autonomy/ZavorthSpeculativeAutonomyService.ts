@@ -35,6 +35,7 @@ import {
   defaultDockerValidationRunner
 } from './ZavorthSpeculativeSandboxRunner.js';
 import { asErrorLike } from '../utils/errorLike.js';
+import { DockerSandboxRuntime, type DockerSandboxStatus } from '../services/sandbox/DockerSandboxRuntime.js';
 
 export {
   buildSpeculativeDockerValidationArgs,

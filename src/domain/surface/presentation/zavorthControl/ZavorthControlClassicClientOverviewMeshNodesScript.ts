@@ -2,11 +2,12 @@ import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
 import type { NodeInvocationRecord, NodeMeshSnapshot } from '../../../../contracts/core/NodeMeshContract.js';
 
 declare function escapeHtml(value: unknown): string;
-declare function formatRelativeTime(value: unknown): string;
 
 type NodeMeshErrorPayload = { error: unknown };
 
 function zavorthControlClassicClientOverviewMeshNodes() {
+  // Consumed at runtime via extractFunctionBody(); renders the Node Mesh card.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function renderOperationsNodes(nodeMesh: NodeMeshSnapshot | NodeMeshErrorPayload | null | undefined) {
     const node = document.getElementById('operations-nodes');
     if (!node) return;

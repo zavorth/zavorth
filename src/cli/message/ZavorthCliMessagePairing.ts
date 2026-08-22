@@ -13,8 +13,7 @@ import {
 import { logger } from '../../logger.js';
 
 import {
-type ChannelAdapter,
-  type JsonObject,
+type JsonObject,
   resolveChannelAdapter,
   mergeDirectoryEntries
 } from './ZavorthCliMessageAdapters.js';function redact(value: string): string {

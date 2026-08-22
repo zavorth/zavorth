@@ -157,9 +157,9 @@ export class GatewaySessionToolsService {
     sessionId?: string | null;
     sourceUserId?: string | null;
     text: string;
-    ctx?: any;
-    mentions?: any[];
-    composerPayload?: Record<string, any> | null;
+    ctx?: unknown;
+    mentions?: unknown[];
+    composerPayload?: Record<string, unknown> | null;
     workspace?: string | null;
   }): Promise<GatewaySessionSendResult> {
     const workspace = this.normalizeWorkspace(input.workspace);

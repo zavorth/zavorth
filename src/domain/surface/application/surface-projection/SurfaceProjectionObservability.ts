@@ -91,13 +91,13 @@ export function explainSurfaceProjection(input: {
     }
   }
 
-  if (hasReplyOptions && (out?.replyOptions as any)?.numberedPrompt) {
+  if (hasReplyOptions && (out?.replyOptions as unknown as Record<string, unknown>)?.numberedPrompt) {
     reasons.push('Messaging fallback attached numberedOptions for reply 1-N.');
   }
-  if (hasReplyOptions && (out?.replyOptions as any)?.suggestedReactions) {
+  if (hasReplyOptions && (out?.replyOptions as unknown as Record<string, unknown>)?.suggestedReactions) {
     reasons.push('Reactions suggested on reply payload (parse via reaction handler).');
   }
-  if (hasReplyOptions && (out?.replyOptions as any)?.selectMenu) {
+  if (hasReplyOptions && (out?.replyOptions as unknown as Record<string, unknown>)?.selectMenu) {
     reasons.push('Discord select menu payload present.');
   }
 

@@ -98,7 +98,7 @@ export class WorkspaceHookService {
         stdio: 'inherit',
       });
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       logger.warn('[Workspace Hook] process execution failed', error);
     return {
         command,
@@ -158,10 +158,10 @@ export class WorkspaceHookService {
       .replace(/\s+/g, '-');
   }
 
-  private toRecord(value: unknown): Record<string, any> {
+  private toRecord(value: unknown): Record<string, unknown> {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return {};
     }
-    return value as Record<string, any>;
+    return value as Record<string, unknown>;
   }
 }

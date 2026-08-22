@@ -2,7 +2,7 @@ import type {
   ZavorthControlRunObservatorySnapshot,
 } from '../contracts';
 
-type AnyRecord = Record<string, any>;
+type AnyRecord = Record<string, unknown>;
 
 type ZavorthControlIntelligenceFabricHealthSnapshot = {
   status: string;

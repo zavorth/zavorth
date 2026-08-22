@@ -134,8 +134,8 @@ export class TelegramChannelContractService {
   }
 
   private resolveThreadId(ctx: Context): string | null {
-    const message = ctx.message as any;
-    const callbackMessage = ctx.callbackQuery?.message as any;
+    const message = ctx.message as unknown as Record<string, unknown>;
+    const callbackMessage = ctx.callbackQuery?.message as unknown as Record<string, unknown>;
     const threadId = message?.message_thread_id ?? callbackMessage?.message_thread_id ?? null;
     return threadId === null || threadId === undefined ? null : String(threadId);
   }

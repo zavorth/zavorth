@@ -3,7 +3,8 @@ import { getSettings, updateSettings } from "@/lib/localDb";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateComboDefaultsSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';/**
+import { logger } from '@/shared/utils/logger';
+/**
  * GET /api/settings/combo-defaults
  * Returns the current combo global defaults and provider overrides
  */
@@ -12,7 +13,7 @@ export async function GET(request: Request) {
   if (authError) return authError;
 
   try {
-    const settings: any = await getSettings();
+    const settings: unknown = await getSettings();
     return NextResponse.json({
       comboDefaults: settings.comboDefaults || {
         strategy: "priority",
@@ -65,7 +66,7 @@ export async function PATCH(request) {
     }
     const body = validation.data;
 
-    const updates: Record<string, any> = {};
+    const updates: Record<string, unknown> = {};
 
     if (body.comboDefaults) {
       updates.comboDefaults = body.comboDefaults;
@@ -74,7 +75,7 @@ export async function PATCH(request) {
       updates.providerOverrides = body.providerOverrides;
     }
 
-    const settings: any = await updateSettings(updates);
+    const settings: unknown = await updateSettings(updates);
     return NextResponse.json({
       comboDefaults: settings.comboDefaults || {},
       providerOverrides: settings.providerOverrides || {},

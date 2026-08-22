@@ -80,7 +80,7 @@ function loadFromDb() {
     const db = getDbInstance();
     const rows = db
       .prepare("SELECT * FROM proxy_logs ORDER BY timestamp DESC LIMIT ?")
-      .all(MAX_IN_MEMORY_ENTRIES) as any[];
+      .all(MAX_IN_MEMORY_ENTRIES) as unknown as unknown[];
 
     for (const row of rows) {
       proxyLogs.push({

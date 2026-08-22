@@ -4,7 +4,8 @@ import { Task } from '../../../../contracts/TaskContract.js';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import type { WorkflowRunService } from '../../../../runtime/workflows/WorkflowRunService.js';
-import { logger } from '../../../../logger';export type TelegramPermissionDecisionLifecycleServiceDeps = {
+import { logger } from '../../../../logger';
+export type TelegramPermissionDecisionLifecycleServiceDeps = {
   taskManager: Pick<TaskManager, 'advanceState'>;
   resumeTaskExecution: (ctx: Context, task: Task) => Promise<void>;
   resumeWorkflowExecution?: (ctx: Context, task: Task) => Promise<boolean>;
@@ -55,7 +56,7 @@ export class TelegramPermissionDecisionLifecycleService {
     permission: PermissionRequest | undefined,
     action: 'approve' | 'reject' | 'grant' | 'revoke',
     userId: string | null,
-    details: Record<string, any> = {},
+    details: Record<string, unknown> = {},
   ): Promise<void> {
     if (!this.deps.auditLogger || !permission) {
       return;

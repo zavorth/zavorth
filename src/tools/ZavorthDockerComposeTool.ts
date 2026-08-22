@@ -1,6 +1,3 @@
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';

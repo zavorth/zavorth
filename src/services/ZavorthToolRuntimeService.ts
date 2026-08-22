@@ -1,5 +1,5 @@
 import { config } from '../config/index.js';
-import { ExecutionBoundaryService, EchoExecutionBoundaryService } from '../domain/execution/infrastructure/ExecutionBoundaryService.js';
+import { EchoExecutionBoundaryService } from '../domain/execution/infrastructure/ExecutionBoundaryService.js';
 import { EchoCapabilityCatalogService } from '../domain/platform-ecosystem/infrastructure/EchoCapabilityCatalogService.js';
 import {
   ZavorthWatchModeControlPlaneService,

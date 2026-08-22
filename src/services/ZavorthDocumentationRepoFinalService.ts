@@ -293,29 +293,29 @@ export class ZavorthDocumentationRepoFinalService {
   private read(relativePath: string): string | null {
     try {
       return fs.readFileSync(path.join(this.root, relativePath), 'utf8');
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) { const err = asErrorLike(error);
       logger.warn(`[DocumentationRepoFinal] Failure reading file: ${relativePath}`, { error: (err as Error).message });
       return null;
     }
   }
 
-  private readJson(relativePath: string): Record<string, any> | null {
+  private readJson(relativePath: string): Record<string, any> | null { // eslint-disable-line @typescript-eslint/no-explicit-any
     const text = this.read(relativePath);
     if (!text) return null;
-    return this.parseJson<Record<string, any>>(text);
+    return this.parseJson<Record<string, any>>(text); // eslint-disable-line @typescript-eslint/no-explicit-any
   }
 
   private parseJson<T>(text: string): T | null {
     try {
       return JSON.parse(text) as T;
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) { const err = asErrorLike(error);
       logger.warn('[DocumentationRepoFinal] Failed to parse JSON directly, trying object extraction.', { error: (err as Error).message });
       const start = text.indexOf('{');
       const end = text.lastIndexOf('}');
       if (start >= 0 && end > start) {
         try {
           return JSON.parse(text.slice(start, end + 1)) as T;
-        } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+        } catch (error: unknown) { const err = asErrorLike(error);
           logger.warn('[DocumentationRepoFinal] Failed to parse JSON extracted from text.', { error: (err as Error).message });
           return null;
         }

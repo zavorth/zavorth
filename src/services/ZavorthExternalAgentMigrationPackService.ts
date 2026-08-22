@@ -14,7 +14,6 @@ import {
 } from '../contracts/ZavorthExternalAgentMigrationPackContract.js';
 import type { ZavorthExternalAgentGatewayReceipt } from '../contracts/ZavorthExternalAgentGatewayContract.js';
 import { logger } from '../logger.js';
-import { Database } from '../storage/Database.js';
 import { MemoryService } from './MemoryService.js';
 import {
 ZavorthExternalAgentOnboardingService,

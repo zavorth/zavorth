@@ -66,7 +66,7 @@ export class ZavorthProviderPreferencePersistenceService {
   }
 
   public async rollback(input: ZavorthProviderPreferenceRollbackInput = {}): Promise<ZavorthProviderPreferencePersistenceSnapshot> {
-    const paths = this.resolvePaths();
+    this.resolvePaths();
     const previous = await this.readPreference();
     const approval = resolveApproval(input);
     const generatedAt = this.now().toISOString();

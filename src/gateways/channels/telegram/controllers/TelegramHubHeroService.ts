@@ -12,7 +12,7 @@ export class TelegramHubHeroService {
     }
 
     try {
-      await (ctx as any).replyWithPhoto(new InputFile(heroPath, 'zavorth-hub.png'), {
+      await (ctx as any).replyWithPhoto(new InputFile(heroPath, 'zavorth-hub.png'), { // eslint-disable-line @typescript-eslint/no-explicit-any
         caption: this.buildHubHeroCaption(),
         parse_mode: 'Markdown',
         show_caption_above_media: true,

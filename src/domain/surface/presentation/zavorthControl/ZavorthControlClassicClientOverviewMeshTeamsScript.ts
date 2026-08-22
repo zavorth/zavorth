@@ -6,6 +6,8 @@ declare function escapeHtml(value: unknown): string;
 type TeamCatalogErrorPayload = { error: unknown };
 
 function zavorthControlClassicClientOverviewMeshTeams() {
+  // Consumed at runtime via extractFunctionBody(); renders the teams card.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function renderOperationsTeams(teamCatalog: ZavorthTeamCatalogSnapshot | TeamCatalogErrorPayload | null | undefined) {
     const node = document.getElementById('operations-teams');
     if (!node) return;

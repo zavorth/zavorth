@@ -11,7 +11,8 @@ import {
   resetRateLimit,
   extractClientIp,
   applyRateLimitHeaders,
-} from "@/lib/rateLimiter";// SECURITY: No hardcoded fallback — JWT_SECRET must be configured.
+} from "@/lib/rateLimiter";
+// SECURITY: No hardcoded fallback — JWT_SECRET must be configured.
 if (!process.env.JWT_SECRET) {
   console.error("[SECURITY] FATAL: JWT_SECRET is not set. Login authentication is disabled.");
 }
@@ -39,7 +40,7 @@ function authJson(body: unknown, init: ResponseInit = {}) {
   });
 }
 
-function shouldUseSecureCookie(request: any): boolean {
+function shouldUseSecureCookie(request: unknown): boolean {
   const forceSecureCookie = process.env.AUTH_COOKIE_SECURE === "true";
   const forwardedProtoHeader = request.headers.get("x-forwarded-proto") || "";
   const forwardedProto = forwardedProtoHeader.split(",")[0].trim().toLowerCase();

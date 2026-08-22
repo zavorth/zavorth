@@ -1,4 +1,3 @@
-import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import { logger } from '../logger.js';
@@ -206,7 +205,7 @@ print(result.to_string())
     return `Aggregation (${aggFunc} by ${groupBy}):\n${await this.runPython(script)}`;
   }
 
-  private async pivot(args: Record<string, unknown>): Promise<string> {
+  private async pivot(_args: Record<string, unknown>): Promise<string> {
     return 'Error: Pivot requires specifying index, columns, and values. Use "execute" action with custom pandas code for pivot tables.';
   }
 
@@ -252,7 +251,7 @@ print(result.head(${maxRows}).to_string())
     return `Filtered data:\n${await this.runPython(script)}`;
   }
 
-  private async merge(args: Record<string, unknown>): Promise<string> {
+  private async merge(_args: Record<string, unknown>): Promise<string> {
     return 'Error: Merge requires two file paths. Use "execute" action with custom pandas code for merges.';
   }
 

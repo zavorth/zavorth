@@ -419,7 +419,7 @@ function receipt(reason: string) {
   };
 }
 
-function detectChannel(text: string): string {
+function detectChannel(_text: string): string {
   return 'Channel';
 }
 

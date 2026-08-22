@@ -374,7 +374,7 @@ function loadWorkspaceManifest(command: WorkspaceCliCommand): (
       }),
     };
   } catch (error: unknown) {
-  const err = asErrorLike(error);logger.warn('[Zavorth Cli Registry Workspace] load operation failed', error);
+  asErrorLike(error);logger.warn('[Zavorth Cli Registry Workspace] load operation failed', error);
     return {
       ok: false,
       error: error instanceof Error ? error : new Error(String(error || 'unknown manifest error')),

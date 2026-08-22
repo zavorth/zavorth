@@ -118,7 +118,7 @@ export class TelegramZavorthBridgeControlService {
     const requestedModel = args?.trim() || '';
     const operatorUserId = ctx.from?.id?.toString() || null;
     const store =
-      typeof (this.deps.zavorthBridgePreferenceStore as any).forUser === 'function'
+      typeof (this.deps.zavorthBridgePreferenceStore as unknown as Record<string, unknown>).forUser === 'function'
         ? (this.deps.zavorthBridgePreferenceStore as ZavorthBridgePreferenceStore).forUser(operatorUserId)
         : this.deps.zavorthBridgePreferenceStore;
     if (!requestedModel) {

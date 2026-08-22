@@ -26,11 +26,11 @@ export class TelegramChannelAdapter implements GatewayChannelAdapter {
     this.initialized = false;
   }
 
-  async onMessageReceived(payload: any): Promise<void> {
+  async onMessageReceived(_payload: unknown): Promise<void> {
     // Convert grammy/telegram payload to Canonical Request Schema
   }
 
-  async sendMessage(payload: any): Promise<void> {
+  async sendMessage(_payload: unknown): Promise<void> {
     // Call Telegram API with text/media mapping from core Gateway Events
   }
 }

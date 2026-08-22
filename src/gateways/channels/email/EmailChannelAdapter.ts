@@ -45,6 +45,7 @@ export class EmailChannelAdapter implements GatewayChannelAdapter {
     logger.info('[ChannelMesh] Email bridge detached.');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async onMessageReceived(payload: any): Promise<void> {
     const userId = String(payload?.from || payload?.sender || payload?.userId || '').trim().toLowerCase();
     const chatId = String(payload?.threadId || payload?.messageId || payload?.id || userId || 'email').trim();
@@ -70,6 +71,7 @@ export class EmailChannelAdapter implements GatewayChannelAdapter {
     }));
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async sendMessage(outboundPayload: any): Promise<void> {
     const recipients = Array.isArray(outboundPayload?.recipients)
       ? outboundPayload.recipients.map((entry: unknown) => String(entry || '').trim().toLowerCase())

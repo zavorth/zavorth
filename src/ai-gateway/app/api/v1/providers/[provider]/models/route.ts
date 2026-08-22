@@ -6,7 +6,7 @@ export async function GET(request: Request, { params }: { params: { provider: st
   if (!payload || !Array.isArray(payload.data)) return response;
 
   const provider = String(params.provider || "").toLowerCase();
-  const data = payload.data.filter((model: any) => {
+  const data = payload.data.filter((model: unknown) => {
     const id = String(model.id || "").toLowerCase();
     const ownedBy = String(model.owned_by || "").toLowerCase();
     return ownedBy === provider || id.startsWith(`${provider}/`);

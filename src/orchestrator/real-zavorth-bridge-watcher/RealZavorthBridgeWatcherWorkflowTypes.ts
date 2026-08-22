@@ -1,6 +1,6 @@
 import type { Task } from '../../contracts/TaskContract.js';
 import type { PermissionRequest } from '../../contracts/PermissionRequest.js';
-import type { AgentBridgeManager, PendingZavorthBridgeSession } from '../AgentBridgeManager.js';
+import type { AgentBridgeManager } from '../AgentBridgeManager.js';
 import type { ZavorthBridgeWindowAutomator } from '../../agents/ZavorthBridgeWindowAutomator.js';
 import type { ZavorthBridgeCompanionBridge } from '../../agents/ZavorthBridgeCompanionBridge.js';
 import type { PermissionService } from '../../services/PermissionService.js';
@@ -15,7 +15,7 @@ export type BroadcastClient = {
 };
 
 export type BotApiLike = {
-  sendMessage(chatId: any, text: any, other?: any): Promise<any>;
+  sendMessage(chatId: string | number, text: string, other?: Record<string, unknown>): Promise<unknown>;
 };
 
 export type RealZavorthBridgeWatcherDeps = {
@@ -28,18 +28,18 @@ export type RealZavorthBridgeWatcherDeps = {
   permissionService?: PermissionService;
   botApi?: BotApiLike;
   formatPermissionCreatedMessage?: (permission: PermissionRequest) => string;
-  buildPermissionKeyboard?: (permission: PermissionRequest) => any;
+  buildPermissionKeyboard?: (permission: PermissionRequest) => unknown;
 };
 
 export type ScopedCompanionUiTarget = {
   targetInstanceId?: string;
-  liveStatus: Record<string, any> | null;
+  liveStatus: Record<string, unknown> | null;
   targetProcessId?: number;
   exactInstanceMatch: boolean;
 };
 
 export type RealZavorthBridgeWatcherWorkflowContext = {
-  logRepo: { log(level: string, source: string, message: string, meta?: Record<string, any>): void };
+  logRepo: { log(level: string, source: string, message: string, meta?: Record<string, unknown>): void };
   broadcaster: BroadcastClient;
   deps: RealZavorthBridgeWatcherDeps;
   bridgeManager: AgentBridgeManager;

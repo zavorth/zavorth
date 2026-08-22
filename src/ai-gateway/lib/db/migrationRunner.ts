@@ -12,7 +12,6 @@ import { asErrorLike } from '../../../utils/errorLike';
 
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 import type Database from "better-sqlite3";
 import { logger } from '@/shared/utils/logger';
 import {

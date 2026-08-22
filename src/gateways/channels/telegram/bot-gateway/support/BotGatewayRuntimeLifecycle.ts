@@ -1,4 +1,4 @@
-import { Context, type Api } from 'grammy';
+import { Context } from 'grammy';
 import { config } from '../../../../../config/index.js';
 import { SmartOutputService } from '../../../../../services/SmartOutputService.js';
 import { WorkspaceResolver } from '../../../../../security/WorkspaceResolver.js';
@@ -298,10 +298,10 @@ export function getTelegramGatewayHandlerRegistrar(
         groupEventController: runtime.groupEventController,
         mediaController: runtime.mediaController,
         callbackController: runtime.callbackController,
-        permissionReactionHandler: (runtime as any).permissionController
+        permissionReactionHandler: (runtime as any).permissionController // eslint-disable-line @typescript-eslint/no-explicit-any
           ? {
               handleMessageReaction: (ctx: Context) =>
-                (runtime as any).permissionController.handleMessageReaction(ctx),
+                (runtime as any).permissionController.handleMessageReaction(ctx), // eslint-disable-line @typescript-eslint/no-explicit-any
             }
           : null,
         hostIdentityService: runtime.hostIdentityService,

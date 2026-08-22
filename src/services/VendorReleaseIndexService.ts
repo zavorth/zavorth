@@ -182,9 +182,9 @@ export class VendorReleaseIndexService {
       };
       const sidecar = this.resolveSidecarCard(vendorId, sidecars);
       const syncStatusFile = this.resolveSyncStatusFile(vendorId);
-      const syncReport = this.readJsonFile<any>(syncStatusFile, null);
+      const syncReport = this.readJsonFile<any>(syncStatusFile, null); // eslint-disable-line @typescript-eslint/no-explicit-any
       const healthFile = this.resolveHealthFile(vendorId);
-      const healthReport = this.readJsonFile<any>(healthFile, null);
+      const healthReport = this.readJsonFile<any>(healthFile, null); // eslint-disable-line @typescript-eslint/no-explicit-any
 
       return {
         vendorId,

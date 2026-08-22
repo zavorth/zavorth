@@ -9,6 +9,7 @@ import { CapabilityId, DeviceCapabilityPolicy } from '../policy/DeviceCapability
 type CompanionFetchResponse = {
   ok: boolean;
   status: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   json: () => Promise<any>;
 };
 
@@ -54,7 +55,7 @@ async function defaultFetch(url: string, init: {
   headers: Record<string, string>;
   body: string;
 }): Promise<CompanionFetchResponse> {
-  return await safeFetch(url, init as any, {
+  return await safeFetch(url, init as any, { // eslint-disable-line @typescript-eslint/no-explicit-any
     allowLoopback: true,
     serviceName: 'Node Mesh companion',
   }) as CompanionFetchResponse;
@@ -201,7 +202,7 @@ export class CompanionBootstrapper {
     const stateFile = this.resolveStateFile(creds);
     const allowedCapabilities = this.resolveAllowedCapabilities(creds);
     let pendingResults = loadPendingResults(stateFile);
-    let cycles = 0;
+    
 
     while (!abortSignal.aborted) {
       const payload = await this.apiPost(`${this.resolveBaseUrl(creds)}/api/node-mesh/heartbeat`, creds, {
@@ -231,7 +232,6 @@ export class CompanionBootstrapper {
         }
       }
 
-      cycles += 1;
       if (this.once) {
         if (pendingResults.length > 0) {
           await this.apiPost(`${this.resolveBaseUrl(creds)}/api/node-mesh/heartbeat`, creds, {
@@ -256,7 +256,8 @@ export class CompanionBootstrapper {
     }
   }
 
-  private async apiPost(url: string, creds: NodeCredentials, body: Record<string, unknown>): Promise<any> {
+  private async apiPost(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    url: string, creds: NodeCredentials, body: Record<string, unknown>): Promise<any> {
     const response = await this.fetchImpl(url, {
       method: 'POST',
       headers: {

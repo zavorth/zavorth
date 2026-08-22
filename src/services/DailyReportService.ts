@@ -53,7 +53,7 @@ export class DailyReportService {
 
   constructor(
     private readonly taskManager: TaskManager,
-    private readonly logRepo: { getRecentLogs(limit?: number): any[] },
+    private readonly logRepo: { getRecentLogs(limit?: number): unknown[] },
     private readonly permissionService: PermissionService,
     private readonly runtimeDiagnostics: RuntimeDiagnosticsService,
     private readonly stateFile: string = config.dailyReportStateFile,

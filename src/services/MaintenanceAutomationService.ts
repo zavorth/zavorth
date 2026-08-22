@@ -199,7 +199,7 @@ export class MaintenanceAutomationService {
         { actionId: action.id, logFile: action.logFile, pid: action.pid },
       );
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       this.state = {
         ...this.state,
         running: false,

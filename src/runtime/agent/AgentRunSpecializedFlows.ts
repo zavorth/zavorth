@@ -4,7 +4,7 @@ import { installAgentRunSelfModificationFlows } from './AgentRunSelfModification
 import { installAgentRunSwarmFlows } from './AgentRunSwarmFlows.js';
 import { installAgentRunWatchModeFlows } from './AgentRunWatchModeFlows.js';
 
-export function installAgentRunSpecializedFlows(AgentRunServiceClass: { prototype: Record<string, any> }): void {
+export function installAgentRunSpecializedFlows(AgentRunServiceClass: { prototype: Record<string, any> }): void { // eslint-disable-line @typescript-eslint/no-explicit-any
   installAgentRunEvidenceFlows(AgentRunServiceClass);
   installAgentRunPlanningFlows(AgentRunServiceClass);
   installAgentRunSelfModificationFlows(AgentRunServiceClass);

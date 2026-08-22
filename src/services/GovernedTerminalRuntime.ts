@@ -199,7 +199,7 @@ async function runShellCommand(input: {
     const timeout = setTimeout(() => {
       try {
         child.kill('SIGKILL');
-      } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (error: unknown) { const err = asErrorLike(error);  logger.warn("[auto-fix] Empty catch block", err); }
       finish({
         exitCode: null,
         stdout: stdout.trim() || null,

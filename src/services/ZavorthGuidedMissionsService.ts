@@ -371,7 +371,7 @@ export class ZavorthGuidedMissionsService {
       };
     }
 
-    const intent = normalize(input.intent);
+    normalize(input.intent);
 
     const fallback = input.catalog.find((mission) => mission.audience.includes(input.selectedProfile))
       || input.catalog[0]

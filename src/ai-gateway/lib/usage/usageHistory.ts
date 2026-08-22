@@ -150,7 +150,7 @@ export async function getUsageDb(sinceIso?: string | null) {
 /**
  * Save request usage entry to SQLite.
  */
-export async function saveRequestUsage(entry: any) {
+export async function saveRequestUsage(entry: unknown) {
   if (!shouldPersistToDisk) return;
 
   try {
@@ -195,7 +195,7 @@ export async function saveRequestUsage(entry: any) {
 /**
  * Get usage history with optional filters.
  */
-export async function getUsageHistory(filter: any = {}) {
+export async function getUsageHistory(filter: unknown = {}) {
   const db = getDbInstance();
   let sql = "SELECT * FROM usage_history";
   const conditions: string[] = [];
@@ -400,7 +400,7 @@ export async function appendRequestLog({
   model?: string;
   provider?: string;
   connectionId?: string;
-  tokens?: any;
+  tokens?: unknown;
   status?: string | number;
 }) {
   // Deprecated: request summaries now come from SQLite call_logs.

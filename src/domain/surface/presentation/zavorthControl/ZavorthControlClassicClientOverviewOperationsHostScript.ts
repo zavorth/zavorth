@@ -189,6 +189,8 @@ interface SidecarsData {
 }
 
 function zavorthControlClassicClientOverviewOperationsHost() {
+  // Consumed at runtime via extractFunctionBody(); renders the operations health card.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function renderOperationsHealth(operations: OperationsHealthData) {
     const node = document.getElementById('operations-health');
     if (!node) return;
@@ -632,6 +634,8 @@ function zavorthControlClassicClientOverviewOperationsHost() {
       '</div>';
   }
 
+  // Consumed at runtime via extractFunctionBody(); renders the sidecar links card.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function renderSidecars(sidecars: SidecarsData) {
     const node = document.getElementById('sidecar-links');
     if (!node) return;

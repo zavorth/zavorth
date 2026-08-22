@@ -51,7 +51,8 @@ import {
   runGitWorkflowCommand,
   runPromotedScript,
   runProductizationProtectedRuntime,
-  runExperienceProfiles, runConversationalSetup, runGuidedMissions, runCapabilityStore, runDoItWithMe, runTrustPanel, runTrustApprovalUxFinal, runAutonomySlider, runModelCostGuard, runVisualReceiptsV2, runSatelliteApprovalCompanion, runNaturalRuntimeQuestions, runZavorthControlExperienceHome, runReadyToGo, runOneCommandOperatorCheck, runStayOnline, runSmartCommands, runExternalAgentOnboarding, runExternalAgentMigrationPack, runExternalAgentGateway, runAgentManager, runCapabilities, runCapabilityMesh, runAgentReview, runSkillCurator, runPersistentApprovals, runSkillExpansionPack, runCapabilityCertification, runProviderConsistency, runGatewayMatrix, runExecutionBackends, runAcp, runDynamicWorkflows, runEffortControl, normalizeMeshActivationArgs, resolveProductizationView
+  runExperienceProfiles, runConversationalSetup, runGuidedMissions, runCapabilityStore, runDoItWithMe, runTrustPanel, runTrustApprovalUxFinal, runAutonomySlider, runModelCostGuard, runVisualReceiptsV2, runSatelliteApprovalCompanion, runNaturalRuntimeQuestions, runZavorthControlExperienceHome, runReadyToGo, runOneCommandOperatorCheck, runStayOnline, runSmartCommands, runExternalAgentOnboarding, runExternalAgentMigrationPack, runExternalAgentGateway, runAgentManager, runCapabilities, runCapabilityMesh, runAgentReview, runSkillCurator, runPersistentApprovals, runSkillExpansionPack, runCapabilityCertification, runProviderConsistency, runGatewayMatrix, runExecutionBackends, runAcp, runDynamicWorkflows, runEffortControl, normalizeMeshActivationArgs, resolveProductizationView,
+  runUnifiedOnboarding, runChannelLongTailActivation, runChannelCapabilityAtlas, runChannelDeepening, runProviderChannelWizard, runNativeLearningLoop
 } from './ZavorthCliPremiumHandlers.js';
 
 export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {

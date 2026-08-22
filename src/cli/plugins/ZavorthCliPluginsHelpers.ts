@@ -3,7 +3,6 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { createHash } from 'crypto';
 import {
-  isInside,
   readFlag,
   runProcess,
   safeString,

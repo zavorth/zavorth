@@ -112,7 +112,7 @@ function resolveDiscordTenantContext(
   sourceUserId: string | null,
   runtimeUserId: string | null,
   sessionId: string | null,
-  composerPayload: Record<string, any>,
+  composerPayload: Record<string, unknown>,
   publicServerMode: boolean,
   runtime: TenantContextRuntime,
 ): TenantContext | null {

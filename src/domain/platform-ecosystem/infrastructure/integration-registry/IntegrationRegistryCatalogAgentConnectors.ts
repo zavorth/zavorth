@@ -1,5 +1,5 @@
 import type { IntegrationManifest } from '../../../../contracts/IntegrationHubContract.js';
-import { choice, commonCapabilityQuestion, mode, question, req, step } from './IntegrationRegistryCatalogShared.js';
+import { commonCapabilityQuestion, mode, question, req, step } from './IntegrationRegistryCatalogShared.js';
 
 export const INTEGRATION_AGENT_CONNECTOR_MANIFESTS: IntegrationManifest[] = [
   {

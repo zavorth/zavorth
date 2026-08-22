@@ -1,4 +1,4 @@
-import type { ZavorthCliFlags, ZavorthCliRuntime, CliExecutionResult, CliWriter } from './ZavorthCliContract.js';
+import type { CliExecutionResult, CliWriter } from './ZavorthCliContract.js';
 import {
   ZavorthKanbanBoardService,
   type KanbanColumnId,

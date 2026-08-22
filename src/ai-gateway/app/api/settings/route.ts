@@ -179,8 +179,8 @@ export async function PATCH(request) {
       }
     }
 
-    const { password, ...safeSettings } = settings;
-    return NextResponse.json(safeSettings);
+    const { ...safeSettings } = settings;
+    return (safeSettings);
   } catch (error: unknown) {console.log("Error updating settings:", error);
     return NextResponse.json({ error: "Failed to update settings" }, { status: 500 });
   }

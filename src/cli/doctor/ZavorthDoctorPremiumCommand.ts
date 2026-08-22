@@ -2,7 +2,6 @@ import {
   renderPremiumActions,
   renderPremiumKeyValueTable,
   renderPremiumPanel,
-  renderPremiumStatusRows,
   renderZavorthPremiumCliScreen,
   type ZavorthPremiumCliPanel,
   type ZavorthPremiumCliStatus,

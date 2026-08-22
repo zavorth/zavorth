@@ -33,9 +33,7 @@ import {
   type SkillTrustDecision,
 } from '../services/SkillTrustPolicyService.js';
 import type {
-  SkillLicensePolicyDecision,
   SkillMetadata,
-  SkillRiskAssessment,
 } from './SkillCatalogContract.js';
 
 import { SkillLoader } from './SkillLoader.js';

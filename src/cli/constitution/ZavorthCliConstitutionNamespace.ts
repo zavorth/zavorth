@@ -1,4 +1,3 @@
-import type { ProjectConstitutionImportService as ServiceType } from '../../services/ProjectConstitutionImportService.js';
 
 export async function runProjectConstitutionCommand(rawArgs: string[]): Promise<number> {
   const { ProjectConstitutionImportService } = await import('../../services/ProjectConstitutionImportService.js');

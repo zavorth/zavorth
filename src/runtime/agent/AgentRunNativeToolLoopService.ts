@@ -7,7 +7,6 @@ import type { UniversalAgentToolRuntime } from './AgentRunEchoHandsExecutor.js';
 import type { CreateZavorthMutationPlanInput } from '../../services/ZavorthMutationPlaneService.js';
 import { ZavorthMutationPlaneService } from '../../services/ZavorthMutationPlaneService.js';
 import type { ZavorthMutationPlan } from '../../contracts/ZavorthMutationPlaneContract.js';
-import { wrapToolOutputForLlm } from '../../security/ToolOutputTrust.js';
 import { containsUntrustedContentMarker, withUntrustedInputMetadata } from '../../security/UntrustedContent.js';
 import {
   isSafeObservationTool,
@@ -32,7 +31,6 @@ import {
   type CanvasSpeculativeAutonomySyncSnapshot,
 } from '../../services/CanvasRuntimeSyncService.js';
 import { ZavorthTerminalBackendsService } from '../../services/ZavorthTerminalBackendsService.js';
-import { ProviderNativeCapabilityMatrixService } from '../../services/llm/ProviderNativeCapabilityMatrixService.js';
 import { buildStructuredToolFailurePlan } from './StructuredToolFailurePlan.js';
 import {
   clampText,
@@ -135,7 +133,6 @@ const NATIVE_TOOL_CONTEXT_CHARS = 60_000;
 const COMPACT_TOOL_CATALOG_NAME = 'zavorth_tool_catalog';
 const TOOL_PLANNER_NAME = 'zavorth_tool_plan';
 const TOOL_EFFECT_REGISTRY = new ToolEffectRegistry();
-const PROVIDER_NATIVE_CAPABILITY_MATRIX = new ProviderNativeCapabilityMatrixService();
 
 type ToolCatalogState = {
   allTools: ToolDefinition[];
@@ -270,7 +267,7 @@ export class AgentRunNativeToolLoopService {
     const exposedTools =
       rankedTools.length > maxRealTools
         ? [...rankedTools.slice(0, maxRealTools), ...syntheticTools]
-        : [...rankedTools, ...syntheticTools.filter((tool) => rankedTools.length > 1)];
+        : [...rankedTools, ...syntheticTools.filter(() => rankedTools.length > 1)];
     const uniqueTools = uniqueToolDefinitions(exposedTools);
     this.toolCatalogByRun.set(run.id, {
       allTools: uniqueToolDefinitions([...rankedTools, ...syntheticTools]),
@@ -1116,7 +1113,7 @@ export class AgentRunNativeToolLoopService {
     const toCompactionMessages = () =>
       messages.map((m, index) => ({
         id: `native-msg-${index + 1}`,
-        role: m.role as any,
+        role: m.role as never,
         content: m.content || '',
         toolName: m.toolName || null,
         toolCallId: m.toolCallId || null,

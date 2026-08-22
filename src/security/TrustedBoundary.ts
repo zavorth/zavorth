@@ -161,7 +161,7 @@ export class TrustedBoundary {
    * Checks whether file content can be treated as an instruction.
    * The answer is always no: file content is never an instruction.
    */
-  public static canFileContentBeInstruction(filePath: string): boolean {
+  public static canFileContentBeInstruction(_filePath: string): boolean {
     return false;
   }
 

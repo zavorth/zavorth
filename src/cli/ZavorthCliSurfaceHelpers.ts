@@ -32,7 +32,6 @@ import {
 
 import {
   formatZavorthCertificationHelp,
-  getZavorthPublicCommandRows,
 } from './ZavorthCliCertificationCommands.js';
 
 export type CliHelpSnapshot = {

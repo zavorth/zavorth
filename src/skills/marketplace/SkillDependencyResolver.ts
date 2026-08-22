@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SkillLocalRegistry } from './SkillLocalRegistry.js';
-import { parseVersionConstraint, satisfiesVersion, type VersionConstraint } from './SkillPackageTypes.js';
+import { parseVersionConstraint, satisfiesVersion } from './SkillPackageTypes.js';
 
 export type DependencyCheckResult = {
   skillId: string;
@@ -72,7 +72,7 @@ export class SkillDependencyResolver {
     alreadyInstalled: string[],
     unresolvable: string[],
     visited: Set<string>,
-    parentId: string,
+    _parentId: string,
   ): void {
     for (const dep of dependencies) {
       const constraint = parseVersionConstraint(dep);

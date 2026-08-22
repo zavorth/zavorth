@@ -361,7 +361,7 @@ export class MemoryHonchoService {
     return lines.join('\n');
   }
 
-  private extractInsights(turn: DialecticTurn, profile: UserProfile): string[] {
+  private extractInsights(_turn: DialecticTurn, _profile: UserProfile): string[] {
     return [];
   }
 }

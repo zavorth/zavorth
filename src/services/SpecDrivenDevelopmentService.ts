@@ -104,7 +104,7 @@ export class SpecDrivenDevelopmentService {
 
   public async validateFeatureCompliance(
     featureId: string,
-    modifiedCodeFiles: string[],
+    _modifiedCodeFiles: string[],
   ): Promise<{ compliant: boolean; report: string }> {
     const normalized = this.normalizeFeatureId(featureId);
     const targetDir = path.join(this.projectRoot, 'specs', 'features', ...normalized.split('/'));

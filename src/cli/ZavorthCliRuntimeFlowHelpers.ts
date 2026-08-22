@@ -98,7 +98,7 @@ export async function executeCliWorkflowQueueCommand(
         generatedAt: snapshot.generatedAt,
         queue: snapshot.workflowQueue,
         counts,
-        jobs: jobs.map((job: any) => ({
+        jobs: jobs.map((job: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
           id: job.id,
           kind: job.kind,
           runId: job.runId || null,

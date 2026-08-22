@@ -33,7 +33,7 @@ type MemoryRecorder = {
 type AgentGateway = Pick<ZavorthAgentGateway, 'handle'>;
 
 type ConversationalAgent = {
-  chat(message: string, inlineData?: InlineData, options?: Record<string, unknown>): Promise<any>;
+  chat(message: string, inlineData?: InlineData, options?: Record<string, unknown>): Promise<unknown>;
 };
 
 export type TelegramConversationAutonomousServiceDeps = {

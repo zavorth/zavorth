@@ -1,4 +1,3 @@
-import { logger } from "@/shared/utils/logger";
 
 interface McpSession {
   sessionId: string;

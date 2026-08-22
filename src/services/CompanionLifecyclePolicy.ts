@@ -6,7 +6,7 @@ import type {
   CompanionStatus,
   CompanionStateRecord,
 } from '../contracts/CompanionControlContract.js';
-import type { DesktopResourceItem, DesktopResourceSnapshot } from '../contracts/DesktopResourceContract.js';
+import type { DesktopResourceSnapshot } from '../contracts/DesktopResourceContract.js';
 
 type CompanionLifecyclePolicyRuntime = {
   now?: () => Date;

@@ -95,7 +95,7 @@ export function validateZavorthSettingsBackup(value: unknown): SettingsBackupVal
     if (version === ZAVORTH_STORAGE_PLANE.settingsExportVersion) {
       return { ok: true, data, mode: "zavorth", version };
     }
-    if (SUPPORTED_LEGACY_SETTINGS_EXPORT_VERSIONS.includes(version as any)) {
+    if (SUPPORTED_LEGACY_SETTINGS_EXPORT_VERSIONS.includes(version as never)) {
       return { ok: true, data, mode: "legacy", version };
     }
 

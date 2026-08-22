@@ -1,6 +1,6 @@
 import type { PermissionRequest } from '../../contracts/PermissionRequest.js';
 import type { Task } from '../../contracts/TaskContract.js';
-import type { WorkflowRunService, WorkflowRunSnapshot } from '../../runtime/workflows/WorkflowRunService.js';
+import type { WorkflowRunService } from '../../runtime/workflows/WorkflowRunService.js';
 
 export type TaskManagerLike = {
   getRecentTasks(limit?: number, userId?: string): Task[];

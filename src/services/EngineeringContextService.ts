@@ -70,7 +70,7 @@ export class EngineeringContextService {
     };
   }
 
-  private readJson(filePath: string): Record<string, any> | null {
+  private readJson(filePath: string): Record<string, any> | null { // eslint-disable-line @typescript-eslint/no-explicit-any
     try {
       if (!fs.existsSync(filePath)) {
         return null;

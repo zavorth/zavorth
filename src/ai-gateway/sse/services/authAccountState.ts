@@ -117,7 +117,7 @@ export async function markAccountUnavailable(
       | string
       | undefined;
 
-    const isPassthroughProvider = provider && getPassthroughProviders().has(provider);
+    provider && getPassthroughProviders().has(provider);
     const isPerModelQuotaProvider = hasPerModelQuota(provider);
     if (
       (isLocalProvider(connBaseUrl) || isPerModelQuotaProvider) &&

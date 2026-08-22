@@ -14,7 +14,6 @@ import {
   type ZavorthScheduledTaskRuntimeStatus,
 } from '../contracts/ZavorthScheduledTaskRuntimeContract.js';
 import type {
-  ZavorthScheduledTaskInput,
   ZavorthScheduledTaskSnapshot,
 } from '../contracts/ZavorthScheduledTaskContract.js';
 import { ZavorthGovernedScheduledTaskRegistryService } from './ZavorthGovernedScheduledTaskRegistryService.js';

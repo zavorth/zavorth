@@ -803,7 +803,7 @@ async function buildCliRuntimeAccessProbeInput(runtime: ZavorthCliRuntime): Prom
         : 'buildSummarySnapshot' in runtime.platformRegistryService
           && typeof runtime.platformRegistryService.buildSummarySnapshot === 'function'
           ? runtime.platformRegistryService.buildSummarySnapshot()
-          : runtime.platformRegistryService.buildSnapshot({})) as any;
+          : runtime.platformRegistryService.buildSnapshot({})) as never;
   }
   return input;
 }

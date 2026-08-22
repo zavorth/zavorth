@@ -49,7 +49,7 @@ export type StoredMessage = {
   role: string;
   content: string;
   timestamp?: string | number;
-  toolCalls?: readonly any[];
+  toolCalls?: readonly unknown[];
 };
 
 export class SessionPersistenceService {

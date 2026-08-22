@@ -524,7 +524,7 @@ export class CompanionWorkspaceOptimizerService {
   ): WorkspaceOptimizationApplyResult {
     const workspaceRoot = WorkspaceResolver.validate(String(plan.payload.workspaceRoot || '').trim());
     const preset = this.getPreset(String(plan.payload.presetId || '').trim() as IDECompanionPresetId);
-    const profilePromise = forcedProfile
+    forcedProfile
       ? Promise.resolve(forcedProfile)
       : this.buildLoadProfile({ workspaceHint: workspaceRoot });
     return {

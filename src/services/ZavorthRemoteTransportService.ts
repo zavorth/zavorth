@@ -502,7 +502,7 @@ export class ZavorthRemoteTransportService {
         return { dormant: false, notes: null };
       }
 
-      const state = JSON.parse(this.readFileSync(this.capabilityLifecycleStateFile, 'utf8')) as Record<string, any>;
+      const state = JSON.parse(this.readFileSync(this.capabilityLifecycleStateFile, 'utf8')) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
       const capabilityIds = [capabilityId, ...fallbackCapabilityIds];
       const capability = capabilityIds
         .map((id) => state?.capabilities?.[id])

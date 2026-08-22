@@ -3,7 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { config } from '../config/index.js';
 import type { MnemosEventType, MnemosSessionEvent } from '../contracts/MnemosEventContract.js';
-import type { WebRealtimeEvent, WebChatMessage } from './WebRealtimeService.js';
+import type { WebRealtimeEvent } from './WebRealtimeService.js';
 import { logger } from '../logger.js';
 
 
@@ -86,7 +86,7 @@ export class ZavorthMnemosCompilerService {
     }
   }
 
-  private extractPayload(event: WebRealtimeEvent): Record<string, any> | null {
+  private extractPayload(event: WebRealtimeEvent): Record<string, unknown> | null {
     if (event.type === 'snapshot') {
       return {
         continuity: event.payload.continuity,

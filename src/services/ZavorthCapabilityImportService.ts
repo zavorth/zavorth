@@ -9,7 +9,6 @@ import {
 import type {
   CapabilityHubItem,
   CapabilityHubItemKind,
-  CapabilityHubReadiness,
   CapabilityHubRiskLevel,
 } from '../contracts/CapabilityHubContract.js';
 

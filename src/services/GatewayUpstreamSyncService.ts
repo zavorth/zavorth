@@ -167,7 +167,7 @@ export class GatewayUpstreamSyncService {
         error: compat && !compat.ok ? compat.error || compat.summary : null,
       }));
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       logger.warn('[way Upstream] filesystem check failed', error);
     return this.persist(this.decorateVendorMetadata({
         ok: false,

@@ -29,7 +29,7 @@ export class TelegramTaskExecutorApprovalSupportService {
     task: Task,
     approved: PermissionRequest,
     userId: string,
-  ): Record<string, any> {
+  ): Record<string, unknown> {
     return this.deps.taskSecurityPosture.appendPermissionDecision(task.metadata, {
       permission_id: approved.permission_id,
       action: 'approve',
@@ -47,7 +47,7 @@ export class TelegramTaskExecutorApprovalSupportService {
     ctx: Context,
     task: Task,
     approved: PermissionRequest,
-    metadata: Record<string, any>,
+    metadata: Record<string, unknown>,
   ): Promise<boolean> {
     task.metadata = metadata;
     task.requires_approval = false;

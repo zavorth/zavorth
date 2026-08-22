@@ -701,7 +701,7 @@ export class ZavorthSelfHealControlPlaneService {
 
   private detectRollback(
     snapshot: Partial<OperationsHealthSnapshot>,
-    snapshotText: string,
+    _snapshotText: string,
   ): {
     issue: boolean;
     failed?: boolean;
@@ -785,7 +785,7 @@ export class ZavorthSelfHealControlPlaneService {
 
   private detectMissingConfig(
     snapshot: Partial<OperationsHealthSnapshot>,
-    snapshotText: string,
+    _snapshotText: string,
   ): {
     issue: boolean;
     failed?: boolean;

@@ -33,6 +33,7 @@ export type ZavorthMnemosLifecycleHookInput = {
   workspaceRoot?: string;
   sessionId: string;
   type: ZavorthMnemosLifecycleHookType;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload?: Record<string, any>;
   createdAt?: string;
   source?: Partial<ZavorthMnemosLifecycleHookSource>;

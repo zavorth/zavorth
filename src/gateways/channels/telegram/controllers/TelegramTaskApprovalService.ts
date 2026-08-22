@@ -347,7 +347,7 @@ export class TelegramTaskApprovalService {
     task: Task | undefined,
     action: 'approve' | 'reject',
     userId: string | null,
-    details: Record<string, any> = {},
+    details: Record<string, unknown> = {},
   ): Promise<void> {
     if (!this.deps.auditLogger || !task) {
       return;

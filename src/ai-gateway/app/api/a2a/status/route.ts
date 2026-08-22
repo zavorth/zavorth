@@ -8,7 +8,7 @@ export async function GET() {
     const tm = getTaskManager();
     const stats = tm.getStats();
 
-    let agentCard: any = null;
+    let agentCard: unknown = null;
     try {
       const agentModule = await import("@/app/.well-known/agent.json/route");
       const cardResponse = await agentModule.GET();

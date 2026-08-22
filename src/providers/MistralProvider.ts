@@ -52,7 +52,7 @@ export class MistralProvider implements ILlmProvider {
       tool_choice: mergedTools.length > 0 ? 'auto' : undefined,
       ...nativeToolPayload.extraBody,
       ...buildOpenAiReasoningEffortBody(options),
-    } as any, buildProviderRequestOptions(options) as any);
+    } as never, buildProviderRequestOptions(options) as never);
 
     const choice = response.choices[0];
 

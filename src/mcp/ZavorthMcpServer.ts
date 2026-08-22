@@ -71,6 +71,12 @@ export class ZavorthMcpServer {
         const params = request.params as Record<string, unknown> | undefined;
         const name = params?.name as string | undefined;
         const args = params?.arguments as Record<string, unknown> | undefined;
+        if (!name) {
+          return {
+            content: [{ type: 'text', text: 'Tool name is required.' }],
+            isError: true,
+          };
+        }
         const decision = this.toolPolicy.decide(name);
         if (!decision.allowed) {
           logger.error(`[MCP policy] ${decision.reason}`);
@@ -117,7 +123,7 @@ export class ZavorthMcpServer {
               isError: true,
             };
           }
-          return this.browserTool.handleToolCall(name, args);
+          return this.browserTool.handleToolCall(name, args || {});
         }
 
         const externalTool = this.toolRegistry?.getTool(name);
@@ -134,7 +140,7 @@ export class ZavorthMcpServer {
             };
           }
           try {
-            const result = await this.toolExecutor.executeTool(name, args);
+            const result = await this.toolExecutor.executeTool(name, args || {});
             return {
               content: [
                 {

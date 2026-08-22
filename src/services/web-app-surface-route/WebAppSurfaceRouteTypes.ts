@@ -276,7 +276,7 @@ interface CodexRemoteActionInput {
 }
 
 // Natural setup mutation planner
-interface NaturalSetupMutationPlanner {
+export interface NaturalSetupMutationPlanner {
   apply: (options: {
     planId: string;
     requestedBy: string;
@@ -304,13 +304,6 @@ interface NaturalSetupMutationPlanner {
 }
 
 // Natural setup mutation planner service constructor
-interface NaturalSetupMutationPlannerService {
-  new (options: {
-    controlPlaneService?: unknown;
-    channelSetupAssistant?: unknown;
-    channelActions?: unknown;
-  }): NaturalSetupMutationPlanner;
-}
 
 // Capability catalog
 interface CapabilityCatalog {
@@ -341,12 +334,15 @@ export type WebAppSurfaceRouteDeps = {
 
   // Gateway services
   runtimeGateway: {
-    buildHydratedSnapshot: (input: GatewaySnapshotInput) => Promise<unknown>;
+    buildHydratedSnapshot: (input: GatewaySnapshotInput) => Promise<Record<string, unknown>>;
     buildDomainSummarySnapshot?: () => unknown;
     buildDomainSnapshot?: () => unknown;
   } | null;
   // eslint-disable-next-line @typescript-eslint/ban-types
   gateway: {
+    buildHydratedSnapshot: (input: GatewaySnapshotInput) => Promise<Record<string, unknown>>;
+    buildDomainSummarySnapshot?: () => unknown;
+    buildDomainSnapshot?: () => unknown;
   } | null;
   gatewayRuntime?: {
     buildCanonicalSnapshot: (input: GatewaySnapshotInput) => Promise<unknown>;
@@ -388,18 +384,10 @@ export type WebAppSurfaceRouteDeps = {
 
   // Other services
   naturalSetupMutationPlanner?: NaturalSetupMutationPlanner;
-  channelSetupAssistant?: unknown;
-  channelActions?: unknown;
   capabilityCatalog?: CapabilityCatalog;
   operatorBrief?: OperatorBrief;
   workspaceRoot?: string;
-  channelMesh?: any;
-  channelInstall?: any;
-  channelProviderDoctor?: any;
-  naturalChannelSetupTurn?: any;
-  remoteTransports?: any;
-  remoteTransportActions?: any;
-  remoteTransportDoctor?: any;
-  gatewayChannelRegistry?: any;
+  // Dynamic service bag: route handlers access dozens of services by key.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 };

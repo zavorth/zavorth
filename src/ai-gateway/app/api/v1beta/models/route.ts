@@ -43,8 +43,8 @@ export async function GET() {
     // Always remove hardcoded gemini entries — even if sync returns empty
     for (let i = models.length - 1; i >= 0; i--) {
       if (
-        typeof (models[i] as any).name === "string" &&
-        (models[i] as any).name.startsWith("models/gemini/")
+        typeof (models[i] as unknown as Record<string, unknown>).name === "string" &&
+        (models[i] as unknown as Record<string, unknown>).name.startsWith("models/gemini/")
       ) {
         models.splice(i, 1);
       }
@@ -75,7 +75,7 @@ export async function GET() {
         // Skip Gemini — handled by syncedAvailableModels above
         if (providerId === "gemini") continue;
         for (const model of rawModels) {
-          if (!model || typeof model !== "object" || typeof (model as any).id !== "string")
+          if (!model || typeof model !== "object" || typeof (model as unknown as Record<string, unknown>).id !== "string")
             continue;
           const m = model as Record<string, unknown>;
           if (m.isHidden === true) continue;

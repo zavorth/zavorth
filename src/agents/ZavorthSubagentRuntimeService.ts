@@ -16,6 +16,7 @@ import {
   type ZavorthSubagentSandboxBackendId,
   type ZavorthSubagentDynamicConfigSettings,
 } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
+import type { ZavorthSubagentAutoInvocationTelemetry } from '../contracts/runtime/ZavorthSubagentAutoInvocationContract.js';
 import type {
   ZavorthGovernedSubagentProfile,
   ZavorthGovernedSubagentProfileId,

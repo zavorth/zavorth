@@ -1,6 +1,5 @@
 import {
   queryUniversalAgentRuns,
-  type UniversalAgentRunObservatoryReceipt,
   type UniversalAgentRunObservatorySnapshot,
 } from './RunObservatory.js';
 import type {

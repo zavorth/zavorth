@@ -2,14 +2,14 @@
 import * as http from 'http';
 
 interface SalesPackService {
-  buildSnapshot(): any;
-  processInboundMessage(input: any): any;
-  seedDemoScenario(): any;
+  buildSnapshot(): Record<string, unknown>;
+  processInboundMessage(input: Record<string, unknown>): Record<string, unknown>;
+  seedDemoScenario(): Record<string, unknown>;
 }
 
 interface SalesPackBusinessModeService {
-  readSnapshot(input?: any): any;
-  setEnabled(input: any): any;
+  readSnapshot(input?: Record<string, unknown>): Record<string, unknown>;
+  setEnabled(input: Record<string, unknown>): Record<string, unknown>;
 }
 
 export class DashboardCoreRouteService {
@@ -27,11 +27,11 @@ export class DashboardCoreRouteService {
     url: URL,
     pathname: string,
     deps: {
-      readJsonBody: () => Promise<any>;
+      readJsonBody: () => Promise<Record<string, unknown>>;
       readRawBody: () => Promise<string>;
-      authService: { validate: () => boolean; resolveAuthenticatedIdentity: () => any };
+      authService: { validate: () => boolean; resolveAuthenticatedIdentity: () => Record<string, unknown> };
       writeJson: (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
-      [key: string]: any;
+      [key: string]: unknown;
     },
   ): Promise<boolean> {
     const method = (req.method || 'GET').toUpperCase();
@@ -44,7 +44,7 @@ export class DashboardCoreRouteService {
     }
 
     if (pathname === '/api/v2/sales-pack/inbound' && method === 'POST') {
-      if (!body?.customerId || !body?.text || !body.text.trim()) {
+      if (!body?.customerId || !String(body?.text || '').trim()) {
         deps.writeJson(_res, { ok: false, error: 'Fields "text" and "customerId" must be non-empty strings.' }, 400);
         return true;
       }

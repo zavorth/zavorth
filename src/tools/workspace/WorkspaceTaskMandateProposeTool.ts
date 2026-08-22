@@ -78,7 +78,7 @@ export class WorkspaceTaskMandateProposeTool extends BaseTool {
 
       const description = args.description as string;
       const targetDirectoriesInput = (args.targetDirectories as string[]) || [];
-      const allowedOperations = (args.allowedOperations as any[]) || [];
+      const allowedOperations = (args.allowedOperations as any[]) || []; // eslint-disable-line @typescript-eslint/no-explicit-any
       const allowedBinaries = (args.allowedBinaries as string[]) || [];
       const maxRiskLevel = args.maxRiskLevel as 'LOW' | 'MEDIUM';
       const allowPackageInstall = !!args.allowPackageInstall;

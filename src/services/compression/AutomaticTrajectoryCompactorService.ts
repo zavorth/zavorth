@@ -1,7 +1,6 @@
 import {
   ZavorthTrajectoryCompressorService,
   type TrajectoryTurn,
-  type TrajectoryCompressionResult,
 } from './ZavorthTrajectoryCompressorService.js';
 
 export interface AutomaticCompactionResult {

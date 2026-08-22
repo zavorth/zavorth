@@ -6,7 +6,7 @@ import chalkAnimation from "chalk-animation";
  * Display banner
  */
 export function showBanner() {
-  const banner = (figlet as any).textSync("LLM Proxy", {
+  const banner = (figlet as unknown as Record<string, unknown>).textSync("LLM Proxy", {
     font: "ANSI Shadow",
     horizontalLayout: "default",
     verticalLayout: "default",
@@ -20,7 +20,7 @@ export function showBanner() {
  * Display simple banner (no animation)
  */
 export function showSimpleBanner() {
-  const banner = (figlet as any).textSync("EP CLI", {
+  const banner = (figlet as unknown as Record<string, unknown>).textSync("EP CLI", {
     font: "Standard",
     horizontalLayout: "default",
   });

@@ -3,7 +3,7 @@ import path from 'path';
 import { ZavorthCapabilityActionExposureService } from '../../services/ZavorthCapabilityActionExposureService.js';
 import { ZavorthCapabilityAtlasService } from '../../services/ZavorthCapabilityAtlasService.js';
 import { ZavorthDailyProductQuietAutonomyService } from '../../services/ZavorthDailyProductQuietAutonomyService.js';
-import { type ZavorthActionHandlerInput, type ZavorthActionResult } from './ZavorthActionContracts.js';
+import { type ZavorthActionDefinition, type ZavorthActionHandlerInput, type ZavorthActionResult } from './ZavorthActionContracts.js';
 
 import { normalizeText, normalizePositiveNumber, stateDir, envFile, redactSecrets, result, resolveHome, stateDbForHome, readJsonFile } from './ZavorthActionHandlersCore.js';
 export function sandboxStatusHandler(input: ZavorthActionHandlerInput): ZavorthActionResult {
@@ -25,7 +25,7 @@ export function capabilityAtlasHandler(input: ZavorthActionHandlerInput): Zavort
     projectRoot: input.root,
   }).buildSnapshot({
     query: normalizeText(input.args.query) || null,
-    category: typeof input.args.category === 'string' ? (input.args.category as any) : null,
+    category: typeof input.args.category === 'string' ? (input.args.category as never) : null,
     limit: normalizePositiveNumber(input.args.limit),
   });
   return result({

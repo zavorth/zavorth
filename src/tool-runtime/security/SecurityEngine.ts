@@ -12,6 +12,8 @@ import {
 } from './WhitelistConfig';
 const UNSAFE_OS_ARGUMENT_PATTERN = /[\r\n"`|<>^]/;
 
+type ToolParams = Record<string, unknown>;
+
 /**
  * Three-layer security gate for Echo tool execution.
  */
@@ -24,7 +26,7 @@ export class SecurityEngine {
     }
   }
 
-  public static validateToolSchema(tool: IZavorthTool, params: any): any {
+  public static validateToolSchema(tool: IZavorthTool, params: unknown): unknown {
     try {
       return tool.schema.parse(params);
     } catch (error: unknown) {if (error instanceof z.ZodError) {
@@ -37,7 +39,7 @@ export class SecurityEngine {
     }
   }
 
-  public static validateExecutionSandbox(tool: IZavorthTool, params: any): void {
+  public static validateExecutionSandbox(tool: IZavorthTool, params: ToolParams): void {
     switch (tool.category) {
       case 'OS':
         this.validateOsSandbox(tool.name, params);
@@ -59,14 +61,14 @@ export class SecurityEngine {
     }
   }
 
-  public static authorizeExecution(prompt: string, tool: IZavorthTool, params: any): any {
+  public static authorizeExecution(prompt: string, tool: IZavorthTool, params: unknown): ToolParams {
     this.sanitizeIntent(prompt);
-    const safeParams = this.validateToolSchema(tool, params);
+    const safeParams = this.validateToolSchema(tool, params) as ToolParams;
     this.validateExecutionSandbox(tool, safeParams);
     return safeParams;
   }
 
-  private static validateOsSandbox(toolName: string, params: any): void {
+  private static validateOsSandbox(toolName: string, params: ToolParams): void {
     if (toolName !== 'os_open_app') {
       return;
     }
@@ -92,17 +94,17 @@ export class SecurityEngine {
     }
   }
 
-  private static validateIotSandbox(toolName: string, params: any): void {
+  private static validateIotSandbox(toolName: string, params: ToolParams): void {
     if (toolName === 'iot_home_assistant') {
-      this.validateEntityId(params.entity_id);
+      this.validateEntityId(params.entity_id as string);
     }
 
     if (toolName === 'iot_mqtt_publish') {
-      this.validateMqttBroker(params.broker);
+      this.validateMqttBroker(params.broker as string | undefined);
     }
   }
 
-  private static validateWebSandbox(toolName: string, params: any): void {
+  private static validateWebSandbox(toolName: string, params: ToolParams): void {
     if (toolName !== 'playwright_browser') {
       return;
     }
@@ -112,7 +114,7 @@ export class SecurityEngine {
       return;
     }
 
-    const target = resolveBrowserTargetPolicy(params.url);
+    const target = resolveBrowserTargetPolicy(params.url as string);
     if (target.filePath) {
       this.validateFileAccess(target.filePath);
     }

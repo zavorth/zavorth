@@ -8,6 +8,7 @@ export interface SystemLog {
   level: 'info' | 'warn' | 'error' | 'security';
   category: string;
   message: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>;
 }
 
@@ -19,7 +20,8 @@ export class LogRepository {
     this.db = await Database.getInstance();
   }
 
-  public log(level: SystemLog['level'], category: string, message: string, metadata?: Record<string, any>): void {
+  public log(level: SystemLog['level'], category: string, message: string, // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    metadata?: Record<string, any>): void {
     if (!this.db) {
       const dbInstance = Database.getActiveInstance();
       if (dbInstance) {
@@ -48,6 +50,7 @@ export class LogRepository {
 
   public getRecentLogs(limit: number = 50): SystemLog[] {
     const raw = this.db.all('SELECT * FROM system_logs ORDER BY id DESC LIMIT ?', [limit]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return raw.map((r: any) => ({
       ...r,
       message: this.secureStorage.decryptString(r.message) || '',

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { runPromotedScript } from './ZavorthCliPremiumPart2.js';
+import type { ZavorthCliApprovalCard } from '../approval-diff/ZavorthCliApprovalDiffTypes.js';
 // Shared infrastructure imports
 import {
   projectRoot,
@@ -392,7 +393,7 @@ export async function runPremiumApprovalDiff(view: 'approvals' | 'diff', rawArgs
   if (view === 'approvals' && isInteractive) {
     const targetPlanId = result.snapshot.targetPlanId;
     if (targetPlanId) {
-      const targetCard = result.snapshot.cards.find((c: any) => c.id === targetPlanId);
+      const targetCard = result.snapshot.cards.find((c: ZavorthCliApprovalCard) => c.id === targetPlanId);
       if (targetCard && (targetCard.status === 'waiting_approval' || targetCard.approvalStatus === 'pending')) {
         // Render current preview first
         process.stdout.write(result.output);
@@ -658,7 +659,7 @@ export async function runMinimalKernel(rawArgs: string[]): Promise<number> {
       `registry: total ${snapshot.capabilityRegistry.total} | boot ${snapshot.capabilityRegistry.activeOnBoot} | on-demand ${snapshot.capabilityRegistry.onDemand} | sidecars ${snapshot.capabilityRegistry.sidecars}`,
       `sidecars: total ${snapshot.sidecarManager.total} | launchable ${snapshot.sidecarManager.launchable} | running ${snapshot.sidecarManager.running}`,
       `scheduler: tasks ${snapshot.scheduler.taskCount} | event-first ${snapshot.scheduler.eventFirstTasks} | adaptive ${snapshot.scheduler.adaptiveTasks} | active timers ${snapshot.scheduler.activeTimers}`,
-      `capabilities: ${snapshot.capabilities.map((capability: any) => capability.id).join(', ')}`,
+      `capabilities: ${snapshot.capabilities.map((capability: { id: string }) => capability.id).join(', ')}`,
     ], snapshot.budget.ok ? 'success' : 'warning');
   }
 

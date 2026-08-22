@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import { config } from '../config/index.js';
 import type { RuntimeAccessDiscordBridgeSnapshot } from '../runtime/access/RuntimeAccessReadinessService.js';
 import { logger } from '../logger.js';
@@ -88,6 +88,7 @@ export class DiscordGatewayRepairFlowService {
         return { dormant: false, notes: null };
       }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       const parsed = JSON.parse(this.readFileSync(this.capabilityLifecycleStateFile, 'utf8')) as Record<string, any>;
       const capability = parsed?.capabilities?.[capabilityId];
       if (!capability || typeof capability !== 'object') {

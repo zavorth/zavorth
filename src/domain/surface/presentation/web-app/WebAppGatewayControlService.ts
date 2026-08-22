@@ -1,6 +1,8 @@
 import { HYBRID_MEMORY_CONTRACT_VERSION } from '../../../../contracts/HybridMemoryContract.js';
 import { WebAppGatewaySelfmodSupport } from './web-app-gateway-control/WebAppGatewaySelfmodSupport.js';
 import { errorMessage } from '../../../../utils/errorLike.js';
+// Dynamic service bag: route handlers access dozens of services by key.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LooseRecord = any;
 import type {
   HybridMemoryRecallInput,

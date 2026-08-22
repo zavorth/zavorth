@@ -110,7 +110,7 @@ export class VoiceDictationIngress {
    */
   public prepare(input: VoiceDictationIngressInput): VoiceDictationIngressResult {
     const agentText = normalizeDictationTranscript(input.transcript);
-    const transcriptPreview = agentText;
+    
 
     if (!agentText) {
       return {

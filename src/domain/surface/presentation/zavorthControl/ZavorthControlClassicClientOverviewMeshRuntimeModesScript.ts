@@ -6,6 +6,8 @@ declare function escapeHtml(value: unknown): string;
 type RuntimeModesErrorPayload = { error: unknown };
 
 function zavorthControlClassicClientOverviewMeshRuntimeModes() {
+  // Consumed at runtime via extractFunctionBody(); renders the runtime modes card.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function renderOperationsRuntimeModes(
     runtimeModes: ZavorthRuntimeModesSnapshot | RuntimeModesErrorPayload | null | undefined,
   ) {

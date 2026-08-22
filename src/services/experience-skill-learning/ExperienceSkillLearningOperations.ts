@@ -44,7 +44,7 @@ export class ExperienceSkillLearningOperations extends ExperienceSkillLearningCo
         const runtime = new LlmRuntimeService();
         llm = {
           chat: async (messages: ChatMessage[]) => {
-            const result = await runtime.chatDetailed(messages as any);
+            const result = await runtime.chatDetailed(messages as never);
             return result.response;
           },
         };

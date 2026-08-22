@@ -1,4 +1,3 @@
-import { asErrorLike } from '../../../../../utils/errorLike';
 export const runtimeShellScriptPart6Seg2: string = [
     "          : '<strong>Instrucao principal:</strong> without instrucao destacada para o foco current.',",
     "        selectorRow",

@@ -37,7 +37,7 @@ export class ProviderDoctorService {
     options: {
       taskKind?: WorkspaceTaskKind;
       taskSubtype?: WorkspaceTaskSubtype;
-      workspaceMemory?: Record<string, any> | null | undefined;
+      workspaceMemory?: Record<string, unknown> | null | undefined;
       preferredZavorthBridgeModel?: string | null;
       includeAdvanced?: boolean;
     } = {},
@@ -88,7 +88,7 @@ export class ProviderDoctorService {
     options: {
       taskKind?: WorkspaceTaskKind;
       taskSubtype?: WorkspaceTaskSubtype;
-      workspaceMemory?: Record<string, any> | null | undefined;
+      workspaceMemory?: Record<string, unknown> | null | undefined;
       preferredZavorthBridgeModel?: string | null;
       includeAdvanced?: boolean;
     } = {},

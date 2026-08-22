@@ -25,7 +25,7 @@ const getCodexDir = () => path.dirname(getCodexConfigPath());
 
 // Parse TOML config to object (simple parser for codex config)
 const parseToml = (content: string) => {
-  const result: Record<string, any> = { _root: {}, _sections: {} };
+  const result: Record<string, unknown> = { _root: {}, _sections: {} };
   let currentSection = "_root";
 
   content.split("\n").forEach((line) => {
@@ -64,7 +64,7 @@ const parseToml = (content: string) => {
 };
 
 // Convert parsed object back to TOML string
-const toToml = (parsed: Record<string, any>) => {
+const toToml = (parsed: Record<string, unknown>) => {
   const lines: string[] = [];
 
   // Root level keys
@@ -212,7 +212,7 @@ export async function POST(request: Request) {
     await createMultiBackup("codex", [configPath, authPath]);
 
     // Read and parse existing config
-    let parsed: Record<string, any> = { _root: {}, _sections: {} };
+    let parsed: Record<string, unknown> = { _root: {}, _sections: {} };
     try {
       const existingConfig = await fs.readFile(configPath, "utf-8");
       parsed = parseToml(existingConfig);
@@ -236,7 +236,7 @@ export async function POST(request: Request) {
     await fs.writeFile(configPath, configContent);
 
     // Update auth.json with OPENAI_API_KEY (Codex reads this first)
-    let authData: Record<string, any> = {};
+    let authData: Record<string, unknown> = {};
     try {
       const existingAuth = await fs.readFile(authPath, "utf-8");
       authData = JSON.parse(existingAuth);
@@ -277,7 +277,7 @@ export async function DELETE(request: Request) {
     await createMultiBackup("codex", [configPath, getCodexAuthPath()]);
 
     // Read and parse existing config
-    let parsed: Record<string, any> = { _root: {}, _sections: {} };
+    let parsed: Record<string, unknown> = { _root: {}, _sections: {} };
     try {
       const existingConfig = await fs.readFile(configPath, "utf-8");
       parsed = parseToml(existingConfig);

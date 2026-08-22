@@ -36,7 +36,7 @@ export function buildToolRehearsalCliSnapshot(input: {
       requireApprovalFor: ['write_file', 'shell.exec'],
     },
   });
-  const negotiation = (run.metadata.capabilityNegotiation || {}) as any;
+  const negotiation = (run.metadata.capabilityNegotiation || {}) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
   run.metadata.capabilityNegotiation = {
     ...negotiation,
     status: 'approved',

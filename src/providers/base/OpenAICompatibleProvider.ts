@@ -54,7 +54,7 @@ export abstract class OpenAICompatibleProvider implements ILlmProvider {
   protected buildNativeTools(
     _tools?: ToolDefinition[],
     _options?: ProviderChatOptions,
-  ): any[] | undefined {
+  ): OpenAI.ChatCompletionTool[] | undefined {
     return undefined;
   }
 
@@ -81,7 +81,7 @@ export abstract class OpenAICompatibleProvider implements ILlmProvider {
           ...nativeToolPayload.extraBody,
           ...this.extraBody,
           ...buildOpenAiReasoningEffortBody(options),
-        } as any, buildProviderRequestOptions(options) as any);
+        } as unknown as OpenAI.ChatCompletionCreateParamsNonStreaming, buildProviderRequestOptions(options) as unknown as OpenAI.RequestOptions | undefined);
 
         const choice = response.choices[0];
         if (!choice) {
@@ -135,9 +135,9 @@ export abstract class OpenAICompatibleProvider implements ILlmProvider {
           ...this.extraBody,
           ...buildOpenAiReasoningEffortBody(options),
           stream: true,
-        } as any, buildProviderRequestOptions(options) as any);
+        } as unknown as OpenAI.ChatCompletionCreateParamsStreaming, buildProviderRequestOptions(options) as unknown as OpenAI.RequestOptions | undefined);
 
-        yield* streamOpenAICompatibleCompletion(stream as unknown as AsyncIterable<any>, {
+        yield* streamOpenAICompatibleCompletion(stream, {
           ...nativeToolPayload.metadata,
           ...this.providerMetadata,
         });
@@ -156,9 +156,9 @@ export abstract class OpenAICompatibleProvider implements ILlmProvider {
   }
 
   private mergeTools(
-    functionTools: any[] | undefined,
+    functionTools: OpenAI.ChatCompletionTool[] | undefined,
     options?: ProviderChatOptions,
-  ): any[] | undefined {
+  ): OpenAI.ChatCompletionTool[] | undefined {
     const nativeTools = this.buildNativeTools(undefined, options);
     if (!functionTools && !nativeTools) return undefined;
     return [...(functionTools || []), ...(nativeTools || [])];

@@ -1,10 +1,11 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import type { ChannelProviderDoctorItem, ChannelProviderDoctorReport } from '../ChannelProviderDoctorService.js';
 import { logger } from '../../logger.js';
 
 export type ChannelProviderDoctorEnvironment = {
   platform: NodeJS.Platform | string;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   readStatusFile: (filePath: string) => Record<string, any> | null;
   envValue: (key: string) => string;
   envList: (key: string) => string[];
@@ -327,8 +328,10 @@ export function inspectEmailChannel(environment: ChannelProviderDoctorEnvironmen
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function safeReadChannelProviderDoctorJson(response: Response): Promise<Record<string, any> | null> {
   try {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     return await response.json() as Record<string, any>;
   } catch (error: unknown) {logger.warn('[Channel  Doctor] operation failed', error); return null; }
 }

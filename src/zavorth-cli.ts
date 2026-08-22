@@ -19,6 +19,7 @@ import { runReachSubsystemCli as runReachFabricCli } from './cli/ReachSubsystemC
 import { runPowerSubsystemCli as runPowerFabricCli } from './cli/PowerSubsystemCli.js';
 import { runProductSubsystemCli as runProductFabricCli } from './cli/ProductSubsystemCli.js';
 import { runProofLedgerCli } from './cli/ProofLedgerCli.js';
+import { resolveCliHelpTopic } from './cli/ZavorthCliSurfaceHelpers.js';
 import {
   runApprovalPresentationCli,
   shouldRunApprovalPresentationCli,
@@ -110,6 +111,7 @@ import {
   runExecutionBackends,
   runSkillEcosystem,
   runAcp,
+  runGatewayMatrix,
 } from './cli/ZavorthCliExperienceCommands.js';
 import {
   runCliExperienceConsistency,

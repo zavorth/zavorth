@@ -237,7 +237,7 @@ export class AuthGuard {
   }
 
   private static isGroupServiceMessage(ctx: Context): boolean {
-    const msg = ctx.message as any;
+    const msg = ctx.message as unknown as Record<string, unknown>;
     if (!msg) {
       return false;
     }

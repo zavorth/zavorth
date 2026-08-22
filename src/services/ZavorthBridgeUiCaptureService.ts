@@ -29,7 +29,7 @@ type LocalUiReadResult = {
   confidence?: number;
   notes?: string | null;
   uiVerified?: boolean;
-  uiDiagnostics?: Record<string, any> | null;
+  uiDiagnostics?: Record<string, unknown> | null;
 };
 
 export type ZavorthBridgeUiSnapshot = {
@@ -49,7 +49,7 @@ export type ZavorthBridgeUiSnapshot = {
   errorCode: string | null;
   errorMessage: string | null;
   uiVerified: boolean | null;
-  uiDiagnostics: Record<string, any> | null;
+  uiDiagnostics: Record<string, unknown> | null;
 };
 
 type VisionPayload = {
@@ -377,7 +377,7 @@ export class ZavorthBridgeUiCaptureService {
               ok?: boolean;
               message?: string;
               verified?: boolean;
-              diagnostics?: Record<string, any> | null;
+              diagnostics?: Record<string, unknown> | null;
             };
             const payload = JSON.parse(String(parsed.message || '{}')) as LocalUiReadResult;
             resolve({

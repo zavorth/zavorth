@@ -1098,7 +1098,7 @@ export class WebAppRuntimeStateRouteService {
     // One-click promote for Control/Desktop skill drafts (/learn promote N — not /learning candidates).
     if (pathname === '/api/learning-loop/promote' && req.method === 'POST') {
       try {
-        const body = (await deps.readJsonBody(req).catch(() => ({}))) as Record<string, unknown>;
+        const body = (await deps.readJsonBody(req).catch(() => ({}))) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
         const requestedUserId = String(body?.userId || url.searchParams.get('userId') || '').trim();
         const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
         const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
@@ -1287,7 +1287,7 @@ export class WebAppRuntimeStateRouteService {
           return true;
         }
 
-        const body = (await deps.readJsonBody(req).catch(() => ({}))) as Record<string, any>;
+        const body = (await deps.readJsonBody(req).catch(() => ({}))) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
         if (body?.action === 'set') {
           const next = roleService.setRoles(scopeId, {
             default: body.default ?? undefined,

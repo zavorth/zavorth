@@ -1,6 +1,5 @@
 import type {
   CapabilityHubReadiness,
-  CapabilityHubSnapshot,
 } from '../contracts/CapabilityHubContract.js';
 import {
   ZAVORTH_CAPABILITY_STORE_CONTRACT_VERSION,

@@ -38,7 +38,7 @@ function getConnectionLogLabel(conn: { name?: string; email?: string; id?: strin
   return pickMaskedDisplayValue([conn.name, conn.email], conn.id || "-");
 }
 
-export function buildRefreshFailureUpdate(conn: any, now: string) {
+export function buildRefreshFailureUpdate(conn: unknown, now: string) {
   const wasExpired = conn.testStatus === "expired";
   const retryCount = (conn.expiredRetryCount ?? 0) + (wasExpired ? 1 : 0);
 
@@ -105,19 +105,19 @@ async function shouldHideLogs(): Promise<boolean> {
   return pendingHideLogs;
 }
 
-function log(message: string, ...args: any[]) {
+function log(message: string, ...args: unknown[]) {
   shouldHideLogs().then((hide) => {
     if (!hide) console.log(message, ...args);
   });
 }
 
-function logWarn(message: string, ...args: any[]) {
+function logWarn(message: string, ...args: unknown[]) {
   shouldHideLogs().then((hide) => {
     if (!hide) console.warn(message, ...args);
   });
 }
 
-function logError(message: string, ...args: any[]) {
+function logError(message: string, ...args: unknown[]) {
   shouldHideLogs().then((hide) => {
     if (!hide) console.error(message, ...args);
   });
@@ -286,7 +286,7 @@ async function checkConnection(conn) {
   }
 
   if (result && result.accessToken) {
-    const updateData: any = {
+    const updateData: unknown = {
       accessToken: result.accessToken,
       lastHealthCheckAt: now,
       testStatus: "active",

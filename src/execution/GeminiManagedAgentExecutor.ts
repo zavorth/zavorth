@@ -88,7 +88,7 @@ export class GeminiManagedAgentExecutor implements IExecutor {
         },
       };
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       result.error_code = 'GEMINI_MANAGED_AGENT_API_ERROR';
       result.error_message = `Gemini Managed Agent API error: ${(error as Error)?.message || String(error)}`;
     }

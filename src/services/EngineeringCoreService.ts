@@ -7,7 +7,6 @@ import type {
   EngineeringPlan,
   EngineeringReplaySnapshot,
   EngineeringRunSnapshot,
-  EngineeringSessionSnapshot,
   RequirementGap,
 } from '../contracts/EngineeringCoreContract.js';
 import type {

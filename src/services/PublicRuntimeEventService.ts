@@ -2,7 +2,6 @@ import { createHash, randomUUID } from 'crypto';
 import type {
   ApprovalRequestEventData,
   PublicRuntimeEvent,
-  PublicRuntimeEventEnvelope,
   ReceiptReadyEventData,
   RuntimeStatusEventData,
 } from '../contracts/public/events/sse.js';
@@ -19,14 +18,6 @@ interface SerializedPermissionPayload {
   metadata: Record<string, unknown>;
 }
 
-interface SerializedTaskPayload {
-  task_id: string;
-  command_type: string | null;
-  raw_message: string | null;
-  status: string | null;
-  risk_level: number | null;
-  artifacts: unknown[];
-}
 
 interface SerializedWorkflowPayload {
   workflow_run_id: string;

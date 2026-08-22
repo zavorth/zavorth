@@ -141,7 +141,7 @@ export const runtimeShellScriptPart4Seg1: string = [
     "        - ' | ' + escapeHtml(normalizeText(entry?.operatorNextStep || entry?.actionHint))",
     "        : ''),",
     "    ).concat(",
-    "      advancedChannels.length === 0 ? ['No channel avancado visible in this recorte.'] : [],",
+    "      advancedChannels.length === 0 ? ['No advanced channel visible in this slice.'] : [],",
     "    ),",
     "  );",
     "  renderList(",

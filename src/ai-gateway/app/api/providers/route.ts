@@ -18,7 +18,8 @@ import { syncToCloud } from "@/lib/cloudSync";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { createProviderSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { normalizeQoderPatProviderData } from "@zavorth/ai-gateway/open-sse/services/qoderCli.ts";type AccessRouteConnectionInput = {
+import { normalizeQoderPatProviderData } from "@zavorth/ai-gateway/open-sse/services/qoderCli.ts";
+type AccessRouteConnectionInput = {
   id: string | null;
   provider: string | null;
   providerName: string | null;
@@ -34,7 +35,7 @@ import { normalizeQoderPatProviderData } from "@zavorth/ai-gateway/open-sse/serv
   lastTested: string | null;
 };
 
-function toAccessRouteConnectionInput(connection: any): AccessRouteConnectionInput {
+function toAccessRouteConnectionInput(connection: unknown): AccessRouteConnectionInput {
   const providerSpecificData =
     connection?.providerSpecificData && typeof connection.providerSpecificData === "object"
       ? connection.providerSpecificData
@@ -139,7 +140,7 @@ export async function POST(request: Request) {
     }
 
     if (isOpenAICompatibleProvider(provider)) {
-      const node: any = await getProviderNodeById(provider);
+      const node: unknown = await getProviderNodeById(provider);
       if (!node) {
         return NextResponse.json({ error: "OpenAI Compatible node not found" }, { status: 404 });
       }
@@ -162,7 +163,7 @@ export async function POST(request: Request) {
         ...(node.modelsPath ? { modelsPath: node.modelsPath } : {}),
       };
     } else if (isAnthropicCompatibleProvider(provider)) {
-      const node: any = await getProviderNodeById(provider);
+      const node: unknown = await getProviderNodeById(provider);
       if (!node) {
         return NextResponse.json(
           {
@@ -207,7 +208,7 @@ export async function POST(request: Request) {
     // Note: Gemini model sync is now triggered client-side with progress dialog
 
     // Hide sensitive fields
-    const result: Record<string, any> = { ...newConnection };
+    const result: Record<string, unknown> = { ...newConnection };
     delete result.apiKey;
 
     // Auto sync to Cloud if enabled

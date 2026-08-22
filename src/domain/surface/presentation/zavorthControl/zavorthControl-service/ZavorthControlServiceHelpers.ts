@@ -14,12 +14,14 @@ import {
 } from './ZavorthControlServiceDependencies.js';
 
 const assetRoot = path.resolve('C:/DEV WORKSPACE/Projetos/Zavorth', 'assets', 'zavorth-control');
-import { ZavorthControlOperationsRouteService } from '../ZavorthControlOperationsRouteService.js';
+import { ZavorthControlOperationsRouteService, type ZavorthControlOperationsRouteDeps } from '../ZavorthControlOperationsRouteService.js';
+import type { ZavorthControlPresentationDepsBridgeSource } from '../ZavorthControlPresentationDepsBridgeService.js';
 import { ZavorthControlPresentationDepsBridgeService } from '../ZavorthControlPresentationDepsBridgeService.js';
+import type { ZavorthControlOperationsDepsBridgeSource } from '../ZavorthControlOperationsDepsBridgeService.js';
 import { ZavorthControlOperationsDepsBridgeService } from '../ZavorthControlOperationsDepsBridgeService.js';
+import type { WebAppOperationsDepsBridgeSource } from '../../../../../services/WebAppOperationsDepsBridgeService.js';
+import type { SharedSurfaceRuntime } from '../../../../../services/SurfaceRuntime.js';
 import { WebAppOperationsDepsBridgeService } from './ZavorthControlServiceDependencies.js';
-import { ZavorthControlOperationsOverviewReaderBridgeService } from '../ZavorthControlOperationsOverviewReaderBridgeService.js';
-import { ZavorthControlOperationsOverviewSnapshotService } from '../ZavorthControlOperationsOverviewSnapshotService.js';
 import { ZavorthControlCoreRouteService } from '../ZavorthControlCoreRouteService.js';
 import { ZavorthControlLegacyRouteService } from '../ZavorthControlLegacyRouteService.js';
 import { ZavorthControlHttpSupportService } from '../ZavorthControlHttpSupportService.js';
@@ -70,12 +72,7 @@ import type { TaskManager } from '../../../../../orchestrator/TaskManager.js';
 import type { PermissionService } from '../../../../../services/PermissionService.js';
 import type { LiveChannelGatewayContract } from '../../../../../contracts/PlatformContract.js';
 import type { ChannelAdapterContract } from '../../../../../contracts/ChannelMeshContract.js';
-import type { ZavorthControlEchoRouteService } from '../ZavorthControlToolRuntimeRouteService.js';
-import type {
-  NodeInvokeService,
-  NodeHeartbeatService,
-  NodePairingService,
-} from './ZavorthControlServiceDependencies.js';
+import type { ZavorthControlEchoRouteService, ZavorthControlEchoRouteDeps } from '../ZavorthControlToolRuntimeRouteService.js';
 
 type RuntimeAwareChannelGateway = LiveChannelGatewayContract;
 type ChannelAdapterConstructor = new (
@@ -182,6 +179,21 @@ export interface ZavorthControlFacadeCompat {
   operationsHealthInjected: boolean;
   operationsHealth: import('./ZavorthControlServiceDependencies.js').OperationsHealthService;
   providerControlPlane: import('./ZavorthControlServiceDependencies.js').ProviderControlPlaneService;
+  trustedDeviceAccess: import('../../../../../services/TrustedDeviceAccessService.js').TrustedDeviceAccessService;
+  authService: import('../ZavorthControlAuthService.js').ZavorthControlAuthService;
+  proactivePermissions: import('./ZavorthControlServiceDependencies.js').ZavorthProactivePermissionService;
+  skillBridgeRegistry: import('./ZavorthControlServiceDependencies.js').UniversalSkillBridgeRegistryService;
+  skillCatalogApi: import('./ZavorthControlServiceDependencies.js').SkillCatalogApiService;
+  skillMcpSidecar: import('./ZavorthControlServiceDependencies.js').SkillMcpSidecarService;
+  skillLibraryPresentation: import('./ZavorthControlServiceDependencies.js').SkillLibraryPresentationService;
+  skillInstallPlanPresentation: import('./ZavorthControlServiceDependencies.js').SkillInstallPlanPresentationService;
+  sidecarStatus: import('./ZavorthControlServiceDependencies.js').SidecarStatusService;
+  overviewSnapshots: import('../ZavorthControlOperationsOverviewSnapshotService.js').ZavorthControlOperationsOverviewSnapshotService;
+  logRepo: import('./ZavorthControlServiceDependencies.js').LogRepository;
+  AIGatewayGateway: import('./ZavorthControlServiceDependencies.js').AIGatewayProxyService;
+  AIGatewayCompatibilityDoctor: import('./ZavorthControlServiceDependencies.js').GatewayCompatibilityDoctorService;
+  // Dynamic service bag: dozens of surface fields accessed by key.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -191,7 +203,10 @@ export interface ZavorthControlRuntimeCompat {
   webUserId?: string;
   workflowRunService?: import('./ZavorthControlServiceDependencies.js').WorkflowRunService;
   agentGateway?: unknown;
-  workflowController?: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  workflowController?: { handleWorkflow: (ctx: any, args: string) => Promise<void> } | null;
+  // Dynamic service bag: runtime fields accessed by key.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -203,6 +218,8 @@ interface ZavorthControlRouteDepsCompat {
   snippetUserId: string;
   localBaseUrl: string;
   publicBaseUrl: string | null;
+  // Dynamic service bag: route deps accessed by key.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -322,12 +339,12 @@ export function syncWebAppOperationsServices(service: ZavorthControlFacadeCompat
     service.webAppOperationsDepsBridge.build({
       ...service,
       buildRuntimeChannelAdapters: () => buildRuntimeChannelAdapters(service),
-    } as any),
+    } as unknown as WebAppOperationsDepsBridgeSource),
   );
 }
 
-export function buildZavorthControlOperationsRouteDeps(service: ZavorthControlFacadeCompat): any {
-  return service.operationsDepsBridge.buildRouteDeps(service as any, {
+export function buildZavorthControlOperationsRouteDeps(service: ZavorthControlFacadeCompat): ZavorthControlOperationsRouteDeps {
+  return service.operationsDepsBridge.buildRouteDeps(service as unknown as ZavorthControlOperationsDepsBridgeSource, {
     workspaceRoot: config.projectRoot || process.cwd(),
     continuityUserId: service.continuityUserId || config.allowedUserIds[0] || '1',
   });
@@ -351,7 +368,7 @@ export function attachChatRuntime(service: ZavorthControlFacadeCompat, runtime: 
     workflowRunService: runtime.workflowRunService || service.workflowRuns,
   };
   service.agentGateway = canonicalRuntime.agentGateway || service.agentGateway || null;
-  service.webApp.attachRuntime(canonicalRuntime as any);
+  service.webApp.attachRuntime(canonicalRuntime as unknown as SharedSurfaceRuntime);
   refreshRuntimeBackedReporting(service, canonicalRuntime);
   rebuildRuntimeDependentServices(service);
   service.agentOperatingSystemActions =
@@ -375,7 +392,7 @@ export function attachChatRuntime(service: ZavorthControlFacadeCompat, runtime: 
     });
   service.codexRemoteActions = new CodexRemoteActionService({
     controlPlaneService: service.codexRemote,
-    permissionService: service.reportPermissionService || null,
+    permissionService: service.reportPermissionService as any, // eslint-disable-line @typescript-eslint/no-explicit-any
     runtimeUserId: canonicalRuntime.webUserId || service.continuityUserId || config.allowedUserIds[0] || '1',
   });
   syncWebAppOperationsServices(service);
@@ -509,7 +526,7 @@ export function buildLayeredMemoryService(service: ZavorthControlFacadeCompat): 
   return new ZavorthLayeredMemoryService({
     memoryPlaneService: service.memoryPlane,
     sessionPlaneService: service.sessionPlane,
-  } as any);
+  } as unknown as ConstructorParameters<typeof ZavorthLayeredMemoryService>[0]);
 }
 
 export function buildRemoteTransportActionService(
@@ -523,7 +540,7 @@ export function buildRemoteTransportActionService(
 export function buildRemoteTransportService(service: ZavorthControlFacadeCompat): ZavorthRemoteTransportService {
   return new ZavorthRemoteTransportService({
     platformRegistryService: service.platformRegistry,
-  } as any);
+  } as unknown as ConstructorParameters<typeof ZavorthRemoteTransportService>[0]);
 }
 
 export function buildRemoteTransportDoctorService(service: ZavorthControlFacadeCompat): RemoteTransportDoctorService {
@@ -689,7 +706,7 @@ export function routeRequest(
       res,
       url,
       pathname,
-      service.presentationDepsBridge.buildCoreRouteDeps(presentationSource as any),
+      service.presentationDepsBridge.buildCoreRouteDeps(presentationSource as unknown as ZavorthControlPresentationDepsBridgeSource),
     );
     if (handledCore) return;
 
@@ -697,7 +714,7 @@ export function routeRequest(
       service.classicAccess.requiresAuthorization(pathname) &&
       !service.classicAccess.isAuthorized(
         req,
-        service.presentationDepsBridge.buildClassicAccessDeps(presentationSource as any),
+        service.presentationDepsBridge.buildClassicAccessDeps(presentationSource as unknown as ZavorthControlPresentationDepsBridgeSource),
       )
     ) {
       service.responseWriter.writeJson(
@@ -713,7 +730,7 @@ export function routeRequest(
       res,
       url,
       pathname,
-      service.presentationDepsBridge.buildLegacyRouteDeps(presentationSource as any, presentationInput),
+      service.presentationDepsBridge.buildLegacyRouteDeps(presentationSource as unknown as ZavorthControlPresentationDepsBridgeSource, presentationInput),
     );
     if (handledLegacy) return;
 
@@ -731,7 +748,7 @@ export function routeRequest(
         echo: service.echoService,
         writeJson: (r: http.ServerResponse, body: unknown, status?: number) =>
           service.responseWriter.writeJson(r, body, status),
-        agentGateway: (service.agentGateway || null) as any,
+        agentGateway: (service.agentGateway || null) as unknown as ZavorthControlEchoRouteDeps['agentGateway'],
       });
       if (handledEcho) return;
     }
@@ -800,16 +817,19 @@ export function getClassicZavorthControlHtml(service: ZavorthControlFacadeCompat
   let auditReplaySummary: string | null = null;
 
   if (service.operationsHealthInjected) {
-    const operationsHealthSnapshot = service.operationsHealth.readSnapshot() as any;
-    const lastAudit = operationsHealthSnapshot?.security?.lastAudit || null;
+    const operationsHealthSnapshot = service.operationsHealth.readSnapshot() as unknown as Record<string, unknown>;
+    const securityRecord = (operationsHealthSnapshot.security ?? {}) as Record<string, unknown>;
+    const lastAuditRaw = securityRecord.lastAudit;
+    const lastAudit =
+      lastAuditRaw && typeof lastAuditRaw === 'object' ? lastAuditRaw as Record<string, unknown> : null;
     auditTrailSummary =
-      Number(lastAudit?.totalEvents || 0) > 0
+      lastAudit && Number(lastAudit.totalEvents || 0) > 0
         ? `Trail: ${String(lastAudit.totalEvents)} event(s) | last ${String(lastAudit.latestEventType || 'n/a')} | hash ${String(lastAudit.latestChainHash || '').slice(0, 10)}`
         : null;
     auditReplaySummary =
-      Array.isArray(lastAudit?.recentChain) && lastAudit.recentChain.length ? `Replay: ${lastAudit.recentChain
+      lastAudit && Array.isArray(lastAudit.recentChain) && lastAudit.recentChain.length ? `Replay: ${(lastAudit.recentChain as Array<{ eventType?: string; taskId?: string }>)
             .map(
-              (entry: { eventType?: string; taskId?: string }) =>
+              (entry) =>
                 `${String(entry?.eventType || 'event')} -> ${String(entry?.taskId || 'task')}`,
             )
             .join(' | ')}`

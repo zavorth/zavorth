@@ -23,6 +23,7 @@ export interface NodeCredentials {
 type PairingFetchResponse = {
   ok: boolean;
   status: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   json: () => Promise<any>;
 };
 
@@ -79,7 +80,7 @@ async function defaultFetch(url: string, init: {
   headers: Record<string, string>;
   body: string;
 }): Promise<PairingFetchResponse> {
-  return await safeFetch(url, init as any, {
+  return await safeFetch(url, init as any, { // eslint-disable-line @typescript-eslint/no-explicit-any
     allowLoopback: true,
     serviceName: 'Node Mesh pairing',
   }) as PairingFetchResponse;
@@ -266,7 +267,8 @@ export class NodePairingManager {
     };
   }
 
-  private async claimPairing(nodeId: string, pairingCode: string): Promise<any> {
+  private async claimPairing(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    nodeId: string, pairingCode: string): Promise<any> {
     const response = await this.fetchImpl(`${this.baseUrl}/api/node-mesh/pairing/claim`, {
       method: 'POST',
       headers: {

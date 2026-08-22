@@ -5,7 +5,6 @@ import {
   buildZavorthTransactionCredentialContractSnapshot,
   ZAVORTH_TRANSACTION_CREDENTIAL_CONTRACT_VERSION,
   type ZavorthTransactionCredentialContractSnapshot,
-  type ZavorthTransactionCredentialEnvironment,
   type ZavorthTransactionCredentialRefRecord,
   type ZavorthTransactionCredentialRegisterInput,
   type ZavorthTransactionCredentialRegisterResult,

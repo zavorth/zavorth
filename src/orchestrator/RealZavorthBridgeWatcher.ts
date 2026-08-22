@@ -100,8 +100,8 @@ export class RealZavorthBridgeWatcher {
       responseDir: this.responseDir,
       brainDir: this.brainDir,
       logsDir: this.logsDir,
-      getTask: (taskId) => this.getTask(taskId),
-      isTaskTerminal: (task) => this.isTaskTerminal(task),
+      getTask: (taskId: string) => this.getTask(taskId),
+      isTaskTerminal: (task: Task | null | undefined) => this.isTaskTerminal(task),
       processPendingDeliveries: () => this.processPendingDeliveries(),
     });
     this.tickHandlers = new RealZavorthBridgeWatcherTickHandlers(this);

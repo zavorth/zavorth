@@ -1,7 +1,6 @@
 import type {
   RemoteExecutionReceipt,
   RemoteMeshJson,
-  RemoteMeshTransportKind,
 } from './RemoteMeshSandboxContract.js';
 import type {
   RemoteMeshLiveProbeCandidate,

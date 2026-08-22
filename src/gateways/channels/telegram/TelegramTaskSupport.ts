@@ -3,7 +3,8 @@ import { Task } from '../../../contracts/TaskContract.js';
 import { getExplicitExecutorForCommand } from '../../../gateways/channels/telegram/commandCatalog.js';
 import { isExternalReviewCommand } from '../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
 
-export function persistTask(taskManager: any, task: Task): void {
+export function persistTask(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  taskManager: any, task: Task): void {
   const saveTask = taskManager?.saveTask;
   if (typeof saveTask === 'function') {
     saveTask.call(taskManager, task);

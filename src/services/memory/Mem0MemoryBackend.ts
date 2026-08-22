@@ -12,9 +12,13 @@ import {
 } from './IMemoryBackend.js';
 
 type Mem0ClientLike = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   add(content: string, params?: { user_id?: string; metadata?: Record<string, unknown>; [key: string]: any }): Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   search(query: string, params?: { user_id?: string; limit?: number; [key: string]: any }): Promise<any[]>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   delete?(memoryId: string): Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   update?(memoryId: string, params?: Record<string, unknown>): Promise<any>;
 };
 

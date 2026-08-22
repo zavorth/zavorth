@@ -196,7 +196,7 @@ Do not announce which persona is active; simply embody it.
     return Object.keys(PERSONA_REGISTRY) as PersonaType[];
   }
 
-  private getFallbackForAmbiguous(category: IntentCategory, confidence: number): PersonaProfile {
+  private getFallbackForAmbiguous(_category: IntentCategory, _confidence: number): PersonaProfile {
     // For ambiguous intents, always use conversational as safe default
     return PERSONA_REGISTRY.conversational;
   }

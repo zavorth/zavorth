@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
       routeId,
       confirm,
       dryRun,
-    } as any;
+    } as never;
     if (dryRun === true || !confirm) {
       result = await service.preview(input);
     } else {

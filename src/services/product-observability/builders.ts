@@ -146,8 +146,8 @@ export function collectExecutorStats(tasks: Task[]): ExecutorStat[] {
     }
     const approvalHistory = Array.isArray(metadata.approval_history) ? metadata.approval_history : [];
     const permissionHistory = Array.isArray(metadata.permission_history) ? metadata.permission_history : [];
-    existing.approval_friction += approvalHistory.filter((entry: any) => String(entry?.action || '').trim() === 'reject').length;
-    existing.approval_friction += permissionHistory.filter((entry: any) => String(entry?.action || '').trim() === 'reject').length;
+    existing.approval_friction += approvalHistory.filter((entry: { action?: unknown }) => String(entry?.action || '').trim() === 'reject').length;
+    existing.approval_friction += permissionHistory.filter((entry: { action?: unknown }) => String(entry?.action || '').trim() === 'reject').length;
     if (task.updated_at > existing.last_seen_at) {
       existing.last_seen_at = task.updated_at;
     }
@@ -189,7 +189,7 @@ export function collectApprovalExecutorStats(tasks: Task[]): ApprovalExecutorSta
     }
     const approvalHistory = Array.isArray(metadata.approval_history) ? metadata.approval_history : [];
     const permissionHistory = Array.isArray(metadata.permission_history) ? metadata.permission_history : [];
-    existing.rejected += approvalHistory.filter((entry: any) => String(entry?.action || '').trim() === 'reject').length;
+    existing.rejected += approvalHistory.filter((entry: { action?: unknown }) => String(entry?.action || '').trim() === 'reject').length;
     existing.permissions += permissionHistory.length;
     if (isHighRiskTask(task)) {
       existing.high_risk += 1;
@@ -373,8 +373,8 @@ export function collectRouteLearning(tasks: Task[], workflowRuns: WorkflowRunSna
     if (permissionPending) {
       existing.waitingPermission += 1;
     }
-    const approvalGrantedForTask = approvalHistory.filter((entry: any) => String(entry?.action || '').trim().toLowerCase() === 'approve').length;
-    const permissionGrantedForTask = permissionHistory.filter((entry: any) => {
+    const approvalGrantedForTask = approvalHistory.filter((entry: { action?: unknown }) => String(entry?.action || '').trim().toLowerCase() === 'approve').length;
+    const permissionGrantedForTask = permissionHistory.filter((entry: { action?: unknown }) => {
       const action = String(entry?.action || '').trim().toLowerCase();
       return action === 'grant' || action === 'approve';
     }).length;
@@ -382,8 +382,8 @@ export function collectRouteLearning(tasks: Task[], workflowRuns: WorkflowRunSna
     const recoveryMs = computePostApprovalRecoveryMs(task, approvalHistory, permissionHistory);
     const artifactDeliveryMs = computeArtifactDeliveryAfterApprovalMs(task, approvalHistory, permissionHistory);
     existing.rejected +=
-      approvalHistory.filter((entry: any) => String(entry?.action || '').trim().toLowerCase() === 'reject').length
-      + permissionHistory.filter((entry: any) => {
+      approvalHistory.filter((entry: { action?: unknown }) => String(entry?.action || '').trim().toLowerCase() === 'reject').length
+      + permissionHistory.filter((entry: { action?: unknown }) => {
         const action = String(entry?.action || '').trim().toLowerCase();
         return action === 'reject' || action === 'deny';
       }).length

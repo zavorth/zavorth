@@ -12,7 +12,6 @@ import { logger } from '../logger.js';
  * Called from bootstrapFoundation.ts after tool runtime creation.
  */
 
-import * as path from 'path';
 import { ConversationalAgent } from '../agents/ConversationalAgent.js';
 import { ContextEngine } from '../context-engine/ContextEngine.js';
 import { LegacyUnifiedGatewayAdapter } from '../context-engine/LegacyUnifiedGatewayAdapter.js';

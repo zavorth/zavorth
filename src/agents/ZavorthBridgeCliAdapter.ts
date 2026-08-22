@@ -19,7 +19,6 @@ import {
   prepareDirectChatSurface as prepareDirectChatSurfaceSupport,
   tryDeliverPromptViaCompanionBridge as tryDeliverPromptViaCompanionBridgeSupport,
   tryPrepareAutomationSurface as tryPrepareAutomationSurfaceSupport,
-  waitForPromptSubmissionEffect as waitForPromptSubmissionEffectSupport,
   type CompanionBridge,
   type WindowAutomator,
   type UiStateSnapshot,
@@ -493,7 +492,8 @@ export class ZavorthBridgeCliAdapter {
   }
 
   private isAutomationSurfaceReady(surface: unknown): boolean {
-    return isAutomationSurfaceReadySupport(surface);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return isAutomationSurfaceReadySupport(surface as any);
   }
 
   private buildDirectChatUnavailableError(message: string): Error {

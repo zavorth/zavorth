@@ -8,6 +8,7 @@ import type { ZavorthPluginActionExecution } from '../ZavorthPluginActionService
 import type { LearningPlaneActionExecution } from '../ZavorthLearningPlaneService.js';
 import type { ZavorthPlatformActionExecution } from '../ZavorthPlatformActionService.js';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type RegistrySnapshotReader = Pick<{ buildSnapshot: (input?: any) => ZavorthPlatformRegistrySnapshot }, 'buildSnapshot'>;
 
 export function finishPlatformEntry(

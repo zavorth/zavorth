@@ -5,9 +5,9 @@ export function matchesResolvedTaskTenant(
   task: Task | null | undefined,
   tenantContext: TenantContext | null | undefined,
   options: {
-    extractTenantId: (metadata: Record<string, any> | null | undefined) => string | null;
+    extractTenantId: (metadata: Record<string, unknown> | null | undefined) => string | null;
     resolveFromTask: (task: Task) => TenantContext | null;
-    asRecord: (value: unknown) => Record<string, any>;
+    asRecord: (value: unknown) => Record<string, unknown>;
   },
 ): boolean {
   if (!task || !tenantContext?.tenantId) {

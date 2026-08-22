@@ -3,7 +3,6 @@ import {
   type AiFirstRuntimeEntrypointAdapterSnapshot,
   type AiFirstRuntimeEntrypointCanarySummary,
   type AiFirstRuntimeEntrypointEffectiveDecision,
-  type AiFirstRuntimeEntrypointFallbackReason,
   type AiFirstRuntimeEntrypointStatus,
 } from '../contracts/AiFirstRuntimeEntrypointAdapterContract.js';
 import type {

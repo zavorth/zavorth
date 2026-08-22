@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
@@ -95,8 +93,8 @@ export class ZavorthContainerManagerTool extends BaseTool {
       case 'exec': return await this.exec(args);
       case 'build': return await this.build(args);
       case 'stop': return await this.stop(args);
-      case 'start': return await this.dockerCmd(['start', String(args.container || '')], !!args.container);
-      case 'restart': return await this.dockerCmd(['restart', String(args.container || '')], !!args.container);
+      case 'start': return await this.dockerCmd(['start', String(args.container || '')]);
+      case 'restart': return await this.dockerCmd(['restart', String(args.container || '')]);
       case 'rm': return await this.rm(args);
       case 'inspect': return await this.inspect(args);
       case 'stats': return await this.dockerCmd(['stats', '--no-stream', '--format', 'table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}']);
@@ -117,7 +115,7 @@ export class ZavorthContainerManagerTool extends BaseTool {
     }
   }
 
-  private async dockerCmd(cmdArgs: string[], required = false): Promise<string> {
+  private async dockerCmd(cmdArgs: string[]): Promise<string> {
     try {
       const { execFileSync } = await import('child_process');
       const result = execFileSync('docker', cmdArgs, {

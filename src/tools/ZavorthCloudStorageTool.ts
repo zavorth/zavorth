@@ -293,7 +293,7 @@ export class ZavorthCloudStorageTool extends BaseTool {
           const result = await this.runCmd('aws', ['s3api', 'head-object', '--bucket', bucket, '--key', key]);
           return `S3 object info:\n${result}`;
         }
-        const result = await this.runCmd('aws', ['s3api', 'head-bucket', '--bucket', bucket]);
+        await this.runCmd('aws', ['s3api', 'head-bucket', '--bucket', bucket]);
         return `S3 bucket "${bucket}" exists.`;
       }
       case 'gcs': {

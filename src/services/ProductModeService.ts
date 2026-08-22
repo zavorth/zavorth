@@ -48,7 +48,7 @@ const PRODUCT_MODE_META: Record<ZavorthProductMode, ProductModeMeta> = {
     description: 'Mode for helping with workspace files and tasks without opening everything at once.',
     defaultRuntimeProfile: 'core',
     visibleSurfaces: ['chat', 'artifacts', 'approvals', 'recommendations'],
-    hiddenByDefault: ['tool-cards-avancados', 'diffs', 'companions', 'mesh'],
+    hiddenByDefault: ['tool-cards-advanced', 'diffs', 'companions', 'mesh'],
     escalationTargets: ['builder', 'operator'],
   },
   builder: {

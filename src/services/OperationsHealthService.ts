@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
-import { LogRepository, type SystemLog } from '../storage/LogRepository.js';
+import { LogRepository } from '../storage/LogRepository.js';
 import { OperationalSecurityService, type OperationalSecuritySnapshot } from './OperationalSecurityService.js';
 import { SidecarStatusService, type SidecarStatusSummary } from './SidecarStatusService.js';
 import { SandboxExecutionService } from './SandboxExecutionService.js';

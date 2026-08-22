@@ -110,11 +110,6 @@ function safeSensitiveContextText(value: unknown, maxChars = 2000): string {
   return text;
 }
 
-function clampText(value: unknown, maxChars = 4000): string {
-  const text = String(value ?? '').trim();
-  const limit = Math.max(120, maxChars);
-  return text.length <= limit ? text : `${text.slice(0, limit - 20).trim()}\n[truncated]`;
-}
 
 export class AgentRunLlmRuntimeExecutor {
   private readonly llmRuntime: UniversalAgentLlmRuntime | null;

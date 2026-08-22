@@ -17,7 +17,8 @@ import { logger } from '@/shared/utils/logger';
 import {
 AccessRouteResolutionService,
   type AccessRouteConfiguredProvider,
-} from "../../../../../services/providers/catalog/AccessRouteResolutionService.js";function resolveValidationAccessRoute(input: {
+} from "../../../../../services/providers/catalog/AccessRouteResolutionService.js";
+function resolveValidationAccessRoute(input: {
   provider: string;
   apiKey: string;
   baseUrl?: string | null;
@@ -80,13 +81,13 @@ export async function POST(request) {
     }
     const { provider, apiKey, validationModelId, customUserAgent, baseUrl: bodyBaseUrl } = validation.data;
 
-    let providerSpecificData: any = { validationModelId };
+    let providerSpecificData: unknown = { validationModelId };
     if (customUserAgent) {
       providerSpecificData.customUserAgent = customUserAgent;
     }
 
     if (isOpenAICompatibleProvider(provider) || isAnthropicCompatibleProvider(provider)) {
-      const node: any = await getProviderNodeById(provider);
+      const node: unknown = await getProviderNodeById(provider);
       if (!node) {
         const typeName = isOpenAICompatibleProvider(provider) ? "OpenAI"
           : isClaudeCodeCompatibleProvider(provider) ? "CC"

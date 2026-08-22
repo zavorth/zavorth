@@ -35,7 +35,7 @@ export function estimateTokens(text?: string | null): number {
 /**
  * Estimate input tokens from a chat completion request body.
  */
-export function estimateInputTokens(body: any): number {
+export function estimateInputTokens(body: unknown): number {
   if (!body) return 0;
   let total = 0;
 
@@ -97,7 +97,7 @@ export function formatCost(usd: number): string {
 /**
  * Quick pre-flight estimate: given a request body and model, return estimated cost.
  */
-export function preflightEstimate(body: any, model: string, pricingOverrides?: any) {
+export function preflightEstimate(body: unknown, model: string, pricingOverrides?: unknown) {
   const inputTokens = estimateInputTokens(body);
   const maxOutput = body.max_tokens || body.maxOutputTokens || 1000;
   const result = estimateCost({ model, inputTokens, maxOutputTokens: maxOutput, pricingOverrides });

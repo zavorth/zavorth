@@ -1,6 +1,8 @@
 import * as http from 'http';
 import type { WebAppSurfaceRouteDeps } from './WebAppSurfaceRouteService.js';
 import { errorMessage } from '../utils/errorLike.js';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SurfaceToolingDynamic = any;
 
 export class WebAppSurfaceToolingRouteService {
@@ -9,7 +11,7 @@ export class WebAppSurfaceToolingRouteService {
     res: http.ServerResponse,
     url: URL,
     pathname: string,
-    deps: any,
+    deps: WebAppSurfaceRouteDeps,
   ): Promise<boolean> {
     if (pathname === '/api/web/tools' && req.method === 'GET') {
       const toolSurface = deps.runtimeToolSurface || deps.toolSurface;

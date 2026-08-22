@@ -192,7 +192,7 @@ export class DeepSandboxIsolationService {
     docker: DockerSandboxStatus,
     firecracker: FirecrackerSandboxStatus,
     wasm: WasmSandboxStatus,
-    gvisorActive: boolean,
+    _gvisorActive: boolean,
   ): string {
     if (posture === 'microvm-kernel') {
       return 'Firecracker operational; the host supports deep isolation in microVM for aggressive tracks.';

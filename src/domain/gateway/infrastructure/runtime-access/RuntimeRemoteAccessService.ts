@@ -1,5 +1,5 @@
-import { LocalCloudflareRolloutService, type LocalCloudflareRolloutSnapshot } from '../../../../services/LocalCloudflareRolloutService.js';
-import { OracleCloudflareRolloutService, type OracleCloudflareRolloutSnapshot } from '../../../../services/OracleCloudflareRolloutService.js';
+import { LocalCloudflareRolloutService } from '../../../../services/LocalCloudflareRolloutService.js';
+import { OracleCloudflareRolloutService } from '../../../../services/OracleCloudflareRolloutService.js';
 import {
   RuntimeOfficialAccessService,
   type RuntimeOfficialAccessReport,

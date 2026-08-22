@@ -5,7 +5,7 @@ import type {
   ZavorthActionResult,
   ZavorthActionSchema,
 } from '../ZavorthActionContracts.js';
-import { UniversalReachSubsystemService, UniversalReachFabricService } from '../../../services/UniversalReachSubsystemService.js';
+import { UniversalReachFabricService } from '../../../services/UniversalReachSubsystemService.js';
 
 const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = ['tests/services/UniversalReachFabricService.test.ts'];
@@ -110,7 +110,7 @@ function reachSynthesize(input: ZavorthActionHandlerInput): ZavorthActionResult 
     channelId,
     label: text(input.args.label || channelId),
     notes: text(input.args.notes || input.args.docs || ''),
-    family: (text(input.args.family || 'synthesized') as any),
+    family: (text(input.args.family || 'synthesized') as never),
     apply,
   });
   return result({

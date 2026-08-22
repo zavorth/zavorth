@@ -79,7 +79,7 @@ export class MnemosMemoryLifecycleService {
 
   private classify(file: string, memoryRoot: string): MnemosMemoryLifecycleEntry {
     const ageDays = Math.max(0, Math.floor((this.now().getTime() - this.fileDate(file).getTime()) / 86_400_000));
-    const relative = path.relative(memoryRoot, file).replace(/\\/g, '/');
+    path.relative(memoryRoot, file).replace(/\\/g, '/');
     if (ageDays <= 7) {
       return { file, ageDays, tier: 'hot', action: 'keep-full', summaryPath: null };
     }

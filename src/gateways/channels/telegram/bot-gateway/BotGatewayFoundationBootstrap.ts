@@ -47,30 +47,58 @@ import { SupervisedRuntimeNotificationService } from '../../../../services/Super
 import { TelegramChannelContractService } from '../../../../gateways/channels/telegram/TelegramChannelContractService.js';
 import { createTelegramHoneypotMonitor } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewayHoneypotBootstrap.js';
 import type { BotGatewayRuntimeOptions } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewayBootstrapTypes.js';
-import type { BotGatewaySupportRuntime } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportTypes.js';
+import type { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import type { ContextEngine } from '../../../../context-engine/ContextEngine.js';
+import type { LegacyUnifiedGatewayAdapter } from '../../../../context-engine/LegacyUnifiedGatewayAdapter.js';
+import type { ZavorthAgentGateway } from '../../../../runtime/agent/index.js';
+import type { TelemetryRuntimeService } from '../../../../observability/telemetry/TelemetryRuntimeService.js';
+import type { HoneypotMonitor } from '../../../../monitoring/HoneypotMonitor.js';
 
-interface BotGatewayFoundationHost extends Omit<Partial<BotGatewaySupportRuntime>, 'logRepo'> {
-  remoteModeManager?: RemoteModeManager;
-  zavorthBridgeControlService?: ZavorthBridgeControlService;
-  zavorthBridgePromptService?: ZavorthBridgePromptService;
-  contextEngine?: ContextEngine | null;
-  executionGateway?: ExecutionGateway;
-  auditLogger?: AuditLogger;
-  wslControl?: WslControlService;
-  systemCleanup?: SystemCleanupService;
-  permissionService?: PermissionService;
-  honeypot?: { start: () => void };
-  funGamesService?: FunGamesService;
-  welcomeService?: WelcomeService;
-  antiSpamService?: AntiSpamService;
-  messageFilterService?: MessageFilterService;
-  warnService?: WarnService;
-  groupStatsService?: GroupStatsService;
-}
+type BotGatewayFoundationTarget = {
+  telegramLiveEnabled: boolean;
+  bot: Bot;
+  parser: CommandParser;
+  audioHandler: AudioHandler;
+  videoHandler: VideoHandler;
+  zavorthBridgePreferenceStore: ZavorthBridgePreferenceStore;
+  echoOutputStage: EchoOutputStageService;
+  remoteModeManager: RemoteModeManager;
+  hostIdentityService: HostIdentityService;
+  zavorthBridgeControlService: ZavorthBridgeControlService;
+  zavorthBridgePromptService: ZavorthBridgePromptService;
+  runtimeComposition: RuntimeCompositionService;
+  contextEngine: ContextEngine | null;
+  legacyUnifiedGateway: LegacyUnifiedGatewayAdapter | null;
+  agentGateway: ZavorthAgentGateway | null;
+  runtimeProfileService: RuntimeProfileService;
+  capabilityLifecycleService: CapabilityLifecycleService;
+  telegramChannelContractService: TelegramChannelContractService;
+  telemetryRuntime: TelemetryRuntimeService;
+  supervisedRuntimeNotificationService: SupervisedRuntimeNotificationService;
+  surfaceIdentityService: SurfaceIdentityService;
+  executionGateway: ExecutionGateway;
+  auditLogger: AuditLogger;
+  wslControl: WslControlService;
+  systemCleanup: SystemCleanupService;
+  chatCleanup: ChatCleanupService;
+  permissionService: PermissionService;
+  securityLock: SecurityLockService;
+  honeypot: HoneypotMonitor;
+  funGamesService: FunGamesService;
+  welcomeService: WelcomeService;
+  antiSpamService: AntiSpamService;
+  messageFilterService: MessageFilterService;
+  warnService: WarnService;
+  groupStatsService: GroupStatsService;
+  runtimeDiagnostics: RuntimeDiagnosticsService;
+  workspaceProfileService: WorkspaceProfileService;
+  workspaceCommandService: WorkspaceCommandService;
+  taskManager: TaskManager;
+  logRepo: LogRepository;
+};
 
 export function initializeBotGatewayFoundation(
-  gateway: any,
+  gateway: BotGatewayFoundationTarget,
   token: string,
   logRepo: LogRepository,
   runtimeComposition?: RuntimeCompositionService,
@@ -174,8 +202,8 @@ export function initializeBotGatewayFoundation(
   gateway.warnService = new WarnService();
   gateway.groupStatsService = new GroupStatsService();
   gateway.runtimeDiagnostics = new RuntimeDiagnosticsService(
-    gateway.taskManager as any,
-    gateway.logRepo as any,
+    gateway.taskManager,
+    gateway.logRepo,
   );
   gateway.workspaceProfileService = new WorkspaceProfileService();
   gateway.workspaceCommandService = new WorkspaceCommandService();

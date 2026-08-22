@@ -4,7 +4,7 @@ import type {
   ZavorthSubagentRuntimeStatus,
 } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 
-export function isLatestSubagentReference(value: string): boolean {
+export function isLatestSubagentReference(_value: string): boolean {
   return false;
 }
 

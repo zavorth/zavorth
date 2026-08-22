@@ -1,5 +1,4 @@
 import { createHash } from 'crypto';
-import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { TerminalPanel } from './presentation/TerminalPanel.js';
@@ -170,7 +169,7 @@ export function runProcess(command: string, args: string[], cwd: string, timeout
   const { exec, execFile } = require('child_process');
   return new Promise((resolve) => {
     const start = Date.now();
-    const finish = (error: any, stdout: string, stderr: string) => {
+    const finish = (error: any, stdout: string, stderr: string) => { // eslint-disable-line @typescript-eslint/no-explicit-any
       const durationMs = Date.now() - start;
       const timedOut = error && error.killed && error.signal === 'SIGTERM';
       const output = `${stdout || ''}${stderr || ''}`;

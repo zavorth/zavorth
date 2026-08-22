@@ -67,7 +67,7 @@ export class TelegramTaskWorkflowRoutingService {
     route: RouteIntent,
     advice: WorkspaceRoutingAdvice,
     learnedRoute: TelegramWorkspaceLearnedRoute,
-  ): Record<string, any> {
+  ): Record<string, unknown> {
     return this.routeOutcomeBuilder.build(task, route, advice, learnedRoute);
   }
 

@@ -7,7 +7,7 @@ import {
 export class WebAppGatewayCapabilitySupport {
   public async listGatewayCapabilities(
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     const snapshot = deps.capabilityLifecycle?.buildSnapshot() || null;
     const pendingPlans = deps.mutationPlane
       ? deps.mutationPlane.listPlans({ limit: 30, includeExpired: false })
@@ -38,7 +38,7 @@ export class WebAppGatewayCapabilitySupport {
       sourceSurface?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     if (!deps.capabilityLifecycle) {
       throw new Error('Capability lifecycle unavailable in this runtime.');
     }
@@ -190,7 +190,7 @@ export class WebAppGatewayCapabilitySupport {
       requestedBy?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     if (!deps.capabilityLifecycle) {
       throw new Error('Capability lifecycle unavailable in this runtime.');
     }

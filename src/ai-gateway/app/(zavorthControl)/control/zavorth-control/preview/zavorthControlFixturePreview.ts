@@ -23,7 +23,7 @@ export function listZavorthControlZavorthControlFixturePreviewOptions() {
   }));
 }
 
-export function buildZavorthControlZavorthControlFixturePreviewViewModel(id: ZavorthControlZavorthControlFixtureId): Record<string, any> {
+export function buildZavorthControlZavorthControlFixturePreviewViewModel(id: ZavorthControlZavorthControlFixtureId): Record<string, unknown> {
   const fixture = getZavorthControlZavorthControlFixture(id);
   const viewModel = buildZavorthControlZavorthControlFixture(id);
   const logs = [

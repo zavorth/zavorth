@@ -1,7 +1,8 @@
 import { getDbInstance } from "../db/core";
 import { Memory, MemoryConfig, MemoryType } from "./types";
 import { MemoryConfigSchema } from "./schemas";
-import { logger } from '@/shared/utils/logger';interface MemoryRow {
+import { logger } from '@/shared/utils/logger';
+interface MemoryRow {
   id: string;
   api_key_id?: string;
   apiKeyId?: string;
@@ -150,7 +151,7 @@ export async function retrieveMemories(
   let query =
     `SELECT * FROM ${tableName} WHERE ${columns.apiKeyId} = - ` +
     `AND (${columns.expiresAt} IS NULL OR datetime(${columns.expiresAt}) > datetime('now'))`;
-  const params: any[] = [apiKeyId];
+  const params: unknown[] = [apiKeyId];
 
   if (normalizedConfig.scope === "session" && config.sessionId) {
     query += ` AND ${columns.sessionId} = ...`;

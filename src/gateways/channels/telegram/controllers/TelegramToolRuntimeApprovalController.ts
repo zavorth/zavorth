@@ -99,8 +99,8 @@ export class TelegramEchoApprovalController {
   private createClient(ctx: Context): TelegramEchoApprovalClient {
     const chatId = normalizeRequired(ctx.chat?.id, 'telegram chatId');
     const threadId =
-      normalizeNullableText((ctx.message as any)?.message_thread_id) ||
-      normalizeNullableText((ctx.callbackQuery?.message as any)?.message_thread_id);
+      normalizeNullableText((ctx.message as unknown as Record<string, unknown>)?.message_thread_id) ||
+      normalizeNullableText((ctx.callbackQuery?.message as unknown as Record<string, unknown>)?.message_thread_id);
     const userId = normalizeNullableText(ctx.from?.id);
     const baseUrl =
       this.deps.baseUrl ||

@@ -175,7 +175,7 @@ export class CodeIntelligenceService {
     return classes;
   }
 
-  public calculateComplexity(content: string, language: string): number {
+  public calculateComplexity(content: string, _language: string): number {
     let complexity = 1;
     const lines = content.split('\n');
 
@@ -279,7 +279,7 @@ export class CodeIntelligenceService {
     return map[ext] || 'unknown';
   }
 
-  private countMethods(lines: string[], language: string): number {
+  private countMethods(lines: string[], _language: string): number {
     let count = 0;
     for (const line of lines) {
       if (line.match(/(?:public|private|protected|static|\s)+\s+\w+\s+\w+\s*\(/)) count++;

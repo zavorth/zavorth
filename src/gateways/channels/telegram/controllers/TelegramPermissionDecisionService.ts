@@ -23,6 +23,7 @@ export type TelegramPermissionApprovalPatch = {
   resolved_value?: string | null;
   reason?: string;
   decision_note?: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>;
 };
 

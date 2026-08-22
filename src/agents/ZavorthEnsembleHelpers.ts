@@ -161,12 +161,12 @@ export function parseJsonObject(raw: unknown): Record<string, unknown> | null {
   if (!text) return null;
   try {
     return JSON.parse(text);
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) { asErrorLike(error); 
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) return null;
     try {
       return JSON.parse(match[0]);
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[Zavorth Ensemble] JSON parse failed', error); return null; }
+    } catch (error: unknown) { asErrorLike(error);  logger.warn('[Zavorth Ensemble] JSON parse failed', error); return null; }
   }
 }
 

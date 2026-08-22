@@ -182,7 +182,7 @@ export class CalendarTool extends BaseTool {
     return lines.join('\n');
   }
 
-  private listEvents(args: Record<string, unknown>): string {
+  private listEvents(_args: Record<string, unknown>): string {
     const events = this.loadEvents();
     if (events.length === 0) return 'No events on the calendar.';
 

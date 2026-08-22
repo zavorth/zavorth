@@ -561,7 +561,8 @@ export class AutoRepairValidationService {
     return null;
   }
 
-  private normalizeCommandError(error: any): string {
+  private normalizeCommandError(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    error: any): string {
     return this.normalizeError(error?.stdout || error?.stderr || error?.message || error);
   }
 

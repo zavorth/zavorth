@@ -206,7 +206,7 @@ export class ZavorthInspectService {
     ].filter((dir) => this.exists(dir));
   }
 
-  private resolvePlugins(packageJson: Record<string, any>): ZavorthInspectEntry[] {
+  private resolvePlugins(packageJson: Record<string, any>): ZavorthInspectEntry[] { // eslint-disable-line @typescript-eslint/no-explicit-any
     const deps = { ...(packageJson.dependencies || {}), ...(packageJson.devDependencies || {}) };
     return [
       this.entry('grammy', 'Telegram plugin/runtime', deps.grammy ? 'ready' : 'attention', deps.grammy ? 'grammy dependency installed.' : 'Telegram dependency not found.'),
@@ -215,7 +215,7 @@ export class ZavorthInspectService {
     ];
   }
 
-  private resolveMcp(packageJson: Record<string, any>): ZavorthInspectEntry[] {
+  private resolveMcp(packageJson: Record<string, any>): ZavorthInspectEntry[] { // eslint-disable-line @typescript-eslint/no-explicit-any
     const deps = { ...(packageJson.dependencies || {}), ...(packageJson.devDependencies || {}) };
     return [
       this.entry('mcp-sdk', 'MCP SDK', deps['@modelcontextprotocol/sdk'] ? 'ready' : 'attention', deps['@modelcontextprotocol/sdk'] ? 'SDK dependency installed.' : 'SDK dependency not found.'),
@@ -270,7 +270,7 @@ export class ZavorthInspectService {
     return actions;
   }
 
-  private readPackageJson(): Record<string, any> {
+  private readPackageJson(): Record<string, any> { // eslint-disable-line @typescript-eslint/no-explicit-any
     try {
       return JSON.parse(fs.readFileSync(path.join(this.projectRoot, 'package.json'), 'utf8'));
     } catch (error: unknown) {logger.warn('[Inspect] Failed to read package.json:', error);

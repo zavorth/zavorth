@@ -180,7 +180,7 @@ async function getClaudeUsage() {
  * Note: Actual quota tracking is handled by open-sse/services/usage.ts
  * This fallback returns a message directing users to the zavorthControl.
  */
-async function getCodexUsage(accessToken, providerSpecificData: Record<string, any> = {}) {
+async function getCodexUsage(accessToken, providerSpecificData: Record<string, unknown> = {}) {
   try {
     // Check if workspace is bound
     const workspaceId = providerSpecificData?.workspaceId;

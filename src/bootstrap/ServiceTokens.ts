@@ -2,7 +2,7 @@ import type { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
 import type { ToolHookPipelineService } from '../services/ToolHookPipelineService.js';
 import type { TelemetryRuntimeService } from '../observability/telemetry/TelemetryRuntimeService.js';
 
-export interface ServiceToken<T> {
+export interface ServiceToken<_T> {
   readonly id: symbol;
   readonly description: string;
 }

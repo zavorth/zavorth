@@ -97,7 +97,6 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
     if (!sourcePath) return 'Error: "source_path" is required.';
 
     const duration = Number(args.watch_duration_ms || 30000);
-    const pattern = String(args.pattern || '*');
 
     try {
       if (!fs.existsSync(sourcePath)) return `Error: Path ${sourcePath} does not exist.`;
@@ -267,10 +266,6 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
       const { execFileSync } = await import('child_process');
 
       if (process.platform === 'win32') {
-        const excludeArgs = args.exclude_pattern
-          ? String(args.exclude_pattern).split(',').map(p => `/XD ${p.trim()}`).join(' ')
-          : '';
-        const cmd = `robocopy "${sourcePath}" "${targetPath}" /MIR ${excludeArgs}`;
         try {
           execFileSync('robocopy', [sourcePath, targetPath, '/MIR'], { timeout: 300000 });
         } catch (error: unknown) {// robocopy returns non-zero on success sometimes
@@ -335,7 +330,6 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
 
     try {
       const { execFileSync } = await import('child_process');
-      const maxResults = Number(args.max_results || 100);
 
       if (process.platform === 'win32') {
         const result = execFileSync('findstr', ['/S', '/I', '/N', searchText, path.join(sourcePath, '*')], {

@@ -527,7 +527,7 @@ export class CrossChannelContinuityService {
   private resolveNextSafeAction(
     status: CrossChannelContinuityStatus,
     channels: CrossChannelContinuityChannel[],
-    handoffs: CrossChannelContinuityHandoff[],
+    _handoffs: CrossChannelContinuityHandoff[],
   ): string {
     if (status === 'blocked') {
       return 'Review reply ports and bridge before resuming in another channel.';

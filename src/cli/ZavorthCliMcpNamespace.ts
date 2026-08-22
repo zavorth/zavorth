@@ -1,14 +1,20 @@
+import { spawn } from 'child_process';
 import * as path from 'path';
 import {
   firstArg,
   readFlag,
+  readNumberFlag,
   stateDir,
+  readJson,
   readArray,
   writeJson,
   idWithTime,
   render,
   splitList,
+  appendJsonArray,
+  type JsonObject,
 } from './ZavorthCliSharedHelpers.js';
+import { spawnCommandLine } from '../security/SafeProcessExec.js';
 
 export async function runMcp(root: string, args: string[]) {
   const file = path.join(stateDir(root), 'mcp.json');
@@ -153,10 +159,10 @@ export async function runMcpJsonRpcSequence(command: string, methods: string[], 
       child.kill();
       resolve({ ok: false, responses, durationMs: Date.now() - startedAt, error: 'mcp-timeout' });
     }, timeoutMs);
-    child.stderr?.on('data', (chunk) => {
+    child.stderr?.on('data', (chunk: Buffer) => {
       stderr += String(chunk);
     });
-    child.stdout?.on('data', (chunk) => {
+    child.stdout?.on('data', (chunk: Buffer) => {
       stdout = Buffer.concat([stdout, Buffer.from(chunk)]);
       const parsed = parseMcpFrames(stdout);
       stdout = parsed.remaining;
@@ -167,7 +173,7 @@ export async function runMcpJsonRpcSequence(command: string, methods: string[], 
         resolve({ ok: responses.every((response) => !(response as JsonObject).error), responses, durationMs: Date.now() - startedAt });
       }
     });
-    child.on('error', (error) => {
+    child.on('error', (error: Error) => {
       clearTimeout(timer);
       resolve({ ok: false, responses, durationMs: Date.now() - startedAt, error: error.message });
     });

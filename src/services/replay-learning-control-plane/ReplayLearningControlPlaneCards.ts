@@ -6,10 +6,15 @@ import type { ExecutionLifecycleReadModelSnapshot } from '../ExecutionLifecycleR
 import { isReplayLearningColdStart, text } from './ReplayLearningControlPlaneSupport.js';
 
 export function buildReplayLearningCards(input: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   memoryPlane: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   layeredMemory: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   layeredMemoryMetrics: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   learningPlane: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   procedures: any;
   lifecycle: ExecutionLifecycleReadModelSnapshot;
   summary: ZavorthReplayLearningControlPlaneSnapshot['summary'];

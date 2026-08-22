@@ -30,6 +30,7 @@ import {
 
 
 type OverviewServiceLike<TSnapshot> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   buildSnapshot: (input?: any) => TSnapshot | Promise<TSnapshot>;
 };
 

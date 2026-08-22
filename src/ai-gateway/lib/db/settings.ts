@@ -5,7 +5,7 @@
 import { getDbInstance } from "./core";
 import { backupDbFile } from "./backup";
 import { invalidateDbCache } from "./readCache";
-import { toRecord, type JsonRecord, type PricingByProvider, type PricingModels } from "./settings/settingsSupport";
+import { toRecord, type PricingByProvider, type PricingModels } from "./settings/settingsSupport";
 import { logger } from '@/shared/utils/logger';
 
 export {

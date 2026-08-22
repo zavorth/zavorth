@@ -7,8 +7,9 @@ import {
   GenerateContentStreamResult,
   GoogleGenerativeAI,
   RequestOptions,
+  Schema,
   SchemaType,
-  type Schema,
+  Tool,
 } from '@google/generative-ai';
 import { config } from '../config/index.js';
 import { safeFetch, readSafeJsonResponse } from '../security/SafeFetchService.js';
@@ -38,13 +39,13 @@ interface GeminiGatewayResponse {
 }
 
 interface GeminiNativeTool {
-  functionDeclarations?: Array<{ name: string; description: string; parameters: Record<string, unknown> }>;
+  functionDeclarations?: FunctionDeclaration[];
   googleSearch?: Record<string, unknown>;
   codeExecution?: Record<string, unknown>;
 }
 
 interface GeminiRestNativeTool {
-  function_declarations?: Array<{ name: string; description: string; parameters: Record<string, unknown> }>;
+  function_declarations?: FunctionDeclaration[];
   google_search?: Record<string, unknown>;
   code_execution?: Record<string, unknown>;
 }
@@ -99,7 +100,7 @@ export class GeminiProvider implements ILlmProvider {
       try {
         const model = currentClient.getGenerativeModel({
           model: modelName,
-          tools: this.buildGeminiTools(tools, options) as any,
+          tools: this.buildGeminiTools(tools, options) as unknown as Tool[] | undefined,
         }, this.requestOptions);
 
         const request = {
@@ -190,14 +191,14 @@ export class GeminiProvider implements ILlmProvider {
       try {
         const model = currentClient.getGenerativeModel({
           model: modelName,
-          tools: this.buildGeminiTools(tools, options) as any,
+          tools: this.buildGeminiTools(tools, options) as unknown as Tool[] | undefined,
         }, this.requestOptions);
 
         const request = {
           contents,
           systemInstruction: systemInstruction || undefined,
         };
-        const result = await (model as any).generateContentStream(
+        const result = await model.generateContentStream(
           request,
           options?.signal ? { signal: options.signal } : undefined,
         ) as GenerateContentStreamResult;
@@ -498,7 +499,7 @@ export class GeminiProvider implements ILlmProvider {
   private buildGeminiTools(tools?: ToolDefinition[], options?: ProviderChatOptions): GeminiNativeTool[] | undefined {
     const output: GeminiNativeTool[] = [];
     if (tools && tools.length > 0) {
-      output.push({ functionDeclarations: tools.map((tool) => this.convertTool(tool)) as any });
+      output.push({ functionDeclarations: tools.map((tool) => this.convertTool(tool)) });
     }
     if (this.shouldEnableGoogleSearch(options)) {
       output.push({ googleSearch: {} });
@@ -512,7 +513,7 @@ export class GeminiProvider implements ILlmProvider {
   private buildGeminiRestNativeTools(tools?: ToolDefinition[], options?: ProviderChatOptions): GeminiRestNativeTool[] {
     const output: GeminiRestNativeTool[] = [];
     if (tools && tools.length > 0) {
-      output.push({ function_declarations: tools.map((tool) => this.convertTool(tool)) as any });
+      output.push({ function_declarations: tools.map((tool) => this.convertTool(tool)) });
     }
     if (this.shouldEnableGoogleSearch(options)) {
       output.push({ google_search: {} });
@@ -650,7 +651,7 @@ export class GeminiProvider implements ILlmProvider {
   }
 
   private convertTool(tool: ToolDefinition): FunctionDeclaration {
-    const properties: Record<string, any> = {};
+    const properties: Record<string, Schema> = {};
 
     for (const [key, param] of Object.entries(tool.parameters.properties)) {
       properties[key] = this.convertSchema(param as unknown as Record<string, unknown>);
@@ -667,9 +668,9 @@ export class GeminiProvider implements ILlmProvider {
     };
   }
 
-  private convertSchema(schema: Record<string, unknown>): any {
+  private convertSchema(schema: Record<string, unknown>): Schema {
     const type = String(schema.type || 'string');
-    const converted: any = {
+    const converted: Record<string, unknown> = {
       type: this.mapSchemaType(type),
     };
 
@@ -703,7 +704,7 @@ export class GeminiProvider implements ILlmProvider {
       }
     }
 
-    return converted;
+    return converted as unknown as Schema;
   }
 
   private mapSchemaType(type: string): SchemaType {

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { RbacEngine, Role, Permission, AccessCheckRequest, AccessCheckResult } from './RbacEngine.js';
-import { AbacEngine, AbacPolicy, AccessRequest, AccessDecision, AttributeDefinition } from './AbacEngine.js';
+import { RbacEngine, Role, Permission, AccessCheckResult } from './RbacEngine.js';
+import { AbacEngine, AbacPolicy, AccessDecision, AttributeDefinition } from './AbacEngine.js';
 
 export type EnforceMode = 'rbac_only' | 'abac_only' | 'both';
 

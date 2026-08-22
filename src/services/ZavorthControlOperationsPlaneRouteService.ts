@@ -1,5 +1,7 @@
 import * as http from 'http';
 import { errorMessage } from '../utils/errorLike.js';
+// Dynamic service bag: route handlers access operations services by key.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type OperationsPlaneDynamic = any;
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;

@@ -17,7 +17,6 @@ import {
 import { ChannelSetupAssistantService, type ChannelSetupAssistantOption, type ChannelSetupAssistantSession } from './ChannelSetupAssistantService.js';
 
 import { ZavorthChannelMeshService } from './ZavorthChannelMeshService.js';
-import type { ChannelInstallMode } from './ChannelInstallScaffoldService.js';
 
 type ChannelSetupAssistantLike = Pick<ChannelSetupAssistantService, 'buildSession'>;
 type ChannelMeshLike = Pick<ZavorthChannelMeshService, 'buildSnapshot'>;

@@ -490,7 +490,7 @@ function buildOrigin(candidate: ZavorthSkillExpansionCandidate, input: {
   };
 }
 
-function buildNotice(sourceRoot: string): string {
+function buildNotice(_sourceRoot: string): string {
   return [
     '# Third Party Notices',
     '',

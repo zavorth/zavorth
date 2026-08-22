@@ -119,6 +119,8 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
       '</div>';
   }
 
+  // Consumed at runtime via extractFunctionBody(); bound by plugin action buttons.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function runPluginAction(pluginId: string, actionId: string) {
     try {
       const response = await fetch('/api/operations/plugins/actions', {

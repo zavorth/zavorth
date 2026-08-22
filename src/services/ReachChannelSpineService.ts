@@ -188,10 +188,6 @@ type ReachChannelSpineRuntime = {
   agentRunService?: Pick<AgentRunService, 'createRun'>;
 };
 
-function envTruthy(value: string | undefined): boolean {
-  const normalized = String(value || '').trim().toLowerCase();
-  return Boolean(normalized) && normalized !== '0' && normalized !== 'false' && normalized !== 'off';
-}
 
 function hasEnv(env: Record<string, string | undefined>, key: string): boolean {
   return Boolean(String(env[key] || '').trim());

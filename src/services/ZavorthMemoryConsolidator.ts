@@ -56,9 +56,11 @@ export class ZavorthMemoryConsolidator {
 
     logger.info('[MemoryConsolidator] Registering runtime.after_execute and gateway.after_dispatch listeners');
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const afterExecute = async (payload: any) => {
       await this.consolidate(payload.workspace);
     };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const afterDispatch = async (payload: any) => {
       await this.consolidate(payload.workspace);
     };

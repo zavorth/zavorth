@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import type { ChannelGatewayRegistry } from '../gateways/ChannelGatewayRegistry.js';
-import type { WebhookGateway } from '../gateways/WebhookGateway.js';
 import type { CanonicalChannelOutboundEnvelope } from '../channels/contracts/ChannelMessageContract.js';
 import { logger } from '../logger.js';
 

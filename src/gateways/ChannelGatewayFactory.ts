@@ -1,4 +1,3 @@
-import type { ZavorthConfig } from '../config/index.js';
 import { config } from '../config/index.js';
 import { GatewayEventBus } from '../gateway/events/GatewayEventBus.js';
 import { ChannelPolicyManager } from '../channels/policies/ChannelPolicyManager.js';
@@ -6,7 +5,8 @@ import { normalizeChannelId } from '../channels/normalizeChannelId.js';
 import { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import type { WebhookGateway, WebhookGatewayOptions } from './WebhookGateway.js';
-import { ChannelGatewayRegistry } from './ChannelGatewayRegistry.js';import { MatrixGateway } from './channels/simple/MatrixGateway.js';
+import { ChannelGatewayRegistry } from './ChannelGatewayRegistry.js';
+import { MatrixGateway } from './channels/simple/MatrixGateway.js';
 import { LineGateway } from './channels/simple/LineGateway.js';
 import { GoogleChatGateway } from './channels/simple/GoogleChatGateway.js';
 import { FeishuGateway } from './channels/simple/FeishuGateway.js';
@@ -38,6 +38,7 @@ import { InstagramGateway } from './channels/instagram/InstagramGateway.js';
 import { logger } from '../logger.js';
 import { applyLiveGatewayWebhookCompat } from './liveGatewayWebhookCompat.js';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GatewayClass = new (...args: any[]) => unknown;
 
 type GatewayRegistration = {

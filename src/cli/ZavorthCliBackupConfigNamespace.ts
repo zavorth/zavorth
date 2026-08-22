@@ -1,13 +1,26 @@
+import { existsSync } from 'fs';
+import * as fs from 'fs/promises';
 import * as path from 'path';
+import { promisify } from 'util';
+import { gzip, gunzip } from 'zlib';
+import { createCipheriv, createDecipheriv, createHash, randomBytes, scryptSync } from 'crypto';
 import {
   firstArg,
   readFlag,
+  readFlags,
   stateDir,
   ensureDir,
   readJson,
   writeJson,
+  appendJsonArray,
   idWithTime,
   render,
+  listAnyFiles,
+  walkFiles,
+  isInside,
+  sha256,
+  safeString,
+  getEnv,
 } from './ZavorthCliSharedHelpers.js';
 import {
   getPath,
@@ -16,7 +29,11 @@ import {
   setPath,
   unsetPath,
 } from './ZavorthCliCommunicationNamespace.js';
+import { asErrorLike } from '../utils/errorLike.js';
+import { logger } from '../logger.js';
 
+const gzipAsync = promisify(gzip);
+const gunzipAsync = promisify(gunzip);
 
 type JsonObject = Record<string, unknown>;
 

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import type { Task } from '../../contracts/TaskContract.js';
 import type { PendingZavorthBridgeSession } from '../AgentBridgeManager.js';
@@ -7,7 +7,9 @@ import {
 isLocalDirectoryInspectionPrompt as isLocalDirectoryInspectionPromptImpl,
   normalizeComparisonValue as normalizeComparisonValueImpl,
   resolveDirectoryListingTarget as resolveDirectoryListingTargetImpl,
-} from './RealZavorthBridgeWatcherDirectoryHelpers.js';export type RealZavorthBridgeWatcherTaskSupportHost = {
+} from './RealZavorthBridgeWatcherDirectoryHelpers.js';
+export type RealZavorthBridgeWatcherTaskSupportHost = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   logRepo: { log(level: string, source: string, message: string, meta?: Record<string, any>): void };
   deps: {
     taskManager?: {
@@ -165,6 +167,7 @@ export class RealZavorthBridgeWatcherTaskSupport {
 
   public async failStalledSession(
     session: PendingZavorthBridgeSession,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     liveStatus: Record<string, any> | null,
   ): Promise<void> {
     const reason = this.describeStalledFailure(session, liveStatus);
@@ -278,6 +281,7 @@ export class RealZavorthBridgeWatcherTaskSupport {
     return true;
   }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   public describeStalledFailure(session: PendingZavorthBridgeSession, liveStatus: Record<string, any> | null): string {
     if (this.hasCompanionHandoffMismatch(session, liveStatus)) {
       return 'The real session was diverted to another handoff and stopped making progress on this task.';
@@ -296,6 +300,7 @@ export class RealZavorthBridgeWatcherTaskSupport {
 
   public hasCompanionHandoffMismatch(
     session: PendingZavorthBridgeSession,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     liveStatus: Record<string, any> | null,
   ): boolean {
     const expectedNeedles = [

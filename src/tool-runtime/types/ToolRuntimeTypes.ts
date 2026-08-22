@@ -28,11 +28,11 @@ export interface EchoExecutionEntry {
  */
 export interface EchoToolCall {
   toolName: string;
-  args: Record<string, any>;
+  args: Record<string, unknown>;
   securityDecision: 'approved' | 'blocked' | 'permission_required' | 'permission_denied';
   result: string;
   durationMs: number;
-  data?: any;
+  data?: unknown;
   correlation?: ZavorthBoundaryCorrelation | null;
   lifecycle?: EchoCapabilityLifecycleRecord | null;
   artifact?: EchoCapabilityArtifactRecord | null;

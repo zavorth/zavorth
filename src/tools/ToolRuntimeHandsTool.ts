@@ -1,9 +1,7 @@
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import {
-  ToolRuntimeHandsService,
   EchoHandsService,
-  type ToolRuntimeHandsRequest,
   type EchoHandsRequest,
 } from '../services/ToolRuntimeHandsService.js';
 

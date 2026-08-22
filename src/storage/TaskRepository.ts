@@ -79,7 +79,7 @@ export class TaskRepository {
       `SELECT * FROM system_tasks WHERE status IN (${placeholders})`,
       activeStatuses,
     );
-    return rows.map((r: Record<string, any>) => this.mapRow(r));
+    return rows.map((row: Record<string, unknown>) => this.mapRow(row));
   }
 
   public claimNextTaskByCommands(
@@ -112,7 +112,7 @@ export class TaskRepository {
            )
          ORDER BY updated_at ASC
          LIMIT 1`,
-      ).get(...safeCommands, ...safeStatuses, staleBeforeIso) as Record<string, any> | undefined;
+      ).get(...safeCommands, ...safeStatuses, staleBeforeIso) as Record<string, unknown> | undefined;
 
       if (!row) {
         return undefined;
@@ -141,7 +141,7 @@ export class TaskRepository {
           [userId, safeLimit],
         )
       : this.db.all('SELECT * FROM system_tasks ORDER BY updated_at DESC LIMIT ?', [safeLimit]);
-    return rows.map((r: Record<string, any>) => this.mapRow(r));
+    return rows.map((row: Record<string, unknown>) => this.mapRow(row));
   }
 
   public getRecentTasksByUsers(userIds: string[], limit: number = 10): Task[] {
@@ -161,7 +161,7 @@ export class TaskRepository {
        LIMIT ?`,
       [...normalizedUserIds, ...normalizedUserIds, ...normalizedUserIds, safeLimit],
     );
-    return rows.map((row: Record<string, any>) => this.mapRow(row));
+    return rows.map((row: Record<string, unknown>) => this.mapRow(row));
   }
 
   public getRecentTasksByUsersAndTenant(userIds: string[], tenantId: string, limit: number = 10): Task[] {
@@ -188,7 +188,7 @@ export class TaskRepository {
        LIMIT ?`,
       [...normalizedUserIds, ...normalizedUserIds, ...normalizedUserIds, normalizedTenantId, normalizedTenantId, safeLimit],
     );
-    return rows.map((row: Record<string, any>) => this.mapRow(row));
+    return rows.map((row: Record<string, unknown>) => this.mapRow(row));
   }
 
   public getRecentTasksByChat(chatId: string, limit: number = 20): Task[] {
@@ -202,7 +202,7 @@ export class TaskRepository {
       'SELECT * FROM system_tasks WHERE chat_id = ? ORDER BY updated_at DESC LIMIT ?',
       [safeChatId, safeLimit],
     );
-    return rows.map((r: Record<string, any>) => this.mapRow(r));
+    return rows.map((r: Record<string, unknown>) => this.mapRow(r));
   }
 
   public getLatestTaskForUser(userId: string, excludeTaskId?: string): Task | undefined {
@@ -301,18 +301,18 @@ export class TaskRepository {
     );
   }
 
-  private mapRow(row: Record<string, any>): Task {
+  private mapRow(row: Record<string, unknown>): Task {
     return {
       ...row,
       requires_planning: row.requires_planning === 1,
       requires_approval: row.requires_approval === 1,
       fallback_used: row.fallback_used === 1,
       rollback_available: row.rollback_available === 1,
-      actions_planned: JSON.parse(row.actions_planned || '[]'),
-      actions_executed: JSON.parse(row.actions_executed || '[]'),
-      target_files: JSON.parse(row.target_files || '[]'),
-      artifacts: JSON.parse(row.artifacts || '[]'),
-      metadata: JSON.parse(row.metadata || '{}')
+      actions_planned: JSON.parse(String(row.actions_planned || '[]')),
+      actions_executed: JSON.parse(String(row.actions_executed || '[]')),
+      target_files: JSON.parse(String(row.target_files || '[]')),
+      artifacts: JSON.parse(String(row.artifacts || '[]')),
+      metadata: JSON.parse(String(row.metadata || '{}'))
     } as Task;
   }
 }

@@ -8,7 +8,7 @@ import { ZAVORTH_REMAINING_RUNTIME_DECISIONS_CONTRACT_VERSION } from '../contrac
 import { ChannelMeshConsistencyService } from './ChannelMeshConsistencyService.js';
 import { MemoryArtifactConsistencyService } from './MemoryArtifactConsistencyService.js';
 import { ReleaseCertificationService } from './ReleaseCertificationService.js';
-import { WebRemoteAppConsistencyService, SatelliteAppConsistencyService } from './WebRemoteAppConsistencyService.js';
+import { SatelliteAppConsistencyService } from './WebRemoteAppConsistencyService.js';
 
 type RemainingRuntimeDecisionsRuntime = {
   now?: () => Date;

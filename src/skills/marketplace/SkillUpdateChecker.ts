@@ -44,7 +44,7 @@ export class SkillUpdateChecker {
     return outdated;
   }
 
-  private checkRemoteVersion(sourceUrl: string, currentVersion: string): string | null {
+  private checkRemoteVersion(sourceUrl: string, _currentVersion: string): string | null {
     try {
       if (sourceUrl.includes('github.com')) {
         const match = sourceUrl.match(/github\.com\/([^/]+\/[^/]+)/);

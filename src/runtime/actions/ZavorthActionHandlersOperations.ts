@@ -6,6 +6,7 @@ import { TaskBoardPlaneService } from '../../services/TaskBoardPlaneService.js';
 import { ZavorthMnemosQueryService } from '../../services/ZavorthMnemosQueryService.js';
 import { ZavorthXaiRuntimeService } from '../../services/ZavorthXaiRuntimeService.js';
 import { type ZavorthActionHandlerInput, type ZavorthActionResult } from './ZavorthActionContracts.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 import { normalizeText, stateDir, redactSecrets, appendJsonArray, idWithTime, result, resolveHome, listJsonFiles, taskPlaneForRoot } from './ZavorthActionHandlersCore.js';
 export async function xaiHandler(input: ZavorthActionHandlerInput): Promise<ZavorthActionResult> {
@@ -274,10 +275,10 @@ export async function channelProgressHandler(input: ZavorthActionHandlerInput): 
 
   const event = {
     runId: normalizeText(input.args.runId || input.args.run_id || input.args.id || 'preview-run'),
-    channel: normalizeText(input.args.channel || 'telegram') as any,
+    channel: normalizeText(input.args.channel || 'telegram') as never,
     chatId: normalizeText(input.args.chatId || input.args.chat_id || 'preview-chat'),
     messageId: normalizeText(input.args.messageId || input.args.message_id) || null,
-    stage: normalizeText(input.args.stage || 'tool_progress') as any,
+    stage: normalizeText(input.args.stage || 'tool_progress') as never,
     title: normalizeText(input.args.title || input.args.query || 'Zavorth status update'),
     detail: normalizeText(input.args.detail || input.args.text || input.args.query || 'The run is making progress.'),
     toolName: normalizeText(input.args.toolName || input.args.tool_name) || null,

@@ -59,7 +59,7 @@ export async function POST(request, { params }) {
     }
   } catch (error: unknown) {
     logger.warn('[route] encoding failed', error);
-    return NextResponse.json({ error: (error as any).message }, { status: 500 });
+    return NextResponse.json({ error: (error as unknown as Record<string, unknown>).message }, { status: 500 });
   }
 }
 
@@ -76,7 +76,7 @@ async function saveContinueConfig({ baseUrl, apiKey, model }) {
   await fs.mkdir(configDir, { recursive: true });
 
   // Read existing config if any
-  let existingConfig: any = {};
+  let existingConfig: unknown = {};
   try {
     const raw = await fs.readFile(configPath, "utf-8");
     existingConfig = JSON.parse(raw);
@@ -159,7 +159,7 @@ async function saveOpenCodeConfig({ baseUrl, apiKey, model }) {
     .replace(/\/+$/, "");
 
   // Read existing JSON to preserve other provider entries
-  let existingConfig: Record<string, any> = {};
+  let existingConfig: Record<string, unknown> = {};
   try {
     const raw = await fs.readFile(configPath, "utf-8");
     existingConfig = JSON.parse(raw);

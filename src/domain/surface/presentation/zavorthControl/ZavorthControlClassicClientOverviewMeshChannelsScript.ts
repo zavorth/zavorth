@@ -78,6 +78,8 @@ interface MeshChannelActionResult {
 function zavorthControlClassicClientOverviewMeshChannels() {
   const channelActionReceipts: Record<string, MeshChannelReceipt | null> = {};
 
+  // Consumed at runtime via extractFunctionBody(); bound by channel action buttons.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function runChannelAction(channelId: string, actionId: string) {
     try {
       const response = await fetch('/api/operations/channels/actions', {

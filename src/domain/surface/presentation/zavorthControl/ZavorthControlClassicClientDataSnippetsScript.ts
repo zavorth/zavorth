@@ -47,6 +47,9 @@ function zavorthControlClassicClientDataSnippets() {
     document.querySelectorAll('.snippet-item').forEach((e) => e.classList.remove('active'));
   }
 
+  // Consumed at runtime via fn.toString() -> extractFunctionBody() string concatenation;
+  // renderSnippetList() injects onclick="selectSnippet(...)" handlers into HTML.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function selectSnippet(name: string) {
     const snip = currentSnippets.find((s) => s.name === name);
     if (!snip) return;
@@ -64,6 +67,8 @@ function zavorthControlClassicClientDataSnippets() {
     document.getElementById('snippet-btn-del')?.style.setProperty('display', 'block');
   }
 
+  // Consumed at runtime via fn.toString() -> extractFunctionBody() string concatenation (inside zavorthControlClassicClientDataSnippets).
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function saveSnippet() {
     const nameEl = document.getElementById('snippet-name') as HTMLInputElement | null;
     const contentEl = document.getElementById('snippet-content') as HTMLInputElement | null;
@@ -85,6 +90,8 @@ function zavorthControlClassicClientDataSnippets() {
     }
   }
 
+  // Consumed at runtime via fn.toString() -> extractFunctionBody() string concatenation (inside zavorthControlClassicClientDataSnippets).
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function deleteSnippet() {
     const nameEl = document.getElementById('snippet-name') as HTMLInputElement | null;
     const name = nameEl?.value || '';

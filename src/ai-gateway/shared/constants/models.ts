@@ -21,7 +21,7 @@ export {
 // Providers that accept any model (passthrough)
 const PASSTHROUGH_PROVIDERS = new Set(
   Object.entries(AI_PROVIDERS)
-    .filter(([, p]) => (p as any).passthroughModels)
+    .filter(([, p]) => (p as unknown as Record<string, unknown>).passthroughModels)
     .map(([key]) => key)
 );
 

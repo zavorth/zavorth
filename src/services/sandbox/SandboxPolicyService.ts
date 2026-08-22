@@ -1,31 +1,9 @@
 import type { ExecutionRequest } from '../../contracts/ExecutionContract.js';
 import type { SandboxLanguage, SandboxSecurityLevel } from './ISandboxRuntime.js';
 
-const TEST_COMMAND_PATTERNS = [
-  /\bnpm\s+test\b/i,
-  /\bpnpm\s+test\b/i,
-  /\byarn\s+test\b/i,
-  /\bpytest\b/i,
-  /\bgo\s+test\b/i,
-  /\bcargo\s+test\b/i,
-  /\bvitest\b/i,
-  /\bjest\b/i,
-];
 
-const CODE_CAPABLE_EXECUTION_PATTERNS = [
-  /\bnode(?:\.exe)?\b/i,
-  /\bnpm(?:\.cmd)?\b/i,
-  /\bnpx(?:\.cmd)?\b/i,
-  /\bpnpm(?:\.cmd)?\b/i,
-  /\byarn(?:\.cmd)?\b/i,
-  /\bjest\b/i,
-  /\bvitest\b/i,
-  /\btsc(?:\.cmd)?\b/i,
-  /\bpython(?:3)?(?:\.exe)?\b/i,
-  /\bpy(?:\.exe)?\b/i,
-  /\bpytest\b/i,
-  /\bpip(?:3)?\b/i,
-];
+
+
 
 const JAVASCRIPT_COMMAND_PATTERNS = [
   /\bnpm\b/i,

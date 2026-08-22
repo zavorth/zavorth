@@ -1,4 +1,4 @@
-import { AgentWorkspaceConfigService, AgentWorkspaceConfig } from './AgentWorkspaceConfigService.js';
+import { AgentWorkspaceConfigService } from './AgentWorkspaceConfigService.js';
 import { ProviderConfigService } from './ProviderConfigService.js';
 import { ProviderModelRegistry, type ProviderCapability } from './ProviderModelRegistry.js';
 

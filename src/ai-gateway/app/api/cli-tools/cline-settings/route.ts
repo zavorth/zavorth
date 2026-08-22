@@ -32,7 +32,7 @@ const readGlobalState = async () => {
 };
 
 // Check if ZavorthGateway is configured as OpenAI-compatible provider
-const hasZavorthGatewayConfig = (globalState: any) => {
+const hasZavorthGatewayConfig = (globalState: unknown) => {
   if (!globalState) return false;
   const isOpenAi =
     globalState.actModeApiProvider === "openai" || globalState.planModeApiProvider === "openai";
@@ -142,7 +142,7 @@ export async function POST(request: Request) {
     await createBackup("cline", SECRETS_PATH);
 
     // Read existing globalState or create new
-    let globalState: Record<string, any> = {};
+    let globalState: Record<string, unknown> = {};
     try {
       const existing = await fs.readFile(GLOBAL_STATE_PATH, "utf-8");
       globalState = JSON.parse(existing);
@@ -162,7 +162,7 @@ export async function POST(request: Request) {
     await fs.writeFile(GLOBAL_STATE_PATH, JSON.stringify(globalState, null, 2));
 
     // Write API key to secrets
-    let secrets: Record<string, any> = {};
+    let secrets: Record<string, unknown> = {};
     try {
       const existing = await fs.readFile(SECRETS_PATH, "utf-8");
       secrets = JSON.parse(existing);
@@ -203,7 +203,7 @@ export async function DELETE(request: Request) {
     await createBackup("cline", SECRETS_PATH);
 
     // Read existing state
-    let globalState: Record<string, any> = {};
+    let globalState: Record<string, unknown> = {};
     try {
       const existing = await fs.readFile(GLOBAL_STATE_PATH, "utf-8");
       globalState = JSON.parse(existing);
@@ -228,7 +228,7 @@ export async function DELETE(request: Request) {
     await fs.writeFile(GLOBAL_STATE_PATH, JSON.stringify(globalState, null, 2));
 
     // Remove API key from secrets
-    let secrets: Record<string, any> = {};
+    let secrets: Record<string, unknown> = {};
     try {
       const existing = await fs.readFile(SECRETS_PATH, "utf-8");
       secrets = JSON.parse(existing);

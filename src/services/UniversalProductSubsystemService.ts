@@ -1,5 +1,4 @@
 import {
-  UniversalCapabilitySubsystemService,
   UniversalCapabilityFabricService,
 } from './UniversalCapabilitySubsystemService.js';
 /**
@@ -26,12 +25,10 @@ import {
 
 import { UniversalWorkspaceImportService } from './UniversalWorkspaceImportService.js';
 import {
-  UniversalReachSubsystemService,
   UniversalReachFabricService,
 } from './UniversalReachSubsystemService.js';
 import { ChannelSynthesisService } from './reach/ChannelSynthesisService.js';
 import {
-  UniversalPowerSubsystemService,
   UniversalPowerFabricService,
 } from './UniversalPowerSubsystemService.js';
 import { TrustedOperatorModeService } from './power/TrustedOperatorModeService.js';
@@ -103,8 +100,8 @@ export class UniversalProductSubsystemService {
     this.reach = runtime.reach || new UniversalReachFabricService({
       projectRoot: this.projectRoot,
       nodeRegistry: { listNodes: () => [], getNode: () => null },
-      nodePairing: null as any,
-      nodeInvoke: null as any,
+      nodePairing: null as unknown as NonNullable<ConstructorParameters<typeof UniversalReachFabricService>[0]>['nodePairing'],
+      nodeInvoke: null as unknown as NonNullable<ConstructorParameters<typeof UniversalReachFabricService>[0]>['nodeInvoke'],
     });
     this.power = runtime.power || new UniversalPowerFabricService({ projectRoot: this.projectRoot });
   }
@@ -328,8 +325,8 @@ export class UniversalProductSubsystemService {
 
       // Reach inventory truth
       const reachSnap = this.reach.buildSnapshot({ includeSynthesisDrafts: false });
-      const anyTierBLive = reachSnap.channels.some((c: any) => c.tier === 'B' && c.liveReady);
-      const localLive = reachSnap.channels.some((c: any) => (c.id === 'cli' || c.id === 'web') && c.liveReady);
+      const anyTierBLive = reachSnap.channels.some((c) => c.tier === 'B' && c.liveReady);
+      const localLive = reachSnap.channels.some((c) => (c.id === 'cli' || c.id === 'web') && c.liveReady);
       checks.push(check(
         'reach-inventory-truth',
         'Reach inventory honesty',
@@ -353,7 +350,7 @@ export class UniversalProductSubsystemService {
 
       // Node capability taxonomy
       const caps = this.reach.listNodeCapabilities();
-      const families = new Set(caps.map((c: any) => c.family));
+      const families = new Set(caps.map((c) => c.family));
       checks.push(check(
         'node-capability-taxonomy',
         'Node capability taxonomy',
@@ -365,8 +362,8 @@ export class UniversalProductSubsystemService {
 
       // Power elastic backends
       const powerSnap = this.power.buildSnapshot();
-      const modal = powerSnap.backends.find((b: any) => b.id === 'modal');
-      const daytona = powerSnap.backends.find((b: any) => b.id === 'daytona');
+      const modal = powerSnap.backends.find((b) => b.id === 'modal');
+      const daytona = powerSnap.backends.find((b) => b.id === 'daytona');
       const elasticOk = Boolean(modal?.elastic && daytona?.elastic && modal.posture !== 'planned' && daytona.posture !== 'planned');
       checks.push(check(
         'power-backend-elastic',

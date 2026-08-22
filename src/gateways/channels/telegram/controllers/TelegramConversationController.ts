@@ -24,7 +24,6 @@ import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import type { AudioSynthesisOptions } from '../../../../gateways/channels/telegram/AudioHandler.js';
 import { TelegramConversationAutonomousService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationAutonomousService.js';
 import { TelegramConversationDecisionService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationDecisionService.js';
-import { classifyAutonomyIntent } from '../shared/intentClassifier.js';
 import { TelegramConversationContextService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationContextService.js';
 import { TelegramConversationDirectReplyService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationDirectReplyService.js';
 import { TelegramConversationStateService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationStateService.js';
@@ -43,7 +42,6 @@ import {
 type InlineData = Array<{ mimeType: string; data: string }>;
 type TelegramAgentGateway = Pick<ZavorthAgentGateway, 'handle'>;
 type TelegramExperienceCore = Pick<ExperienceCoreService, 'buildHome' | 'executeCommand'>;
-type TelegramReplyOptions = { reply_markup?: unknown; [key: string]: unknown };
 type TelegramConversationControllerRuntime = {
   agentGateway?: TelegramAgentGateway | null;
   experienceCoreService?: TelegramExperienceCore | null;

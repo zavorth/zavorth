@@ -1,7 +1,7 @@
 import { logger } from '../logger.js';
 import * as os from 'os';
 import { config } from '../config/index.js';
-import type { ChatMessage, ToolDefinition } from '../providers/ILlmProvider.js';
+import type { ChatMessage, ILlmProvider, ToolDefinition } from '../providers/ILlmProvider.js';
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { type WorkspaceTaskKind, type WorkspaceTaskSubtype } from '../services/WorkspaceTaskKind.js';
 import { resolveWorkspaceLlmStrategy, type WorkspaceLlmStrategy } from '../services/WorkspaceLlmProfile.js';
@@ -211,8 +211,8 @@ export class ConversationalAgent {
         const roleCfg = roleService.getConfig(roleScopeId);
         if (roleCfg.awaitingSetup || roleCfg.pendingConfirmation) {
           await roleService.refreshLiveCatalog(isUsable).catch(() => 0);
-          const setupLlm = {
-            chat: async (messages: Array<{ role: 'system' | 'user' | 'assistant' | 'tool'; content: string; inlineData?: InlineData; toolCalls?: unknown[]; toolCallId?: string; toolName?: string }>) => {
+          const setupLlm: Pick<ILlmProvider, 'chat'> = {
+            chat: async (messages) => {
               const result = await this.llmRuntime.chatDetailed(messages);
               return result.response;
             },

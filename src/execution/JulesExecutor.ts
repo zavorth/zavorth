@@ -22,6 +22,7 @@ export class JulesExecutor implements IExecutor {
   private readonly pollIntervalMs = 5000;
 
   private get apiKey(): string {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (config as any).julesApiKey || process.env.JULES_API_KEY || '';
   }
 
@@ -68,12 +69,18 @@ export class JulesExecutor implements IExecutor {
 
       // 2. Poll until completion.
       let pollCount = 0;
-      let sessionState: any = null;
       const maxSyncPollAttempts = this.resolveMaxSyncPollAttempts(request.timeout_seconds);
 
       while (pollCount < maxSyncPollAttempts) {
         await this.sleep(this.pollIntervalMs);
-        sessionState = await this.getSession(sessionId);
+        const sessionState = (await this.getSession(sessionId)) as {
+          state?: string;
+          status?: string;
+          summary?: string;
+          diffUrl?: string;
+          result?: { summary?: string; diffUrl?: string };
+          error?: { message?: string };
+        };
         const state = sessionState.state || sessionState.status || '';
 
         if (state === 'COMPLETED' || state === 'SUCCEEDED') {
@@ -133,11 +140,14 @@ export class JulesExecutor implements IExecutor {
     }
   }
 
-  public async inspectSession(sessionId: string): Promise<any> {
+  public async inspectSession(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sessionId: string): Promise<any> {
     return this.getSession(sessionId);
   }
 
-  private async createSession(prompt: string, repoSource: string): Promise<any> {
+  private async createSession(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    prompt: string, repoSource: string): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body: any = {
       prompt,
       requirePlanApproval: true,
@@ -168,7 +178,8 @@ export class JulesExecutor implements IExecutor {
     return res.json();
   }
 
-  private async getSession(sessionId: string): Promise<any> {
+  private async getSession(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sessionId: string): Promise<any> {
     const res = await safeFetch(`${this.baseUrl}/${sessionId}`, {
       headers: { 'X-Goog-Api-Key': this.apiKey },
     }, {

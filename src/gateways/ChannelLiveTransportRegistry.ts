@@ -86,50 +86,50 @@ export class ChannelLiveTransportRegistry {
       case 'email':
         return planEmail(id, message, target, cfg);
       case 'imessage':
-        return planBridge(id, message, target, trimUrl((cfg as any).imessageBridgeUrl), 'iMessage');
+        return planBridge(id, message, target, trimUrl(cfg.imessageBridgeUrl), 'iMessage');
       case 'google-chat':
-        return planWebhook(id, message, trimUrl((cfg as any).googleChatWebhookUrl), { text: message }, 'GOOGLE_CHAT_WEBHOOK_URL');
+        return planWebhook(id, message, trimUrl(cfg.googleChatWebhookUrl), { text: message }, 'GOOGLE_CHAT_WEBHOOK_URL');
       case 'feishu':
-        return planWebhook(id, message, trimUrl((cfg as any).feishuWebhookUrl), { msg_type: 'text', content: { text: message } }, 'FEISHU_WEBHOOK_URL');
+        return planWebhook(id, message, trimUrl(cfg.feishuWebhookUrl), { msg_type: 'text', content: { text: message } }, 'FEISHU_WEBHOOK_URL');
       case 'wecom':
-        return planWebhook(id, message, trimUrl((cfg as any).wecomWebhookUrl), { msgtype: 'text', text: { content: message } }, 'WECOM_WEBHOOK_URL');
+        return planWebhook(id, message, trimUrl(cfg.wecomWebhookUrl), { msgtype: 'text', text: { content: message } }, 'WECOM_WEBHOOK_URL');
       case 'home-assistant':
-        return planWebhook(id, message, trimUrl((cfg as any).homeAssistantWebhookUrl), { text: message }, 'HOME_ASSISTANT_WEBHOOK_URL');
+        return planWebhook(id, message, trimUrl(cfg.homeAssistantWebhookUrl), { text: message }, 'HOME_ASSISTANT_WEBHOOK_URL');
       case 'nextcloud-talk':
-        return planWebhook(id, message, trimUrl((cfg as any).nextcloudTalkWebhookUrl), { text: message }, 'NEXTCLOUD_TALK_WEBHOOK_URL');
+        return planWebhook(id, message, trimUrl(cfg.nextcloudTalkWebhookUrl), { text: message }, 'NEXTCLOUD_TALK_WEBHOOK_URL');
       case 'mattermost':
-        return planWebhook(id, message, trimUrl((cfg as any).mattermostWebhookUrl), { text: message }, 'MATTERMOST_WEBHOOK_URL');
+        return planWebhook(id, message, trimUrl(cfg.mattermostWebhookUrl), { text: message }, 'MATTERMOST_WEBHOOK_URL');
       case 'synology-chat':
-        return planWebhook(id, message, trimUrl((cfg as any).synologyChatWebhookUrl), { text: message }, 'SYNOLOGY_CHAT_WEBHOOK_URL');
+        return planWebhook(id, message, trimUrl(cfg.synologyChatWebhookUrl), { text: message }, 'SYNOLOGY_CHAT_WEBHOOK_URL');
       case 'clickclack':
-        return planWebhook(id, message, trimUrl((cfg as any).clickclackWebhookUrl), { text: message }, 'CLICKCLACK_WEBHOOK_URL');
+        return planWebhook(id, message, trimUrl(cfg.clickclackWebhookUrl), { text: message }, 'CLICKCLACK_WEBHOOK_URL');
       case 'qq':
-        return planEndpoint(id, message, target, trimUrl((cfg as any).qqSendUrl || (cfg as any).qqBotWebhookUrl), '', 'QQ_SEND_URL');
+        return planEndpoint(id, message, target, trimUrl(cfg.qqSendUrl || cfg.qqBotWebhookUrl), '', 'QQ_SEND_URL');
       case 'zalo':
-        return planEndpoint(id, message, target, trimUrl((cfg as any).zaloSendUrl), String((cfg as any).zaloAccessToken || ''), 'ZALO_SEND_URL+ZALO_ACCESS_TOKEN');
+        return planEndpoint(id, message, target, trimUrl(cfg.zaloSendUrl), String(cfg.zaloAccessToken || ''), 'ZALO_SEND_URL+ZALO_ACCESS_TOKEN');
       case 'sms':
         return planEndpoint(
           id,
           message,
           target,
-          trimUrl((cfg as any).smsSendUrl || (cfg as any).smsApiBaseUrl),
-          String((cfg as any).smsProviderToken || ''),
+          trimUrl(cfg.smsSendUrl || cfg.smsApiBaseUrl),
+          String(cfg.smsProviderToken || ''),
           'SMS_SEND_URL+SMS_PROVIDER_TOKEN',
         );
       case 'irc':
-        return planBridge(id, message, target, trimUrl((cfg as any).ircBridgeUrl || (cfg as any).ircWebhookUrl), 'IRC');
+        return planBridge(id, message, target, trimUrl(cfg.ircBridgeUrl || cfg.ircWebhookUrl), 'IRC');
       case 'weixin':
-        return planBridge(id, message, target, trimUrl((cfg as any).weixinBridgeUrl), 'Weixin');
+        return planBridge(id, message, target, trimUrl(cfg.weixinBridgeUrl), 'Weixin');
       case 'yuanbao':
-        return planBridge(id, message, target, trimUrl((cfg as any).yuanbaoBridgeUrl), 'Yuanbao');
+        return planBridge(id, message, target, trimUrl(cfg.yuanbaoBridgeUrl), 'Yuanbao');
       case 'voice-call':
-        return planBridge(id, message, target, trimUrl((cfg as any).voiceCallBridgeUrl), 'Voice Call');
+        return planBridge(id, message, target, trimUrl(cfg.voiceCallBridgeUrl), 'Voice Call');
       case 'google-meet':
-        return planBridge(id, message, target, trimUrl((cfg as any).googleMeetBridgeUrl), 'Google Meet');
+        return planBridge(id, message, target, trimUrl(cfg.googleMeetBridgeUrl), 'Google Meet');
       case 'twitch':
-        return planBridge(id, message, target, trimUrl((cfg as any).twitchBridgeUrl || (cfg as any).twitchWebhookUrl), 'Twitch');
+        return planBridge(id, message, target, trimUrl(cfg.twitchBridgeUrl || cfg.twitchWebhookUrl), 'Twitch');
       case 'nostr':
-        return planBridge(id, message, target, trimUrl((cfg as any).nostrBridgeUrl), 'Nostr');
+        return planBridge(id, message, target, trimUrl(cfg.nostrBridgeUrl), 'Nostr');
       default:
         return planFutureChannel(id, message, target, cfg);
     }
@@ -161,9 +161,9 @@ function unavailable(channelId: string, kind: ChannelLiveTransportKind, reason: 
 }
 
 function planMatrix(id: string, message: string, target: string, cfg: typeof config): ChannelLiveTransportPlan {
-  const room = target || String((cfg as any).matrixDefaultRoomId || '').trim();
-  const baseUrl = trimUrl((cfg as any).matrixBaseUrl);
-  const token = String((cfg as any).matrixAccessToken || '').trim();
+  const room = target || String(cfg.matrixDefaultRoomId || '').trim();
+  const baseUrl = trimUrl(cfg.matrixBaseUrl);
+  const token = String(cfg.matrixAccessToken || '').trim();
   if (!room || !baseUrl || !token) {
     return unavailable(id, 'matrix-cs-api', 'Matrix requires MATRIX_BASE_URL, MATRIX_ACCESS_TOKEN and a room id.');
   }
@@ -178,8 +178,8 @@ function planMatrix(id: string, message: string, target: string, cfg: typeof con
 }
 
 function planLine(id: string, message: string, target: string, cfg: typeof config): ChannelLiveTransportPlan {
-  const to = target || String((cfg as any).lineDefaultTargetId || '').trim();
-  const token = String((cfg as any).lineChannelAccessToken || '').trim();
+  const to = target || String(cfg.lineDefaultTargetId || '').trim();
+  const token = String(cfg.lineChannelAccessToken || '').trim();
   if (!to || !token) return unavailable(id, 'line-push', 'LINE requires LINE_CHANNEL_ACCESS_TOKEN and a target id.');
   return {
     ...base(id, 'line-push'),
@@ -192,8 +192,8 @@ function planLine(id: string, message: string, target: string, cfg: typeof confi
 }
 
 function planTelegram(id: string, message: string, target: string, cfg: typeof config): ChannelLiveTransportPlan {
-  const token = String((cfg as any).telegramBotToken || '').trim();
-  const chatId = target || String((cfg as any).telegramDefaultChatId || '').trim();
+  const token = String(cfg.telegramBotToken || '').trim();
+  const chatId = target || String(cfg.telegramDefaultChatId || '').trim();
   if (!token || !chatId) return unavailable(id, 'telegram-bot-api', 'Telegram requires TELEGRAM_BOT_TOKEN and chat id.');
   return {
     ...base(id, 'telegram-bot-api'),
@@ -206,8 +206,8 @@ function planTelegram(id: string, message: string, target: string, cfg: typeof c
 }
 
 function planDiscord(id: string, message: string, target: string, cfg: typeof config): ChannelLiveTransportPlan {
-  const botToken = String((cfg as any).discordBotToken || '').trim();
-  const channelId = target || firstList((cfg as any).discordAllowedChannelIds);
+  const botToken = String(cfg.discordBotToken || '').trim();
+  const channelId = target || firstList(cfg.discordAllowedChannelIds);
   if (botToken && channelId) {
     return {
       ...base(id, 'discord-bot-api'),
@@ -218,7 +218,7 @@ function planDiscord(id: string, message: string, target: string, cfg: typeof co
       reasonIfUnavailable: null,
     };
   }
-  const webhook = trimUrl((cfg as any).discordWebhookUrl);
+  const webhook = trimUrl(cfg.discordWebhookUrl);
   if (webhook) {
     return {
       ...base(id, 'discord-webhook'),
@@ -233,9 +233,9 @@ function planDiscord(id: string, message: string, target: string, cfg: typeof co
 }
 
 function planSlack(id: string, message: string, target: string, cfg: typeof config): ChannelLiveTransportPlan {
-  const botToken = String((cfg as any).slackBotToken || '').trim();
-  const channel = target || firstList((cfg as any).slackAllowedChannelIds);
-  const apiBase = trimUrl((cfg as any).slackApiBaseUrl || 'https://slack.com/api') || 'https://slack.com/api';
+  const botToken = String(cfg.slackBotToken || '').trim();
+  const channel = target || firstList(cfg.slackAllowedChannelIds);
+  const apiBase = trimUrl(cfg.slackApiBaseUrl || 'https://slack.com/api') || 'https://slack.com/api';
   if (botToken && channel) {
     return {
       ...base(id, 'slack-web-api'),
@@ -246,7 +246,7 @@ function planSlack(id: string, message: string, target: string, cfg: typeof conf
       reasonIfUnavailable: null,
     };
   }
-  const webhook = trimUrl((cfg as any).slackWebhookUrl);
+  const webhook = trimUrl(cfg.slackWebhookUrl);
   if (webhook) {
     return {
       ...base(id, 'slack-webhook'),
@@ -261,10 +261,10 @@ function planSlack(id: string, message: string, target: string, cfg: typeof conf
 }
 
 function planWhatsApp(id: string, message: string, target: string, cfg: typeof config): ChannelLiveTransportPlan {
-  const accessToken = String((cfg as any).whatsappAccessToken || (cfg as any).whatsappBotToken || '').trim();
-  const phoneNumberId = String((cfg as any).whatsappPhoneNumberId || '').trim();
-  const version = String((cfg as any).whatsappCloudApiVersion || 'v20.0').trim() || 'v20.0';
-  const to = target || firstList((cfg as any).whatsappAllowedChatIds);
+  const accessToken = String(cfg.whatsappAccessToken || cfg.whatsappBotToken || '').trim();
+  const phoneNumberId = String(cfg.whatsappPhoneNumberId || '').trim();
+  const version = String(cfg.whatsappCloudApiVersion || 'v20.0').trim() || 'v20.0';
+  const to = target || firstList(cfg.whatsappAllowedChatIds);
   if (accessToken && phoneNumberId && to) {
     return {
       ...base(id, 'whatsapp-cloud-api'),
@@ -280,7 +280,7 @@ function planWhatsApp(id: string, message: string, target: string, cfg: typeof c
       reasonIfUnavailable: null,
     };
   }
-  const bridge = trimUrl((cfg as any).whatsappBridgeUrl || (cfg as any).whatsappWebhookUrl);
+  const bridge = trimUrl(cfg.whatsappBridgeUrl || cfg.whatsappWebhookUrl);
   if (bridge) {
     return {
       ...base(id, 'whatsapp-bridge'),
@@ -295,9 +295,9 @@ function planWhatsApp(id: string, message: string, target: string, cfg: typeof c
 }
 
 function planSignal(id: string, message: string, target: string, cfg: typeof config): ChannelLiveTransportPlan {
-  const rpc = trimUrl((cfg as any).signalJsonRpcUrl);
-  const account = String((cfg as any).signalAccountNumber || '').trim();
-  const recipient = target || firstList((cfg as any).signalAllowedRecipients);
+  const rpc = trimUrl(cfg.signalJsonRpcUrl);
+  const account = String(cfg.signalAccountNumber || '').trim();
+  const recipient = target || firstList(cfg.signalAllowedRecipients);
   if (rpc && recipient) {
     return {
       ...base(id, 'signal-jsonrpc'),
@@ -321,7 +321,7 @@ function planSignal(id: string, message: string, target: string, cfg: typeof con
 }
 
 function planTeams(id: string, message: string, _target: string, cfg: typeof config): ChannelLiveTransportPlan {
-  const webhook = trimUrl((cfg as any).teamsWebhookUrl);
+  const webhook = trimUrl(cfg.teamsWebhookUrl);
   if (!webhook) return unavailable(id, 'teams-webhook', 'Teams requires TEAMS_WEBHOOK_URL.');
   return {
     ...base(id, 'teams-webhook'),
@@ -345,10 +345,10 @@ function planTeams(id: string, message: string, _target: string, cfg: typeof con
 }
 
 function planInstagram(id: string, message: string, target: string, cfg: typeof config): ChannelLiveTransportPlan {
-  const token = String((cfg as any).instagramAccessToken || '').trim();
-  const accountId = String((cfg as any).instagramBusinessAccountId || '').trim();
-  const version = String((cfg as any).instagramGraphApiVersion || 'v20.0').trim() || 'v20.0';
-  const recipient = target || firstList((cfg as any).instagramAllowedRecipientIds);
+  const token = String(cfg.instagramAccessToken || '').trim();
+  const accountId = String(cfg.instagramBusinessAccountId || '').trim();
+  const version = String(cfg.instagramGraphApiVersion || 'v20.0').trim() || 'v20.0';
+  const recipient = target || firstList(cfg.instagramAllowedRecipientIds);
   if (token && accountId && recipient) {
     return {
       ...base(id, 'instagram-graph'),
@@ -362,13 +362,13 @@ function planInstagram(id: string, message: string, target: string, cfg: typeof 
       reasonIfUnavailable: null,
     };
   }
-  const webhook = trimUrl((cfg as any).instagramWebhookUrl);
+  const webhook = trimUrl(cfg.instagramWebhookUrl);
   if (webhook) return planWebhook(id, message, webhook, { text: message }, 'INSTAGRAM_WEBHOOK_URL');
   return unavailable(id, 'instagram-graph', 'Instagram requires Graph credentials or INSTAGRAM_WEBHOOK_URL.');
 }
 
 function planEmail(id: string, message: string, target: string, cfg: typeof config): ChannelLiveTransportPlan {
-  const host = String((cfg as any).emailSmtpHost || '').trim();
+  const host = String(cfg.emailSmtpHost || '').trim();
   if (!host) return unavailable(id, 'email-smtp-bridge', 'Email requires EMAIL_SMTP_HOST (outbound via local mail bridge/outbox).');
   // Email live path is outbox/bridge oriented; mark densified with synthetic bridge URL for host-local senders.
   return {
@@ -377,12 +377,12 @@ function planEmail(id: string, message: string, target: string, cfg: typeof conf
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: {
-      to: target || firstList((cfg as any).emailAllowedRecipients) || null,
+      to: target || firstList(cfg.emailAllowedRecipients) || null,
       subject: 'Zavorth',
       text: message,
       smtpHost: host,
-      smtpPort: Number((cfg as any).emailSmtpPort || 587),
-      smtpUser: String((cfg as any).emailSmtpUser || '').trim() || null,
+      smtpPort: Number(cfg.emailSmtpPort || 587),
+      smtpUser: String(cfg.emailSmtpUser || '').trim() || null,
     },
     reasonIfUnavailable: null,
   };

@@ -158,7 +158,7 @@ export function sanitizePIIChunk(chunk: string): string {
 /**
  * Sanitize PII in a full response object (OpenAI-compatible format).
  */
-export function sanitizePIIResponse(response: any): any {
+export function sanitizePIIResponse(response: unknown): unknown {
   if (!isEnabled() || !response) return response;
 
   try {
@@ -173,7 +173,7 @@ export function sanitizePIIResponse(response: any): any {
         choice.delta.content = result.text;
       }
     }
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+  } catch (error: unknown) { asErrorLike(error); 
       // Fail open — don't break the response
       logger.warn('[pii Sanitizer] operation failed', error);
     }

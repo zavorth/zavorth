@@ -96,6 +96,7 @@ export function buildOverviewCard(input: {
 }
 
 export function normalizeOverviewAction(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   input: Record<string, any>,
   source: string,
 ): ControlPlaneOverviewAction | null {
@@ -115,7 +116,8 @@ export function normalizeOverviewAction(
 }
 
 export function collectOverviewActions(
-  groups: Array<{ source: string; actions: any[] | null | undefined }>,
+  groups: Array<{ source: string; // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    actions: any[] | null | undefined }>,
   limit = 8,
 ): ControlPlaneOverviewAction[] {
   const deduped = new Map<string, ControlPlaneOverviewAction>();

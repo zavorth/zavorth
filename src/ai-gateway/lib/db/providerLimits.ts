@@ -1,5 +1,6 @@
 import { getDbInstance, isBuildPhase, isCloud } from "./core";
-import { logger } from '@/shared/utils/logger';type JsonRecord = Record<string, unknown>;
+import { logger } from '@/shared/utils/logger';
+type JsonRecord = Record<string, unknown>;
 
 interface StatementLike<TRow = unknown> {
   all: (...params: unknown[]) => TRow[];
@@ -9,7 +10,7 @@ interface StatementLike<TRow = unknown> {
 
 interface DbLike {
   prepare: <TRow = unknown>(sql: string) => StatementLike<TRow>;
-  transaction: <T extends (...args: any[]) => unknown>(fn: T) => T;
+  transaction: <T extends (...args: unknown[]) => unknown>(fn: T) => T;
 }
 
 interface KeyValueRow {

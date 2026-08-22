@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { ZavorthPlatformRegistryService } from './ZavorthPlatformRegistryService.js';
+import type { ZavorthPlatformRegistryRecipe } from './ZavorthPlatformRegistryService.js';
 import { logger } from '../logger.js';
 
 type EcosystemRuntime = {
@@ -86,6 +87,7 @@ export type ZavorthEcosystemControlPlaneSnapshot = {
     command: string | null;
   }>;
   sourceSnapshots: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     platform: any;
   };
   narrative: {
@@ -142,10 +144,10 @@ export class ZavorthEcosystemControlPlaneService {
     const examples = this.readExamples();
     const publishArtifacts = this.readPublishArtifacts();
     const recipeCoverageReady = Array.isArray(platform?.recipes)
-      ? platform.recipes.filter((entry: any) => Number(entry?.missingCount || 0) === 0).length
+      ? platform.recipes.filter((entry: ZavorthPlatformRegistryRecipe) => Number(entry?.missingCount || 0) === 0).length
       : 0;
     const recipeCoverageMissing = Array.isArray(platform?.recipes)
-      ? platform.recipes.reduce((sum: number, entry: any) => sum + (Number(entry?.missingCount || 0) || 0), 0)
+      ? platform.recipes.reduce((sum: number, entry: ZavorthPlatformRegistryRecipe) => sum + (Number(entry?.missingCount || 0) || 0), 0)
       : 0;
     const cards = this.buildCards({
       platform,
@@ -256,6 +258,7 @@ export class ZavorthEcosystemControlPlaneService {
   }
 
   private buildCards(input: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     platform: any;
     sdkSummary: FileReadinessSummary;
     guides: ZavorthEcosystemGuide[];
@@ -336,6 +339,7 @@ export class ZavorthEcosystemControlPlaneService {
   }
 
   private buildActions(input: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     platform: any;
     sdkSummary: FileReadinessSummary;
     guides: ZavorthEcosystemGuide[];
@@ -500,6 +504,7 @@ export class ZavorthEcosystemControlPlaneService {
   private readPublishArtifact(filePath: string): ZavorthEcosystemPublishArtifact | null {
     try {
       const raw = String(this.readFileSync(filePath, 'utf8') || '');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const parsed = JSON.parse(raw) as Record<string, any>;
       const warnings = Array.isArray(parsed?.validation?.warnings)
         ? parsed.validation.warnings.length

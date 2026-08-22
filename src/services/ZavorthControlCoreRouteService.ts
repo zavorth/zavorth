@@ -65,8 +65,10 @@ type NodeMeshLike = {
 };
 
 type NodeHeartbeatLike = {
-  claimPairing: (input: Record<string, unknown>) => unknown;
-  receiveHeartbeat: (input: Record<string, unknown>) => unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  claimPairing: (input: any) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  receiveHeartbeat: (input: any) => any;
 };
 
 type A2UISurfaceSnapshot = {

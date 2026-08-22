@@ -212,7 +212,7 @@ export class YtDlpFallback {
       for (const event of events) {
         const segs = Array.isArray(event?.segs) ? event.segs : [];
         const text = segs
-          .map((segment: any) => String(segment?.utf8 || ''))
+          .map((segment: { utf8?: string }) => String(segment?.utf8 || ''))
           .join('')
           .replace(/\s+/g, ' ')
           .trim();

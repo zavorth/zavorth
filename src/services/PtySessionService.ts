@@ -5,7 +5,6 @@ import { SecurityAuditLogger } from './SecurityAuditLogger';
 import { WorkspaceTaskMandateService } from './WorkspaceTaskMandateService';
 import { LogRepository } from '../storage/LogRepository.js';
 import fs from 'fs';
-import path from 'path';
 import { platform } from 'os';
 
 interface IPtyProcess {

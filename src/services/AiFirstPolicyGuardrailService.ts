@@ -2,7 +2,6 @@ import type {
   AiFirstRoutePlan,
   AiFirstRoutePlanNormalizationResult,
   AiFirstRoutePlanRisk,
-  AiFirstRoutePlanSideEffect,
 } from '../contracts/AiFirstRoutePlanContract.js';
 import {
   AI_FIRST_POLICY_GUARDRAIL_CONTRACT_VERSION,

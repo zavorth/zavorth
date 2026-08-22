@@ -1,6 +1,5 @@
 import path from 'node:path';
 import type { McpToolPolicyDocument } from '../mcp/McpToolPolicy.js';
-import type { TrustedWorkspacePolicy } from '../contracts/ExecutionEngineContract.js';
 import type { ZavorthRuntimeStateBusActionInput } from '../contracts/ZavorthRuntimeStateBusContract.js';
 import { ZavorthRuntimeStateBusService } from './ZavorthRuntimeStateBusService.js';
 import { ZavorthProviderModelCatalogService } from './ZavorthProviderModelCatalogService.js';

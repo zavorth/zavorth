@@ -6,9 +6,9 @@ export function jsonError(error: string, status: number) {
 }
 
 export function createModelsResponseBuilder(provider: string, excludeHidden: boolean) {
-  return (payload: any, statusConfig?: ResponseInit) => {
+  return (payload: unknown, statusConfig?: ResponseInit) => {
     if (excludeHidden && payload.models && Array.isArray(payload.models)) {
-      payload.models = payload.models.filter((model: any) => !getModelIsHidden(provider, model.id));
+      payload.models = payload.models.filter((model: unknown) => !getModelIsHidden(provider, model.id));
     }
     return NextResponse.json(payload, statusConfig);
   };

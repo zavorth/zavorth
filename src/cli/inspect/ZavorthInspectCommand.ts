@@ -2,7 +2,14 @@ import { ZavorthInspectService, type ZavorthInspectRuntimeOverlay, type ZavorthI
 import type { CliExecutionResult, CliWriter, ZavorthCliFlags, ZavorthCliRuntime } from '../ZavorthCliContract.js';
 import { renderCliScreen, type CliVisualPanel } from '../ZavorthCliVisualSystem.js';
 import { paintCliTone } from '../ZavorthCliVisualTheme.js';
-import { logger } from '../../logger.js';export async function handleZavorthInspectCommand(input: {
+import { logger } from '../../logger.js';
+
+type GatewayRunShape = {
+  approvals?: Array<{ id?: string; status?: string }>;
+  receipts?: Array<{ id?: string } | string>;
+};
+
+export async function handleZavorthInspectCommand(input: {
   commandName: string | null;
   args: string;
   flags: ZavorthCliFlags;
@@ -39,15 +46,15 @@ async function buildRuntimeOverlay(resolveRuntime?: () => Promise<ZavorthCliRunt
   }
   try {
     const runtime = await resolveRuntime();
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot?.({ runLimit: 20 } as any) as any;
-    const runs = Array.isArray(gatewaySnapshot?.runs) ? gatewaySnapshot.runs : [];
+    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot?.({ runLimit: 20 });
+    const runs: GatewayRunShape[] = Array.isArray(gatewaySnapshot?.runs) ? gatewaySnapshot.runs : [];
     const pendingApprovals = runs
-      .flatMap((run: any) => Array.isArray(run?.approvals) ? run.approvals : [])
-      .filter((approval: any) => String(approval?.status || 'pending') === 'pending')
-      .map((approval: any) => ({ id: String(approval?.id || ''), status: String(approval?.status || 'pending') }));
+      .flatMap((run) => Array.isArray(run.approvals) ? run.approvals : [])
+      .filter((approval) => String(approval?.status || 'pending') === 'pending')
+      .map((approval) => ({ id: String(approval?.id || ''), status: String(approval?.status || 'pending') }));
     const receiptIds = runs
-      .flatMap((run: any) => Array.isArray(run?.receipts) ? run.receipts : [])
-      .map((receipt: any) => String(receipt?.id || receipt || ''))
+      .flatMap((run) => Array.isArray(run.receipts) ? run.receipts : [])
+      .map((receipt) => String(typeof receipt === 'object' ? receipt?.id : receipt || ''))
       .filter(Boolean);
     return { pendingApprovals, receiptIds };
   } catch (error: unknown) {logger.warn('[Zavorth Inspect Command] filesystem check failed', error); return null; }

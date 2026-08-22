@@ -289,9 +289,6 @@ export class IntentSafetyClassifier {
       /\bedit\s+src\//i,
       /\bpatch\b.*\b(file|workspace|reversible)\b/i,
       /\b(file|workspace)\b.*\bpatch\b/i,
-      /\baplique\s+(um\s+)?patch\b/i,
-      /\borganize\s+(minha\s+)?(pasta|downloads)\b/i,
-      /\b(edite|modifique|altere)\b.*\b(src\/|arquivo)\b/i,
     ];
     return mutationPatterns.some((pattern) => pattern.test(text));
   }

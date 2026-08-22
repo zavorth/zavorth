@@ -58,7 +58,7 @@ export class HostCommandRunTool extends BaseTool {
     payloadCache = HostCommandPayloadCache.getInstance()
   ) {
     super();
-    this.db = db || (Database as any).instance || null;
+    this.db = db || (Database as any).instance || null; // eslint-disable-line @typescript-eslint/no-explicit-any
     this.approvalService = approvalService;
     this.runnerService = runnerService;
     this.payloadCache = payloadCache;

@@ -43,7 +43,7 @@ export async function PUT(request: Request) {
   const preference = service.set({
     mode,
     stt: {
-      ...(sttBody.provider != null ? { provider: String(sttBody.provider) as any } : {}),
+      ...(sttBody.provider != null ? { provider: String(sttBody.provider) as never } : {}),
       ...(sttBody.model !== undefined
         ? { model: sttBody.model == null ? null : String(sttBody.model) }
         : {}),
@@ -51,7 +51,7 @@ export async function PUT(request: Request) {
     },
     tts: {
       ...(typeof ttsBody.enabled === "boolean" ? { enabled: ttsBody.enabled } : {}),
-      ...(ttsBody.provider != null ? { provider: String(ttsBody.provider) as any } : {}),
+      ...(ttsBody.provider != null ? { provider: String(ttsBody.provider) as never } : {}),
       ...(ttsBody.voiceId !== undefined
         ? { voiceId: ttsBody.voiceId == null ? null : String(ttsBody.voiceId) }
         : {}),

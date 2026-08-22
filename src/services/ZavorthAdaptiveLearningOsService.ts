@@ -54,16 +54,9 @@ type IngestObservationInput = {
   commitGreenMemory?: boolean;
 };
 
-const SENSITIVE_USER_MODEL_PATTERNS: RegExp[] = [
-  /\b(depressed|depression|trauma|traumatized|psychological|psychiatric|fragile|vulnerable)\b/i,
-  /\b(anxiety|anxious|bipolar|adhd|autism|ptsd|suicid|mental\s+health)\b/i,
-  /\b(diagnos(?:is|e)|personality\s+disorder|clinical)\b/i,
-  /\b(depression|anxiete|anxieux|traumatise|psychologique|psychiatrique|fragile|vulnerable|suicidaire|sante\s+mentale)\b/i,
-  /\b(depressiv|depression|angst|traumatisiert|psychologisch|psychiatrisch|suizid|psychische\s+gesundheit)\b/i,
-  /\b(depresso|depressione|ansia|ansioso|traumatizzato|psicologico|psichiatrico|suicida|salute\s+mentale)\b/i,
-];
 
-const SECURITY_POLICY_PATTERNS: RegExp[] = [];
+
+
 
 const SKILL_SIGNAL_PATTERNS: RegExp[] = [
   /\b(after successful runs|repeat(?:ed|able)? workflow|workflow|github|pull request|\bpr\b|changed files|test gaps|summari[sz]e)\b/i,

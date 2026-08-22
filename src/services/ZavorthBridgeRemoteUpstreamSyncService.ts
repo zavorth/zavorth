@@ -166,7 +166,7 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
         ...this.buildMetadata(),
       });
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       logger.warn('[Zavorth Bridge Remote Upstream] creation failed', error);
     return this.persist({
         ok: false,

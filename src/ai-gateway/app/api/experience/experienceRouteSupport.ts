@@ -41,7 +41,7 @@ const ALLOWED_METADATA_KEYS = new Set([
   'responseProfile',
 ]);
 
-const ROUTE_OWNED_KEYS = new Set(['source', 'requestedBy', 'responseProfile']);
+new Set(['source', 'requestedBy', 'responseProfile']);
 
 export function buildExperienceCommand(input: ExperienceCommandInput): ExperienceCommand {
   const text = String(input.text || '').trim();

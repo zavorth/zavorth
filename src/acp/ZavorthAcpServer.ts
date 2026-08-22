@@ -127,7 +127,7 @@ export class ZavorthAcpServer {
   stop(): void {
     this.listening = false;
     this.status = 'stopped';
-    for (const [id, session] of this.sessions) {
+    for (const [_id, session] of this.sessions) {
       if (session.status === 'active') {
         session.status = 'completed';
         session.endedAt = this.now();
@@ -219,7 +219,7 @@ export class ZavorthAcpServer {
         !('method' in msg)
       ) {
         const responseMsg = msg as AcpJsonRpcResponse;
-        if (this.pendingRequests.has(responseMsg.id)) {
+        if (responseMsg.id !== null && this.pendingRequests.has(responseMsg.id)) {
           const pending = this.pendingRequests.get(responseMsg.id)!;
           this.pendingRequests.delete(responseMsg.id);
           if (responseMsg.error) {

@@ -8,7 +8,7 @@ import type {
 } from '../contracts/ChannelLiveActivationContract.js';
 import { ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION } from '../contracts/ChannelLiveActivationContract.js';
 
-import type { LiveReadinessEntry, LiveReadinessStatus } from '../contracts/LiveReadinessContract.js';
+import type { LiveReadinessEntry } from '../contracts/LiveReadinessContract.js';
 import { channelIdsEqual, normalizeChannelId } from '../channels/normalizeChannelId.js';
 import { LiveReadinessService } from './LiveReadinessService.js';
 

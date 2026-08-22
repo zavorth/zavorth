@@ -17,7 +17,7 @@ export class TelegramTaskWorkflowRouteOutcomeService {
     route: RouteIntent,
     advice: WorkspaceRoutingAdvice,
     learnedRoute: TelegramWorkspaceLearnedRouteLike,
-  ): Record<string, any> {
+  ): Record<string, unknown> {
     const metadata = task.metadata || {};
     const selectedExecutor = String(
       metadata.auto_route_executor

@@ -172,8 +172,8 @@ export class TelegramMediaController {
         transcriptionResult = await this.transcribeVoice(filePath, durationSeconds);
         transcript = transcriptionResult.text;
       } catch (transcriptionError: unknown) {
-        const err = asErrorLike(transcriptionError);
-        const error = err;
+        asErrorLike(transcriptionError);
+        
         const message = getErrorMessage(transcriptionError);
         transcriptWarning = message
           ? t('media.transcription_unavailable_detail', { error: message })
@@ -661,7 +661,7 @@ export class TelegramMediaController {
   }
 
   private resolveMediaDurationSeconds(file: unknown): number | null {
-    const duration = Number((file as any)?.duration);
+    const duration = Number((file as unknown as Record<string, unknown>)?.duration);
     return Number.isFinite(duration) && duration > 0 ? duration : null;
   }
 

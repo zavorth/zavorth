@@ -1,6 +1,5 @@
 import type {
   ExecutionIntentClassifierService,
-  ExecutionIntentClassification,
 } from '../ExecutionIntentClassifierService.js';
 import type { ProviderStrategyDecision, ProviderStrategyService } from '../ProviderStrategyService.js';
 import type { SkillRoutingDecision, SkillRoutingService } from '../SkillRoutingService.js';

@@ -4,7 +4,6 @@ import { paintCliTone } from '../ZavorthCliVisualTheme.js';
 import {
   defaultRunner,
   runLocalTask,
-  ZAVORTH_LOCAL_TASKS,
   type ZavorthLocalTaskId,
   type ZavorthLocalTaskResult,
   type ZavorthLocalTaskRunner,
@@ -22,7 +21,7 @@ export async function handleZavorthLocalTaskCommand(input: {
     return null;
   }
 
-  const raw = /\b--raw\b/.test(input.args);
+  /\b--raw\b/.test(input.args);
   const result = runLocalTask(taskId, input.runner || defaultRunner);
 
   const body = input.flags.json

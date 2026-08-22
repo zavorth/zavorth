@@ -294,8 +294,10 @@ export class ZavorthToolCatalogService {
     }));
   }
 
-  private buildTeamEntries(teamSnapshot: any): ZavorthToolCatalogEntrySnapshot[] {
+  private buildTeamEntries(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    teamSnapshot: any): ZavorthToolCatalogEntrySnapshot[] {
     const entries = Array.isArray(teamSnapshot?.teams) ? teamSnapshot.teams : [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return entries.map((entry: any) => ({
       id: String(entry.id || '').trim(),
       label: String(entry.label || entry.id || 'team').trim(),
@@ -321,7 +323,8 @@ export class ZavorthToolCatalogService {
     }));
   }
 
-  private buildIntegrationEntries(entries: any[]): ZavorthToolCatalogEntrySnapshot[] {
+  private buildIntegrationEntries(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    entries: any[]): ZavorthToolCatalogEntrySnapshot[] {
     return entries.map((entry) => {
       const manifest = entry?.manifest || {};
       const readiness = entry?.readiness === 'ready' ? 'ready' : entry?.readiness === 'partial' ? 'partial' : 'planned';

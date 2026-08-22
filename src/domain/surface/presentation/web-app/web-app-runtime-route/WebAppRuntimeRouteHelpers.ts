@@ -7,6 +7,8 @@ import {
   HYBRID_MEMORY_DEFAULT_CONTEXT_TOKEN_BUDGET,
   HYBRID_MEMORY_DEFAULT_TOP_K,
 } from '../../../../../contracts/HybridMemoryContract.js';
+// Dynamic service bag: route handlers access dozens of services by key.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LooseRecord = any;
 
 
@@ -110,7 +112,7 @@ export function buildWebAppRuntimeLightweightStateResponse(
         toolRuns: Array.isArray((state.snapshot as LooseRecord).toolRuns) ? (state.snapshot as LooseRecord).toolRuns : [],
         filesTouched: Array.from(new Set(
           Array.isArray((state.snapshot as LooseRecord).toolRuns)
-            ? (state.snapshot as LooseRecord).toolRuns.flatMap((run: any) => Array.isArray(run?.filesTouched) ? run.filesTouched : [])
+            ? (state.snapshot as LooseRecord).toolRuns.flatMap((run: { filesTouched?: string[] }) => Array.isArray(run?.filesTouched) ? run.filesTouched : [])
             : [],
         )),
         taskCount: Array.isArray(state.snapshot.tasks) ? state.snapshot.tasks.length : 0,
@@ -242,7 +244,7 @@ export function buildWebAppRuntimeRecallQueryFromSnapshot(snapshot: LooseRecord 
     }
   }
   const tasks = Array.isArray(snapshot.tasks) ? snapshot.tasks : [];
-  const latestTask = tasks.slice().reverse().find((task: any) =>
+  const latestTask = tasks.slice().reverse().find((task: { summary?: string; title?: string; objective?: string; command?: string }) =>
     String(task?.summary || task?.title || task?.objective || task?.command || '').trim(),
   );
   if (latestTask) {

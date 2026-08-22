@@ -244,8 +244,10 @@ export class ZavorthNativeIntegrationService {
     };
   }
 
-  private channelManifestConfigRefs(manifest: any, id: string): string[] {
+  private channelManifestConfigRefs(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    manifest: any, id: string): string[] {
     const refs = (manifest.requirements || [])
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((requirement: any) => String(requirement.envKey || requirement.key || '').trim())
       .filter(Boolean);
     return refs.length > 0 ? refs : fallbackChannelConfigRefs(id);

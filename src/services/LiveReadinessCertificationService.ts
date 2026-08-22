@@ -21,7 +21,7 @@ import { MediaGenerationLivePlaneService } from './MediaGenerationLivePlaneServi
 import { MemoryArtifactsRuntimeLiveClosureService } from './MemoryArtifactsRuntimeLiveClosureService.js';
 import { ProviderLongTailActivationService } from './ProviderLongTailActivationService.js';
 import { ProviderRuntimeActivationService } from './ProviderRuntimeActivationService.js';
-import { WebRemoteDeviceLivePlaneService, SatelliteDeviceLivePlaneService } from './WebRemoteDeviceLivePlaneService.js';
+import { SatelliteDeviceLivePlaneService } from './WebRemoteDeviceLivePlaneService.js';
 import { SpeechVoiceLivePlaneService } from './SpeechVoiceLivePlaneService.js';
 import { WebResearchLivePlaneService } from './WebResearchLivePlaneService.js';
 
@@ -404,13 +404,26 @@ export class LiveReadinessCertificationService {
       }));
   }
 
-  private buildSignedExclusionsLedger(snapshots: any[]): LiveReadinessCertificationExclusionItem[] {
+  private buildSignedExclusionsLedger(
+    snapshots: Array<{
+      gate?: string;
+      phase?: string;
+      entries?: Array<{
+        status?: string;
+        gaps?: unknown[];
+        targetId?: string;
+        channelId?: string;
+        providerId?: string;
+        gates?: Array<{ evidence?: string }>;
+      }>;
+    }>,
+  ): LiveReadinessCertificationExclusionItem[] {
     const exclusions: LiveReadinessCertificationExclusionItem[] = [];
     for (const snapshot of snapshots) {
       for (const entry of Array.isArray(snapshot.entries) ? snapshot.entries : []) {
         const status = String(entry.status || '');
         const hasSignedExclusion = Array.isArray(entry.gates)
-          && entry.gates.some((gate: any) => String(gate.evidence || '').toLowerCase().includes('signed exclusion'));
+          && entry.gates.some((gate) => String(gate.evidence || '').toLowerCase().includes('signed exclusion'));
         if (!status.includes('excluded') && !hasSignedExclusion) {
           continue;
         }

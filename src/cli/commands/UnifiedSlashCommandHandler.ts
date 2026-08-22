@@ -438,7 +438,7 @@ export class UnifiedSlashCommandHandler {
             return { ok: false, handled: true, output: [err], error: err };
           }
           const keys = key.split('.');
-          let current: any = config;
+          let current: any = config; // eslint-disable-line @typescript-eslint/no-explicit-any
           for (const k of keys) {
             current = current?.[k];
           }
@@ -631,7 +631,7 @@ export class UnifiedSlashCommandHandler {
         const sub = (args[0] || 'show').toLowerCase();
 
         if (sub === 'add') {
-          const category = (args[1] || 'general') as any;
+          const category = (args[1] || 'general') as any; // eslint-disable-line @typescript-eslint/no-explicit-any
           const ruleText = args.slice(2).join(' ').trim();
           if (!ruleText) {
             const err = 'Usage: /memory add <architecture|code_style|testing|security|general> <rule text>';
@@ -807,7 +807,7 @@ export class UnifiedSlashCommandHandler {
           if (!activeSession || !activeSession.messages || activeSession.messages.length === 0) {
             lines.push(TerminalTheme.colors.dim('  Session message history is empty. No compaction required.'));
           } else {
-            const castMessages = activeSession.messages.map(m => ({ role: m.role as any, content: m.content }));
+            const castMessages = activeSession.messages.map(m => ({ role: m.role as any, content: m.content })); // eslint-disable-line @typescript-eslint/no-explicit-any
             const { metrics } = IntraTurnCompactor.compact(castMessages);
             lines.push(`  ${TerminalTheme.symbols.check} Compaction pass completed:`);
             lines.push(`     - Original Tokens: ${metrics.originalTokens}`);

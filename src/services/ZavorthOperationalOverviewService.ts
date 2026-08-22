@@ -59,8 +59,11 @@ export type ZavorthOperationalOverviewSnapshot = {
   cards: ControlPlaneOverviewCard[];
   actions: ControlPlaneOverviewAction[];
   sourceSnapshots: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     distributedRuntime: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     runtimeStability: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     replayLearning: any;
   };
   narrative: ControlPlaneOverviewNarrative;
@@ -225,8 +228,11 @@ export class ZavorthOperationalOverviewService {
   }
 
   private buildCards(input: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     distributedRuntime: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     runtimeStability: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     replayLearning: any;
   }): ControlPlaneOverviewCard[] {
     return [

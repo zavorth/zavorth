@@ -8,7 +8,6 @@ import {
   type ZavorthOperationalRolloutReceipt,
   type ZavorthOperationalRolloutScenarioEval,
   type ZavorthOperationalRolloutScenarioInput,
-  type ZavorthOperationalRolloutScenarioKind,
   type ZavorthOperationalRolloutSurfaceCoverage,
 } from '../contracts/ZavorthOperationalRolloutEvalContract.js';
 import type {

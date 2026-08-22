@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     }
     return NextResponse.json(config);
   } catch (error: unknown) {
-    const err = asErrorLike(error);
+    asErrorLike(error);
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
@@ -99,7 +99,7 @@ export async function PUT(request: NextRequest) {
     await updateSettings(updates);
     return NextResponse.json({ ok: true });
   } catch (error: unknown) {
-    const err = asErrorLike(error);
+    asErrorLike(error);
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }

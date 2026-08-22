@@ -4,13 +4,13 @@ import {
 } from '../projections/index';
 import { buildZavorthControlZavorthControlViewModel } from './ZavorthControlAdapter';
 
-export function buildZavorthControlAdapterInputFromZavorthAgentGatewaySnapshot(snapshot: any): Record<string, any> {
+export function buildZavorthControlAdapterInputFromZavorthAgentGatewaySnapshot(snapshot: unknown): Record<string, unknown> {
   return buildZavorthControlAdapterInputFromZavorthControlRuntimeProjection(
     buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot(snapshot),
   );
 }
 
-export function buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot(snapshot: any): Record<string, any> {
+export function buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot(snapshot: unknown): Record<string, unknown> {
   return buildZavorthControlZavorthControlViewModel(
     buildZavorthControlAdapterInputFromZavorthAgentGatewaySnapshot(snapshot),
   );

@@ -35,7 +35,7 @@ export type AttachmentTextProfile = {
 };
 
 const MAX_PROMPT_SAMPLE_CHARS = 3_000;
-const MAX_LOCAL_SAMPLE_CHARS = 240;
+
 
 export class AttachmentIntelligenceService {
   public profileTextAttachment(input: AttachmentIntelligenceInput): AttachmentTextProfile {

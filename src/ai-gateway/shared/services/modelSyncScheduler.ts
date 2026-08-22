@@ -69,7 +69,7 @@ async function getAutoSyncConnections(): Promise<
     const { getProviderConnections } = await import("@/lib/localDb");
     const connections = await getProviderConnections();
     return connections
-      .filter((conn: any) => {
+      .filter((conn: unknown) => {
         if (!conn.isActive && conn.isActive !== undefined) return false;
         const psd =
           conn.providerSpecificData && typeof conn.providerSpecificData === "object"
@@ -77,7 +77,7 @@ async function getAutoSyncConnections(): Promise<
             : {};
         return psd.autoSync === true;
       })
-      .map((conn: any) => ({
+      .map((conn: unknown) => ({
         id: conn.id,
         provider: conn.provider,
         name: conn.name,

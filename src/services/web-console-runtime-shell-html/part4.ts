@@ -8,7 +8,7 @@ export function buildRuntimeShellHtmlPart4(): string {
             </ul>
           </article>
           <article class="system-supervisor-detail-card">
-            <p class="profile-tag">Channels avancados</p>
+            <p class="profile-tag">Advanced channels</p>
             <ul id="distributed-runtime-control-plane-channels" class="handoff-list compact">
               <li>Validate the token to see Slack, WhatsApp, Signal, iMessage, Teams, and Email in one plan.</li>
             </ul>

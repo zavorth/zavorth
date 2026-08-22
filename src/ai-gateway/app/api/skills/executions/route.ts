@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ execution });
   } catch (error: unknown) {
-    const err = asErrorLike(error); const errorText = err.message || String(err);
+    const err = asErrorLike(error); err.message || String(err);
     if (err.message.includes("disabled")) {
       return NextResponse.json({ error }, { status: 503 });
     }

@@ -492,7 +492,7 @@ export class ProviderMeshOnboardingProductService {
     const hasRoutes = routes.length > 0;
     const explanation = [
       'familyId describes the family displayed to the user.',
-      'vendorId descreve a origem comercial/tecnica.',
+      'vendorId describes the commercial/technical origin.',
       'providerId descreve quem executa a call.',
       'routeId descreve o path de access concreto.',
       'modelId/modelName descreve o model escolhido.',

@@ -83,7 +83,8 @@ export class UserFacingResponseService {
       .join('\n');
   }
 
-  public static formatExecutionOutput(label: string, result: any, options: ResponseToneOptions = {}): string {
+  public static formatExecutionOutput(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    label: string, result: any, options: ResponseToneOptions = {}): string {
     if (
       String(label || '')
         .toLowerCase()
@@ -221,12 +222,13 @@ export class UserFacingResponseService {
       .filter(Boolean);
   }
 
-  private static formatStitchExecutionOutput(result: any, options: ResponseToneOptions = {}): string {
+  private static formatStitchExecutionOutput(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    result: any, options: ResponseToneOptions = {}): string {
     const artifacts = Array.isArray(result?.artifacts) ? result.artifacts : [];
-    const imageCount = artifacts.filter((artifact: any) =>
+    const imageCount = artifacts.filter((artifact: { kind?: string }) =>
       ['stitch_screenshot', 'stitch_image_url', 'image_preview'].includes(String(artifact?.kind || '').trim()),
     ).length;
-    const htmlCount = artifacts.filter((artifact: any) =>
+    const htmlCount = artifacts.filter((artifact: { kind?: string }) =>
       ['stitch_html', 'stitch_html_url', 'html_export'].includes(String(artifact?.kind || '').trim()),
     ).length;
 

@@ -1,5 +1,4 @@
 import type { RuntimeAgentToolGroup } from '../../runtime/agent/tools/ToolGroupCatalog.js';
-import type { UniversalToolRiskLevel } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
 
 export type CommandRiskLevel =
   | 'read_only'

@@ -1,3 +1,5 @@
+import { spawn } from 'child_process';
+import * as fs from 'fs/promises';
 import * as path from 'path';
 import {
   firstArg,
@@ -9,6 +11,8 @@ import {
   writeJson,
   idWithTime,
   render,
+  appendJsonArray,
+  runProcess,
 } from './ZavorthCliSharedHelpers.js';
 import { goalLoopDaemonServiceForCli } from './ZavorthCliLiveNamespaces.js';
 import { redactCommand } from './ZavorthCliMcpNamespace.js';
@@ -21,6 +25,10 @@ import {
   pairingExpired,
   redactPairingRecord,
 } from './ZavorthCliCommunicationNamespace.js';
+import { ZavorthHomePathService } from '../services/ZavorthHomePathService.js';
+import { spawnCommandLine } from '../security/SafeProcessExec.js';
+import { errorMessage } from '../utils/errorLike.js';
+import { logger } from '../logger.js';
 
 
 type JsonObject = Record<string, unknown>;

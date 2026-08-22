@@ -11,6 +11,8 @@ declare function formatRelativeTime(value: unknown): string;
 type IntegrationHubErrorPayload = { error: unknown };
 
 function zavorthControlClassicClientOverviewMeshIntegrations() {
+  // Consumed at runtime via extractFunctionBody(); renders the integrations mesh card.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function renderOperationsIntegrations(
     hub: IntegrationCatalogSnapshot | IntegrationHubErrorPayload | null | undefined,
   ) {

@@ -3,7 +3,8 @@ import { getUsageDb } from "@/lib/usageDb";
 import { computeAnalytics } from "@/lib/usageAnalytics";
 import { getDbInstance } from "@/lib/db/core";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { logger } from '@/shared/utils/logger';function getRangeStartIso(range: string): string | null {
+import { logger } from '@/shared/utils/logger';
+function getRangeStartIso(range: string): string | null {
   const end = new Date();
   const start = new Date(end);
 
@@ -69,7 +70,7 @@ export async function GET(request) {
       }
     } catch (error: unknown) {/* ignore */ logger.warn('[route] connection failed', error); }
 
-    const analytics: any = await computeAnalytics(history, range, connectionMap);
+    const analytics: unknown = await computeAnalytics(history, range, connectionMap);
 
     // T01: fallback transparency metrics from call_logs (requested_model vs routed model).
     try {

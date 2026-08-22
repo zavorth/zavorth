@@ -2,6 +2,8 @@ import * as http from 'http';
 import { NodeMeshRecoveryService } from './NodeMeshRecoveryService.js';
 import { NodeMeshTransportRouteService } from './NodeMeshTransportRouteService.js';
 import { NodeOnboardingService } from './NodeOnboardingService.js';
+// Dynamic service bag: route handlers access operations services by key.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type OperationsNodeDynamic = any;
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;

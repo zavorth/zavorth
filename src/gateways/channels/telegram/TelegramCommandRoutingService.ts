@@ -23,7 +23,6 @@ type GroupAdminCommand =
   | '/warns'
   | '/clearwarns'
   | '/rules'
-  | '/regras'
   | '/stats'
   | '/setwelcome'
   | '/setbye'
@@ -126,7 +125,7 @@ export type TelegramCommandRoutingServiceDeps = {
     handleWarn: (ctx: Context, args: string) => Promise<void>;
     handleWarns: (ctx: Context, args: string) => Promise<void>;
     handleClearWarns: (ctx: Context, args: string) => Promise<void>;
-    handleRegras: (ctx: Context, args: string) => Promise<void>;
+    handleRules: (ctx: Context, args: string) => Promise<void>;
     handleStats: (ctx: Context) => Promise<void>;
     handleSetWelcome: (ctx: Context, args: string) => Promise<void>;
     handleSetBye: (ctx: Context, args: string) => Promise<void>;
@@ -164,7 +163,7 @@ export type TelegramCommandRoutingServiceDeps = {
   // Certification matrix: Echo mode
   echoPreferenceStore?: {
     isEchoModeActive: (userId?: string | null) => Promise<boolean>;
-    setEchoMode: (active: boolean, userId?: string | null) => Promise<any>;
+    setEchoMode: (active: boolean, userId?: string | null) => Promise<unknown>;
   };
 };
 
@@ -507,9 +506,8 @@ export class TelegramCommandRoutingService {
         case '/clearwarns':
           await this.deps.groupAdminController.handleClearWarns(ctx, args);
           return true;
-        case '/rules':
-        case '/regras':
-          await this.deps.groupAdminController.handleRegras(ctx, args);
+case '/rules':
+      await this.deps.groupAdminController.handleRules(ctx, args);
           return true;
         case '/stats':
           await this.deps.groupAdminController.handleStats(ctx);
@@ -621,7 +619,6 @@ export class TelegramCommandRoutingService {
       '/warns',
       '/clearwarns',
       '/rules',
-      '/regras',
       '/stats',
       '/setwelcome',
       '/setbye',

@@ -127,7 +127,7 @@ function buildRequest(provider: string, input: HandleSearchInput): ProviderReque
   }
 }
 
-function normalizeResponse(provider: string, raw: unknown, query: string): SearchResultItem[] {
+function normalizeResponse(provider: string, raw: unknown, _query: string): SearchResultItem[] {
   const payload = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
   let items: unknown[] = [];
 

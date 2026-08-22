@@ -32,7 +32,7 @@ export type TelegramTaskPreparationInput = {
     transport?: string | null;
     tenant?: TenantContext | null;
   } | null;
-  composer_payload?: Record<string, any> | null;
+  composer_payload?: Record<string, unknown> | null;
 };
 
 type TelegramTaskPreparationServiceDeps = {
@@ -50,7 +50,7 @@ type TelegramTaskPreparationServiceDeps = {
     route: RouteIntent,
     advice: WorkspaceRoutingAdvice,
     learnedRoute: TelegramWorkspaceLearnedRoute,
-  ) => Record<string, any>;
+  ) => Record<string, unknown>;
 };
 
 export type TelegramPreparedTaskState = {
@@ -65,7 +65,7 @@ export class TelegramTaskPreparationService {
 
   constructor(private readonly deps: TelegramTaskPreparationServiceDeps) {}
 
-  public buildSurfaceMetadata(input: TelegramTaskPreparationInput): Record<string, any> {
+  public buildSurfaceMetadata(input: TelegramTaskPreparationInput): Record<string, unknown> {
     const source = String(input.source || 'telegram').trim() || 'telegram';
     const sourceUserId = String(input.surfaceMetadata?.sourceUserId || input.userId || '').trim();
     const runtimeUserId = String(input.surfaceMetadata?.runtimeUserId || input.userId || '').trim();

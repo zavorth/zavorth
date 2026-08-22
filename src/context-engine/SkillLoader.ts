@@ -63,7 +63,7 @@ export class SkillLoader {
         categoryMap[category] = [];
       }
 
-      for (const tool of manifest.toolDefinitions) {
+      for (const tool of manifest.toolDefinitions as Array<{ name?: string }>) {
         if (tool.name) {
           categoryMap[category].push(tool.name);
           totalTools++;
@@ -111,7 +111,7 @@ export class SkillLoader {
     const allNames: string[] = [];
     for (const manifest of this.loadedManifests) {
       if (manifest.metadata?.firewall_category === category) {
-        for (const tool of manifest.toolDefinitions) {
+        for (const tool of manifest.toolDefinitions as Array<{ name?: string }>) {
           if (tool.name) allNames.push(tool.name);
         }
       }

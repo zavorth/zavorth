@@ -16,7 +16,7 @@ function getApiKeySecret(): string {
  * Generate 6-char random keyId
  */
 function generateKeyId(): string {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  
   let result = "";
   result = crypto.randomBytes(3).toString("hex");
   return result;

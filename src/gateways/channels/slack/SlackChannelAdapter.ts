@@ -49,6 +49,7 @@ export class SlackChannelAdapter implements GatewayChannelAdapter {
     logger.info('[ChannelMesh] Slack detached.');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async onMessageReceived(slackPayload: any): Promise<void> {
     const userId = String(slackPayload?.user || slackPayload?.userId || '').trim();
     const channelId = String(slackPayload?.channel || slackPayload?.channelId || '').trim() || 'slack';
@@ -75,6 +76,7 @@ export class SlackChannelAdapter implements GatewayChannelAdapter {
     }));
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async sendMessage(outboundPayload: any): Promise<void> {
     const envelope = buildOutboundChannelEnvelope({
       platform: 'slack',

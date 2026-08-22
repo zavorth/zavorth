@@ -307,7 +307,7 @@ export class ZavorthAgentEvalTool extends BaseTool {
     return lines.join('\n');
   }
 
-  private compareReports(args: Record<string, unknown>): string {
+  private compareReports(_args: Record<string, unknown>): string {
     if (this.reports.length < 2) return 'Need at least 2 reports to compare.';
 
     const latest = this.normalizeReport(this.reports[this.reports.length - 1]);

@@ -263,6 +263,7 @@ export class UniversalPowerSubsystemService {
   public registerHarness(input: {
     id?: string;
     label: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     kind?: any;
     commandOrEndpoint?: string | null;
     notes?: string[];

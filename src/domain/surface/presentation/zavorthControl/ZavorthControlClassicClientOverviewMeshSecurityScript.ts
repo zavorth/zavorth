@@ -6,6 +6,8 @@ declare function escapeHtml(value: unknown): string;
 type SecurityMeshErrorPayload = { error: unknown };
 
 function zavorthControlClassicClientOverviewMeshSecurity() {
+  // Consumed at runtime via extractFunctionBody(); renders the security mesh card.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function renderOperationsSecurityMesh(
     securityMesh: ZavorthSecurityMeshSnapshot | SecurityMeshErrorPayload | null | undefined,
   ) {

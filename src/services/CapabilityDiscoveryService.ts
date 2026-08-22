@@ -198,7 +198,7 @@ export class CapabilityDiscoveryService {
     }
   }
 
-  private determineStatus(content: string, category: CapabilityCategory): CapabilityStatus {
+  private determineStatus(content: string, _category: CapabilityCategory): CapabilityStatus {
     if (content.includes('requiresConfirmation: true')) return 'configured';
     if (content.includes('check_requirements') || content.includes('checkRequirements')) {
       if (content.includes('return false')) return 'unconfigured';

@@ -46,18 +46,18 @@ function metadataMode(request: UniversalAgentRequest): AgenticRouteDecision['mod
 }
 
 function hasGeminiInteractionsCredential(): boolean {
-  return Boolean((config as any).geminiInteractionsApiKey || config.geminiApiKey || process.env.GEMINI_API_KEY);
+  return Boolean((config as unknown as Record<string, unknown>).geminiInteractionsApiKey || config.geminiApiKey || process.env.GEMINI_API_KEY);
 }
 
 function interactionsEnabled(): boolean {
   return Boolean(
-    (config as any).geminiInteractionsEnabled || process.env.ZAVORTH_GEMINI_INTERACTIONS_ENABLED === 'true',
+    (config as unknown as Record<string, unknown>).geminiInteractionsEnabled || process.env.ZAVORTH_GEMINI_INTERACTIONS_ENABLED === 'true',
   );
 }
 
 function managedAgentsEnabled(): boolean {
   return Boolean(
-    (config as any).geminiManagedAgentsEnabled || process.env.ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED === 'true',
+    (config as unknown as Record<string, unknown>).geminiManagedAgentsEnabled || process.env.ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED === 'true',
   );
 }
 

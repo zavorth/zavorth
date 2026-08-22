@@ -1,5 +1,5 @@
 import { logger } from '../logger.js';
-import { Client, ListToolsResult } from '@modelcontextprotocol/sdk/client/index.js';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { EventEmitter } from 'events';
 import { buildMcpChildEnv } from './McpClientManager.js';

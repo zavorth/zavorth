@@ -394,9 +394,9 @@ export class ZavorthSessionPlaneService {
     sessionId?: string | null;
     sourceUserId?: string | null;
     text: string;
-    ctx?: any;
-    mentions?: any[];
-    composerPayload?: Record<string, any> | null;
+    ctx?: unknown;
+    mentions?: unknown[];
+    composerPayload?: Record<string, unknown> | null;
   }): Promise<GatewaySessionSendResult> {
     if (!this.gatewaySessionTools) {
       throw new Error('Session plane has not received session tools from the gateway yet.');

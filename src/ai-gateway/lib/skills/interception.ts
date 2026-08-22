@@ -9,6 +9,40 @@ interface ToolCall {
   arguments: Record<string, unknown>;
 }
 
+interface OpenAIToolCall {
+  id?: string;
+  function?: { name?: string; arguments?: string };
+}
+
+interface OpenAIChoice {
+  message?: { tool_calls?: OpenAIToolCall[] };
+}
+
+interface OpenAIRawResponse {
+  tool_calls?: OpenAIToolCall[];
+  choices?: OpenAIChoice[];
+}
+
+interface AnthropicContentBlock {
+  type?: string;
+  id?: string;
+  name?: string;
+  input?: Record<string, unknown>;
+}
+
+interface AnthropicRawResponse {
+  content?: AnthropicContentBlock[];
+}
+
+interface GoogleFunctionCall {
+  name?: string;
+  args?: Record<string, unknown>;
+}
+
+interface GoogleRawResponse {
+  functionCalls?: GoogleFunctionCall[];
+}
+
 interface ExecutionContext {
   apiKeyId: string;
   sessionId: string;
@@ -56,41 +90,46 @@ export async function interceptToolCalls(
   return results;
 }
 
-export function extractToolCalls(response: any, modelId: string): ToolCall[] {
+export function extractToolCalls(response: unknown, modelId: string): ToolCall[] {
   const provider = detectProvider(modelId);
 
   switch (provider) {
     case "openai": {
-      const rootToolCalls = Array.isArray(response?.tool_calls) ? response.tool_calls : [];
-      const choiceToolCalls = Array.isArray(response?.choices)
-        ? response.choices.flatMap((choice: any) =>
+      const openaiResponse = response as OpenAIRawResponse;
+      const rootToolCalls = Array.isArray(openaiResponse?.tool_calls) ? openaiResponse.tool_calls : [];
+      const choiceToolCalls = Array.isArray(openaiResponse?.choices)
+        ? openaiResponse.choices.flatMap((choice) =>
             Array.isArray(choice?.message?.tool_calls) ? choice.message.tool_calls : []
           )
         : [];
       const toolCalls = rootToolCalls.length > 0 ? rootToolCalls : choiceToolCalls;
 
-      return toolCalls.map((tc: any) => ({
+      return toolCalls.map((tc) => ({
         id: tc.id || `call_${Date.now()}`,
         name: tc.function?.name || "",
         arguments: parseArguments(tc.function?.arguments || "{}"),
       }));
     }
 
-    case "anthropic":
-      return (response.content || [])
-        .filter((c: any) => c.type === "tool_use")
-        .map((tc: any) => ({
-          id: tc.id,
-          name: tc.name,
+    case "anthropic": {
+      const anthropicResponse = response as AnthropicRawResponse;
+      return (anthropicResponse.content || [])
+        .filter((c) => c.type === "tool_use")
+        .map((tc) => ({
+          id: tc.id || `call_${Date.now()}`,
+          name: tc.name || "",
           arguments: tc.input || {},
         }));
+    }
 
-    case "google":
-      return (response.functionCalls || []).map((fc: any) => ({
+    case "google": {
+      const googleResponse = response as GoogleRawResponse;
+      return (googleResponse.functionCalls || []).map((fc) => ({
         id: `call_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-        name: fc.name,
+        name: fc.name || "",
         arguments: fc.args || {},
       }));
+    }
 
     default:
       return [];
@@ -108,10 +147,10 @@ function parseArguments(args: string | Record<string, unknown>): Record<string, 
 }
 
 export async function handleToolCallExecution(
-  response: any,
+  response: unknown,
   modelId: string,
   context: ExecutionContext
-): Promise<any> {
+): Promise<unknown> {
   const toolCalls = extractToolCalls(response, modelId);
 
   if (toolCalls.length === 0) {
@@ -123,20 +162,23 @@ export async function handleToolCallExecution(
   const provider = detectProvider(modelId);
 
   switch (provider) {
-    case "openai":
+    case "openai": {
+      const openaiResponse = response as OpenAIRawResponse;
       return {
-        ...response,
+        ...openaiResponse,
         tool_results: results.map((r) => ({
           tool_call_id: r.id,
           output: JSON.stringify(r.result),
         })),
       };
+    }
 
-    case "anthropic":
+    case "anthropic": {
+      const anthropicResponse = response as AnthropicRawResponse;
       return {
-        ...response,
+        ...anthropicResponse,
         content: [
-          ...response.content,
+          ...(anthropicResponse.content || []),
           ...results.map((r) => ({
             type: "tool_result",
             tool_use_id: r.id,
@@ -144,6 +186,7 @@ export async function handleToolCallExecution(
           })),
         ],
       };
+    }
 
     default:
       return response;

@@ -226,6 +226,7 @@ export class ZavorthControlOperationalSnapshotService {
     ): Array<Record<string, unknown>> {
     const continuityTasks = Array.isArray(continuity?.recentTasks) ? continuity.recentTasks : [];
     const rawTasks = this.safeReadRecentTasks(deps);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const deduped = new Map<string, any>();
     for (const task of rawTasks) {
       const taskId = this.readTaskId(task);

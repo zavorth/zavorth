@@ -10,7 +10,7 @@ export type ZavorthCorrelationTraceTaskLike = {
   taskId?: unknown;
   chat_id?: unknown;
   chatId?: unknown;
-  metadata?: Record<string, any> | null;
+  metadata?: Record<string, unknown> | null;
 };
 
 export type ZavorthCorrelationTraceLinkLike = {
@@ -22,7 +22,7 @@ export type ZavorthCorrelationTraceLinkLike = {
   source?: unknown;
   eventType?: unknown;
   status?: unknown;
-  metadata?: Record<string, any> | null;
+  metadata?: Record<string, unknown> | null;
 };
 
 export type ZavorthCorrelationTraceSnapshot = {

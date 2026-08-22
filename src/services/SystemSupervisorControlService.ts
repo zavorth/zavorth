@@ -6,13 +6,11 @@ import type {
   SystemOverlordApprovalDecisionRequest,
   SystemOverlordApprovalDecisionResult,
   SystemOverlordApprovalQueueItem,
-  SystemOverlordAutonomyLevel,
   SystemOverlordAutonomyLevelDescriptor,
   SystemOverlordCapability,
   SystemOverlordCapabilityDescriptor,
   SystemOverlordControlActionResult,
   SystemOverlordControlSnapshot,
-  SystemOverlordExecutionProfile,
   SystemOverlordKillSwitchToggleRequest,
   SystemOverlordKillSwitchToggleResult,
   SystemOverlordProfileDescriptor,
@@ -410,7 +408,7 @@ export class SystemSupervisorControlService {
     return actions
       .filter((action) => action.status === 'pending_approval')
       .map((action) => {
-        const metadata = (CAPABILITY_METADATA as any)[action.capability];
+        const metadata = (CAPABILITY_METADATA as any)[action.capability]; // eslint-disable-line @typescript-eslint/no-explicit-any
         const riskLevel = action.riskLevel || metadata?.riskLevel || 'medium';
         const summary = [
           action.objective || action.capability,

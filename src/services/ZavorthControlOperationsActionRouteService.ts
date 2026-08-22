@@ -2,7 +2,7 @@
 import * as http from 'http';
 import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
-type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, any>>;
+type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
 type EnsureAuthorized = (
   req: http.IncomingMessage,
   res: http.ServerResponse,
@@ -11,7 +11,7 @@ type EnsureAuthorized = (
 ) => boolean;
 
 type OperationsActionExecutor = {
-  execute: (actionId: string) => any;
+  execute: (actionId: string) => any; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
 export type ZavorthControlOperationsActionRouteDeps = {
@@ -62,7 +62,7 @@ export class ZavorthControlOperationsActionRouteService {
         execution.status === 'started' ? 202 : 500,
       );
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       deps.writeJson(res, { ok: false, error: errorMessage(error) }, 400);
     }
 

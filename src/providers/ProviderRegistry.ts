@@ -1,4 +1,3 @@
-import { logger } from '../logger.js';
 import { ILlmProvider } from './ILlmProvider.js';
 import type { ProviderFactoryRuntimeTarget } from './ProviderFactory.js';
 

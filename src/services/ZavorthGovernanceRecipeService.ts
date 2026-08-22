@@ -12,7 +12,6 @@ import {
 } from '../contracts/GovernanceRecipeContract.js';
 import type {
   CapabilityHubItem,
-  CapabilityHubItemKind,
   CapabilityHubRiskLevel,
 } from '../contracts/CapabilityHubContract.js';
 import {

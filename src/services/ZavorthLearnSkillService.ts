@@ -18,9 +18,7 @@ import {
 } from '../contracts/native/ZavorthLearnSkillContract.js';
 import { UNIVERSAL_CAPABILITY_FABRIC_CONTRACT_VERSION } from '../contracts/UniversalCapabilityFabricContract.js';
 import {
-  UniversalCapabilitySubsystemService,
   UniversalCapabilityFabricService,
-  type UniversalCapabilitySubsystemInput,
   type UniversalCapabilityFabricInput,
 } from './UniversalCapabilitySubsystemService.js';
 import { SourceSearchFetchService } from './SourceSearchFetchService.js';

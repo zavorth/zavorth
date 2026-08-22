@@ -143,7 +143,7 @@ export class SafeModificationService {
           }),
         );
         passes = true;
-      } catch (error: unknown) { const err = asErrorLike(error); output = (error as any)?.stdout || (error as any)?.stderr || err.message || '';
+      } catch (error: unknown) { const err = asErrorLike(error); output = (error as any)?.stdout || (error as any)?.stderr || err.message || ''; // eslint-disable-line @typescript-eslint/no-explicit-any
         const basename = path.basename(originalPath);
         const relevantErrors = output
           .split('\n')
@@ -250,6 +250,7 @@ export class SafeModificationService {
         resolve();
       }, 5000);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const handler = (msg: any) => {
         if (msg?.type === 'backup_done') {
           clearTimeout(timeout);

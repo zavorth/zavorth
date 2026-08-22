@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';

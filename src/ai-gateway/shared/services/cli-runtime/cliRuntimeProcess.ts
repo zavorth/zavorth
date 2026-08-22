@@ -24,7 +24,7 @@ export const runProcess = (
   command: string,
   args: string[],
   { env, timeoutMs = 3000 }: { env?: Record<string, string | undefined>; timeoutMs?: number } = {}
-): Promise<any> =>
+): Promise<unknown> =>
   new Promise((resolve) => {
     let stdout = "";
     let stderr = "";
@@ -42,7 +42,7 @@ export const runProcess = (
       child.kill("SIGKILL");
     }, timeoutMs);
 
-    const done = (result: any) => {
+    const done = (result: unknown) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);

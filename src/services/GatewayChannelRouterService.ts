@@ -84,8 +84,11 @@ export class GatewayChannelRouterService {
     sessionId?: string | null;
     sourceUserId?: string | null;
     text: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ctx?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mentions?: any[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     composerPayload?: Record<string, any> | null;
   }): Promise<GatewaySessionSendResult> {
     if (!this.dispatcher) {

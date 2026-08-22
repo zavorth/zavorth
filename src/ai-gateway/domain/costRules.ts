@@ -16,8 +16,6 @@ saveBudget,
   saveCostEntry,
   loadCostEntries,
   deleteAllCostData,
-  deleteBudget as dbDeleteBudget,
-  deleteCostEntries,
 } from "../lib/db/domainState";
 
 interface BudgetConfig {

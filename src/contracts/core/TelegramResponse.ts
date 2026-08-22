@@ -16,6 +16,7 @@ export interface TelegramResponse {
   title: string;
   message: string;
   short_summary: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   attachments: any[];
   requires_user_action: boolean;
   suggested_commands: string[];

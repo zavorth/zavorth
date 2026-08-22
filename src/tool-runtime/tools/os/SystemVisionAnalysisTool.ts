@@ -39,7 +39,7 @@ export class SystemVisionAnalysisTool implements IZavorthTool {
     mode?: 'fullscreen' | 'active_window';
     returnBase64?: boolean;
     savePath?: string;
-  }, context?: Record<string, any>): Promise<ToolExecutionResult> {
+  }, context?: Record<string, any>): Promise<ToolExecutionResult> { // eslint-disable-line @typescript-eslint/no-explicit-any
     const mode = params.mode || 'active_window';
     const question = String(params.question || '').trim();
     if (!question) {
@@ -61,8 +61,9 @@ export class SystemVisionAnalysisTool implements IZavorthTool {
       };
     }
 
-    const base64 = String(captured.data?.base64 || '').trim();
-    const mimeType = String(captured.data?.mimeType || 'image/png').trim() || 'image/png';
+    const screenshotData = captured.data as Record<string, unknown> | undefined;
+    const base64 = String(screenshotData?.base64 || '').trim();
+    const mimeType = String(screenshotData?.mimeType || 'image/png').trim() || 'image/png';
     if (!base64) {
       return {
         success: false,
@@ -83,7 +84,7 @@ export class SystemVisionAnalysisTool implements IZavorthTool {
       message: analysis.responseText || analysis.summary,
       error: analysis.ok ? undefined : analysis.error || analysis.summary,
       data: {
-        filePath: captured.data?.filePath || null,
+        filePath: screenshotData?.filePath || null,
         mode,
         analysis: {
           summary: analysis.summary,
@@ -99,7 +100,7 @@ export class SystemVisionAnalysisTool implements IZavorthTool {
           kind: 'screenshot',
           source: this.name,
           mimeType,
-          filePath: captured.data?.filePath || null,
+filePath: screenshotData?.filePath || null,
         },
         lifecycle: {
           mode: 'snapshot-analysis',
@@ -119,7 +120,8 @@ export class SystemVisionAnalysisTool implements IZavorthTool {
     };
   }
 
-  private extractCorrelation(context: Record<string, any> | undefined, artifactId: string): Record<string, unknown> | null {
+  private extractCorrelation(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    context: Record<string, any> | undefined, artifactId: string): Record<string, unknown> | null {
     const correlation = {
       traceId: String(context?.traceId || '').trim() || null,
       runId: String(context?.runId || '').trim() || null,

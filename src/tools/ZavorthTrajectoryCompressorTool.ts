@@ -58,7 +58,7 @@ export class ZavorthTrajectoryCompressorTool extends BaseTool {
             id: String(r.id || `turn-${idx}`),
             role: (String(r.role || 'assistant') as 'system' | 'user' | 'assistant' | 'tool'),
             content: String(r.content || ''),
-            toolCalls: Array.isArray(r.toolCalls) ? (r.toolCalls as any) : undefined,
+            toolCalls: Array.isArray(r.toolCalls) ? (r.toolCalls as never) : undefined,
             estimatedTokens: typeof r.estimatedTokens === 'number'
               ? r.estimatedTokens
               : this.compressorService.estimateTurnTokens(String(r.content || '')),

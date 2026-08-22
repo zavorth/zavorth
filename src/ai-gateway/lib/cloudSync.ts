@@ -5,7 +5,8 @@ getProviderConnections,
   getCombos,
   getApiKeys,
   updateProviderConnection,
-} from "@/lib/localDb";const CLOUD_URL = process.env.CLOUD_URL || process.env.NEXT_PUBLIC_CLOUD_URL;
+} from "@/lib/localDb";
+const CLOUD_URL = process.env.CLOUD_URL || process.env.NEXT_PUBLIC_CLOUD_URL;
 const CLOUD_SYNC_TIMEOUT_MS = Number(process.env.CLOUD_SYNC_TIMEOUT_MS || 12000);
 
 type JsonRecord = Record<string, unknown>;
@@ -84,7 +85,7 @@ export async function syncToCloud(machineId, createdKey = null) {
     await updateLocalTokens(result.data.providers);
   }
 
-  const responseData: any = {
+  const responseData: unknown = {
     success: true,
     message: "Synced successfully",
     changes: result.changes,

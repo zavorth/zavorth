@@ -5,7 +5,8 @@ import { PolicyEvaluation } from '../security/PolicyEngine.js';
 import { SecureStorageService } from '../services/SecureStorageService.js';
 import { Database } from '../storage/Database.js';
 import { config } from '../config/index.js';
-import { SecurityAuditTrailService } from './SecurityAuditTrailService.js';export interface AuditEvent {
+import { SecurityAuditTrailService } from './SecurityAuditTrailService.js';
+export interface AuditEvent {
   timestamp: string;
   event_type: string;
   task_id: string;
@@ -20,6 +21,7 @@ import { SecurityAuditTrailService } from './SecurityAuditTrailService.js';expo
   executor: string | null;
   execution_success: boolean | null;
   execution_summary: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata: Record<string, any>;
 }
 
@@ -218,7 +220,12 @@ export class AuditLogger {
   /**
    * Shortcut: records a security block.
    */
-  public async logSecurityBlock(taskId: string, reason: string, details: Record<string, any> = {}): Promise<void> {
+  public async logSecurityBlock(
+    taskId: string,
+    reason: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    details: Record<string, any> = {},
+  ): Promise<void> {
     await this.logEvent({
       timestamp: new Date().toISOString(),
       event_type: 'SECURITY_BLOCK',
@@ -242,6 +249,7 @@ export class AuditLogger {
     task: Task,
     action: 'approve' | 'reject',
     decidedBy: string | null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     details: Record<string, any> = {},
   ): Promise<void> {
     await this.logEvent({
@@ -274,6 +282,7 @@ export class AuditLogger {
     permission: PermissionRequest,
     action: 'approve' | 'reject' | 'grant' | 'revoke',
     decidedBy: string | null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     details: Record<string, any> = {},
   ): Promise<void> {
     await this.logEvent({
@@ -316,6 +325,7 @@ export class AuditLogger {
       [limit],
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (rows || []).map((row: any) => ({
       timestamp: row.timestamp,
       event_type: row.event_type,
@@ -346,6 +356,7 @@ export class AuditLogger {
       [taskId],
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (rows || []).map((row: any) => ({
       timestamp: row.timestamp,
       event_type: row.event_type,

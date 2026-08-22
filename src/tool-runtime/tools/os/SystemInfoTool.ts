@@ -8,6 +8,52 @@ import { asErrorLike } from '../../../utils/errorLike.js';
 
 const execAsync = promisify(exec);
 
+interface CpuInfo {
+  model: string;
+  cores: number;
+  usage_percent: number;
+}
+
+interface MemoryInfo {
+  total_gb: string;
+  used_gb: string;
+  free_gb: string;
+  usage_percent: number;
+}
+
+interface DiskInfo {
+  Name?: string;
+  Used_GB?: number;
+  Free_GB?: number;
+  error?: string;
+}
+
+interface BatteryInfo {
+  charge_percent: number | null;
+  status: string;
+}
+
+interface ProcessInfo {
+  Name?: string;
+  CPU_Seconds?: number;
+  RAM_MB?: number;
+  error?: string;
+}
+
+interface UptimeInfo {
+  total_seconds: number;
+  formatted: string;
+}
+
+type SystemInfoData = {
+  cpu?: CpuInfo;
+  memory?: MemoryInfo;
+  disk?: DiskInfo[];
+  battery?: BatteryInfo;
+  processes?: ProcessInfo[];
+  uptime?: UptimeInfo;
+};
+
 /**
  * SystemInfoTool returns real-time system metrics.
  *
@@ -30,7 +76,7 @@ export class SystemInfoTool implements IZavorthTool {
 
     async execute(params: { metrics: string[] }): Promise<ToolExecutionResult> {
         try {
-            const data: Record<string, any> = {};
+            const data: SystemInfoData = {};
 
             for (const metric of params.metrics) {
                 switch (metric) {
@@ -75,7 +121,7 @@ export class SystemInfoTool implements IZavorthTool {
     /**
      * CPU usage through an os.cpus() snapshot.
      */
-    private async getCpuInfo(): Promise<Record<string, any>> {
+    private async getCpuInfo(): Promise<CpuInfo> {
         const cpus = os.cpus();
         const model = cpus[0]?.model || 'Unknown';
         const cores = cpus.length;
@@ -97,7 +143,7 @@ export class SystemInfoTool implements IZavorthTool {
     /**
      * RAM information through the Node.js os module.
      */
-    private getMemoryInfo(): Record<string, any> {
+    private getMemoryInfo(): MemoryInfo {
         const totalBytes = os.totalmem();
         const freeBytes = os.freemem();
         const usedBytes = totalBytes - freeBytes;
@@ -114,13 +160,13 @@ export class SystemInfoTool implements IZavorthTool {
     /**
      * Windows disk information through PowerShell Get-PSDrive.
      */
-    private async getDiskInfo(): Promise<Record<string, any>[]> {
+    private async getDiskInfo(): Promise<DiskInfo[]> {
         try {
             const { stdout } = await execAsync(
                 `powershell -NoProfile -Command "Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{N='Used_GB';E={[math]::Round($_.Used/1GB,1)}}, @{N='Free_GB';E={[math]::Round($_.Free/1GB,1)}} | ConvertTo-Json"`
             );
-            const drives = JSON.parse(stdout.trim());
-            return Array.isArray(drives) ? drives : [drives];
+            const drives: unknown = JSON.parse(stdout.trim());
+            return Array.isArray(drives) ? (drives as DiskInfo[]) : [(drives as DiskInfo)];
         } catch (error: unknown) {logger.warn('[System Info] JSON parse failed', error);
     return [{ error: 'Could not get disk information.' }];
   }
@@ -129,13 +175,14 @@ export class SystemInfoTool implements IZavorthTool {
     /**
      * Windows battery information through WMI.
      */
-    private async getBatteryInfo(): Promise<Record<string, any>> {
+    private async getBatteryInfo(): Promise<BatteryInfo> {
         try {
             const { stdout } = await execAsync(
                 `powershell -NoProfile -Command "Get-WmiObject Win32_Battery | Select-Object EstimatedChargeRemaining, BatteryStatus | ConvertTo-Json"`
             );
-            const parsed = JSON.parse(stdout.trim());
-            const charge = parsed.EstimatedChargeRemaining || 0;
+            const parsed: unknown = JSON.parse(stdout.trim());
+            const record = parsed as Record<string, unknown>;
+            const charge = Number(record.EstimatedChargeRemaining || 0);
             const statusMap: Record<number, string> = {
                 1: 'discharging',
                 2: 'charging',
@@ -143,7 +190,7 @@ export class SystemInfoTool implements IZavorthTool {
             };
             return {
                 charge_percent: charge,
-                status: statusMap[parsed.BatteryStatus] || 'unknown',
+                status: statusMap[Number(record.BatteryStatus)] || 'unknown',
             };
         } catch (error: unknown) {logger.warn('[System Info] parsing failed', error);
     return { charge_percent: null, status: 'no battery detected' };
@@ -153,13 +200,13 @@ export class SystemInfoTool implements IZavorthTool {
     /**
      * Top 5 processes by CPU usage on Windows.
      */
-    private async getTopProcesses(): Promise<Record<string, any>[]> {
+    private async getTopProcesses(): Promise<ProcessInfo[]> {
         try {
             const { stdout } = await execAsync(
                 `powershell -NoProfile -Command "Get-Process | Sort-Object CPU -Descending | Select-Object -First 5 Name, @{N='CPU_Seconds';E={[math]::Round($_.CPU,1)}}, @{N='RAM_MB';E={[math]::Round($_.WorkingSet64/1MB,0)}} | ConvertTo-Json"`
             );
-            const procs = JSON.parse(stdout.trim());
-            return Array.isArray(procs) ? procs : [procs];
+            const procs: unknown = JSON.parse(stdout.trim());
+            return Array.isArray(procs) ? (procs as ProcessInfo[]) : [procs as ProcessInfo];
         } catch (error: unknown) {logger.warn('[System Info] JSON parse failed', error);
     return [{ error: 'Could not list processes.' }];
   }
@@ -168,7 +215,7 @@ export class SystemInfoTool implements IZavorthTool {
     /**
      * System uptime.
      */
-    private getUptimeInfo(): Record<string, any> {
+    private getUptimeInfo(): UptimeInfo {
         const uptimeSeconds = os.uptime();
         const hours = Math.floor(uptimeSeconds / 3600);
         const minutes = Math.floor((uptimeSeconds % 3600) / 60);
@@ -181,7 +228,7 @@ export class SystemInfoTool implements IZavorthTool {
     /**
      * Builds a concise sentence that the LLM can say to the user.
      */
-    private buildHumanSummary(data: Record<string, any>): string {
+    private buildHumanSummary(data: SystemInfoData): string {
         const parts: string[] = [];
 
         if (data.cpu) {
@@ -208,7 +255,7 @@ export class SystemInfoTool implements IZavorthTool {
             }
         }
         if (data.processes && Array.isArray(data.processes)) {
-            const top = data.processes.slice(0, 3).map((p: any) => `${p.Name} (${p.RAM_MB}MB)`).join(', ');
+            const top = data.processes.slice(0, 3).map((p) => `${p.Name ?? ''} (${p.RAM_MB ?? ''}MB)`).join(', ');
             parts.push(`Heaviest processes: ${top}`);
         }
 

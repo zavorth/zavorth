@@ -6,7 +6,6 @@ import type {
 ZavorthKnowledgeEntry,
   ZavorthKnowledgeSourceType,
   ZavorthKnowledgeCategory,
-  ZavorthKnowledgeIndex,
 } from '../contracts/KnowledgeInjectionContract.js';
 
 type FileSystemLike = {

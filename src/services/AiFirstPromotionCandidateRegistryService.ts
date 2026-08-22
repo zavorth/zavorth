@@ -10,7 +10,6 @@ import {
   type AiFirstPromotionRegistryReadiness,
 } from '../contracts/AiFirstPromotionCandidateRegistryContract.js';
 import type {
-  AiFirstRoutePlanIntent,
   AiFirstRoutePlanRisk,
 } from '../contracts/AiFirstRoutePlanContract.js';
 import type {

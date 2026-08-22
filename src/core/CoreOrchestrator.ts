@@ -444,7 +444,7 @@ export class CoreOrchestrator implements IMessageBroker {
         executor ? { executor } : {},
       );
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       this.logRepo.log(
         'warn',
         'CoreOrchestrator',
@@ -627,11 +627,11 @@ export class CoreOrchestrator implements IMessageBroker {
 
   private resolveComposerCapabilityIds(composerPayload?: Record<string, unknown> | null): string[] {
     const selectedSkills = Array.isArray(composerPayload?.selectedSkills) ? composerPayload!.selectedSkills : [];
-    return selectedSkills.map((skill: unknown) => String((skill as any)?.id || (skill as any)?.capabilityId || '').trim()).filter(Boolean);
+    return selectedSkills.map((skill: unknown) => String((skill as unknown as Record<string, unknown>)?.id || (skill as unknown as Record<string, unknown>)?.capabilityId || '').trim()).filter(Boolean);
   }
 
   private resolveDispatchedTaskId(task: unknown): string | null {
-    return String((task as any)?.task_id || (task as any)?.taskId || (task as any)?.id || '').trim() || null;
+    return String((task as unknown as Record<string, unknown>)?.task_id || (task as unknown as Record<string, unknown>)?.taskId || (task as unknown as Record<string, unknown>)?.id || '').trim() || null;
   }
 
   private resolveSurfaceIdentityHints(platform: PlatformKey | string): {

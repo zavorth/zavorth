@@ -3,7 +3,8 @@ import { getCacheStats } from "@zavorth/ai-gateway/open-sse/services/searchCache
 import { SEARCH_PROVIDERS } from "@zavorth/ai-gateway/open-sse/config/searchRegistry.ts";
 import { getDbInstance } from "@/lib/db/core";
 import { isAuthenticated } from "@/shared/utils/apiAuth";
-import { logger } from '@/shared/utils/logger';export async function GET(request: Request) {
+import { logger } from '@/shared/utils/logger';
+export async function GET(request: Request) {
   if (!(await isAuthenticated(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -28,7 +29,7 @@ import { logger } from '@/shared/utils/logger';export async function GET(reques
       string,
       { requests: number; avg_latency_ms: number; total_cost: number }
     > = {};
-    for (const row of providerStats as any[]) {
+    for (const row of providerStats as unknown as unknown[]) {
       const costPerQuery = SEARCH_PROVIDERS[row.provider]?.costPerQuery || 0;
       providers[row.provider] = {
         requests: row.requests,
@@ -50,7 +51,7 @@ import { logger } from '@/shared/utils/logger';export async function GET(reques
       )
       .all();
 
-    const recent_searches = (recentRows as any[]).map((row) => {
+    const recent_searches = (recentRows as unknown as unknown[]).map((row) => {
       let query = "";
       let filters = {};
       try {

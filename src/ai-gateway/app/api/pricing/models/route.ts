@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { REGISTRY } from "@zavorth/ai-gateway/open-sse/config/providerRegistry.ts";
 import { getAllCustomModels, getPricing } from "@/lib/localDb";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { logger } from '@/shared/utils/logger';function asRecord(value: unknown): Record<string, unknown> {
+import { logger } from '@/shared/utils/logger';
+function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : {};
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
   if (authError) return authError;
 
   try {
-    const catalog: Record<string, any> = {};
+    const catalog: Record<string, unknown> = {};
 
     // ── 1. Registry models (hardcoded) ──────────────────────────────
     for (const entry of Object.values(REGISTRY)) {
@@ -95,7 +96,7 @@ export async function GET(request: Request) {
     }
 
     // ── 3. Pricing-only models (DB) ─────────────────────────────────
-    let pricingData: Record<string, any> = {};
+    let pricingData: Record<string, unknown> = {};
     try {
       pricingData = await getPricing();
     } catch (error: unknown) {/* DB may not be ready */ logger.warn('[route] operation failed', error); }

@@ -75,6 +75,7 @@ export class ConfigVersioningService {
     fs.mkdirSync(exportsDir, { recursive: true });
 
     const snippets = this.safeQuery(db, 'SELECT user_id, name, content, created_at FROM snippets ORDER BY created_at DESC')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((row: any) => ({
         ...row,
         content: this.secureStorage.decryptString(row.content) || '',
@@ -86,7 +87,7 @@ export class ConfigVersioningService {
     const memory = this.safeQuery(
       db,
       'SELECT user_id, key, value, category, updated_at FROM user_memory ORDER BY updated_at DESC LIMIT 200',
-    ).map((row: any) => ({
+    ).map((row: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
       ...row,
       value: this.secureStorage.decryptString(row.value) || '',
     }));
@@ -96,7 +97,7 @@ export class ConfigVersioningService {
     fs.writeFileSync(path.join(exportsDir, 'memory.json'), JSON.stringify(memory, null, 2), 'utf8');
   }
 
-  private safeQuery(db: Database, sql: string): any[] {
+  private safeQuery(db: Database, sql: string): any[] { // eslint-disable-line @typescript-eslint/no-explicit-any
     try {
       return db.all(sql);
     } catch (error: unknown) {logger.warn('[Versioning] filesystem operation failed', error); return []; }

@@ -1,8 +1,6 @@
 import type {
   ReleaseCertificationGate,
-  ReleaseCertificationGateKind,
   ReleaseCertificationGateSeverity,
-  ReleaseCertificationGateStatus,
   ReleaseCertificationProfile,
   ReleaseCertificationReceipt,
   ReleaseCertificationSnapshot,

@@ -1,11 +1,13 @@
 import type { ProviderChatOptions, ProviderNativeToolRequest, ToolDefinition } from './ILlmProvider.js';
 
 export type OpenAiCompatibleNativeToolPayload = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tools: any[] | undefined;
   extraBody: Record<string, unknown>;
   metadata: Record<string, unknown>;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function buildFunctionTools(tools?: ToolDefinition[]): any[] {
   return (tools || []).map((tool) => ({
     type: 'function' as const,
@@ -25,6 +27,7 @@ export function buildOpenAiCompatibleNativeToolPayload(input: {
   const providerName = normalize(input.providerName);
   const requested = input.options?.providerNativeTools || [];
   const functionTools = buildFunctionTools(input.tools);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const nativeTools: any[] = [];
   const extraBody: Record<string, unknown> = {};
   const activated: string[] = [];

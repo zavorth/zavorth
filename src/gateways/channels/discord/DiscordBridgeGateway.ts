@@ -341,7 +341,8 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
         chatId,
         isGroup: Boolean(envelope.channel.guildId),
         rawText: String(envelope.message.content || '').trim(),
-        reply: async (text: string, options?: any) => {
+        reply: async (text: string, // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          options?: any) => {
           await this.queueOutbound({
             protocol: DISCORD_BRIDGE_PROTOCOL,
             eventId: crypto.randomUUID(),
@@ -671,8 +672,8 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
         processedMessageIds: Array.isArray(parsed.processedMessageIds)
           ? parsed.processedMessageIds
               .map((entry) => ({
-                messageId: String((entry as any)?.messageId || '').trim(),
-                processedAt: String((entry as any)?.processedAt || '').trim() || this.now().toISOString(),
+                messageId: String(entry?.messageId || '').trim(),
+                processedAt: String(entry?.processedAt || '').trim() || this.now().toISOString(),
               }))
               .filter((entry) => entry.messageId)
               .slice(0, MAX_PROCESSED_MESSAGE_IDS)

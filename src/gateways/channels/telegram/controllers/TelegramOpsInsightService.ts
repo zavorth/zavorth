@@ -1,6 +1,5 @@
 import { Context } from 'grammy';
 import { config } from '@zavorth/config/index.js';
-import { t } from '../../../../gateways/channels/telegram/i18n.js';
 import { ZavorthBridgePreferenceStore } from '../../../../agents/ZavorthBridgePreferenceStore.js';
 import { IntegrationHubService } from '@zavorth/services/IntegrationHubService.js';
 import { DemoModeService } from '@zavorth/services/DemoModeService.js';

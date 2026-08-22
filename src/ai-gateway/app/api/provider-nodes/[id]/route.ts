@@ -12,7 +12,8 @@ import { isClaudeCodeCompatibleProvider } from "@/shared/constants/providers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateProviderNodeSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';type JsonRecord = Record<string, unknown>;
+import { logger } from '@/shared/utils/logger';
+type JsonRecord = Record<string, unknown>;
 
 function asRecord(value: unknown): JsonRecord {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as JsonRecord) : {};
@@ -59,7 +60,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
     const { name, prefix, apiType, baseUrl, chatPath, modelsPath } = validation.data;
-    const node: any = await getProviderNodeById(id);
+    const node: unknown = await getProviderNodeById(id);
 
     if (!node) {
       return NextResponse.json({ error: "Provider node not found" }, { status: 404 });

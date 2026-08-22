@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../logger.js';
 import { ZavorthExternalAgentGatewayService } from '../services/ZavorthExternalAgentGatewayService.js';
-import type { ZavorthExternalAgentGatewayReceipt } from '../contracts/external/ZavorthExternalAgentGatewayContract.js';
 import { asErrorLike } from '../utils/errorLike';
 
 export type AgentChainStepKind = 'agent' | 'local' | 'transform';
@@ -368,7 +367,7 @@ export class AgentChainBuilder {
 
         this.log.info(`[AgentChain] Step "${stepConfig.id}" completed (${stepResult.durationMs}ms)`);
         return true;
-      } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+      } catch (error: unknown) { const err = asErrorLike(error); 
         lastError = error instanceof Error ? err.message : String(error);
         stepResult.error = lastError;
         stepResult.finishedAt = this.now().toISOString();

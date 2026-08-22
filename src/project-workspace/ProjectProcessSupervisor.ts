@@ -19,7 +19,6 @@ import {
   type ProjectProcessRecord,
   type ProjectProcessRuntimeHandle,
   type ProjectProcessStartProjectInput,
-  type ProjectProcessStatus,
   type ProjectProcessStopInput,
   type ProjectProcessSupervisorSnapshot,
 } from './ProjectProcessContract.js';

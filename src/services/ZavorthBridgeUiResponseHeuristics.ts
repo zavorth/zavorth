@@ -3,7 +3,7 @@ export type ZavorthBridgeUiResponseHints = {
   hasPermissionPrompt?: boolean | null;
   hasInputBar?: boolean | null;
   uiVerified?: boolean | null;
-  uiDiagnostics?: Record<string, any> | null;
+  uiDiagnostics?: Record<string, unknown> | null;
   responseText?: string | null;
 };
 

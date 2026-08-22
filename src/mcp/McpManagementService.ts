@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { LogRepository } from '../storage/LogRepository.js';
-import { McpManifestLoader, type McpServerManifestEntry, type ResolvedMcpServerManifestEntry } from './McpManifest.js';
+import { type McpServerManifestEntry } from './McpManifest.js';
 export type McpInstallRequest = {
   id: string;
   command: string;

@@ -84,12 +84,14 @@ export class PtySessionApprovalService {
   public async getPendingProposals(workspaceId: string): Promise<PtySessionProposal[]> {
     const now = new Date().toISOString();
     const db = await this.getDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rows = await db.all<any>(
       `SELECT * FROM workspace_pty_sessions
        WHERE workspace_id = ? AND status = 'pending' AND expires_at > ?`,
       [workspaceId, now]
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return rows.map((r: any) => ({
       sessionId: r.session_id,
       workspaceId: r.workspace_id,
@@ -111,6 +113,7 @@ export class PtySessionApprovalService {
   ): Promise<void> {
     const now = new Date().toISOString();
     const db = await this.getDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const row = await db.get<any>(
       `SELECT * FROM workspace_pty_sessions WHERE session_id = ? AND workspace_id = ?`,
       [sessionId, workspaceId]
@@ -157,6 +160,7 @@ export class PtySessionApprovalService {
 
   public async getApprovedSession(sessionId: string, workspaceId: string): Promise<PtySessionProposal | null> {
     const db = await this.getDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const row = await db.get<any>(
       `SELECT * FROM workspace_pty_sessions WHERE session_id = ? AND workspace_id = ? AND status = 'approved'`,
       [sessionId, workspaceId]

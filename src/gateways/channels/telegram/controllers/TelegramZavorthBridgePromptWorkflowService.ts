@@ -139,7 +139,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
           'zavorthBridge',
           'ui_permission',
           task.workspace || config.defaultWorkspace,
-          TenantContextService.buildPermissionMetadataMatchFromTask(task) as any,
+          TenantContextService.buildPermissionMetadataMatchFromTask(task) as never,
         );
         const alreadyAutoApproved = Boolean(task.metadata?.zavorthBridgeAutoPermissionApplied);
 

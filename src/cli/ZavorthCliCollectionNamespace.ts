@@ -1,4 +1,7 @@
+import { existsSync } from 'fs';
+import * as fs from 'fs/promises';
 import * as path from 'path';
+import { createHash } from 'crypto';
 import {
   LlmRoleRoutingService,
 } from '../services/llm/LlmRoleRoutingService.js';
@@ -19,9 +22,23 @@ import {
   render,
   sha256,
   splitList,
+  appendJsonArray,
+  walkFiles,
+  listAnyFiles,
+  listJsonFiles,
+  runProcess,
+  safeString,
+  type JsonObject,
 } from './ZavorthCliSharedHelpers.js';
 import { runBackground, runTaskBoard } from './ZavorthCliLiveNamespaces.js';
 import { inferText, isProviderConfigured, redact, redactUrl } from './ZavorthCliCommunicationNamespace.js';
+import { redactCommand, findById } from './ZavorthCliMcpNamespace.js';
+import { ZavorthHomePathService } from '../services/ZavorthHomePathService.js';
+import { TaskPlaneService } from '../services/TaskPlaneService.js';
+import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
+import { ChannelGatewayFactory } from '../gateways/ChannelGatewayFactory.js';
+import { asErrorLike } from '../utils/errorLike.js';
+import { logger } from '../logger.js';
 
 export async function runCollection(root: string, collection: string, args: string[], label: string) {
   const file = path.join(stateDir(root), `${collection}.json`);

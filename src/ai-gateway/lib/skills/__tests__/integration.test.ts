@@ -17,13 +17,13 @@ describe("Memory + Skills Integration", () => {
   const apiKeyId = "test-api-key";
 
   beforeEach(() => {
-    mockedGetSettings.mockResolvedValue({ skillsEnabled: true } as any);
+    mockedGetSettings.mockResolvedValue({ skillsEnabled: true } as never);
   });
 
   it("should retrieve and inject memories", async () => {
     await createMemory({
       apiKeyId,
-      type: "factual" as any,
+      type: "factual" as never,
       key: "test-key",
       content: "Test memory content",
       sessionId: "",
@@ -61,7 +61,7 @@ describe("Memory + Skills Integration", () => {
   });
 
   it("blocks execution when skillsEnabled=false", async () => {
-    mockedGetSettings.mockResolvedValue({ skillsEnabled: false } as any);
+    mockedGetSettings.mockResolvedValue({ skillsEnabled: false } as never);
 
     await expect(skillExecutor.execute("some-skill", {}, { apiKeyId })).rejects.toThrow(
       /skills.*disabled/i
@@ -69,7 +69,7 @@ describe("Memory + Skills Integration", () => {
   });
 
   it("allows execution when skillsEnabled=true (skill not found still throws)", async () => {
-    mockedGetSettings.mockResolvedValue({ skillsEnabled: true } as any);
+    mockedGetSettings.mockResolvedValue({ skillsEnabled: true } as never);
 
     await expect(skillExecutor.execute("nonexistent-skill", {}, { apiKeyId })).rejects.toThrow(
       /not found/i
@@ -105,7 +105,7 @@ describe("SkillsMP Marketplace Integration", () => {
 
   it("GET /api/skills/marketplace without API key returns 400", async () => {
     // Simulate the marketplace route logic: no API key configured
-    mockedGetSettings.mockResolvedValue({} as any);
+    mockedGetSettings.mockResolvedValue({} as never);
     const settings = await getSettings();
     const mpApiKey = (settings as Record<string, unknown>).skillsmpApiKey;
     expect(mpApiKey).toBeUndefined();

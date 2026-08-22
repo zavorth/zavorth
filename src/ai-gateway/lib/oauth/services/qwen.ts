@@ -10,7 +10,7 @@ import { asErrorLike } from '../../../../utils/errorLike.js';
  * Uses Device Code Flow with PKCE
  */
 export class QwenService {
-  config: any;
+  config: unknown;
 
   constructor() {
     this.config = QWEN_CONFIG;
@@ -92,7 +92,7 @@ export class QwenService {
   /**
    * Save Qwen tokens to server
    */
-  async saveTokens(tokens: any) {
+  async saveTokens(tokens: unknown) {
     const { server, token, userId } = getServerCredentials();
 
     const response = await fetch(`${server}/api/cli/providers/qwen`, {

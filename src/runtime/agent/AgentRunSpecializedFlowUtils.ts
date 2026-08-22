@@ -1,3 +1,5 @@
+// Dynamic host bag: dozens of flow modules attach and read prototype members.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AgentRunFlowHost = Record<string, any>;
 
 import type { UniversalAgentRequest } from './UniversalAgentRuntimeTypes.js';

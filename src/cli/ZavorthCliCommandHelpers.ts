@@ -25,7 +25,7 @@ import { GatewayCompatibilityDoctorService } from '../services/GatewayCompatibil
 import { GatewayUpstreamSyncService } from '../services/GatewayUpstreamSyncService.js';
 import { ProviderControlPlaneService } from '../services/ProviderControlPlaneService.js';
 import { ModelPickerContractService } from '../domain/providers/index.js';
-import { OperationsDashboardService, OperationsCockpitService } from '../services/OperationsDashboardService.js';
+import { OperationsCockpitService } from '../services/OperationsDashboardService.js';
 import { OperationsHealthService } from '../services/OperationsHealthService.js';
 import { OperatorBriefService } from '../services/OperatorBriefService.js';
 import { AutoRepairService } from '../services/AutoRepairService.js';
@@ -778,7 +778,7 @@ async function buildDefaultCliRuntime(options: {
       source: 'runtime-file',
       tokenFile: '',
     }),
-  } as any);
+  } as never);
   gatewayControlService.attachOperations({
     providerControlPlane,
     aiGatewayGateway: AIGatewayGatewayService,

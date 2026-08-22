@@ -118,9 +118,9 @@ export async function readGatewayDomains(
         id: String(e?.id || '').trim(),
         label: String(e?.label || '').trim(),
         initialized: Boolean(e?.initialized),
-        initializedAt: e?.initializedAt || null,
-        summary: e?.summary,
-        metrics: e?.metrics,
+        initializedAt: (e?.initializedAt as string | null | undefined) || null,
+        summary: e?.summary as string | undefined,
+        metrics: e?.metrics as Record<string, unknown> | undefined,
       };
     }),
   };

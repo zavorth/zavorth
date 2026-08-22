@@ -205,7 +205,7 @@ export class SessionManager {
     try {
       this.childProcess.stdin.write(input);
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       const output = errorMessage(error);
       this.appendLog(`[stdin:error] ${output}`);
       this.events.emit('pty:error', output);

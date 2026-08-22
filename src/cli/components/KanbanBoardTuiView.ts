@@ -1,8 +1,6 @@
 import {
-  ZavorthKanbanBoardService,
   type KanbanBoardState,
   type KanbanColumnId,
-  type KanbanTask,
 } from '../../services/kanban/ZavorthKanbanBoardService.js';
 
 export interface KanbanTuiViewOptions {

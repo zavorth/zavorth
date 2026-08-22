@@ -1,7 +1,6 @@
 import type {
   IntegrationCapability,
   IntegrationCatalogEntry,
-  IntegrationManifest,
 } from '../contracts/IntegrationHubContract.js';
 import { IntegrationHealthService } from './IntegrationHealthService.js';
 

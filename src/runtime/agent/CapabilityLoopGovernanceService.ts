@@ -439,7 +439,7 @@ export class CapabilityLoopGovernanceService {
     signals: CapabilitySignals,
   ): StrongCapabilityLoopEntry {
     const exposedTools = signals.exposedTools.filter((tool) => catalog.toolIds.includes(tool.id));
-    const exposedToolIds = exposedTools.map((tool) => tool.id);
+    exposedTools.map((tool) => tool.id);
     const blockedToolIds = signals.blockedToolIds.filter((toolId) => catalog.toolIds.includes(toolId));
     const requestedByTool = catalog.toolIds.some((toolId) => signals.requestedTools.includes(toolId));
     const requestedByMetadata = catalog.metadataKeys

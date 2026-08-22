@@ -359,7 +359,7 @@ export class SurfaceOperationalIntentService {
   private inferResponseMode(
     input: SurfaceOperationalIntent,
     intentDecision: SurfaceOperationalIntentDecision,
-    requestedTools: string[],
+    _requestedTools: string[],
   ): ZavorthResponseDecisionMode {
     if (!intentDecision.shouldExecute) {
       return 'conversation';

@@ -2,7 +2,7 @@ import { SchemaType, type FunctionDeclaration } from '@google/generative-ai';
 import type { ToolDefinition } from '../ILlmProvider.js';
 
 export function convertGeminiTool(tool: ToolDefinition): FunctionDeclaration {
-  const properties: Record<string, any> = {};
+  const properties: Record<string, any> = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
   for (const [key, param] of Object.entries(tool.parameters.properties)) {
     properties[key] = convertSchema(param as unknown as Record<string, unknown>);
   }
@@ -17,8 +17,10 @@ export function convertGeminiTool(tool: ToolDefinition): FunctionDeclaration {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function convertSchema(schema: Record<string, unknown>): any {
   const type = String(schema.type || 'string');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const converted: any = { type: mapSchemaType(type) };
 
   if (typeof schema.description === 'string' && schema.description.trim()) {

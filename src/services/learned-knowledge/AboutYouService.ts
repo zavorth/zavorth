@@ -411,7 +411,7 @@ export class AboutYouService {
       if (!before) return { ok: false, text: `Fact not found in operator store: ${needle} (USER.md fields are file-edited)` };
     }
     // mark forgotten copy for audit
-    const forgotten: AboutYouFact = {
+    ({
       id: `forgotten-${randomUUID().slice(0, 8)}`,
       key: needle,
       value: '(forgotten)',
@@ -419,7 +419,7 @@ export class AboutYouService {
       confidence: 0,
       status: 'forgotten',
       updatedAt: nowIso(this.now),
-    };
+    });
     store.facts = store.facts.filter((f) => f.status !== 'forgotten' || f.key !== needle);
     // keep thin audit trail
     this.writeStore(userId, store);

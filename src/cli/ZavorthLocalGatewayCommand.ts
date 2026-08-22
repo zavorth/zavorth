@@ -27,21 +27,29 @@ function readStringFlag(args: string[], name: string): string | null {
 }
 
 interface GatewayWithOutbox {
+  readonly platform: PlatformKey;
+  start(): Promise<void>;
+  stop(): Promise<void>;
+  simulateIncomingMessage(input: object): Promise<void>;
+}
+
+interface GatewayWithOutboxHooks {
   writeStubEnvelope?: (message: string, recipients: string[], extra?: Record<string, unknown>) => unknown;
   writeEnvelope?: (inputEnvelope: { message: string; [key: string]: unknown }) => unknown;
 }
 
 function hookGatewayOutbox(gateway: GatewayWithOutbox, onReply: (message: string) => void) {
-  if (typeof gateway.writeStubEnvelope === 'function') {
-    const original = gateway.writeStubEnvelope;
-    gateway.writeStubEnvelope = function(message: string, recipients: string[], extra: Record<string, unknown> = {}) {
+  const hooks = gateway as unknown as GatewayWithOutboxHooks;
+  if (typeof hooks.writeStubEnvelope === 'function') {
+    const original = hooks.writeStubEnvelope;
+    hooks.writeStubEnvelope = function(message: string, recipients: string[], extra: Record<string, unknown> = {}) {
       onReply(message);
       return original.call(this, message, recipients, extra);
     };
   }
-  if (typeof gateway.writeEnvelope === 'function') {
-    const original = gateway.writeEnvelope;
-    gateway.writeEnvelope = function(inputEnvelope: { message: string; [key: string]: unknown }) {
+  if (typeof hooks.writeEnvelope === 'function') {
+    const original = hooks.writeEnvelope;
+    hooks.writeEnvelope = function(inputEnvelope: { message: string; [key: string]: unknown }) {
       onReply(inputEnvelope.message);
       return original.call(this, inputEnvelope);
     };
@@ -104,6 +112,8 @@ export async function runZavorthLocalGatewayCommand(rawArgs: string[]): Promise<
     gateway = new InstagramGateway(orchestrator);
   } else if (channel === 'discord') {
     gateway = new DiscordGateway(orchestrator);
+  } else {
+    throw new Error(`Unsupported channel "${channel}".`);
   }
 
   orchestrator.registerGateway(channel as PlatformKey, gateway);

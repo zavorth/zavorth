@@ -114,7 +114,7 @@ export function safeExecFile(cmd: string, args: readonly string[], options: Safe
   return execFileSync(cmd, [...args], {
     cwd: options.cwd,
     env: options.env,
-    stdio: (options.stdio as any) || 'pipe',
+    stdio: (options.stdio as never) || 'pipe',
     timeout: options.timeout ?? 30_000,
     maxBuffer: options.maxBuffer,
     encoding: options.encoding,

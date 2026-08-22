@@ -145,7 +145,7 @@ export class CodexRemoteSidecarMetadataSupport {
     };
   }
 
-  public buildNotificationMetadata(metadata: Record<string, any>): Record<string, any> {
+  public buildNotificationMetadata(metadata: Record<string, unknown>): Record<string, unknown> {
     const current = metadata && typeof metadata === 'object' ? metadata : {};
     const currentNotifications = current.codexRemoteNotifications;
     return currentNotifications && typeof currentNotifications === 'object'

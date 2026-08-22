@@ -2,8 +2,11 @@ import { ProviderInvocationService } from './ProviderInvocationService.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { ProviderConfigService } from './ProviderConfigService.js';
 import { ErrorNormalizationService } from './ErrorNormalizationService.js';
+import type { ProviderRuntimeRequest } from './ModelSelectionService.js';
+import type { ProviderInvocationResult } from './ProviderRuntimeClientFactory.js';
 import {
   ResilientRouteAttempt,
+  ResilientRouteBudgetDecision,
   ResilientRoutePolicy,
   ResilientRoutePolicyService,
   ResilientRouteTarget,
@@ -21,7 +24,7 @@ export class ProviderFallbackPolicyService {
     return ProviderFallbackPolicyService.instance;
   }
 
-  public async invokeWithFallback(request: any, messages: unknown[]): Promise<any> {
+  public async invokeWithFallback(request: ProviderRuntimeRequest, messages: unknown[]): Promise<ProviderInvocationResult> {
     const logger = new SecurityAuditLogger();
     const policyService = new ResilientRoutePolicyService();
     const policy = policyService.policyFromRequest(request);
@@ -95,7 +98,7 @@ export class ProviderFallbackPolicyService {
             },
           });
 
-          const fallbackRequest: any = {
+          const fallbackRequest: ProviderRuntimeRequest = {
             ...request,
             providerId: target.providerId,
             modelId: target.modelId,
@@ -162,7 +165,7 @@ export class ProviderFallbackPolicyService {
   }
 
   private async invokeAttempt(input: {
-    request: any;
+    request: ProviderRuntimeRequest;
     messages: unknown[];
     attempts: ResilientRouteAttempt[];
     logger: SecurityAuditLogger;
@@ -170,7 +173,7 @@ export class ProviderFallbackPolicyService {
     routingReceiptId: string;
     isFallback: boolean;
     timeoutMs: number;
-  }): Promise<any> {
+  }): Promise<ProviderInvocationResult> {
     const startedAt = Date.now();
     const providerId = input.request.providerId || 'auto';
     const attempt: ResilientRouteAttempt = {
@@ -232,10 +235,10 @@ export class ProviderFallbackPolicyService {
   }
 
   private async invokeProviderWithTimeout(
-    request: any,
+    request: ProviderRuntimeRequest,
     messages: unknown[],
     timeoutMs: number,
-  ): Promise<any> {
+  ): Promise<ProviderInvocationResult> {
     if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
       return ProviderInvocationService.getInstance().invoke(request, messages);
     }
@@ -244,7 +247,7 @@ export class ProviderFallbackPolicyService {
     try {
       return await Promise.race([
         ProviderInvocationService.getInstance().invoke(request, messages),
-        new Promise<any>((_, reject) => {
+        new Promise<ProviderInvocationResult>((_, reject) => {
           timeoutHandle = setTimeout(() => reject(new Error('timeout')), timeoutMs);
         }),
       ]);
@@ -278,14 +281,14 @@ export class ProviderFallbackPolicyService {
   }
 
   private withRoutingMetadata(
-    result: any,
+    result: ProviderInvocationResult,
     metadata: {
       routingReceiptId: string;
       attempts: ResilientRouteAttempt[];
       fallbackUsed: boolean;
-      budgetDecision: any;
+      budgetDecision: ResilientRouteBudgetDecision | undefined;
     },
-  ): any {
+  ): ProviderInvocationResult {
     return {
       ...result,
       routingReceiptId: metadata.routingReceiptId,

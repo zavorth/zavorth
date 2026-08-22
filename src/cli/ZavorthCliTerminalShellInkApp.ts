@@ -148,7 +148,7 @@ function shouldAttemptInk(force?: boolean): boolean {
   return Boolean(
     process.stdin?.isTTY
     && process.stdout?.isTTY
-    && typeof (process.stdin as any).setRawMode === 'function',
+    && typeof (process.stdin as unknown as Record<string, unknown>).setRawMode === 'function',
   );
 }
 

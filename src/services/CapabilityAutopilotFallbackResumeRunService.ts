@@ -422,7 +422,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
   private buildTimelineSummary(
     status: CapabilityFallbackResumeRunStatus,
     selectedFallback: CapabilityFallbackOption,
-    dryRun: boolean,
+    _dryRun: boolean,
   ): string {
     if (status === 'dry_run') {
       return `Resumesda via ${selectedFallback.label} validada em dry-run.`;
@@ -441,7 +441,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
     selectedFallback: CapabilityFallbackOption,
     gatewayDecision: GatewayDecision,
     executionResult: ExecutionResult | null,
-    dryRun: boolean,
+    _dryRun: boolean,
   ): string {
     if (status === 'dry_run') {
       return `Resumesda via '${selectedFallback.label}' validada em dry-run.`;

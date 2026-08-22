@@ -24,7 +24,7 @@ import {
 ZavorthBridgeRemotePlaybookService,
   type ZavorthBridgeRemotePlaybook,
 } from './ZavorthBridgeRemotePlaybookService.js';
-import { asErrorLike, errorMessage } from '../utils/errorLike.js';
+import { errorMessage } from '../utils/errorLike.js';
 export type ZavorthBridgeRemoteDoctorActionKey =
   | 'launch-zavorth-bridge-app'
   | 'start-sidecar'
@@ -196,7 +196,6 @@ export class ZavorthBridgeRemoteDoctorService {
         message: result.pid ? `${result.message} PID=${result.pid}` : result.message,
       };
     } catch (error: unknown) {
-      const err = asErrorLike(error);
       logger.warn('[Zavorth Bridge Remote Doctor] operation failed', error);
     return {
         key: 'launch-zavorth-bridge-app',
@@ -218,9 +217,8 @@ export class ZavorthBridgeRemoteDoctorService {
         ok: Boolean(result.ready),
         message: result.message,
       };
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-      logger.warn('[Zavorth Bridge Remote Doctor] lifecycle operation failed', error);
+} catch (error: unknown) {
+      logger.warn('[Zavorth Bridge Remote Doctor] operation failed', error);
     return {
         key: 'start-sidecar',
         attempted: true,
@@ -242,7 +240,6 @@ export class ZavorthBridgeRemoteDoctorService {
         message: result.message,
       };
     } catch (error: unknown) {
-      const err = asErrorLike(error);
       logger.warn('[Zavorth Bridge Remote Doctor] operation failed', error);
     return {
         key: 'activate-remote-mode',

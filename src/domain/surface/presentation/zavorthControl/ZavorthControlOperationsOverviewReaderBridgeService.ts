@@ -10,19 +10,19 @@ export class ZavorthControlOperationsOverviewReaderBridgeService {
     private readonly overviewSnapshots: ZavorthControlOperationsOverviewSnapshotService = new ZavorthControlOperationsOverviewSnapshotService(),
   ) {}
 
-  public readOperationalOverviewSnapshot(): Promise<Record<string, any>> {
+  public readOperationalOverviewSnapshot(): Promise<Record<string, unknown>> {
     return this.overviewSnapshots.readOperationalOverviewSnapshot(this.getDeps());
   }
 
-  public readTrustOverviewSnapshot(): Promise<Record<string, any>> {
+  public readTrustOverviewSnapshot(): Promise<Record<string, unknown>> {
     return this.overviewSnapshots.readTrustOverviewSnapshot(this.getDeps());
   }
 
-  public readProductOverviewSnapshot(): Promise<Record<string, any>> {
+  public readProductOverviewSnapshot(): Promise<Record<string, unknown>> {
     return this.overviewSnapshots.readProductOverviewSnapshot(this.getDeps());
   }
 
-  public readControlPlaneCatalogSnapshot(): Promise<Record<string, any>> {
+  public readControlPlaneCatalogSnapshot(): Promise<Record<string, unknown>> {
     return this.overviewSnapshots.readControlPlaneCatalogSnapshot(this.getDeps());
   }
 

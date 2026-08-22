@@ -1,10 +1,29 @@
 type NodeMeshLike = {
-  buildSnapshot: (input?: any) => any;
+  buildSnapshot: (input: { selectedNodeId: string }) => unknown;
 };
 
+type ClaimPairingInput = {
+  nodeId: string;
+  pairingCode: string | null;
+  capabilityIds: string[] | null;
+  hostHints: Record<string, unknown> | null;
+  operatorSummary: string | null;
+};
+
+type ReceiveHeartbeatInput = {
+  nodeId: string;
+  sharedSecret: string | null;
+  status: string;
+  capabilityIds: string[] | null;
+  hostHints: Record<string, unknown> | null;
+  results: unknown[] | null;
+};
+
+type ClaimResult = { node: { id: string } } | null;
+
 type NodeHeartbeatLike = {
-  claimPairing: (input: any) => any;
-  receiveHeartbeat: (input: any) => any;
+  claimPairing: (input: ClaimPairingInput) => ClaimResult;
+  receiveHeartbeat: (input: ReceiveHeartbeatInput) => ClaimResult;
 };
 
 export type NodeMeshTransportRouteDeps = {
@@ -19,14 +38,14 @@ export type NodeMeshTransportRouteResponse = {
 
 export class NodeMeshTransportRouteService {
   public handleClaim(
-    body: Record<string, any>,
+    body: Record<string, unknown>,
     deps: NodeMeshTransportRouteDeps,
   ): NodeMeshTransportRouteResponse {
     const claim = deps.nodeHeartbeat.claimPairing({
       nodeId: String(body.nodeId || '').trim(),
       pairingCode: String(body.pairingCode || '').trim() || null,
       capabilityIds: Array.isArray(body.capabilityIds) ? body.capabilityIds : null,
-      hostHints: body.hostHints && typeof body.hostHints === 'object' ? body.hostHints : null,
+      hostHints: body.hostHints && typeof body.hostHints === 'object' ? body.hostHints as Record<string, unknown> : null,
       operatorSummary: String(body.operatorSummary || '').trim() || null,
     });
     if (!claim) {
@@ -47,7 +66,7 @@ export class NodeMeshTransportRouteService {
   }
 
   public handleHeartbeat(
-    body: Record<string, any>,
+    body: Record<string, unknown>,
     deps: NodeMeshTransportRouteDeps,
   ): NodeMeshTransportRouteResponse {
     const heartbeat = deps.nodeHeartbeat.receiveHeartbeat({
@@ -55,7 +74,7 @@ export class NodeMeshTransportRouteService {
       sharedSecret: String(body.sharedSecret || '').trim() || null,
       status: String(body.status || '').trim(),
       capabilityIds: Array.isArray(body.capabilityIds) ? body.capabilityIds : null,
-      hostHints: body.hostHints && typeof body.hostHints === 'object' ? body.hostHints : null,
+      hostHints: body.hostHints && typeof body.hostHints === 'object' ? body.hostHints as Record<string, unknown> : null,
       results: Array.isArray(body.results)
         ? body.results
         : (Array.isArray(body.completedInvocations) ? body.completedInvocations : null),

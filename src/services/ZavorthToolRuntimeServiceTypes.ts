@@ -1,7 +1,7 @@
 import type { CapabilityRegistry } from '../capabilities/CapabilityRegistry.js';
 import type { InternalControlPlaneApiService } from '../api/internal/InternalControlPlaneApiService.js';
 import type { ZavorthProactivePermissionService } from './ZavorthProactivePermissionService.js';
-import type { ExecutionBoundaryService, EchoExecutionBoundaryService } from '../domain/execution/infrastructure/ExecutionBoundaryService.js';
+import type { EchoExecutionBoundaryService } from '../domain/execution/infrastructure/ExecutionBoundaryService.js';
 import type { EchoExecutionLedgerService } from '../domain/execution/infrastructure/EchoExecutionLedgerService.js';
 import type { EchoPendingExecutionStoreService } from '../domain/execution/infrastructure/EchoPendingExecutionStoreService.js';
 import type { EchoVoiceTelemetryService } from '../domain/observability/infrastructure/EchoVoiceTelemetryService.js';

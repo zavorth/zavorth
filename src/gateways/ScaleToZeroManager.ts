@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import type { WebhookGateway } from './WebhookGateway.js';
 import type { ChannelGatewayRegistry } from './ChannelGatewayRegistry.js';
 import { logger } from '../logger.js';export type ScaleToZeroConfig = {
   enabled: boolean;

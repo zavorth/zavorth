@@ -517,8 +517,9 @@ const { chromium } = require('playwright');
       const protocol = url.startsWith('https') ? https : http;
 
       return await new Promise<string>((resolve) => {
-        const req = protocol.get(url, { timeout: 30000 }, (res: any) => {
-          if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        const req = protocol.get(url, { timeout: 30000 }, (res: http.IncomingMessage) => {
+          const statusCode = typeof res.statusCode === 'number' ? res.statusCode : 200;
+          if (statusCode >= 300 && statusCode < 400 && res.headers.location) {
             const redirectUrl = res.headers.location.startsWith('http')
               ? res.headers.location
               : new URL(res.headers.location, url).href;
@@ -526,9 +527,9 @@ const { chromium } = require('playwright');
             return this.downloadFile({ ...args, url: redirectUrl }).then(resolve);
           }
 
-          if (res.statusCode < 200 || res.statusCode >= 300) {
+          if (statusCode < 200 || statusCode >= 300) {
             res.destroy();
-            resolve(`Download failed: HTTP ${res.statusCode}`);
+            resolve(`Download failed: HTTP ${statusCode}`);
             return;
           }
 
@@ -731,7 +732,7 @@ const { chromium } = require('playwright');
       const protocol = url.startsWith('https') ? https : http;
 
       return await new Promise<string>((resolve) => {
-        protocol.get(url, { timeout: 10000 }, (res: any) => {
+        protocol.get(url, { timeout: 10000 }, (res: http.IncomingMessage) => {
           let body = '';
           res.on('data', (chunk: Buffer) => { body += chunk.toString(); });
           res.on('end', () => {

@@ -37,7 +37,7 @@ const readSettings = async () => {
   }
 };
 
-const redactSensitiveEnv = (settings: any) => {
+const redactSensitiveEnv = (settings: unknown) => {
   if (!settings?.env || typeof settings.env !== "object") {
     return settings;
   }
@@ -153,7 +153,7 @@ export async function POST(request: Request) {
     await createBackup("claude", settingsPath);
 
     // Read current settings
-    let currentSettings: Record<string, any> = {};
+    let currentSettings: Record<string, unknown> = {};
     try {
       const content = await fs.readFile(settingsPath, "utf-8");
       currentSettings = JSON.parse(content);
@@ -221,7 +221,7 @@ export async function DELETE(request: Request) {
     const settingsPath = getClaudeSettingsPath();
 
     // Read current settings
-    let currentSettings: Record<string, any> = {};
+    let currentSettings: Record<string, unknown> = {};
     try {
       const content = await fs.readFile(settingsPath, "utf-8");
       currentSettings = JSON.parse(content);

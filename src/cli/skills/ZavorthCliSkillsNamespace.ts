@@ -5,7 +5,6 @@ import { SkillCuratorPlaneService } from '../../skills/SkillCuratorPlaneService.
 import {
   firstArg,
   readFlag,
-  readFlags,
   readNumberFlag,
   stateDir,
   readArray,

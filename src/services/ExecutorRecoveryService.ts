@@ -129,7 +129,7 @@ export class ExecutorRecoveryService {
     request: ExecutionRequest,
     overrides: {
       timeout_seconds?: number;
-      metadata?: Record<string, any>;
+      metadata?: Record<string, unknown>;
     },
   ): ExecutionRequest {
     return {

@@ -21,12 +21,12 @@ type Fixture = {
   id: ZavorthControlZavorthControlFixtureId;
   label: string;
   description: string;
-  input: Record<string, any>;
+  input: Record<string, unknown>;
 };
 
 const generatedAt = '2026-04-26T14:00:00.000Z';
 
-function baseInput(id: ZavorthControlZavorthControlFixtureId): Record<string, any> {
+function baseInput(id: ZavorthControlZavorthControlFixtureId): Record<string, unknown> {
   return {
     generatedAt,
     adapterSource: {
@@ -310,6 +310,6 @@ export function getZavorthControlZavorthControlFixture(id: ZavorthControlZavorth
   return fixtures[id];
 }
 
-export function buildZavorthControlZavorthControlFixture(id: ZavorthControlZavorthControlFixtureId): Record<string, any> {
+export function buildZavorthControlZavorthControlFixture(id: ZavorthControlZavorthControlFixtureId): Record<string, unknown> {
   return buildZavorthControlZavorthControlViewModel(fixtures[id].input);
 }

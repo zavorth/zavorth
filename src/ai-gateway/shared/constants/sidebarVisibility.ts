@@ -57,7 +57,7 @@ const PRIMARY_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [
 const CLI_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [
   { id: "cli-tools", href: "/zavorthControl/cli-tools", i18nKey: "cliToolsShort", icon: "terminal" },
   { id: "agents", href: "/zavorthControl/agents", i18nKey: "agents", icon: "smart_toy" },
-  { id: "expressive" as any, href: "/zavorthControl/expressive", i18nKey: "expressive", icon: "blur_on" },
+  { id: "expressive" as never, href: "/zavorthControl/expressive", i18nKey: "expressive", icon: "blur_on" },
 ];
 
 const DEBUG_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [

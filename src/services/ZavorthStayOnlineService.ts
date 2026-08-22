@@ -534,9 +534,6 @@ function headlineFor(status: ZavorthStayOnlineStatus, remoteReady: boolean): str
   return 'Zavorth lost a required guarantee for remote use.';
 }
 
-function checkStatus(snapshot: ZavorthStayOnlineSnapshot, id: ZavorthStayOnlineCheckId): string {
-  return snapshot.checks.find((check) => check.id === id)?.status || 'unknown';
-}
 
 function alertSignature(snapshot: ZavorthStayOnlineSnapshot): string {
   return snapshot.alerts

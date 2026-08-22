@@ -11,7 +11,8 @@ type ChannelCapabilityLifecycleHint = {
 type NativeInspectorDeps = {
   localOnly: boolean;
   fetchImpl: typeof fetch | null;
-  readStatusFile: (filePath: string) => Record<string, any> | null;
+  readStatusFile: (filePath: string) => Record<string, any> | null; // eslint-disable-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   safeReadJson: (response: Response) => Promise<Record<string, any> | null>;
   readCapabilityLifecycleHint: (capabilityId: string) => ChannelCapabilityLifecycleHint;
 };

@@ -1,11 +1,12 @@
 import { assertProviderValidationTargetAllowed } from "../../security/egressGuard.ts";
 import { applyCustomUserAgent } from "../validationHttpSupport.ts";
-import { connectionFailed, invalidApiKey, validationFailed, validationSuccess } from "./validationResult.ts";export async function validateGeminiLikeProvider({
+import { connectionFailed, invalidApiKey, validationFailed, validationSuccess } from "./validationResult.ts";
+export async function validateGeminiLikeProvider({
   apiKey,
   baseUrl,
   authType,
   providerSpecificData = {},
-}: any) {
+}: unknown) {
   if (!baseUrl) {
     return connectionFailed("Missing base URL");
   }
@@ -30,7 +31,7 @@ import { connectionFailed, invalidApiKey, validationFailed, validationSuccess } 
   }
 
   if (response.status === 400 || response.status === 401 || response.status === 403) {
-    const isAuthError = (body: any) => {
+    const isAuthError = (body: unknown) => {
       const message = (body?.error?.message || "").toLowerCase();
       const reason = body?.error?.details?.[0]?.reason || "";
       const status = body?.error?.status || "";

@@ -169,7 +169,7 @@ export class AgentSmartnessService {
       approvals: [],
       memorySignals: [],
       metadata: {},
-    } as any;
+    } as never;
     const request = {
       text: 'What is my favorite editor...',
       channel: 'cli',
@@ -177,7 +177,7 @@ export class AgentSmartnessService {
       sessionId: 'smartness-memory-session',
       requestedTools: ['memory_recall'],
       metadata: {},
-    } as any;
+    } as never;
     const snapshot = service.buildSnapshot({
       run,
       request,

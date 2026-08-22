@@ -53,7 +53,7 @@ export class QwenProvider implements ILlmProvider {
               }))
             : undefined,
         max_tokens: config.maxTokens,
-      }, buildProviderRequestOptions(options) as any);
+      }, buildProviderRequestOptions(options) as never);
 
       const choice = response.choices[0];
       const toolCalls: ToolCall[] = extractFunctionToolCalls(choice?.message.tool_calls);

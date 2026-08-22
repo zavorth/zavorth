@@ -31,7 +31,8 @@ import {
   fetchGeminiCliModels,
   fetchGlmModels,
   fetchOpenAiCompatibleModels,
-} from "./providerModelsFetchers";function buildModelsContext(
+} from "./providerModelsFetchers";
+function buildModelsContext(
   request: Request,
   id: string,
   excludeHidden: boolean,
@@ -122,7 +123,7 @@ export async function handleProviderModelsGet(
       return modelsContext.buildResponse({
         provider,
         connectionId: modelsContext.connectionId,
-        models: getCatalogModels("qwen").map((model: any) => ({
+        models: getCatalogModels("qwen").map((model: unknown) => ({
           id: model.id,
           name: model.name || model.id,
           owned_by: "qwen",

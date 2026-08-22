@@ -4,10 +4,8 @@ import type {
   ConversationalPermissionRequest,
   ConversationalPermissionUseDecision,
   ConversationalPermissionUsage,
-  PermissionNarrative,
   UniversalIntentInput,
   UniversalIntentPermissionScope,
-  UniversalIntentRiskLevel,
   UniversalIntentSafetyClassification,
   UniversalIntentSideEffect,
 } from './UniversalIntentContracts.js';

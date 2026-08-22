@@ -244,7 +244,7 @@ export class ZavorthTrustPlaneActionService {
       rollbackPlan: this.buildRollbackPlanFromPayload(rollbackPlan, ledgerEntry),
       details: [
         ...execution.details,
-        `Mutation plan aplicado exatamente do payload salvo: ${appliedPlan.id}.`,
+        `Mutation plan applied exactly from the saved payload: ${appliedPlan.id}.`,
         `Ledger: ${ledgerEntry.id}.`,
       ],
     };

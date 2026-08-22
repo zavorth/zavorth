@@ -197,7 +197,7 @@ function button(
   };
 }
 
-function defaultApprovals(): Array<Record<string, any>> {
+function defaultApprovals(): Array<Record<string, unknown>> {
   return [
     {
       id: 'satellite-demo-approval',

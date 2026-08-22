@@ -13,7 +13,7 @@ type WorkerDeps = {
   taskManager: TaskManager;
   deepSearchService: DeepSearchService;
   botApi: BotApiLike;
-  log: (level: 'info' | 'warn' | 'error', category: string, message: string, metadata?: Record<string, any>) => void;
+  log: (level: 'info' | 'warn' | 'error', category: string, message: string, metadata?: Record<string, unknown>) => void;
 };
 
 export class ResearchQueueWorker {

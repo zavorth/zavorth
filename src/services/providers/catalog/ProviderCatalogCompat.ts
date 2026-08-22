@@ -8,7 +8,6 @@ import type {
   ModelPickerCandidate,
   ModelPickerContract,
   ModelPickerProfileEntry,
-  ModelPickerReadiness,
   ModelPickerSelectionInput,
   ModelPickerSelectionResult,
   ProviderCatalogSource,

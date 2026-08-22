@@ -114,7 +114,7 @@ export async function POST(request) {
             )
           ),
         ]);
-        const data = result as any;
+        const data = result as never;
         return {
           provider: conn.provider,
           connectionId: conn.id,

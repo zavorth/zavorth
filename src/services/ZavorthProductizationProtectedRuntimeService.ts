@@ -9,8 +9,6 @@ import {
 import type { ZavorthExperienceProfileContract } from '../contracts/ZavorthExperienceProfileContract.js';
 import {
   buildZavorthProductModeContract,
-  type ZavorthProductDailyMode,
-  type ZavorthProductDetailMode,
   type ZavorthProductModeContract,
 } from '../contracts/ZavorthProductModeContract.js';
 import { ZavorthExperienceProfileService } from './ZavorthExperienceProfileService.js';

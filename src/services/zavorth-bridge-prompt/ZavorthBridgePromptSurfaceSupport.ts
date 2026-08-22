@@ -11,6 +11,7 @@ import { logger } from '../../logger.js';
 import { asErrorLike } from '../../utils/errorLike.js';
 
 export class ZavorthBridgePromptSurfaceSupport {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(private readonly host: any) {}
 
   public async tryCaptureUiState(
@@ -77,7 +78,7 @@ export class ZavorthBridgePromptSurfaceSupport {
   }): Promise<{
     ready: boolean;
     message: string | null;
-    diagnostics: Record<string, any> | null;
+    diagnostics: Record<string, unknown> | null;
   }> {
     const initialProbe = await this.host.probeConversationSurface(options.processId || undefined, options.expectedModel);
     if (initialProbe.ready) {
@@ -142,7 +143,7 @@ export class ZavorthBridgePromptSurfaceSupport {
   ): Promise<{
     ready: boolean;
     message: string | null;
-    diagnostics: Record<string, any> | null;
+    diagnostics: Record<string, unknown> | null;
   }> {
     try {
       const probeResult = await this.host.automator.probeSurface(0, processId || 0);
@@ -182,7 +183,7 @@ export class ZavorthBridgePromptSurfaceSupport {
   ): Promise<{
     ready: boolean;
     message: string | null;
-    diagnostics: Record<string, any> | null;
+    diagnostics: Record<string, unknown> | null;
   }> {
     try {
       const recoveryResult = await this.host.automator.ensureConversationSurface(0, processId || 0);

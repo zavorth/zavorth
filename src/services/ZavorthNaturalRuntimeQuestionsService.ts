@@ -8,7 +8,7 @@ import type { ZavorthTerminalBackendDescriptor } from '../contracts/ZavorthTermi
 import { GatewaySpineService } from './GatewaySpineService.js';
 import { ZavorthCapabilityStoreService } from './ZavorthCapabilityStoreService.js';
 import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
-import { ZavorthWebRemoteApprovalCompanionService, ZavorthSatelliteApprovalCompanionService } from './ZavorthWebRemoteApprovalCompanionService.js';
+import { ZavorthSatelliteApprovalCompanionService } from './ZavorthWebRemoteApprovalCompanionService.js';
 import { ZavorthTerminalBackendsService } from './ZavorthTerminalBackendsService.js';
 import { ZavorthTrustPanelService } from './ZavorthTrustPanelService.js';
 import { ZavorthVisualReceiptsV2Service } from './ZavorthVisualReceiptsV2Service.js';
@@ -174,6 +174,7 @@ function normalizeRuntimeQuestionIntent(value: unknown): ZavorthNaturalRuntimeQu
     : null;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildCards(intent: ZavorthNaturalRuntimeQuestionIntent, data: Record<string, any>): ZavorthNaturalRuntimeAnswerCard[] {
   const providerCard = card('providers', 'Providers', providerStatus(data.providers), [
     `${data.providers.summary.ready} ready, ${data.providers.summary.missingAuth} missing auth, ${data.providers.summary.needsProbe} need a probe.`,
@@ -279,6 +280,7 @@ function source(id: string, surface: string, command: string, route: string | nu
   return { id, surface, command, route, executionAuthority: false as const };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function providerStatus(snapshot: any): ZavorthNaturalRuntimeAnswerCard['status'] {
   if (snapshot.summary.blocked > 0) return 'blocked';
   if (snapshot.summary.ready > 0 && snapshot.summary.missingAuth === 0 && snapshot.summary.needsProbe === 0) return 'ready';

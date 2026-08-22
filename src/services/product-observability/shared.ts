@@ -5,10 +5,12 @@ export function normalizeOptionalString(value: unknown): string | null {
   return normalized || null;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function toRecord(value: unknown): Record<string, any> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return {};
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return value as Record<string, any>;
 }
 
@@ -54,6 +56,7 @@ export function sortWeightedCounts(map: Map<string, WeightedCount>): WeightedCou
 }
 
 export function computeWeightedAverage(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   entries: Array<Record<string, any>>,
   field: 'average_approval_wait_ms' | 'average_post_approval_recovery_ms' | 'average_artifact_delivery_after_approval_ms',
 ): number {

@@ -6,8 +6,7 @@ import { ZavorthRemoteTransportService } from './ZavorthRemoteTransportService.j
 import { ZavorthDistributedRuntimeSnapshotBuilder } from './distributed-runtime/ZavorthDistributedRuntimeSnapshotBuilder.js';
 import { logger } from '../logger.js';
 import type {
-AsyncSnapshotLike,
-  ZavorthDistributedRuntimeSnapshot,
+ZavorthDistributedRuntimeSnapshot,
   DistributedRuntimeDeps,
   RuntimeAccessManifestLike,
 } from './distributed-runtime/ZavorthDistributedRuntimeTypes.js';
@@ -63,13 +62,13 @@ export class ZavorthDistributedRuntimeControlPlaneService {
     const [channels, nodes, transports, manifest] = await Promise.all([
       this.safeAsync(() => this.channels.buildSnapshot({
         selectedId: focusId,
-      }), { entries: [], summary: {} }) as Promise<any>,
+      }), { entries: [], summary: {} }) as Promise<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
       this.safeAsync(() => this.nodes.buildSnapshot({
         selectedNodeId: focusId,
-      }), { entries: [], summary: {}, capabilityCatalog: [] }) as Promise<any>,
+      }), { entries: [], summary: {}, capabilityCatalog: [] }) as Promise<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
       this.safeAsync(() => this.transports.buildSnapshot({
         selectedId: focusId,
-      }), { entries: [], summary: {}, suggestedActions: [] }) as Promise<any>,
+      }), { entries: [], summary: {}, suggestedActions: [] }) as Promise<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
       this.safeAsync(() => this.accessManifest.buildManifest(), this.snapshotBuilder.buildFallbackManifest()),
     ]);
 
@@ -101,7 +100,8 @@ export class ZavorthDistributedRuntimeControlPlaneService {
     return normalized || null;
   }
 
-  private async safeAsync<T>(factory: () => Promise<T> | T, fallback: any): Promise<T> {
+  private async safeAsync<T>(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    factory: () => Promise<T> | T, fallback: any): Promise<T> {
     try {
       return await factory() as T;
     } catch (error: unknown) {logger.warn('[Zavorth Distributed Runtime Control Plane] string operation failed', error); return fallback as T; }

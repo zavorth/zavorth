@@ -153,10 +153,12 @@ export class MemoryArtifactsRuntimeLiveService {
       status: 'active',
     };
     const ledgerPath = path.join(memoryDir, 'memory-ledger.json');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ledger = this.readJson<{ entries: any[]; history: any[] }>(ledgerPath, { entries: [], history: [] });
     ledger.entries = ledger.entries.filter((item) => item.key !== entry.key).concat(entry);
     this.writeJson(ledgerPath, ledger);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const reloaded = this.readJson<{ entries: any[]; history: any[] }>(ledgerPath, { entries: [], history: [] });
     const recalled = reloaded.entries.find((item) =>
       String(item.key).includes('gate-12') && String(item.value).includes('recalls'));
@@ -176,6 +178,7 @@ export class MemoryArtifactsRuntimeLiveService {
     });
     reloaded.entries = reloaded.entries.filter((item) => item.id !== entry.id);
     this.writeJson(ledgerPath, reloaded);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const afterForget = this.readJson<{ entries: any[] }>(ledgerPath, { entries: [] });
     const receiptPath = path.join(memoryDir, 'memory-proof-receipt.json');
     this.writeJson(receiptPath, {

@@ -162,11 +162,11 @@ export function configureCanonicalPublicApi(
     PublicApiRouter.requireAuth(req);
     const body = await readJsonBody(req);
     sendEnvelope(res, await service.submitChat({
-      message: body.message || body.text,
-      sessionId: body.sessionId,
+      message: (body.message as string | null | undefined) || (body.text as string | null | undefined),
+      sessionId: body.sessionId as string | null | undefined,
       live: body.live === true || body.execute === true,
       approved: body.approved === true || body.confirmed === true,
-      selectedTemplateId: body.templateId || body.selectedTemplateId,
+      selectedTemplateId: (body.templateId as string | null | undefined) || (body.selectedTemplateId as string | null | undefined),
     }));
   });
 
@@ -177,8 +177,8 @@ export function configureCanonicalPublicApi(
     sendEnvelope(res, await service.approveApproval({
       approvalId: readPathId(url.pathname, /^\/api\/v1\/approvals\/([^/]+)\/approve$/),
       decidedBy: auth.userId,
-      note: body.note || body.reason || body.decisionNote,
-      totp: body.totp || body.code || body.approvalCode || body.approval_code || null,
+      note: (body.note as string | null | undefined) || (body.reason as string | null | undefined) || (body.decisionNote as string | null | undefined),
+      totp: (body.totp as string | null | undefined) || (body.code as string | null | undefined) || (body.approvalCode as string | null | undefined) || (body.approval_code as string | null | undefined) || null,
     }));
   });
 
@@ -189,7 +189,7 @@ export function configureCanonicalPublicApi(
     sendEnvelope(res, await service.denyApproval({
       approvalId: readPathId(url.pathname, /^\/api\/v1\/approvals\/([^/]+)\/deny$/),
       decidedBy: auth.userId,
-      reason: body.reason || body.note || body.decisionNote,
+      reason: (body.reason as string | null | undefined) || (body.note as string | null | undefined) || (body.decisionNote as string | null | undefined),
     }));
   });
 
@@ -200,7 +200,7 @@ export function configureCanonicalPublicApi(
     sendEnvelope(res, await service.cancelMission({
       missionId: readPathId(url.pathname, /^\/api\/v1\/missions\/([^/]+)\/cancel$/),
       requestedBy: auth.userId,
-      reason: body.reason || body.note,
+      reason: (body.reason as string | null | undefined) || (body.note as string | null | undefined),
     }));
   });
 
@@ -221,7 +221,7 @@ export function configureCanonicalPublicApi(
     const body = await readJsonBody(req);
     sendEnvelope(res, await service.executeChannelAction({
       channelId: readPathId(url.pathname, /^\/api\/v1\/channels\/([^/]+)\/action$/),
-      actionId: body.actionId || body.action,
+      actionId: ((body.actionId as string | null | undefined) || (body.action as string | null | undefined)) as string,
       requestedBy: auth.userId,
       approved: body.approved === true || body.confirmed === true,
     }));
@@ -387,9 +387,9 @@ export function configureCanonicalPublicApi(
   router.register('POST', /^\/api\/v1\/learning\/actions$/, async (req, res) => {
     const body = await readJsonBody(req);
     PublicApiRouter.sendJson(res, 200, await service.executeLearningAction({
-      candidateId: body.candidateId,
-      actionId: body.actionId,
-      approvalId: body.approvalId,
+      candidateId: body.candidateId as string | null | undefined,
+      actionId: body.actionId as string | null | undefined,
+      approvalId: body.approvalId as string | null | undefined,
     }));
   }, { access: 'admin' });
 

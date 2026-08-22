@@ -38,10 +38,10 @@ export class GovernedLearningPipelineService {
   private readonly evaluateFn: EvaluateFn;
   private readonly applyFn: ApplyFn;
   private readonly rollbackFn: RollbackFn;
-  private readonly native: any;
-  private readonly adaptive: any;
-  private readonly replay: any;
-  private readonly skillEvolution: any;
+  private readonly native: unknown;
+  private readonly adaptive: unknown;
+  private readonly replay: unknown;
+  private readonly skillEvolution: unknown;
   private readonly timeoutMs: number;
   private idCounter = 0;
 
@@ -53,10 +53,10 @@ export class GovernedLearningPipelineService {
     evaluate?: EvaluateFn;
     apply?: ApplyFn;
     rollback?: RollbackFn;
-    native?: any;
-    adaptive?: any;
-    replay?: any;
-    skillEvolution?: any;
+    native?: unknown;
+    adaptive?: unknown;
+    replay?: unknown;
+    skillEvolution?: unknown;
     timeoutMs?: number;
   } = {}) {
     this.storePath = options.storePath ?? null;
@@ -162,9 +162,9 @@ export class GovernedLearningPipelineService {
       record.dryRun = result;
       record.stage = 'dryRun';
       this.addReceipt(record, 'dryRun', result.passed ? 'passed' : 'blocked');
-    } catch (e: any) {
-      this.addReceipt(record, 'dryRun', 'blocked', e.message);
-      throw e;
+    } catch (error: unknown) {
+      this.addReceipt(record, 'dryRun', 'blocked', error instanceof Error ? error.message : String(error));
+      throw error;
     }
     return { ...record };
   }
@@ -257,7 +257,7 @@ export class GovernedLearningPipelineService {
     return { ...record };
   }
 
-  forget(id: string, input: { actor: string; confirmed: boolean }): GovernedLearningRecord {
+  forget(id: string, _input: { actor: string; confirmed: boolean }): GovernedLearningRecord {
     const record = this.records.get(id);
     if (!record) throw new Error(`Record ${id} not found`);
     if (record.stage === 'applied' || record.stage === 'monitoring') throw new Error('Cannot forget: record must be rolled back first');

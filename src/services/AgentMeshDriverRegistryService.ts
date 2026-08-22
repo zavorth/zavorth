@@ -135,7 +135,7 @@ class McpAgentMeshDriver implements AgentMeshProtocolDriver {
     const response = await runAgentMeshCommand(context.connectionValue, ['mcp', 'tools/list'], 5000);
     const parsed = parseJsonOutput(response);
     const tools = Array.isArray(parsed?.tools)
-      ? parsed.tools.map((tool: any) => sanitizeAgentMeshText(tool?.name || tool?.id || 'tool')).filter(Boolean)
+      ? parsed.tools.map((tool: { name?: string; id?: string }) => sanitizeAgentMeshText(tool?.name || tool?.id || 'tool')).filter(Boolean)
       : [];
     return {
       capabilities: {
@@ -176,6 +176,7 @@ function createDefaultAgentMeshDrivers(): AgentMeshProtocolDriver[] {
 }
 
 function normalizeCapabilities(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   protocol: AgentMeshProtocol,
   discoverySource: AgentMeshDynamicCapabilities['discoverySource'],
@@ -197,6 +198,7 @@ function normalizeCapabilities(
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeExecution(value: any): AgentMeshDriverExecution {
   return {
     summary: sanitizeAgentMeshText(value?.summary || value?.finalResponseSummary || 'runtime adapter execution completed.'),
@@ -228,7 +230,7 @@ function sanitizeExecutionRequest(request: AgentMeshExecutionRequest): AgentMesh
   };
 }
 
-function postJson(urlValue: string | null, payload: unknown, timeoutMs: number): Promise<any> {
+function postJson(urlValue: string | null, payload: unknown, timeoutMs: number): Promise<unknown> {
   if (!urlValue) {
     throw new AgentMeshDriverUnavailableException('Agent Mesh webhook driver requires a runtime connection value.');
   }
@@ -316,6 +318,7 @@ function runAgentMeshCommand(
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseJsonOutput(output: string): any {
   try {
     return JSON.parse(output || '{}');

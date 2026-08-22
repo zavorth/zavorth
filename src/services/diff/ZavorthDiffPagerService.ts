@@ -230,7 +230,7 @@ export class ZavorthDiffPagerService {
     }
 
     let deletionCount = 0;
-    let additionCount = 0;
+    
 
     for (const line of lines) {
       if (line.type === 'deletion') {
@@ -241,7 +241,6 @@ export class ZavorthDiffPagerService {
           isMedium = true;
         }
       } else if (line.type === 'addition') {
-        additionCount++;
         const content = line.content.trim();
         if (content.includes('password') || content.includes('api_key') || content.includes('token =')) {
           reasons.push('Potential hardcoded credential or secret added');

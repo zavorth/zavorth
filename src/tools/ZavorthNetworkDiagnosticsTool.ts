@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
@@ -213,7 +211,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
     } catch (error: unknown) {logger.warn('[Zavorth Network Diagnostics] validation failed', error); return ''; }
   }
 
-  private async speedTest(args: Record<string, unknown>): Promise<string> {
+  private async speedTest(_args: Record<string, unknown>): Promise<string> {
     try {
       const { execFileSync } = await import('child_process');
       try {

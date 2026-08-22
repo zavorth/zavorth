@@ -93,6 +93,7 @@ function inferModalities(models: ProviderAutoDiscoveryModelInfo[]): ModelModalit
   return Array.from(mods);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function classifyModelType(rawModel: any): 'chat' | 'embedding' | 'image' | 'audio' | 'video' {
   const id = sanitizeModelId(String(rawModel.id || rawModel.name || '')).toLowerCase();
   const ownedBy = String(rawModel.owned_by || '').toLowerCase();
@@ -227,6 +228,7 @@ export class ProviderAutoDiscoveryService {
     }
 
     const kind = input.kind || 'openai_compatible';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let discoveryResult: any;
 
     try {
@@ -262,6 +264,7 @@ export class ProviderAutoDiscoveryService {
     }
 
     const rawModels = discoveryResult.providerCatalog?.models || [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const models: ProviderAutoDiscoveryModelInfo[] = rawModels.map((m: any) => {
       const modelId = sanitizeModelId(String(m.id || m.name || ''));
       const validation = validateModelId(modelId);

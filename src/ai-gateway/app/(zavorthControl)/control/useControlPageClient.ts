@@ -6,9 +6,9 @@ export type ControlPageClientState = {
 
 export function useControlPageClient() {
   const [wsReconnectAttempt, setWsReconnectAttempt] = useState<number>(0);
-  const reconnectTimeoutRef = useRef<any>(null);
+  const reconnectTimeoutRef = useRef<unknown>(null);
 
-  const fetchJson = async <T = Record<string, any>>(url: string, init?: RequestInit): Promise<T> => {
+  const fetchJson = async <T = Record<string, unknown>>(url: string, init?: RequestInit): Promise<T> => {
     const res = await fetch(url, init);
     return res.json();
   };
@@ -38,11 +38,11 @@ export function useControlPageClient() {
   const reloadDeveloperWorkspace = async () => fetchJson("/api/developer-workspace");
 
   const loadRuntimeEventsV1 = async (query = "") => {
-    return fetchJson<Record<string, any>>(`/api/web/zavorthControl/events-v1${query}`);
+    return fetchJson<Record<string, unknown>>(`/api/web/zavorthControl/events-v1${query}`);
   };
 
-  const submitZavorthControlAction = async (payload: Record<string, any>) => {
-    return fetchJson<Record<string, any>>("/api/web/zavorthControl/actions", {
+  const submitZavorthControlAction = async (payload: Record<string, unknown>) => {
+    return fetchJson<Record<string, unknown>>("/api/web/zavorthControl/actions", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
@@ -50,7 +50,7 @@ export function useControlPageClient() {
   };
 
   const submitChatV1 = async (message: string, options: { sessionId?: string | null; live?: boolean } = {}) => {
-    return fetchJson<Record<string, any>>(`/api/web/zavorthControl/chat-v1`, {
+    return fetchJson<Record<string, unknown>>(`/api/web/zavorthControl/chat-v1`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({

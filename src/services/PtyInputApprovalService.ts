@@ -88,12 +88,14 @@ export class PtyInputApprovalService {
   public async getPendingProposals(workspaceId: string): Promise<PtyInputApprovalProposal[]> {
     const now = new Date().toISOString();
     const db = await this.getDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rows = await db.all<any>(
       `SELECT * FROM workspace_pty_input_approvals
        WHERE workspace_id = ? AND status = 'pending' AND expires_at > ?`,
       [workspaceId, now]
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return rows.map((r: any) => ({
       operationId: r.operation_id,
       sessionId: r.session_id,
@@ -116,6 +118,7 @@ export class PtyInputApprovalService {
   ): Promise<void> {
     const now = new Date().toISOString();
     const db = await this.getDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const row = await db.get<any>(
       `SELECT * FROM workspace_pty_input_approvals WHERE operation_id = ? AND workspace_id = ?`,
       [operationId, workspaceId]
@@ -169,6 +172,7 @@ export class PtyInputApprovalService {
     const inputHash = this.hashId(inputRaw);
     const now = new Date().toISOString();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const row = await db.get<any>(
       "SELECT operation_id FROM workspace_pty_input_approvals WHERE session_id = ? AND workspace_id = ? AND input_hash = ? AND status = 'approved' AND expires_at > ?",
       [sessionId, workspaceId, inputHash, now]

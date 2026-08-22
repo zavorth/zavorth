@@ -173,8 +173,9 @@ export class ExecutionLifecycleLinkService {
       return null;
     }
 
-    const record = task as Record<string, any>;
+    const record = task as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
     const metadata = record.metadata && typeof record.metadata === 'object'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? record.metadata as Record<string, any>
       : {};
     return this.buildContextLink({
@@ -209,8 +210,10 @@ export class ExecutionLifecycleLinkService {
       return null;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const record = run as Record<string, any>;
     const origin = record.origin && typeof record.origin === 'object'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? record.origin as Record<string, any>
       : {};
     return this.buildContextLink({
@@ -378,6 +381,7 @@ export class ExecutionLifecycleLinkService {
       return null;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const raw = record as Record<string, any>;
     const kind = this.normalizeLifecycleKind(raw.kind);
     const status = this.normalizeLifecycleStatus(raw.status);

@@ -6,7 +6,6 @@ import type {
   ZavorthPluginModuleKind,
 } from '../contracts/PluginManifestContract.js';
 import { definePlugin } from '../sdk/plugin/definePlugin.js';
-import { resolvePluginPermissions } from '../sdk/plugin/permissionPresets.js';
 
 export type PluginScaffoldKind =
   | 'tool'

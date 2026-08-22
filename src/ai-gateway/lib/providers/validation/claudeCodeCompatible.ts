@@ -12,7 +12,6 @@ import { applyCustomUserAgent } from "../validationHttpSupport.ts";
 import {
   connectionFailed,
   invalidApiKey,
-  validationSuccess,
 } from "./validationResult.ts";
 
 import { logger } from '@/shared/utils/logger';
@@ -20,7 +19,7 @@ import { asErrorLike } from '../../../../utils/errorLike.js';
 export async function validateClaudeCodeCompatibleProvider({
   apiKey,
   providerSpecificData = {},
-}: any) {
+}: unknown) {
   const baseUrl = normalizeClaudeCodeCompatibleBaseUrl(providerSpecificData.baseUrl);
   if (!baseUrl) {
     return connectionFailed("No base URL configured for CC Compatible provider");

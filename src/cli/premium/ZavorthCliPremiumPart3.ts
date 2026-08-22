@@ -175,7 +175,7 @@ export async function runRuntimeReadinessFixProvider(rawArgs: string[] = []): Pr
   const providerId = readFlexibleStringFlag(rawArgs, 'provider')
     || rawArgs.find((arg) => !arg.startsWith('--') && arg !== 'live-proof' && arg !== 'provider')
     || baseSnapshot.activeProvider
-    || baseSnapshot.entries.find((entry: any) => entry.status === 'ready')?.id
+    || baseSnapshot.entries.find((entry: { status: string; id: string }) => entry.status === 'ready')?.id
     || '';
   const liveProofStore = new ZavorthProviderLiveProofStoreService();
   const service = new ZavorthProviderReadinessMatrixService({ liveProofStore });
@@ -185,7 +185,7 @@ export async function runRuntimeReadinessFixProvider(rawArgs: string[] = []): Pr
     probe: true,
     live: true,
   });
-  const selected = snapshot.entries.find((entry: any) => entry.id === providerId || entry.familyIds.includes(providerId))
+  const selected = snapshot.entries.find((entry: { id: string; familyIds: string[] }) => entry.id === providerId || entry.familyIds.includes(providerId))
     || snapshot.entries[0]
     || null;
   const readiness = await new ZavorthRuntimeReadinessService().buildSnapshot({
@@ -330,7 +330,7 @@ export async function runGatewaySpine(rawArgs: string[] = []): Promise<number> {
       `ready: ${snapshot.channels.summary.ready}`,
       `partial: ${snapshot.channels.summary.partial}`,
       '',
-      ...snapshot.channels.entries.map((entry: any) => `- ${entry.id}: ${entry.readiness} | ${entry.transport}`),
+      ...snapshot.channels.entries.map((entry: { id: string; readiness: string; transport: string }) => `- ${entry.id}: ${entry.readiness} | ${entry.transport}`),
     ], 'info');
   }
   if (view === 'approvals') {
@@ -389,7 +389,7 @@ export async function runUnifiedOnboarding(rawArgs: string[] = []): Promise<numb
 
   if (view === 'templates') {
     return printCliPanel('Onboarding templates', [
-      ...snapshot.templates.map((template: any) =>`- ${template.id}: ${template.label} | risk=${template.defaultRisk} | mutate=${template.requiresMutation ? 'yes' : 'no'}`,
+      ...snapshot.templates.map((template: { id: string; label: string; defaultRisk: string; requiresMutation: boolean }) =>`- ${template.id}: ${template.label} | risk=${template.defaultRisk} | mutate=${template.requiresMutation ? 'yes' : 'no'}`,
       ),
     ], 'info');
   }
@@ -424,7 +424,7 @@ export async function runSensitiveActionFlow(rawArgs: string[] = []): Promise<nu
     || 'Review this workspace in read-only mode.';
   const snapshot = service.buildSnapshot({
     request,
-    decision: readFlexibleStringFlag(rawArgs, 'decision') as any,
+    decision: readFlexibleStringFlag(rawArgs, 'decision') as any, // eslint-disable-line @typescript-eslint/no-explicit-any
     approvalId: readFlexibleStringFlag(rawArgs, 'approval-id'),
     sandboxReady: rawArgs.includes('--sandbox-ready'),
     source: 'cli',

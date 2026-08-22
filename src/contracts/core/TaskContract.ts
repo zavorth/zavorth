@@ -41,7 +41,9 @@ export interface Task {
   executor_used: string | null;
   fallback_used: boolean;
   parent_task_id: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actions_planned: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actions_executed: any[];
   target_files: string[];
   artifacts: ArtifactRecord[];
@@ -51,5 +53,6 @@ export interface Task {
   result_summary: string | null;
   error_summary: string | null;
   rollback_available: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata: Record<string, any>;
 }

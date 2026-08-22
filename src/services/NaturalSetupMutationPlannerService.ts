@@ -318,7 +318,7 @@ export class NaturalSetupMutationPlannerService {
 
     const applied = this.mutationPlane.markApplied(
       plan.id,
-      'Natural Setup aplicado exatamente do mutation plan approved.',
+      'Natural Setup applied exactly from the approved mutation plan.',
       results.map((entry) => String(entry.action || 'action')),
     );
     return {

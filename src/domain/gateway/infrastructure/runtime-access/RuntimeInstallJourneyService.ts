@@ -14,7 +14,6 @@ import { config } from '../../../../config/index.js';
 
 import {
   ChannelInstallScaffoldService,
-  type ChannelInstallReport,
 } from '../../../../services/ChannelInstallScaffoldService.js';
 
 import { buildZavorthProductModeSnapshot, type ZavorthProductModeSnapshot } from '../../../../services/ProductModeService.js';
@@ -138,7 +137,7 @@ export class RuntimeInstallJourneyService {
     const launcherShortcutPath = this.resolveWindowsStartupShortcutPath();
     const launcherInstalled = Boolean(launcherShortcutPath && this.existsSync(launcherShortcutPath));
     const channelInstall = this.channelInstallService.buildReport();
-    const preparedChannels = channelInstall.channels.filter((entry) => entry.configured || entry.readiness === 'ready');
+    channelInstall.channels.filter((entry) => entry.configured || entry.readiness === 'ready');
     const partialChannels = channelInstall.channels.filter((entry) => entry.configured && entry.readiness !== 'ready');
     const telegramPlan = channelInstall.channels.find((entry) => entry.channelId === 'telegram') || null;
     const discordPlan = channelInstall.channels.find((entry) => entry.channelId === 'discord') || null;

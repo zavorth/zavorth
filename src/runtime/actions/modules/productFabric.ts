@@ -5,7 +5,8 @@ import type {
   ZavorthActionResult,
   ZavorthActionSchema,
 } from '../ZavorthActionContracts.js';
-import { UniversalProductSubsystemService, UniversalProductFabricService } from '../../../services/UniversalProductSubsystemService.js';
+import { UniversalProductFabricService } from '../../../services/UniversalProductSubsystemService.js';
+import type { ProductCertificationCheck, ProductPublicCommand } from '../../../contracts/UniversalProductFabricContract.js';
 
 const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = ['tests/services/UniversalProductFabricService.test.ts'];
@@ -68,7 +69,7 @@ async function productCertify(input: ZavorthActionHandlerInput): Promise<Zavorth
     operation: input.operation,
     status: snap.certification.blocked > 0 ? 'blocked' : 'ok',
     summary: `Certification ${snap.certification.status}: ${snap.certification.passed} passed, ${snap.certification.attention} attention, ${snap.certification.blocked} blocked.`,
-    lines: snap.certification.checks.map((c: any) => `[${c.status}] ${c.fabric}/${c.id}: ${c.summary}`),
+    lines: snap.certification.checks.map((c: ProductCertificationCheck) => `[${c.status}] ${c.fabric}/${c.id}: ${c.summary}`),
     data: { snapshot: snap },
   });
 }
@@ -87,7 +88,7 @@ async function productDoctor(input: ZavorthActionHandlerInput): Promise<ZavorthA
 }
 
 function productCommands(input: ZavorthActionHandlerInput): ZavorthActionResult {
-  const group = String(input.args.group || '').trim() as any;
+  const group = String(input.args.group || '').trim() as any; // eslint-disable-line @typescript-eslint/no-explicit-any
   const cmds = service(input.root).listPublicCommands(group || undefined);
   return result({
     ok: true,
@@ -95,7 +96,7 @@ function productCommands(input: ZavorthActionHandlerInput): ZavorthActionResult 
     operation: input.operation,
     status: 'ok',
     summary: `${cmds.length} public command(s). Prefer zavorth CLI over monorepo npm scripts.`,
-    lines: cmds.map((c: any) => `${c.command} — ${c.summary}`),
+    lines: cmds.map((c: ProductPublicCommand) => `${c.command} — ${c.summary}`),
     data: { commands: cmds },
   });
 }

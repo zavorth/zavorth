@@ -86,6 +86,7 @@ export class GeminiInteractionsProviderAdapter implements ILlmProvider {
       },
       body: JSON.stringify(payload),
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body = await readSafeJsonResponse<any>(response, 'Gemini Interactions API').catch(() => null);
     if (!response.ok) {
       const detail = body?.error?.message || body?.message || `HTTP ${response.status}`;
@@ -157,6 +158,7 @@ export class GeminiInteractionsProviderAdapter implements ILlmProvider {
 }
 
 export function mapGeminiInteractionToReceipt(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   interaction: any,
   model: string,
   previousInteractionId: string | null = null,
@@ -173,7 +175,8 @@ export function mapGeminiInteractionToReceipt(
   };
 }
 
-function mapStep(step: any, index: number): GeminiInteractionTimelineStep {
+function mapStep(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  step: any, index: number): GeminiInteractionTimelineStep {
   const rawKind = cleanText(step?.type || step?.kind || step?.step_type || step?.stepType);
   const functionCall = step?.function_call || step?.functionCall || step?.tool_call || step?.toolCall || null;
   return {
@@ -186,7 +189,8 @@ function mapStep(step: any, index: number): GeminiInteractionTimelineStep {
   };
 }
 
-function normalizeStepKind(rawKind: string | null, step: any): GeminiInteractionStepKind {
+function normalizeStepKind(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  rawKind: string | null, step: any): GeminiInteractionStepKind {
   const normalized = String(rawKind || '').toLowerCase().replace(/[^a-z0-9]+/g, '_');
   if (normalized.includes('user')) return 'user_input';
   if (normalized.includes('model') || normalized.includes('output')) return 'model_output';

@@ -10,7 +10,7 @@ import { SwarmExecutor } from '../../../../execution/SwarmExecutor.js';
 import { LlmRuntimeService } from '../../../../services/llm/LlmRuntimeService.js';
 
 export function createMultiAgentExecutionGateway(): ExecutionGateway {
-  const gateway = new ExecutionGateway({ log: () => undefined } as any);
+  const gateway = new ExecutionGateway({ log: () => undefined } as never);
   const externalExecutor = new ExternalExecutor();
   gateway.registerExecutor(EXTERNAL_EXECUTOR_ID, externalExecutor);
   gateway.registerExecutor('codex', new CodexExecutor());

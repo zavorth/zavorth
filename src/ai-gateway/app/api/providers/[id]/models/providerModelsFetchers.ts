@@ -40,7 +40,7 @@ export async function fetchOpenAiCompatibleModels(
     return jsonError(`Auth failed: ${discovery.status}`, discovery.status);
   }
 
-  let models: any[] = discovery.providerCatalog.models.map((model) => ({
+  let models: unknown[] = discovery.providerCatalog.models.map((model) => ({
     id: model.id,
     name: model.name || model.id,
     owned_by: provider,
@@ -48,7 +48,7 @@ export async function fetchOpenAiCompatibleModels(
   if (discovery.source !== "live_api") {
     console.warn(`[models] All endpoints failed for ${provider}, using local catalog`);
     const localModels = getCatalogModels(provider);
-    models = localModels.map((model: any) => ({
+    models = localModels.map((model: unknown) => ({
       id: model.id,
       name: model.name || model.id,
       owned_by: provider,
@@ -214,7 +214,7 @@ export async function fetchGenericProviderModels(
     fetchOptions.body = JSON.stringify(config.body);
   }
 
-  let allModels: any[] = [];
+  let allModels: unknown[] = [];
   let pageUrl = url;
   let pageCount = 0;
   const MAX_PAGES = 20;

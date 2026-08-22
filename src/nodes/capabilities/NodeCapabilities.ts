@@ -6,7 +6,7 @@ export interface NodeCapabilityHandler {
   id: CapabilityId;
   description: string;
   isAvailableOnHost(): Promise<boolean>;
-  execute(payload: any): Promise<any>;
+  execute(payload: any): Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 type NodeCapabilityRegistryOptions = {
@@ -24,7 +24,7 @@ class NodeHostCapabilityAdapter implements NodeCapabilityHandler {
     return this.capabilityService.listSupportedCapabilityIds().includes(this.id);
   }
 
-  async execute(payload: any): Promise<any> {
+  async execute(payload: any): Promise<any> { // eslint-disable-line @typescript-eslint/no-explicit-any
     const result = await this.capabilityService.executeAssignment({
       id: randomUUID(),
       capabilityId: this.id,

@@ -2,7 +2,6 @@ import { CanonicalPublicApiService } from '../../../../api/public/CanonicalPubli
 import { PublicApiRouter } from '../../../../api/public/PublicApiRouter.js';
 import { getDefaultCapabilityRegistry } from '../../../../capabilities/CapabilityRegistry.js';
 import { ComputerUseAgent } from '../../../../agents/ComputerUseAgent.js';
-import { AutomaticBrowserDoctorService } from '../../../../mcp/AutomaticBrowserDoctorService.js';
 import { PtyWebSocketServer } from '../../../../runtime/sessions/v2/PtyWebSocketServer.js';
 import {
   ZavorthAgentGateway,
@@ -21,7 +20,6 @@ import { RuntimeRemoteAccessService } from '../../../../runtime/access/RuntimeRe
 import type { NodeInvocationCompletion, NodeMeshHostHints } from '../../../../contracts/core/NodeMeshContract.js';
 import type { ZavorthControlAuthService } from '../../../../services/ZavorthControlAuthService.js';
 import { ZavorthGatewayControlSocketService } from '../../../../services/ZavorthGatewayControlSocketService.js';
-import { ZavorthGatewayLauncherService } from '../../../../services/ZavorthGatewayLauncherService.js';
 import { ZavorthGatewayRuntimeService } from '../../../../services/ZavorthGatewayRuntimeService.js';
 import { ZavorthMutationPlaneService } from '../../../../services/ZavorthMutationPlaneService.js';
 import { ZavorthPublicTunnelService } from '../../../../services/ZavorthPublicTunnelService.js';
@@ -61,7 +59,7 @@ import { SupervisedRuntimeAdapterRegistryService } from '../../../../services/Su
 import { SwarmV2Service } from '../../../../agents/SwarmV2Service.js';
 import { SwarmScalePlaneRuntimeService } from '../../../../services/SwarmScalePlaneRuntimeService.js';
 import type { SharedSurfaceRuntime } from '../../../../services/SurfaceRuntime.js';
-import { SystemSupervisorControlService, SystemOverlordControlService } from '../../../../services/SystemSupervisorControlService.js';
+import { SystemOverlordControlService } from '../../../../services/SystemSupervisorControlService.js';
 import { TaskResourcePlannerService } from '../../../../services/TaskResourcePlannerService.js';
 import { TrustDecisionService } from '../../../../services/TrustDecisionService.js';
 import { WebAppConversationService } from '../../../../services/WebAppConversationService.js';

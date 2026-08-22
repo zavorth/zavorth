@@ -9,9 +9,6 @@ import type {
   UniversalArtifactSummary,
   UniversalToolExposureProfile,
 } from '../agent/UniversalAgentRuntimeTypes.js';
-import type {
-  ImportedCapabilityTrustState,
-} from '../agent/security/index.js';
 import {
   RUNTIME_ADAPTER_ADAPTER_BOUNDARY_POLICY,
   RUNTIME_ADAPTER_ADAPTER_LIFECYCLE_CONTRACT,

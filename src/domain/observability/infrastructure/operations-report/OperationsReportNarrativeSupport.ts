@@ -1,4 +1,4 @@
-import type { OperationsDashboardService, OperationsCockpitService } from '../../../../services/OperationsDashboardService.js';
+import type { OperationsCockpitService } from '../../../../services/OperationsDashboardService.js';
 
 type OperationsCockpitSnapshot = Awaited<ReturnType<OperationsCockpitService['readSnapshot']>>;
 
@@ -347,7 +347,7 @@ export class OperationsReportNarrativeSupport {
     return `validated | ${this.formatRelativeTime(doctor.checkedAt)} | ${passedItems} flow(s)`;
   }
 
-  private describeDiscordChannel(mode: any): string {
+  private describeDiscordChannel(mode: unknown): string {
     return mode === 'native' ? 'Native Discord gateway' : 'Discord bridge';
   }
 
@@ -401,8 +401,8 @@ export class OperationsReportNarrativeSupport {
   }
 
   private resolveLocalChannelModeLabel(
-    mode: any,
-    channelId: any,
+    mode: unknown,
+    channelId: unknown,
   ): string {
     if (mode === 'native') {
       return channelId === 'slack' ? 'native' : 'native';
@@ -417,8 +417,8 @@ export class OperationsReportNarrativeSupport {
   }
 
   private describeDoctorProvider(
-    channelId: any,
-    mode: any,
+    channelId: unknown,
+    mode: unknown,
   ): string {
     if (channelId === 'telegram') {
       return 'Telegram';

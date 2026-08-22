@@ -375,6 +375,7 @@ export class ZavorthPersistentApprovalPolicyService {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizePolicy(input: any): ZavorthPersistentApprovalPolicy | null {
   if (!input || typeof input !== 'object') return null;
   return {
@@ -397,6 +398,7 @@ function normalizePolicy(input: any): ZavorthPersistentApprovalPolicy | null {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeRisk(value: any): ZavorthPersistentApprovalRisk {
   return ['none', 'low', 'medium', 'high', 'critical'].includes(String(value))
     ? String(value) as ZavorthPersistentApprovalRisk
@@ -407,6 +409,7 @@ function uniqueActions(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => normalizeText(value, '')).filter(Boolean)));
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeText(value: any, fallback: string): string {
   const text = String(value || '').trim();
   return text || fallback;

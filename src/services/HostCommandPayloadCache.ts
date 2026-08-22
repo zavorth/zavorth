@@ -9,6 +9,7 @@ export class HostCommandPayloadCache {
   private static instance: HostCommandPayloadCache | null = null;
   private readonly cache = new Map<string, CachedPayload>();
   private readonly TTL_MS = 30 * 60 * 1000; // 30 minutes
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private cleanupInterval: any;
 
   private constructor() {

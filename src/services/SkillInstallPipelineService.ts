@@ -27,7 +27,6 @@ import {
   SkillTrustScoreService,
   type SkillTrustEvidence,
   type SkillTrustPolicyDecision,
-  type SkillTrustProfileId,
 } from './SkillTrustScoreService.js';
 import {
   bindSkillDeclaredTools,

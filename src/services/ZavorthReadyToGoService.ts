@@ -1,7 +1,7 @@
 import { ZavorthProviderLiveProofStoreService } from './ZavorthProviderLiveProofStoreService.js';
 import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
 import { ZavorthRuntimeGuidedFixesService, type ZavorthRuntimeGuidedFix } from './ZavorthRuntimeGuidedFixesService.js';
-import { ZavorthRuntimeReadinessService, type ZavorthRuntimeReadinessSnapshot, type ZavorthRuntimeReadinessStatus } from './ZavorthRuntimeReadinessService.js';
+import { ZavorthRuntimeReadinessService, type ZavorthRuntimeReadinessStatus } from './ZavorthRuntimeReadinessService.js';
 import type { ZavorthProviderReadinessEntry, ZavorthProviderReadinessMatrixSnapshot } from '../contracts/ZavorthProviderReadinessMatrixContract.js';
 import { renderCliScreen, type CliVisualPanel } from '../cli/ZavorthCliVisualSystem.js';
 import { paintCliTone } from '../cli/ZavorthCliVisualTheme.js';

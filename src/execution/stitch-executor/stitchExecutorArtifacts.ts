@@ -8,13 +8,15 @@ import {
   StitchPersistArtifactsResult,
 } from './stitchExecutorTypes.js';
 import { safeFetch } from '../../security/SafeFetchService.js';
-export function resolveStitchProjectId(project: any): string {
+
+export function resolveStitchProjectId(project: any): string { // eslint-disable-line @typescript-eslint/no-explicit-any
   return String(project?.projectId || project?.id || project?.name || '')
     .replace(/^projects\//, '')
     .trim();
 }
 
-export function extractStitchGeneratedScreen(raw: any): StitchGeneratedScreen | null {
+export function extractStitchGeneratedScreen(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  raw: any): StitchGeneratedScreen | null {
   const directScreens = Array.isArray(raw?.design?.screens) ? raw.design.screens : [];
   if (directScreens[0]) {
     return directScreens[0] as StitchGeneratedScreen;
@@ -45,7 +47,8 @@ export function resolveStitchScreenId(screen: StitchGeneratedScreen | null): str
   return '';
 }
 
-export function extractStitchDownloadUrl(value: any): string | null {
+export function extractStitchDownloadUrl(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any): string | null {
   const url = String(value?.downloadUrl || value || '').trim();
   return url || null;
 }
@@ -83,7 +86,7 @@ export async function downloadStitchArtifact(
 export async function persistStitchArtifacts(
   input: StitchPersistArtifactsInput,
 ): Promise<StitchPersistArtifactsResult> {
-  const metadata: Record<string, any> = {
+  const metadata: Record<string, any> = { // eslint-disable-line @typescript-eslint/no-explicit-any
     stitch_project_id: input.projectId,
     stitch_screen_id: input.screenId,
     stitch_device_type: input.deviceType,
@@ -92,7 +95,7 @@ export async function persistStitchArtifacts(
     stitch_html_url: input.htmlUrl,
   };
 
-  const artifacts: any[] = [];
+  const artifacts: any[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
   if (input.imageUrl) {
     artifacts.push({
       type: 'link',

@@ -47,7 +47,7 @@ export type ZavorthBridgePromptStartResult = {
   errorCode: string | null;
   errorMessage: string | null;
   logFile: string | null;
-  diagnostics: Record<string, any> | null;
+  diagnostics: Record<string, unknown> | null;
   remoteModeActive?: boolean | null;
   sessionAccessible?: boolean | null;
   desktopName?: string | null;
@@ -650,8 +650,8 @@ export class ZavorthBridgePromptService {
     return this.artifactSupport.matchesSession(session, artifact);
   }
 
-  private asDiagnostics(value: unknown): Record<string, any> | null {
-    return value && typeof value === 'object' ? (value as Record<string, any>) : null;
+  private asDiagnostics(value: unknown): Record<string, unknown> | null {
+    return value && typeof value === 'object' ? (value as Record<string, unknown>) : null;
   }
 
   private async tryCaptureUiState(
@@ -684,7 +684,7 @@ export class ZavorthBridgePromptService {
   }): Promise<{
     ready: boolean;
     message: string | null;
-    diagnostics: Record<string, any> | null;
+    diagnostics: Record<string, unknown> | null;
   }> {
     return this.surfaceSupport.ensureConversationSurfaceVisible(options);
   }
@@ -695,7 +695,7 @@ export class ZavorthBridgePromptService {
   ): Promise<{
     ready: boolean;
     message: string | null;
-    diagnostics: Record<string, any> | null;
+    diagnostics: Record<string, unknown> | null;
   }> {
     return this.surfaceSupport.probeConversationSurface(processId, expectedModel);
   }
@@ -706,7 +706,7 @@ export class ZavorthBridgePromptService {
   ): Promise<{
     ready: boolean;
     message: string | null;
-    diagnostics: Record<string, any> | null;
+    diagnostics: Record<string, unknown> | null;
   }> {
     return this.surfaceSupport.recoverConversationSurface(processId, expectedModel);
   }

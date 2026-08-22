@@ -360,7 +360,7 @@ async function getProviderRuntimeStatus(connection: ConnectionRecord): Promise<R
       error: runtimeMessage,
     };
   } catch (error: unknown) {
-    const err = asErrorLike(error);
+    asErrorLike(error);
     const errObj = error instanceof Error ? error : new Error(String(error));
     const runtimeMessage = `Failed to check local CLI runtime: ${errObj.message || "runtime_check_failed"}`;
     return {
@@ -703,7 +703,7 @@ export async function testSingleConnection(connectionId: string, validationModel
   try {
     proxyInfo = await resolveProxyForConnection(connectionId);
   } catch (proxyErr: unknown) {
-  const proxyErrLike = asErrorLike(proxyErr);const proxyErrObj = proxyErr instanceof Error ? proxyErr : new Error(String(proxyErr));
+  asErrorLike(proxyErr);const proxyErrObj = proxyErr instanceof Error ? proxyErr : new Error(String(proxyErr));
     console.log(`[ConnectionTest] Failed to resolve proxy for ${connectionId}:`, proxyErrObj.message);
   }
 

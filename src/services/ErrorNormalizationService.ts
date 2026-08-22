@@ -36,7 +36,7 @@ export class ErrorNormalizationService {
     // Redaction: absolute local DB paths and filesystem paths containing DB or starting with drive letter
     // Match absolute paths like C:\foo\bar or /usr/local/var/
     sanitized = sanitized.replace(/[a-zA-Z]:\\[\\\w.\-\s_]+/g, '[REDACTED_PATH]');
-    sanitized = sanitized.replace(/\/[a-zA-Z0-9_-\.]+\/[a-zA-Z0-9_\-./]+/g, '[REDACTED_PATH]');
+    sanitized = sanitized.replace(/\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_\-./]+/g, '[REDACTED_PATH]');
     sanitized = sanitized.replace(/[\w.\-\s_/]+\.db/gi, '[REDACTED_PATH]');
 
     // Redaction: long base64-ish or hex blobs (longer than 80 chars of uninterrupted alphanumeric chars)
@@ -54,7 +54,7 @@ export class ErrorNormalizationService {
     } else if (typeof error === 'string') {
       rawMessage = error;
     } else if (error && typeof error === 'object') {
-      const errObj = error as Record<string, any>;
+      const errObj = error as Record<string, unknown>;
       rawMessage = String(errObj.message || errObj.code || JSON.stringify(error));
       if (errObj.details) {
         details = {};

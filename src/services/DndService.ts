@@ -6,6 +6,7 @@ export class DndService {
   private static buffer: { chatId: string | number, message: string }[] = [];
   private static manualDnd = false;
   private static watcher: NodeJS.Timeout | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static botApiAccessor: any = null;
   private static lastUserMessageTime = 0;
 
@@ -73,7 +74,8 @@ export class DndService {
     });
   }
 
-  public static async queueMessageOrSend(botApi: any, chatId: string | number, message: string, originalSenderId?: string): Promise<boolean> {
+  public static async queueMessageOrSend(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    botApi: any, chatId: string | number, message: string, _originalSenderId?: string): Promise<boolean> {
     const isDnd = await this.isDndActive();
     if (isDnd) {
       this.buffer.push({ chatId, message });
@@ -88,7 +90,8 @@ export class DndService {
     return copy;
   }
 
-  public static startWatcher(botApi: any) {
+  public static startWatcher(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    botApi: any) {
     this.botApiAccessor = botApi;
     if (!this.watcher) {
       this.watcher = setInterval(async () => {

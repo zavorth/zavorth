@@ -20,7 +20,7 @@ export async function summarizeMemories(
 
   const memories = db
     .prepare(`SELECT * FROM memories ${whereClause} ORDER BY created_at DESC`)
-    .all(...params) as any[];
+    .all(...params) as unknown as unknown[];
 
   if (memories.length === 0) {
     return { originalCount: 0, summarizedCount: 0, tokensSaved: 0 };

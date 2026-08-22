@@ -12,8 +12,8 @@
 import type { IntentCategory } from './IntentClassifier.js';
 import type { ToolDefinition, CompactToolDefinition } from '../providers/ILlmProvider.js';
 import { PluginStateService } from '../services/PluginStateService.js';
-import { toCompact, toCompactBatch } from './LazyToolDefinition.js';
-import { ToolClusterRegistry, type ToolCluster } from './ToolClusterRegistry.js';
+import { toCompactBatch } from './LazyToolDefinition.js';
+import { ToolClusterRegistry } from './ToolClusterRegistry.js';
 import { ToolUsageTracker } from './ToolUsageTracker.js';
 
 export type IntentToolCategoryMap = Partial<Record<IntentCategory | string, string[]>>;

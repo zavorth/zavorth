@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAuditLog, logAuditEvent } from "@/lib/compliance/index";
+import { getAuditLog } from "@/lib/compliance/index";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { safeParseInt } from "@/shared/utils/safeParseInt";
 import { logger } from '@/shared/utils/logger';

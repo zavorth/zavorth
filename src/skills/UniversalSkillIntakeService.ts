@@ -14,7 +14,6 @@ import {
   type ZavorthUniversalSkillManifest,
   type ZavorthUniversalSkillPermissionProfileId,
   type ZavorthUniversalSkillSourceKind,
-  type ZavorthUniversalSkillSourceProfile,
   type ZavorthUniversalSkillSourceProfileId,
 } from '../contracts/ZavorthUniversalSkillIntakeContract.js';
 import { SkillSourceProfileRegistry } from './SkillSourceProfileRegistry.js';
@@ -577,8 +576,8 @@ export class UniversalSkillIntakeService {
 
   private discoverCandidateSeeds(files: VirtualFile[]): CandidateSeed[] {
     const acceptedFiles = files.filter((file) => file.accepted && file.text !== null);
-    const byPath = new Map(acceptedFiles.map((file) => [file.relativePath, file]));
     const seeds: CandidateSeed[] = [];
+
     const skillRoots = new Set<string>();
 
     for (const file of acceptedFiles) {

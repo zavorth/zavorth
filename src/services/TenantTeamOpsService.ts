@@ -30,6 +30,22 @@ type PackageLike = {
 
 type GovernanceLike = Pick<ZavorthGovernanceControlPlaneService, 'buildSnapshot'>;
 
+type TenantTeamOpsGovernanceTenant = {
+  tenantId?: string;
+  platform?: string;
+  boundary?: string;
+  scopeLabel?: string;
+  scopeId?: string;
+  policyProfile?: string;
+  governanceStatus?: string;
+  ownerCount?: number;
+  allowedGuildCount?: number;
+  allowedChannelCount?: number;
+  publicServerMode?: boolean;
+  actions?: Array<{ actionKind?: string }>;
+  nextAction?: string;
+};
+
 export type TenantTeamOpsServiceOptions = {
   projectRoot?: string;
   packageJson?: PackageLike;
@@ -164,7 +180,7 @@ export class TenantTeamOpsService {
     const tenants = Array.isArray(governance.sourceSnapshots.tenants?.tenants)
       ? governance.sourceSnapshots.tenants.tenants
       : [];
-    return tenants.slice(0, limit).map((tenant: any) => ({
+    return tenants.slice(0, limit).map((tenant: TenantTeamOpsGovernanceTenant) => ({
       tenantId: this.text(tenant.tenantId, 'unknown-tenant'),
       platform: this.text(tenant.platform, 'unknown'),
       boundary: this.text(tenant.boundary, 'personal'),
@@ -200,7 +216,7 @@ export class TenantTeamOpsService {
       ? governance.sourceSnapshots.tenants.tenants
       : [];
     return identityScopes.slice(0, limit).map((identity) => {
-      const tenant = tenants.find((entry: any) => String(entry.tenantId || '') === identity.tenantId) || {};
+      const tenant = tenants.find((entry: TenantTeamOpsGovernanceTenant) => String(entry.tenantId || '') === identity.tenantId) || {};
       return {
         tenantId: identity.tenantId,
         status: identity.governanceStatus === 'pending_onboarding'
@@ -214,7 +230,7 @@ export class TenantTeamOpsService {
         allowedGuilds: identity.allowedGuildCount,
         allowedChannels: identity.allowedChannelCount,
         guidedActions: Array.isArray(tenant.actions)
-          ? tenant.actions.filter((action: any) => action?.actionKind === 'guided').length
+          ? tenant.actions.filter((action: { actionKind?: string }) => action?.actionKind === 'guided').length
           : 0,
         nextAction: this.optionalText(tenant.nextAction),
       };

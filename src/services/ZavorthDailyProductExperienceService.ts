@@ -10,7 +10,6 @@ import {
 } from '../contracts/ZavorthDailyProductExperienceContract.js';
 import type { ZavorthControlSetupChecklistSnapshot } from '../contracts/ZavorthControlSetupChecklistContract.js';
 import type { ZavorthDailyCapabilityFlowSnapshot } from '../contracts/ZavorthDailyCapabilityFlowContract.js';
-import type { ZavorthExperienceProfileContract } from '../contracts/ZavorthExperienceProfileContract.js';
 import { ZavorthControlSetupChecklistService } from './ZavorthControlSetupChecklistService.js';
 import { ZavorthDailyCapabilityFlowService, type ZavorthDailyCapabilityFlowInput } from './ZavorthDailyCapabilityFlowService.js';
 import { ZavorthExperienceProfileService, type ZavorthExperienceProfileInput } from './ZavorthExperienceProfileService.js';

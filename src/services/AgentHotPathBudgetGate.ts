@@ -6,7 +6,7 @@
 import type { ZavorthAutonomyBudget } from '../contracts/runtime/AutonomousEngineeringPartnerContract.js';
 import { AgentRuntimeBudgetEnforcementService } from './AgentRuntimeBudgetEnforcementService.js';
 
-const MUTATION_HINT = /write|delete|remove|apply|patch|shell|exec|send|post|put|upload|install|mutate|filesystem|file_write|run_command|bash|powershell/i;
+
 
 export type HotPathBudgetAuthorizeInput = {
   workspaceId?: string | null;

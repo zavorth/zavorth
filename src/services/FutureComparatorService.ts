@@ -36,7 +36,7 @@ export class FutureComparatorService {
       },
       {
         id: 'advanced',
-        title: 'path avancado',
+        title: 'advanced path',
         summary: 'Inclui verifier extra, red team, sandbox e ADR para changes arquiteturais maiores.',
         riskLevel: Math.max(risk, 3) as AgentOsFutureCandidate['riskLevel'],
         complexity: 'high',

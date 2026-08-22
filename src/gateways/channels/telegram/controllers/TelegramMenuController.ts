@@ -1,4 +1,4 @@
-import { Bot, Context, InlineKeyboard } from 'grammy';
+import { Bot, Context } from 'grammy';
 import {
   createSurfaceResponse,
   type SurfaceResponse,
@@ -129,8 +129,8 @@ export class TelegramMenuController {
     const groupCommands = this.getTelegramGroupMenuCommands();
 
     await this.bot.api.setMyCommands(groupCommands);
-    await this.bot.api.setMyCommands(privateCommands, { scope: { type: 'all_private_chats' } } as any);
-    await this.bot.api.setMyCommands(groupCommands, { scope: { type: 'all_group_chats' } } as any);
+    await this.bot.api.setMyCommands(privateCommands, { scope: { type: 'all_private_chats' } } as never);
+    await this.bot.api.setMyCommands(groupCommands, { scope: { type: 'all_group_chats' } } as never);
   }
 
   private getTelegramMenuCommands(): Array<{ command: string; description: string }> {

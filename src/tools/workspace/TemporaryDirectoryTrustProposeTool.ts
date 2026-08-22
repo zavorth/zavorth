@@ -1,5 +1,4 @@
 import { asErrorLike } from '../../utils/errorLike';
-import os from 'os';
 import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';

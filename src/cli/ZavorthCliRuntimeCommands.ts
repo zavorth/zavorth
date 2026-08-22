@@ -200,7 +200,7 @@ export async function runSensitiveActionFlow(rawArgs: string[] = []): Promise<nu
   const request = readFlexibleStringFlag(rawArgs, 'request') || rawArgs.filter((arg) => !arg.startsWith('--')).join(' ') || 'Review this workspace in read-only mode.';
   const snapshot = service.buildSnapshot({
     request,
-    decision: readFlexibleStringFlag(rawArgs, 'decision') as any,
+    decision: readFlexibleStringFlag(rawArgs, 'decision') as never,
     approvalId: readFlexibleStringFlag(rawArgs, 'approval-id'),
     sandboxReady: rawArgs.includes('--sandbox-ready'),
     source: 'cli',

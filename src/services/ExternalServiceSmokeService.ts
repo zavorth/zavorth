@@ -160,7 +160,7 @@ export class ExternalServiceSmokeService {
         output: String(output || '').trim(),
       };
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       const finished = this.now();
       return {
         label,

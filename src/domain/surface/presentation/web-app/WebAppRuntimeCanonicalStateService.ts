@@ -26,9 +26,6 @@ interface AgentRunQuery {
   [key: string]: unknown;
 }
 
-interface AgentRuntimeSnapshotOptions extends AgentRunQuery {
-  activeSessionId?: string | null;
-}
 
 const AGENT_RUN_STATUSES = new Set<UniversalAgentRunStatus>([
   'queued',

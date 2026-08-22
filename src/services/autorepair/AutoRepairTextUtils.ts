@@ -24,6 +24,7 @@ export function normalizeAutoRepairError(error: unknown): string {
   return trimAutoRepairOutput(text, MAX_OUTPUT_CHARACTERS);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function tryParseAutoRepairJson(rawText: string): any | null {
   const cleaned = String(rawText || '')
     .replace(/```(?:json|javascript|js|text)?/gi, '')

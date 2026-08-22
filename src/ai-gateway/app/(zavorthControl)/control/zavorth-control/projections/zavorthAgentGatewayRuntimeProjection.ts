@@ -1,12 +1,12 @@
 export const ZAVORTH_CONTROL_RUNTIME_PROJECTION_VERSION = 'zavorth-control-runtime-projection/v1' as const;
 
-type AnyRecord = Record<string, any>;
+type AnyRecord = Record<string, unknown>;
 
 function record(value: unknown): AnyRecord {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as AnyRecord : {};
 }
 
-function array<T = any>(value: unknown): T[] {
+function array<T = unknown>(value: unknown): T[] {
   return Array.isArray(value) ? value as T[] : [];
 }
 
@@ -60,7 +60,7 @@ function activeRunFrom(snapshot: AnyRecord): AnyRecord {
   if (Object.keys(active).length > 0) {
     return active;
   }
-  const observatoryRuns = array<AnyRecord>(snapshot.runObservatory?.runs);
+  const observatoryRuns = array<AnyRecord>(record(snapshot.runObservatory).runs);
   if (observatoryRuns.length > 0) {
     return record(observatoryRuns[0].run || observatoryRuns[0]);
   }
@@ -118,6 +118,8 @@ function runObservatoryFromSnapshot(snapshot: AnyRecord): AnyRecord | null {
   if (!Object.keys(source).length) {
     return null;
   }
+  const sourceHealth = record(source.health);
+  const sourceReplay = record(source.replay);
   return {
     contractVersion: source.contractVersion || '2026-05-03.run-observatory',
     generatedAt: source.generatedAt || snapshot.generatedAt,
@@ -126,12 +128,12 @@ function runObservatoryFromSnapshot(snapshot: AnyRecord): AnyRecord | null {
     matchedRuns: source.matchedRuns ?? array(source.runs).length,
     summary: record(source.summary),
     health: {
-      status: source.health?.status || 'ready',
-      receiptsAvailable: source.health?.receiptsAvailable ?? true,
-      replayAvailable: source.health?.replayAvailable ?? true,
+      status: sourceHealth.status || 'ready',
+      receiptsAvailable: sourceHealth.receiptsAvailable ?? true,
+      replayAvailable: sourceHealth.replayAvailable ?? true,
     },
     replay: {
-      available: source.replay?.available ?? true,
+      available: sourceReplay.available ?? true,
       ...record(source.replay),
     },
     indexes: source.indexes || {},
@@ -157,14 +159,16 @@ function runObservatoryFromSnapshot(snapshot: AnyRecord): AnyRecord | null {
 }
 
 function subagentAutoInvocationFromRun(run: AnyRecord): AnyRecord | null {
-  const existing = record(run.metadata?.subagentAutoInvocation);
+  const runMetadata = record(run.metadata);
+  const existing = record(runMetadata.subagentAutoInvocation);
   const isDeepAudit = /auditoria profunda|deep audit|validate|valide/i.test(`${run.title || ''} ${run.input || ''}`)
-    || run.metadata?.taskSubtype === 'audit';
+    || runMetadata.taskSubtype === 'audit';
   if (!Object.keys(existing).length && !isDeepAudit) {
     return null;
   }
-  const selectedSessionId = run.sessionId || existing.operational?.selectedSessionId;
-  const selectedRunId = run.id || existing.operational?.selectedRunId;
+  const existingOperational = record(existing.operational);
+  const selectedSessionId = run.sessionId || existingOperational.selectedSessionId;
+  const selectedRunId = run.id || existingOperational.selectedRunId;
   return {
     status: existing.status || 'auto-selected',
     selectedBy: existing.selectedBy || 'implicit-complexity',
@@ -233,6 +237,9 @@ function naturalFirstRuntimeFromRun(run: AnyRecord): AnyRecord | null {
   const status = text(safety.status, route.requiresApproval ? 'approval-required' : 'ready');
   const pending = status === 'approval-required' || status === 'approval-required-with-fallback';
   const label = routeLabel(resolvedRoute);
+  const routeRisk = record(route.risk);
+  const safetyRisk = record(safety.risk);
+  const safetyEnforcement = record(safety.enforcement);
   return {
     contractVersion: 'natural-first-zavorthControl-ux/8',
     route: resolvedRoute,
@@ -243,20 +250,20 @@ function naturalFirstRuntimeFromRun(run: AnyRecord): AnyRecord | null {
     shouldEnterGateway: route.shouldEnterGateway ?? entrypoint.gatewayRequired ?? true,
     inputKind: entrypoint.inputKind || 'free-text',
     channel: run.channel,
-    costTier: route.cost?.tier || 'standard',
+    costTier: record(route.cost).tier || 'standard',
     risk: {
       ...record(route.risk),
       ...record(safety.risk),
-      requiresApproval: safety.enforcement?.executorBlockedUntilApproval === true
-        || route.risk?.requiresApproval === true
-        || safety.risk?.routeRequiresApproval === true,
-      previewRequired: route.risk?.previewRequired ?? safety.risk?.previewRequired ?? false,
-      reasons: array(safety.risk?.reasons).length ? safety.risk.reasons : array(route.risk?.reasons),
+      requiresApproval: safetyEnforcement.executorBlockedUntilApproval === true
+        || routeRisk.requiresApproval === true
+        || safetyRisk.routeRequiresApproval === true,
+      previewRequired: routeRisk.previewRequired ?? safetyRisk.previewRequired ?? false,
+      reasons: array(safetyRisk.reasons).length ? safetyRisk.reasons : array(routeRisk.reasons),
     },
     policies: {
       ...record(safety.enforcement),
-      noToolExecutionBeforeApproval: safety.enforcement?.noToolExecutionBeforeApproval ?? true,
-      noApprovalBypass: safety.enforcement?.noApprovalBypass ?? true,
+      noToolExecutionBeforeApproval: safetyEnforcement.noToolExecutionBeforeApproval ?? true,
+      noApprovalBypass: safetyEnforcement.noApprovalBypass ?? true,
     },
     nextSafeAction: safety.nextSafeAction || 'Continue through the governed gateway.',
     stages: [
@@ -292,12 +299,14 @@ function normalizeReleaseAdoptionReadiness(value: unknown): AnyRecord | null {
 function normalizePublicAdoptionPilotLoop(value: unknown): AnyRecord | null {
   const snapshot = record(value);
   if (!Object.keys(snapshot).length) return null;
+  const adoptionLoop = record(snapshot.adoptionLoop);
+  const pilot = record(snapshot.pilot);
   return {
     ...snapshot,
     status: snapshot.status === 'needs-zavorthControl' ? 'pilot-ready' : snapshot.status || 'pilot-ready',
     adoptionLoop: {
       ...record(snapshot.adoptionLoop),
-      plannedPilotCount: snapshot.adoptionLoop?.plannedPilotCount ?? snapshot.pilot?.plannedPilotCount ?? 3,
+      plannedPilotCount: adoptionLoop.plannedPilotCount ?? pilot.plannedPilotCount ?? 3,
       zavorthControlAggregationOnly: true,
       noPayloadPolicy: true,
     },
@@ -327,40 +336,41 @@ function normalizeAgentSelfConfig(value: unknown): AnyRecord | null {
   };
 }
 
-export function mapProviderCockpit(activeRun: any, snapshot: any) {
-  return activeRun?.metadata?.providerCockpit || snapshot?.providerCockpit || { status: 'mapped' };
+export function mapProviderCockpit(activeRun: AnyRecord, snapshot: AnyRecord) {
+  return record(activeRun.metadata).providerCockpit || snapshot.providerCockpit || { status: 'mapped' };
 }
 
-export function mapPerceptionControlProjection(activeRun: any, snapshot: any) {
-  return activeRun?.metadata?.perceptionControl
-    || snapshot?.perceptionControl
-    || snapshot?.zavorthControlProjection
-    || snapshot?.zavorthControlProjection?.perceptionControl
-    || snapshot?.zavorthControlProjection
+export function mapPerceptionControlProjection(activeRun: AnyRecord, snapshot: AnyRecord) {
+  return record(activeRun.metadata).perceptionControl
+    || snapshot.perceptionControl
+    || snapshot.zavorthControlProjection
+    || record(snapshot.zavorthControlProjection).perceptionControl
+    || snapshot.zavorthControlProjection
     || null;
 }
 
-export function mapAgentTeamCompiler(activeRun: any) {
-  return activeRun?.metadata?.agentTeamCompiler || null;
+export function mapAgentTeamCompiler(activeRun: AnyRecord) {
+  return record(activeRun.metadata).agentTeamCompiler || null;
 }
 
-export function mapDynamicWorkflow(activeRun: any) {
-  const snapshot = activeRun?.metadata?.dynamicWorkflow;
+export function mapDynamicWorkflow(activeRun: AnyRecord) {
+  const snapshot = record(activeRun.metadata).dynamicWorkflow;
   return snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot)
     ? sanitizeRuntimeSnapshot(snapshot)
     : null;
 }
 
-export function mapEffortControl(activeRun: any) {
-  const snapshot = activeRun?.metadata?.effortControl;
+export function mapEffortControl(activeRun: AnyRecord) {
+  const snapshot = record(activeRun.metadata).effortControl;
   return snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot)
     ? sanitizeRuntimeSnapshot(snapshot)
     : null;
 }
 
-export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot(snapshotInput: any): AnyRecord {
+export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot(snapshotInput: unknown): AnyRecord {
   const snapshot = record(snapshotInput);
   const activeRun = activeRunFrom(snapshot);
+  const runMetadata = record(activeRun.metadata);
   const approvals = pendingApprovals(activeRun);
   const runtimeWarnings = approvals.length > 0 ? ['An approval is pending before continuing.'] : [];
   const runtimeStatus = runtimeStatusFor(activeRun, approvals, runtimeWarnings);
@@ -440,7 +450,7 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
     approvals,
     artifacts: array(activeRun.artifacts),
     memorySignals: array(activeRun.memorySignals),
-    capabilities: array(activeRun.toolExposure?.tools),
+    capabilities: array(record(activeRun.toolExposure).tools),
     toolExposure: activeRun.toolExposure || { mode: 'unknown', summary: '', tools: [] },
     budget: budgetFromRun(activeRun),
     replay: replayFromRun(activeRun),
@@ -465,34 +475,34 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
     providerCockpit: mapProviderCockpit(activeRun, snapshot),
     perceptionControl: mapPerceptionControlProjection(activeRun, snapshot),
     naturalFirstRuntime: naturalFirstRuntimeFromRun(activeRun),
-    capabilityDiscovery: activeRun.metadata?.capabilityDiscovery || activeRun.metadata?.naturalCapabilityDiscovery || null,
-    universalPreviewMode: activeRun.metadata?.universalPreviewMode || null,
-    capabilityNegotiation: activeRun.metadata?.capabilityNegotiation || null,
-    toolRehearsal: activeRun.metadata?.toolRehearsal || null,
-    safetyNarrative: activeRun.metadata?.safetyNarrative || null,
-    memoryWithReceipts: activeRun.metadata?.memoryWithReceipts || null,
-    agentSelfConfig: normalizeAgentSelfConfig(activeRun.metadata?.agentSelfConfig),
-    artifactMemory: activeRun.metadata?.artifactMemory || null,
-    personalOpsAutopilot: activeRun.metadata?.personalOpsAutopilot || null,
+    capabilityDiscovery: runMetadata.capabilityDiscovery || runMetadata.naturalCapabilityDiscovery || null,
+    universalPreviewMode: runMetadata.universalPreviewMode || null,
+    capabilityNegotiation: runMetadata.capabilityNegotiation || null,
+    toolRehearsal: runMetadata.toolRehearsal || null,
+    safetyNarrative: runMetadata.safetyNarrative || null,
+    memoryWithReceipts: runMetadata.memoryWithReceipts || null,
+    agentSelfConfig: normalizeAgentSelfConfig(runMetadata.agentSelfConfig),
+    artifactMemory: runMetadata.artifactMemory || null,
+    personalOpsAutopilot: runMetadata.personalOpsAutopilot || null,
     agentTeamCompiler: mapAgentTeamCompiler(activeRun),
     dynamicWorkflow: mapDynamicWorkflow(activeRun),
     effortControl: mapEffortControl(activeRun),
-    crossChannelContinuity: activeRun.metadata?.crossChannelContinuity || null,
-    askBeforeAssumptionPolicy: activeRun.metadata?.askBeforeAssumptionPolicy || null,
-    providerMeshConsolidation: activeRun.metadata?.providerMeshConsolidation || null,
-    universalIntentTrustEnforcement: activeRun.metadata?.universalIntentTrustEnforcement || null,
-    runArtifactReceiptReplay: activeRun.metadata?.runArtifactReceiptReplay || null,
-    productizationEvidence: activeRun.metadata?.productizationEvidence || null,
-    productEntryRuntime: activeRun.metadata?.productEntryRuntime || null,
-    releaseInstallerRollbackPath: activeRun.metadata?.releaseInstallerRollbackPath || null,
-    publicSiteDocsDemoSync: activeRun.metadata?.publicSiteDocsDemoSync || null,
-    feedbackTelemetryProductLoop: activeRun.metadata?.feedbackTelemetryProductLoop || null,
-    publicAdoptionPilotLoop: normalizePublicAdoptionPilotLoop(activeRun.metadata?.publicAdoptionPilotLoop),
-    integrationShowcasePartnerSurface: activeRun.metadata?.integrationShowcasePartnerSurface || null,
-    releaseAdoptionReadiness: normalizeReleaseAdoptionReadiness(activeRun.metadata?.releaseAdoptionReadiness),
-    releaseCandidatePreCanaryGate: activeRun.metadata?.releaseCandidatePreCanaryGate || null,
-    blueprintCompletionGate: activeRun.metadata?.blueprintCompletionGate || null,
-    skillMcpQuarantine: activeRun.metadata?.skillMcpQuarantine || null,
-    providerArena: activeRun.metadata?.providerArena || null,
+    crossChannelContinuity: runMetadata.crossChannelContinuity || null,
+    askBeforeAssumptionPolicy: runMetadata.askBeforeAssumptionPolicy || null,
+    providerMeshConsolidation: runMetadata.providerMeshConsolidation || null,
+    universalIntentTrustEnforcement: runMetadata.universalIntentTrustEnforcement || null,
+    runArtifactReceiptReplay: runMetadata.runArtifactReceiptReplay || null,
+    productizationEvidence: runMetadata.productizationEvidence || null,
+    productEntryRuntime: runMetadata.productEntryRuntime || null,
+    releaseInstallerRollbackPath: runMetadata.releaseInstallerRollbackPath || null,
+    publicSiteDocsDemoSync: runMetadata.publicSiteDocsDemoSync || null,
+    feedbackTelemetryProductLoop: runMetadata.feedbackTelemetryProductLoop || null,
+    publicAdoptionPilotLoop: normalizePublicAdoptionPilotLoop(runMetadata.publicAdoptionPilotLoop),
+    integrationShowcasePartnerSurface: runMetadata.integrationShowcasePartnerSurface || null,
+    releaseAdoptionReadiness: normalizeReleaseAdoptionReadiness(runMetadata.releaseAdoptionReadiness),
+    releaseCandidatePreCanaryGate: runMetadata.releaseCandidatePreCanaryGate || null,
+    blueprintCompletionGate: runMetadata.blueprintCompletionGate || null,
+    skillMcpQuarantine: runMetadata.skillMcpQuarantine || null,
+    providerArena: runMetadata.providerArena || null,
   };
 }

@@ -8,7 +8,6 @@ import {
 import { ToolRehearsalSnapshot } from './ToolRehearsalService.js';
 import { AgentRunRiskReviewStage } from './security/AgentRunRiskHooks.js';
 import { ZavorthLlmBrainSnapshot } from '../../contracts/ZavorthLlmBrainContract.js';
-import { CoreDietBaselineDraft } from './AgentRunMetadataEvidenceHelpers.js';
 import { UniversalIntentTrustEnforcementSnapshot } from './UniversalIntentTrustEnforcementService.js';
 import { TrustSliderPolicyDecision } from '../uni/UniversalIntentContracts.js';
 import { CapabilityNegotiationSnapshot } from './CapabilityNegotiationService.js';
@@ -21,7 +20,7 @@ export class AgentRunPolicyFlows {
     const now = this.service.now().toISOString();
     const enforcement = this.applyUniversalIntentTrustEnforcement(run, input, now);
     const decision = enforcement.trustSlider;
-    const metadata = this.service.serializeTrustSliderDecision(decision);
+    const metadata = this.service.serializeTrustSliderDecision(decision) as Record<string, unknown>;
     run.metadata = {
       ...run.metadata,
       trustSlider: metadata,

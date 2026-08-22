@@ -1,4 +1,4 @@
-import { PROVIDER_ID_TO_ALIAS, PROVIDER_MODELS, type ProviderModel } from "../config/providerModels";
+import { PROVIDER_ID_TO_ALIAS, PROVIDER_MODELS } from "../config/providerModels";
 
 export interface ModelInfo {
   provider: string;

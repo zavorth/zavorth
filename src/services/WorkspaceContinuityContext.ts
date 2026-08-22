@@ -67,12 +67,34 @@ type TelegramSurfaceSummary = {
   isContinuationRequest: boolean;
 };
 
+type WorkspaceContinuityMetadata = {
+  workspace_routing_advice?: {
+    workflow_recommendation?: { workflow?: string; name?: string; reason?: string; rationale?: string };
+    response_style?: string;
+  };
+  workspace_operational_memory?: {
+    continuity_recommendations?: Array<{ label?: string; reason?: string }>;
+    active_focuses?: Array<{ summary?: string; task_id?: string }>;
+    recent_artifacts?: Array<{ name?: string; path?: string; kind?: string; type?: string; task_id?: string }>;
+    summary?: string;
+  };
+  workspace_operational_memory_summary?: string;
+  telegram_surface_summary?: unknown;
+  workspace_response_style?: string;
+  workspace_workflow_recommendation?: { workflow?: string; name?: string; reason?: string; rationale?: string };
+  workspace_profile_summary?: string;
+  workflow_run_id?: string;
+  workflow_resume_stage_id?: string;
+  workflow_stage_id?: string;
+  workflow_resume_stage_label?: string;
+};
+
 export function hasWorkspaceContinuitySignals(task: Task | null | undefined): boolean {
   if (!task || !task.metadata || typeof task.metadata !== 'object') {
     return false;
   }
 
-  const metadata = task.metadata as Record<string, any>;
+  const metadata = task.metadata as WorkspaceContinuityMetadata;
   const routingAdvice =
     metadata.workspace_routing_advice && typeof metadata.workspace_routing_advice === 'object'
       ? metadata.workspace_routing_advice
@@ -103,8 +125,8 @@ export function buildWorkspaceContinuityContext(
     return null;
   }
 
-  const metadata =
-    task.metadata && typeof task.metadata === 'object' ? (task.metadata as Record<string, any>) : {};
+  const metadata: WorkspaceContinuityMetadata =
+    task.metadata && typeof task.metadata === 'object' ? (task.metadata as WorkspaceContinuityMetadata) : {};
   const routingAdvice =
     metadata.workspace_routing_advice && typeof metadata.workspace_routing_advice === 'object'
       ? metadata.workspace_routing_advice
@@ -326,6 +348,7 @@ function cleanTitleCandidate(value: string | null): string | null {
   return cleaned ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : null;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildTitleHint(task: Task, continuityRecommendation: any, activeFocus: any, recentArtifact: any): string | null {
   return cleanTitleCandidate(
     asText(continuityRecommendation?.label) ||
@@ -460,6 +483,7 @@ function shortId(value: string): string {
   return normalized ? normalized.substring(0, 8) : '';
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildOperationalInsight(operationalMemory: Record<string, any>): string | null {
   const workflowFriction = Array.isArray(operationalMemory.workflow_friction_recommendations)
     ? operationalMemory.workflow_friction_recommendations[0]

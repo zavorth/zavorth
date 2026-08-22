@@ -1,4 +1,4 @@
-import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
+import type { WebAppSupervisionRouteHandler } from './types.js';
 
 export const handleSessionV2Routes: WebAppSupervisionRouteHandler = async (ctx) => {
   const {

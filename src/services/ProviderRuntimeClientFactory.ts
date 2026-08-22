@@ -56,7 +56,7 @@ export class ProviderRuntimeClientFactory {
     };
   }
 
-  private async executeSafeRequest(resolved: ResolvedProviderRuntime, apiKey: string | null, request: SanitizedProviderInvocationRequest): Promise<ProviderInvocationResult> {
+  private async executeSafeRequest(resolved: ResolvedProviderRuntime, apiKey: string | null, _request: SanitizedProviderInvocationRequest): Promise<ProviderInvocationResult> {
     // Basic local implementation for the framework structure
     // A real implementation would map `request.messages` to OpenAI/Anthropic spec and use node-fetch or native fetch
 

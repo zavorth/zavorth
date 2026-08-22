@@ -25,10 +25,10 @@ import { createWriteStream } from 'node:fs';
 import { Transform } from 'node:stream';
 import { safeFetch } from '../../security/SafeFetchService.js';
 import { validateSkillPackage, computeSkillChecksum } from './SkillPackageValidator.js';
-import { scanSkillForSecurity, recordAuditLog, type SecurityScanResult } from './SkillMarketplaceSecurity.js';
+import { scanSkillForSecurity, recordAuditLog } from './SkillMarketplaceSecurity.js';
 import { SkillRollback } from './SkillRollback.js';
 import { SkillLocalRegistry } from './SkillLocalRegistry.js';
-import { detectSource, getSourceHint, type SourceType } from './SkillSourceDetector.js';
+import { detectSource, getSourceHint } from './SkillSourceDetector.js';
 import { buildGitCloneUrl, getGitPasswordEnv } from './SkillAuth.js';
 import type { SkillInstallResult, SkillPublishResult } from './SkillPackageTypes.js';
 
@@ -387,7 +387,7 @@ export class SkillGitRegistry {
             : null, chunk);
         },
       });
-      await pipeline(res.body as any, limiter, fileStream);
+      await pipeline(res.body as never, limiter, fileStream);
       validateArchiveBeforeExtraction(archivePath);
 
       if (isZip) {

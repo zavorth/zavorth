@@ -273,9 +273,11 @@ export class ExperienceCoreService {
     const activeRun = agentSnapshot?.activeRun || null;
     const runs = agentSnapshot?.runs || [];
     const jitMap = ((
-      globalThis as unknown as { globalPendingJitApprovals: Map<string, unknown> }
+      globalThis as unknown as {
+        globalPendingJitApprovals: Map<string, { id: string; runId?: string; type: string; message: string; createdAt: string }>;
+      }
     ).globalPendingJitApprovals ??= new Map());
-    const jitApprovals: UniversalApprovalRequest[] = Array.from(jitMap.values()).map((jit: any) => ({
+    const jitApprovals: UniversalApprovalRequest[] = Array.from(jitMap.values()).map((jit) => ({
       id: jit.id,
       runId: String(jit.runId || activeRun?.id || 'jit-elevation'),
       title: `DYNAMIC ELEVATION: ${jit.type.toUpperCase()}`,

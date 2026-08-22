@@ -17,8 +17,10 @@ import { JulesExecutor } from '../execution/JulesExecutor.js';
 import { SwarmExecutor } from '../execution/SwarmExecutor.js';
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import type { Plan, PlanStep } from '../contracts/PlanContract.js';
+import type { Task } from '../contracts/TaskContract.js';
 import type { ToolRuntimeService } from '../services/tools/ToolRuntimeService.js';
 import { asErrorLike } from '../utils/errorLike';
+import type { BridgeRequestEnvelope } from '../contracts/BridgeProtocolSchema.js';
 
 type BroadcastClient = {
   broadcast(message: string, roles?: string[]): Promise<void>;
@@ -211,7 +213,7 @@ export class MailboxWatcher {
         if (toolStep.tool && this.toolRuntime) {
           const result = await this.toolRuntime.executeTool(
             toolStep.tool,
-            this.enrichToolArgsWithTrace(toolStep.args || {}, task),
+            this.enrichToolArgsWithTrace((toolStep.args as Record<string, unknown> | null) || {}, task),
           );
           await this.broadcaster.broadcast(`Tool result [${toolStep.tool}]:\n${result}`);
         }
@@ -242,7 +244,7 @@ export class MailboxWatcher {
     }
   }
 
-  private async executePlanThroughGateway(task: any, plan: Plan, executorLabel: string): Promise<void> {
+  private async executePlanThroughGateway(task: Task, plan: Plan, executorLabel: string): Promise<void> {
     this.taskManager.advanceState(task, 'running');
     const executionDecision = await this.executionGateway.submit(task, plan, false);
 
@@ -279,7 +281,7 @@ export class MailboxWatcher {
     );
   }
 
-  private normalizeShellPlanForGateway(task: any, plan: Plan): Plan {
+  private normalizeShellPlanForGateway(task: Task, plan: Plan): Plan {
     const shellSteps = plan.steps
       .filter((step) => step.type === 'shell' && step.command)
       .map((step, index) => this.toGatewayExecStep(step, index));
@@ -324,7 +326,7 @@ export class MailboxWatcher {
     return gateway;
   }
 
-  private enrichToolArgsWithTrace(args: any, task: any): any {
+  private enrichToolArgsWithTrace(args: Record<string, unknown> | null, task: Task): Record<string, unknown> | null {
     if (!args || typeof args !== 'object' || Array.isArray(args)) {
       return args;
     }
@@ -333,10 +335,10 @@ export class MailboxWatcher {
       ...args,
       taskId: task?.task_id || args.taskId || args.task_id,
       metadata: {
-        ...(args.metadata || {}),
+        ...(args.metadata as Record<string, unknown> | undefined),
         traceId:
-          args.metadata?.traceId ||
-          args.metadata?.trace_id ||
+          (args.metadata as Record<string, unknown> | undefined)?.traceId ||
+          (args.metadata as Record<string, unknown> | undefined)?.trace_id ||
           task?.metadata?.traceId ||
           task?.metadata?.trace_id ||
           `task:${task?.task_id || 'unknown'}`,
@@ -369,7 +371,11 @@ export class MailboxWatcher {
       .map((entry) => entry.fullPath);
   }
 
-  private async writeBridgeResponse(requestEnvelope: any, task: any, status: 'COMPLETED' | 'FAILED'): Promise<void> {
+  private async writeBridgeResponse(
+    requestEnvelope: BridgeRequestEnvelope,
+    task: Task,
+    status: 'COMPLETED' | 'FAILED',
+  ): Promise<void> {
     try {
       const response = this.bridgeAdapter.buildResponse({
         correlationId: requestEnvelope.correlationId,

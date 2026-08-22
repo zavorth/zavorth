@@ -5,7 +5,6 @@ import {
   extractTryCloudflareUrl,
   getCloudflaredStartArgs,
   getGenericExitError,
-  getDefaultCloudflaredCertEnv,
   isSpecificCloudflaredError,
 } from "./cloudflared-tunnel/cloudflaredTunnelEnv";
 import {

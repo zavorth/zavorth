@@ -59,7 +59,7 @@ export class KeepaliveStatusService {
       if (!this.existsSync(this.snapshotFilePath)) {
         return null;
       }
-      const parsed = JSON.parse(this.readFileSync(this.snapshotFilePath, 'utf8')) as Record<string, any>;
+      const parsed = JSON.parse(this.readFileSync(this.snapshotFilePath, 'utf8')) as Record<string, unknown>;
       const processEntries = parsed?.processes && typeof parsed.processes === 'object'
         ? Object.entries(parsed.processes)
         : [];

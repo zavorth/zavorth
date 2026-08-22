@@ -34,15 +34,15 @@ function createRequest(method: "GET" | "PUT", body?: unknown) {
 describe("/api/settings/memory", () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    (isAuthenticated as any).mockResolvedValue(true);
-    (getSettings as any).mockResolvedValue({
+    (isAuthenticated as unknown as Record<string, unknown>).mockResolvedValue(true);
+    (getSettings as unknown as Record<string, unknown>).mockResolvedValue({
       memoryEnabled: true,
       memoryMaxTokens: 2000,
       memoryRetentionDays: 30,
       memoryStrategy: "hybrid",
       skillsEnabled: false,
     });
-    (updateSettings as any).mockImplementation(async (updates: Record<string, unknown>) => ({
+    (updateSettings as unknown as Record<string, unknown>).mockImplementation(async (updates: Record<string, unknown>) => ({
       memoryEnabled: true,
       memoryMaxTokens: 2000,
       memoryRetentionDays: 30,
@@ -53,7 +53,7 @@ describe("/api/settings/memory", () => {
   });
 
   it("returns normalized memory and skills settings", async () => {
-    (getSettings as any).mockResolvedValue({
+    (getSettings as unknown as Record<string, unknown>).mockResolvedValue({
       memoryEnabled: false,
       memoryMaxTokens: 3200,
       memoryRetentionDays: 999,
@@ -61,7 +61,7 @@ describe("/api/settings/memory", () => {
       skillsEnabled: true,
     });
 
-    const res = await GET(createRequest("GET") as any);
+    const res = await GET(createRequest("GET") as never);
 
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toEqual({
@@ -81,7 +81,7 @@ describe("/api/settings/memory", () => {
         retentionDays: 14,
         strategy: "semantic",
         skillsEnabled: true,
-      }) as any
+      }) as never
     );
 
     expect(res.status).toBe(200);

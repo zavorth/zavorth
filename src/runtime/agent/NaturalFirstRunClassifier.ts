@@ -322,7 +322,7 @@ function buildCost(route: NaturalFirstRoute, context: NaturalFirstRuntimeContext
 export class NaturalFirstRunClassifier {
   public classify(input: NaturalFirstRunClassificationInput): NaturalFirstRunClassification {
     const rawText = normalizeText(input.text);
-    const text = normalizeSearchText(rawText);
+    normalizeSearchText(rawText);
     const metadata = input.metadata || {};
     const metadataTools = resolveMetadataTools(metadata);
     const requestedTools = unique([...(input.requestedTools || []), ...metadataTools.requested]);

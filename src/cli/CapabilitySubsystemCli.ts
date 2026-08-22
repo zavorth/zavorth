@@ -12,7 +12,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {
-  UniversalCapabilitySubsystemService,
   UniversalCapabilityFabricService,
 } from '../services/UniversalCapabilitySubsystemService.js';
 import { UniversalWorkspaceImportService } from '../services/UniversalWorkspaceImportService.js';

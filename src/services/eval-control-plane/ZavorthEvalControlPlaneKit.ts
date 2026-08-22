@@ -8,7 +8,6 @@ import type {
 ZavorthEvalControlPlaneSnapshot,
   ZavorthEvalDataset,
   ZavorthEvalRegression,
-  ZavorthEvalRegressionSeverity,
   ZavorthEvalScorecard,
   ZavorthEvalScorecardStatus,
   ZavorthEvalSelfmodBinding,
@@ -256,6 +255,7 @@ function buildEvalDatasetManifest(input: {
 export function buildEvalRegressions(
   observability: ProductObservabilitySnapshot,
   scorecards: ZavorthEvalScorecard[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   operationsHealth: any,
   maxRegressions: number,
 ): ZavorthEvalRegression[] {
@@ -513,6 +513,7 @@ export function buildEvalSelfmodBinding(
 export function buildEvalNarrative(input: {
   scorecards: ZavorthEvalScorecard[];
   regressions: ZavorthEvalRegression[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   operatorBrief: any;
   summary: EvaluationSummary;
 }): ZavorthEvalControlPlaneSnapshot['narrative'] {
@@ -714,6 +715,7 @@ export function buildEvalFallbackHistory(
 }
 
 export function captureEvalHistorySnapshot(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evalHistoryService: { capture: (snapshot: any) => ZavorthEvalHistorySnapshot } | null | undefined,
   snapshot: ZavorthEvalControlPlaneSnapshot,
 ): ZavorthEvalHistorySnapshot {

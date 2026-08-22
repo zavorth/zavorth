@@ -363,6 +363,7 @@ export class SelfModificationService {
     ].join('\n');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private tryParseJson(input: string): any | null {
     const stripped = this.stripCodeFences(input).trim();
 

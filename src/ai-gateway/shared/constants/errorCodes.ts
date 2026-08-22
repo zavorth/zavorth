@@ -172,7 +172,7 @@ export function createErrorResponse(code: string, details: ErrorDetails = {}) {
     };
   }
 
-  const response: any = {
+  const response: unknown = {
     error: {
       code: def.code,
       message: def.message,

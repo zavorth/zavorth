@@ -47,7 +47,7 @@ export class TogetherProvider implements ILlmProvider {
       tools: openaiTools,
       tool_choice: openaiTools ? 'auto' : undefined,
       ...nativeToolPayload.extraBody,
-    } as any, buildProviderRequestOptions(options) as any);
+    } as never, buildProviderRequestOptions(options) as never);
 
     const choice = response.choices[0];
 

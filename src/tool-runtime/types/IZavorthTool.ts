@@ -23,6 +23,7 @@ export type ToolDangerLevel = 'safe' | 'moderate' | 'dangerous';
 export interface ToolExecutionResult {
   success: boolean;
   message?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any;
   error?: string;
 }
@@ -35,9 +36,11 @@ export interface ToolExecutionResult {
 export interface IZavorthTool {
   name: string;
   description: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema: z.ZodType<any, any, any>;
   category: ToolCategory;
   dangerLevel: ToolDangerLevel;
   requiresPermission: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   execute(params: Record<string, any>, context?: Record<string, any>): Promise<ToolExecutionResult>;
 }

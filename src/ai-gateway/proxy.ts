@@ -14,7 +14,7 @@ const SECRET = process.env.JWT_SECRET
   : null;
 const AUTH_SESSION_TTL_SECONDS = 30 * 24 * 60 * 60;
 
-export async function proxy(request: any) {
+export async function proxy(request: unknown) {
   const { pathname } = request.nextUrl;
 
   // Pipeline: Add request ID header for end-to-end tracing
@@ -149,7 +149,7 @@ export async function proxy(request: any) {
             );
           } catch (refreshErr: unknown) {
             const err = asErrorLike(refreshErr);
-            const error = err;
+            
             // Refresh failed — continue with existing valid token
             logger.error("[Middleware] JWT auto-refresh failed", { error: err.message });
           }

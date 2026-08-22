@@ -168,7 +168,7 @@ export function renderZavorthSetupStudioFinalReview(snapshot: ZavorthSetupStudio
   return compactSection('First Light review', lines);
 }
 
-export function renderZavorthSetupAppliedSummary(snapshot: ZavorthSetupStudioSnapshot, result: {
+export function renderZavorthSetupAppliedSummary(snapshot: ZavorthSetupStudioSnapshot, _result: {
   written: boolean;
   keys: string[];
   envFile: string;

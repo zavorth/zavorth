@@ -3,11 +3,60 @@ import path from 'path';
 import { Task } from '../../contracts/TaskContract.js';
 import { PermissionRequest } from '../../contracts/PermissionRequest.js';
 import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
+import { RealZavorthBridgeWatcherPermissionSupport } from './RealZavorthBridgeWatcherPermissionSupport.js';
+import { RealZavorthBridgeWatcherTaskSupport } from './RealZavorthBridgeWatcherTaskSupport.js';
+import { RealZavorthBridgeWatcherCompanionSupport } from './RealZavorthBridgeWatcherCompanionSupport.js';
+import {
+  collectArtifacts as collectZavorthBridgeArtifacts,
+  collectRecentLogEvents as collectZavorthBridgeRecentLogEvents,
+  findLatestZavorthBridgeLogFile as findLatestZavorthBridgeLogFileImpl,
+  parseZavorthBridgeLogEvent as parseZavorthBridgeLogEventImpl,
+  isInterestingZavorthBridgeLogLine as isInterestingZavorthBridgeLogLineImpl,
+  isAutomationTriggerZavorthBridgeLogLine as isAutomationTriggerZavorthBridgeLogLineImpl,
+  resolveArtifactContentPath as resolveArtifactContentPathImpl,
+  type ZavorthBridgeArtifact,
+  type ZavorthBridgeLogEvent,
+} from './RealZavorthBridgeWatcherArtifactLogHelpers.js';
+import {
+  normalizeComparisonValue as normalizeComparisonValueImpl,
+  isLocalDirectoryInspectionPrompt as isLocalDirectoryInspectionPromptImpl,
+  resolveDirectoryListingTarget as resolveDirectoryListingTargetImpl,
+  extractDirectoryHints as extractDirectoryHintsImpl,
+  resolveDirectoryHint as resolveDirectoryHintImpl,
+  listAncestorDirectories as listAncestorDirectoriesImpl,
+  normalizePathToken as normalizePathTokenImpl,
+  pathTokensRoughlyMatch as pathTokensRoughlyMatchImpl,
+  isExistingDirectory as isExistingDirectoryImpl,
+  safeReadDirectory as safeReadDirectoryImpl,
+} from './RealZavorthBridgeWatcherDirectoryHelpers.js';
+import {
+  normalizeVisibleResponse as normalizeVisibleResponseImpl,
+  sanitizeVisibleResponse as sanitizeVisibleResponseImpl,
+  isVisibleResponseCaptureReady as isVisibleResponseCaptureReadyImpl,
+  formatFinalResponseBroadcast as formatFinalResponseBroadcastImpl,
+  formatArtifactCompletion as formatArtifactCompletionImpl,
+  humanizeArtifactType as humanizeArtifactTypeImpl,
+  truncate as truncateImpl,
+  formatTelegramFriendlyResponse as formatTelegramFriendlyResponseImpl,
+  tryFormatStructuredInventory as tryFormatStructuredInventoryImpl,
+  extractInventoryHeading as extractInventoryHeadingImpl,
+  extractInventoryItem as extractInventoryItemImpl,
+  looksLikeInventoryItem as looksLikeInventoryItemImpl,
+  isDiscardableZavorthBridgeClosingLine as isDiscardableZavorthBridgeClosingLineImpl,
+  normalizeTelegramFriendlyText as normalizeTelegramFriendlyTextImpl,
+} from './RealZavorthBridgeWatcherFormattingHelpers.js';
+import type { PendingZavorthBridgeSession } from '../AgentBridgeManager.js';
+import type { ZavorthBridgeUiSnapshot } from '../../services/ZavorthBridgeUiCaptureService.js';
+import type {
+  RealZavorthBridgeWatcherWorkflowContext,
+  ScopedCompanionUiTarget,
+} from './RealZavorthBridgeWatcherWorkflowTypes.js';
 export type {
   BotApiLike,
   BroadcastClient,
   RealZavorthBridgeWatcherDeps,
   RealZavorthBridgeWatcherWorkflowContext,
+  ScopedCompanionUiTarget,
 } from './RealZavorthBridgeWatcherWorkflowTypes.js';
 export class RealZavorthBridgeWatcherWorkflow {
   private static readonly PERMISSION_NOTIFICATION_COOLDOWN_MS = 60_000;
@@ -128,7 +177,7 @@ export class RealZavorthBridgeWatcherWorkflow {
     return this.companionSupport.tryAutomationRescue(session, reason);
   }
 
-  public async getLiveCompanionStatus(targetInstanceId?: string): Promise<Record<string, any> | null> {
+  public async getLiveCompanionStatus(targetInstanceId?: string): Promise<Record<string, unknown> | null> {
     return this.companionSupport.getLiveCompanionStatus(targetInstanceId);
   }
 
@@ -148,7 +197,7 @@ export class RealZavorthBridgeWatcherWorkflow {
     session: PendingZavorthBridgeSession,
     reason: 'stalled' | 'log_error',
     attempts: number,
-    status: Record<string, any> | null,
+    status: Record<string, unknown> | null,
   ): Promise<string[]> {
     return this.companionSupport.tryCompanionRecovery(session, reason, attempts, status);
   }
@@ -191,7 +240,7 @@ export class RealZavorthBridgeWatcherWorkflow {
 
   public async failStalledSession(
     session: PendingZavorthBridgeSession,
-    liveStatus: Record<string, any> | null,
+    liveStatus: Record<string, unknown> | null,
   ): Promise<void> {
     return this.taskSupport.failStalledSession(session, liveStatus);
   }
@@ -203,13 +252,13 @@ export class RealZavorthBridgeWatcherWorkflow {
     return this.taskSupport.tryQueueLocalDirectoryFallback(session, task);
   }
 
-  public describeStalledFailure(session: PendingZavorthBridgeSession, liveStatus: Record<string, any> | null): string {
+  public describeStalledFailure(session: PendingZavorthBridgeSession, liveStatus: Record<string, unknown> | null): string {
     return this.taskSupport.describeStalledFailure(session, liveStatus);
   }
 
   public hasCompanionHandoffMismatch(
     session: PendingZavorthBridgeSession,
-    liveStatus: Record<string, any> | null,
+    liveStatus: Record<string, unknown> | null,
   ): boolean {
     return this.taskSupport.hasCompanionHandoffMismatch(session, liveStatus);
   }

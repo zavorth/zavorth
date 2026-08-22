@@ -518,7 +518,7 @@ export class ZavorthSkillMarketplaceService {
 
   getStats(): ZavorthMarketplaceStats {
     const skills = this.discoverNativeSkills();
-    const ratings = this.readRatings();
+    this.readRatings();
     const index = this.readIndex();
 
     const totalDownloads = skills.reduce((sum, entry) => sum + entry.downloads, 0);

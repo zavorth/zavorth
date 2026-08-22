@@ -310,7 +310,7 @@ export const NATURAL_SLASH_POLICIES: Record<string, NaturalSlashPolicy> = {
     multiWordControlPrefixes: ['mcp doctor', 'mcp-doctor', 'run ', 'recommend '],
     freeText: {
       kind: 'custom',
-      rewrite: (raw, lower) => {
+      rewrite: (raw, _lower) => {
         // Single action-id token → run <id>
         if (/^[a-z0-9][a-z0-9._-]*$/i.test(raw.trim())) {
           return `run ${raw.trim()}`;

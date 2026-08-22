@@ -396,8 +396,8 @@ function normalizeFeatureMap(input: unknown): Record<string, boolean> {
   return Object.fromEntries(Object.entries(record).map(([key, value]) => [key, Boolean(value)]));
 }
 
-function asRecord(value: unknown): Record<string, any> {
-  return value && typeof value === 'object' ? value as Record<string, any> : {};
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' ? value as Record<string, unknown> : {};
 }
 
 function text(value: unknown, fallback: string): string {

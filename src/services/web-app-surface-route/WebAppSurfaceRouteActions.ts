@@ -1,9 +1,10 @@
 import { NaturalSetupMutationPlannerService } from '../NaturalSetupMutationPlannerService.js';
 import type { WebAppSurfaceRouteDeps } from './WebAppSurfaceRouteTypes.js';
 
-export function buildNaturalSetupMutationPlanner(deps: any) {
+export function buildNaturalSetupMutationPlanner(deps: WebAppSurfaceRouteDeps) {
   return deps.naturalSetupMutationPlanner || new NaturalSetupMutationPlannerService({
-    controlPlaneService: deps.naturalSetupControlPlane || undefined,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    controlPlaneService: deps.naturalSetupControlPlane as any || undefined,
     channelSetupAssistant: deps.channelSetupAssistant || null,
     channelActions: deps.channelActions || null,
   });

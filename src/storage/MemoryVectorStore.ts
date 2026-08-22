@@ -20,8 +20,11 @@ import type { VectorEmbeddingService } from '../services/VectorEmbeddingService.
 
 type SqliteDatabase = {
   prepare(sql: string): {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     run(...params: unknown[]): any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     get(...params: unknown[]): any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     all(...params: unknown[]): any[];
   };
   exec(sql: string): void;

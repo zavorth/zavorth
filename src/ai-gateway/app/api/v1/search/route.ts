@@ -123,9 +123,9 @@ export async function POST(request: Request) {
     );
   }
 
-  let credentials: Record<string, any> | null = null;
+  let credentials: Record<string, unknown> | null = null;
   let alternateProviderId: string | undefined;
-  let alternateCredentials: Record<string, any> | null = null;
+  let alternateCredentials: Record<string, unknown> | null = null;
 
   if (body.provider) {
     // Explicit provider — single credential lookup (with fallback)

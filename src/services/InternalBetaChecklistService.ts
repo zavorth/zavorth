@@ -48,7 +48,7 @@ export class InternalBetaChecklistService {
     try {
       const providerService = ProviderConfigService.getInstance();
       const providers = await providerService.getProviders();
-      providerConfigured = providers.some((provider: any) => provider.enabled && (!provider.requiresApiKey || provider.secretRef));
+      providerConfigured = providers.some((provider: any) => provider.enabled && (!provider.requiresApiKey || provider.secretRef)); // eslint-disable-line @typescript-eslint/no-explicit-any
     } catch (error: unknown) {// Keep checklist rendering even when provider lookup fails.
       logger.warn('[Internal Beta Checklist] operation failed', error);
     }

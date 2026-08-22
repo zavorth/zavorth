@@ -191,7 +191,7 @@ export class ZavorthNativePowerPackService {
       return {
         ok: false,
         status: 'blocked',
-        summary: (resolved as any).reason,
+        summary: (resolved as any).reason, // eslint-disable-line @typescript-eslint/no-explicit-any
         file: '',
         bytes: 0,
         textPreview: '',
@@ -295,7 +295,7 @@ export class ZavorthNativePowerPackService {
       return {
         ok: false,
         status: 'blocked',
-        summary: (resolved as any).reason,
+        summary: (resolved as any).reason, // eslint-disable-line @typescript-eslint/no-explicit-any
         file: '',
         bytes: 0,
         mimeType: 'application/octet-stream',

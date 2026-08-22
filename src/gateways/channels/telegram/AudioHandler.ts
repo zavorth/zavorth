@@ -181,7 +181,7 @@ export class AudioHandler {
     const options = this.normalizeSynthesisOptions(voiceIdOrOptions);
     const outputFile = path.join(config.tmpDir, `tts_${Date.now()}.mp3`);
     const cleanText = this.cleanTextForTTS(text);
-    const audioConfig = this.getAudioConfig();
+    this.getAudioConfig();
     const responseLanguageCode =
       this.normalizeLanguageCode(options.preferredLanguageCode) || this.detectLanguageCode(cleanText);
     const edgeVoice = this.resolveEdgeVoice(responseLanguageCode, options.voiceId);
@@ -255,7 +255,7 @@ export class AudioHandler {
             return geminiPath;
           }
         } catch (error: unknown) {
-          const err = asErrorLike(error);
+          asErrorLike(error);
           lastGeminiError = error instanceof Error ? error : new Error(String(error));
           logger.error(`[AudioHandler] Gemini TTS error: ${error}`);
         }

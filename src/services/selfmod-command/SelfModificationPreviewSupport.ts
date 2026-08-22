@@ -86,7 +86,7 @@ export class SelfModificationPreviewSupport {
           success: false,
           mode: 'file',
           relativePath: this.options.toRelativePath(preview.absolutePath),
-          summary: 'A proposta de auto-modification foi rejected porque a validation de sintaxe failed.',
+          summary: 'The auto-modification proposal was rejected because the syntax validation failed.',
           validationOutput: validation.output,
         };
       }

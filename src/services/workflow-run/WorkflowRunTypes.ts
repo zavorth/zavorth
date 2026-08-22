@@ -187,7 +187,7 @@ export type WorkflowRunSnapshot = {
   actionable_stages: WorkflowRunActionableStageSnapshot[];
   resume_prompt: string | null;
   artifacts: ArtifactRecord[];
-  artifacts_manifest: Record<string, any>;
+  artifacts_manifest: Record<string, unknown>;
   execution_lifecycle?: ExecutionLifecycleRecord[];
   externalized_state: WorkflowRunExternalizedStateSnapshot | null;
 };

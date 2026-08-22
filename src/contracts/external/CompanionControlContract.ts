@@ -74,6 +74,7 @@ export type CompanionActionPlan = {
 };
 
 export type CompanionActionResult = CompanionActionPlan & {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   result: Record<string, any> | null;
   snapshot: CompanionControlSnapshot | null;
 };

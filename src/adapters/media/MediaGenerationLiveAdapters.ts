@@ -202,7 +202,7 @@ export class AsyncMediaJobGenerationLiveAdapter implements IMediaGenerationAdapt
       const status = normalizeStatus(readPath(pollPayload, this.config.statusPath));
       if (this.config.completedStatuses.includes(status)) {
         const resultPayload = readPath(pollPayload, this.config.resultPath) || pollPayload;
-        const outputs = normalizeMediaOutputs(resultPayload, {
+        const outputs = normalizeMediaOutputs(resultPayload as MediaGenerationPayload | null, {
           providerId: this.config.providerId,
           modelId: String(request.providerHints?.model || this.config.modelId || '').trim() || null,
           modality,
@@ -249,7 +249,7 @@ export class AsyncMediaJobGenerationLiveAdapter implements IMediaGenerationAdapt
 
   private async submitJob(request: MediaGenerationRequest, modality: MediaGenerationModality): Promise<{
     jobId: string | null;
-    payload: unknown;
+    payload: MediaGenerationPayload | null;
   }> {
     const payload = await this.fetchJson(this.config.submitUrl, 'POST', {
       prompt: request.prompt,
@@ -297,7 +297,7 @@ export class AsyncMediaJobGenerationLiveAdapter implements IMediaGenerationAdapt
   }
 }
 
-function normalizeMediaOutputs(payload: MediaGenerationPayload, input: {
+function normalizeMediaOutputs(payload: MediaGenerationPayload | null, input: {
   providerId: string;
   modelId: string | null;
   modality: MediaGenerationModality;

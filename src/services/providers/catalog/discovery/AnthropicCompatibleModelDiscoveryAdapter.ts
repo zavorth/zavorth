@@ -94,6 +94,7 @@ export class AnthropicCompatibleModelDiscoveryAdapter {
         label: input.label,
         active: true,
         source: 'live_api',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         models: rawModels.map((model: any) => ({
           id: String(model.id || model.name || '').replace(/^models\//, ''),
           name: String(model.name || model.id || '').replace(/^models\//, ''),

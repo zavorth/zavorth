@@ -45,6 +45,7 @@ export class SignalChannelAdapter implements GatewayChannelAdapter {
     logger.info('[ChannelMesh] Signal bridge detached.');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async onMessageReceived(payload: any): Promise<void> {
     const userId = String(payload?.sender || payload?.source || payload?.userId || payload?.from || '').trim();
     const chatId = String(payload?.groupId || payload?.chatId || userId || 'signal').trim();
@@ -69,6 +70,7 @@ export class SignalChannelAdapter implements GatewayChannelAdapter {
     }));
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async sendMessage(outboundPayload: any): Promise<void> {
     const envelope = buildOutboundChannelEnvelope({
       platform: 'signal',

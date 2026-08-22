@@ -207,8 +207,8 @@ export function checkRateLimit(
  * not all requests.
  */
 export function recordFailedAttempt(
-  namespace: string,
-  key: string
+  _namespace: string,
+  _key: string
 ): void {
   // The attempt was already recorded in checkRateLimit.
   // This function exists for explicit semantics. No-op by default.

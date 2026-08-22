@@ -1,6 +1,5 @@
 import type {
   ZavorthNativeCapabilityId,
-  ZavorthNativeCapabilityReceipt,
   ZavorthNativeCapabilityStatus,
   ZavorthNativeCompanionDeviceSnapshot,
   ZavorthNativePermissionMode,

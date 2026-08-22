@@ -14,6 +14,7 @@ export interface ExecutionRequest {
   timeout_seconds: number;
   dry_run: boolean;
   requires_backup: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata: Record<string, any>;
 }
 
@@ -43,5 +44,6 @@ export interface ExecutionResult {
   rollback_available: boolean;
   error_code: string | null;
   error_message: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata: Record<string, any>;
 }

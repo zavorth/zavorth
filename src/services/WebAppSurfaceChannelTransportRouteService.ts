@@ -65,7 +65,7 @@ export class WebAppSurfaceChannelTransportRouteService {
     res: http.ServerResponse,
     url: URL,
     pathname: string,
-    deps: any,
+    deps: WebAppSurfaceRouteDeps,
   ): Promise<boolean> {
     if (pathname === CHANNEL_MESH_ROUTE_PATHS.collection && req.method === 'GET') {
       if (!deps.channelMesh) {
@@ -477,7 +477,7 @@ export class WebAppSurfaceChannelTransportRouteService {
     res: http.ServerResponse,
     url: URL,
     pathname: string,
-    deps: any,
+    deps: WebAppSurfaceRouteDeps,
   ): Promise<boolean> {
     if (
       pathname.startsWith(`${CHANNEL_MESH_ROUTE_PATHS.collection}/`)
@@ -697,12 +697,14 @@ export class WebAppSurfaceChannelTransportRouteService {
     return false;
   }
 
-  private buildNaturalSetupMutationPlanner(deps: any): NaturalSetupMutationPlannerLike {
-    return deps.naturalSetupMutationPlanner || new NaturalSetupMutationPlannerService({
-      controlPlaneService: deps.naturalSetupControlPlane || undefined,
+  private buildNaturalSetupMutationPlanner(deps: WebAppSurfaceRouteDeps): NaturalSetupMutationPlannerLike {
+    return (deps.naturalSetupMutationPlanner || new NaturalSetupMutationPlannerService({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      controlPlaneService: deps.naturalSetupControlPlane as any || undefined,
       channelSetupAssistant: deps.channelSetupAssistant || null,
       channelActions: deps.channelActions || null,
-    });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    })) as any;
   }
 
   private extractChannelId(pathname: string): string | null {
@@ -760,6 +762,3 @@ export class WebAppSurfaceChannelTransportRouteService {
   }
 }
 
-function normalizeLegacyChannelMode(value: string): string {
-  return value === 'local' ? 'local' : value;
-}

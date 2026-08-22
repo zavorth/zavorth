@@ -1,7 +1,5 @@
 import type { ExecutionResult } from "../contracts/ExecutionContract.js";
 import {
-  buildExecutionLifecycleRecord,
-  createExecutionCorrelation,
   type ZavorthExecutionCorrelation,
   type ZavorthExecutionLifecycleStatus,
   type ExecutionLifecycleRecord,
@@ -22,7 +20,6 @@ import type {
   WorkflowRunTriggerSnapshot,
   WorkflowStageDecisionAction,
   WorkflowStageDefinition,
-  WorkflowStageStatus,
   WorkflowWorkspaceContext,
 } from "./workflow-run/WorkflowRunTypes.js";
 
@@ -408,7 +405,7 @@ export class WorkflowRunService {
     stageIndex: number,
     handoffSummary: string | null,
     workspaceContext?: WorkflowWorkspaceContext | null,
-  ): Record<string, any> {
+  ): Record<string, unknown> {
     return this.workflowRunSupport.buildTaskMetadata(
       run,
       stage,

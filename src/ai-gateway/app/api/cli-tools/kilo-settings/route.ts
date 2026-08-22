@@ -17,7 +17,7 @@ import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 const KILO_DATA_DIR = path.join(os.homedir(), ".local", "share", "kilo");
 const AUTH_PATH = path.join(KILO_DATA_DIR, "auth.json");
-const KILO_CONFIG_DIR = path.join(os.homedir(), ".config", "kilo");
+path.join(os.homedir(), ".config", "kilo");
 
 // Read auth.json
 const readAuth = async () => {

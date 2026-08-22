@@ -1,4 +1,4 @@
-import type { CliHelpPage, CliHelpTopic } from '../ZavorthCliSurfaceHelpers.js';
+import type { CliHelpPage } from '../ZavorthCliSurfaceHelpers.js';
 
 export const CLI_COMMAND_HELP_PAGES_PART1: Record<string, CliHelpPage> = {
   home: {

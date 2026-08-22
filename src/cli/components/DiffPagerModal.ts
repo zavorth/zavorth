@@ -18,7 +18,7 @@ export class DiffPagerModalRenderer {
   private editorService = new ZavorthEditorBridgeService();
 
   public render(options: DiffPagerModalRenderOptions): string {
-    const { file, topIndex, viewportHeight, selectedHunkIndex, preferredEditor = 'vscode' } = options;
+    const { file, topIndex, viewportHeight, selectedHunkIndex } = options;
     const lines: string[] = [];
 
     const riskColor =
@@ -58,7 +58,7 @@ export class DiffPagerModalRenderer {
       }
     }
 
-    const { visibleItems, total, maxTopIndex } = this.pagerService.computeVisibleSlice(
+    const { visibleItems, total } = this.pagerService.computeVisibleSlice(
       renderedHunkLines,
       topIndex,
       viewportHeight

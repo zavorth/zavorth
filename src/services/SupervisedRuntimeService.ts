@@ -67,7 +67,8 @@ type ProcessLike = {
   pid: number;
   env: NodeJS.ProcessEnv;
   send?: ((message: unknown) => boolean) | undefined;
-  on: (event: string, listener: (...args: any[]) => void) => any;
+  on: (event: string, listener: (...args: any[]) => void) => any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   removeListener: (event: string, listener: (...args: any[]) => void) => any;
 };
 
@@ -277,7 +278,7 @@ export class SupervisedRuntimeService {
         });
       }, 5_000);
 
-      const handler = (message: any) => {
+      const handler = (message: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
         if (message?.type !== 'handoff_reload_ack' || message?.requestId !== requestId) {
           return;
         }
@@ -476,7 +477,7 @@ export class SupervisedRuntimeService {
     } catch (error: unknown) {logger.warn('[Supervised Runtime] JSON parse failed', error); return ''; }
   }
 
-  private getPackageLockRootObject(input: Record<string, any>): Record<string, unknown> | null {
+  private getPackageLockRootObject(input: Record<string, unknown>): Record<string, unknown> | null {
     const packages = input?.packages;
     if (packages && typeof packages === 'object' && !Array.isArray(packages) && '' in packages) {
       return (packages as Record<string, Record<string, unknown>>)[''] || null;

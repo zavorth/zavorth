@@ -6,6 +6,7 @@ import type { WorkflowRunSnapshot } from '../WorkflowRunService.js';
 import { nullableText, text } from './ReplayLearningControlPlaneSupport.js';
 
 export function collectReplayLearningArtifacts(input: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   memoryPlane: any;
   workflowRuns: WorkflowRunSnapshot[];
   limit: number;
@@ -54,6 +55,7 @@ export function collectReplayLearningArtifacts(input: {
 }
 
 export function collectReplayLearningTimeline(input: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   memoryPlane: any;
   workflowRuns: WorkflowRunSnapshot[];
   artifacts: ZavorthReplayLearningArtifactEntry[];
@@ -99,10 +101,12 @@ export function collectReplayLearningTimeline(input: {
 }
 
 export function collectReplayLearningCandidates(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   learningPlane: any,
   limit: number,
 ): ZavorthReplayLearningControlPlaneSnapshot['learningCandidates'] {
   const entries = Array.isArray(learningPlane?.candidates) ? learningPlane.candidates : [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return entries.slice(0, limit).map((entry: any) => ({
     id: text(entry?.id, 'candidate:unknown'),
     title: text(entry?.title, 'Learning candidate'),
@@ -115,6 +119,7 @@ export function collectReplayLearningCandidates(
   }));
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeReplayLearningArtifact(input: Record<string, any>): ZavorthReplayLearningArtifactEntry | null {
   const label = text(input.label, text(input.path || input.url, 'artifact'));
   const id = text(input.id, label).toLowerCase().replace(/[^a-z0-9._:-]+/g, '-');

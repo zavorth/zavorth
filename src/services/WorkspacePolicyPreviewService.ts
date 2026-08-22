@@ -2,8 +2,6 @@ import { AgentWorkspaceConfig } from './AgentWorkspaceConfigService.js';
 import { WorkspaceRuntimeReadinessIssue } from './WorkspaceRuntimeReadinessService.js';
 import { ProviderConfigService } from './ProviderConfigService.js';
 import { ProviderModelRegistry, type ProviderCapability } from './ProviderModelRegistry.js';
-import { SecurityAuditLogger } from './SecurityAuditLogger.js';
-import { LogRepository } from '../storage/LogRepository.js';
 
 export interface WorkspacePolicyPreview {
   providerId?: string;

@@ -210,8 +210,8 @@ export class TeamsGraphBotClient {
     }
 
     if (!response.ok) {
-      const responseMessage = typeof payload?.error?.message === 'string'
-        ? payload.error.message
+      const responseMessage = typeof (payload?.error as { message?: string } | undefined)?.message === 'string'
+        ? (payload?.error as { message: string }).message
         : `HTTP ${response.status}`;
       throw new Error(`Teams Graph request failed: ${responseMessage}`);
     }

@@ -1,7 +1,8 @@
 import { LogRepository } from "../../../../storage/LogRepository.js";
 import { TelegramChannelContractService } from "../../../../gateways/channels/telegram/TelegramChannelContractService.js";
 import { BotGatewaySupport } from "../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupport.js";
-import type { BotGatewaySupportRuntime } from "../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportTypes.js";
+import type { BotGatewaySupportRuntime, BotGatewaySupportState } from "../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportTypes.js";
+import type { Context } from "grammy";
 
 type BotGatewayInput = Pick<BotGatewaySupportRuntime, 'bot' | 'parser' | 'hostIdentityService'> &
   Required<Pick<BotGatewaySupportRuntime, 'processTextMessage' | 'processGroupCommand' | 'canUseInteractiveGroupAi'>> &
@@ -84,9 +85,9 @@ export function createBotGatewaySupport(
     callbackController: gateway.callbackController || {
       handleCallback: async () => undefined,
     },
-    processTextMessage: (ctx: any, text: any) => gateway.processTextMessage(ctx, text),
-    processGroupCommand: (ctx: any, text: any) => gateway.processGroupCommand(ctx, text),
-    canUseInteractiveGroupAi: (ctx: any) => gateway.canUseInteractiveGroupAi(ctx),
+    processTextMessage: (ctx: Context, text: string) => gateway.processTextMessage(ctx, text),
+    processGroupCommand: (ctx: Context, text: string) => gateway.processGroupCommand(ctx, text),
+    canUseInteractiveGroupAi: (ctx: Context) => gateway.canUseInteractiveGroupAi(ctx),
     state: {
       supervisedRuntimeNotificationTimer: null,
       supervisedRuntimeNotificationFlushInFlight: false,
@@ -94,7 +95,7 @@ export function createBotGatewaySupport(
     },
     getSharedSurfaceCommandService: () =>
       gateway.getSharedSurfaceCommandService?.()
-      ?? (gateway as { sharedSurfaceCommandService?: unknown }).sharedSurfaceCommandService as any
+      ?? (gateway as { sharedSurfaceCommandService?: BotGatewaySupportState['sharedSurfaceCommandService'] }).sharedSurfaceCommandService
       ?? null,
-  } as any);
+  } as BotGatewaySupportRuntime);
 }

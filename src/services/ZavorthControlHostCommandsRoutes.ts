@@ -29,6 +29,7 @@ export async function handleHostCommandsRequest(
 
       let rows;
       if (workspaceId) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         rows = db.all<any>(
           `SELECT operation_id, workspace_id, command_preview_redacted, args_preview_redacted,
                   cwd_suffix, shell, risk_level, reason_redacted, created_at, expires_at,
@@ -38,6 +39,7 @@ export async function handleHostCommandsRequest(
           [now, workspaceId]
         );
       } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         rows = db.all<any>(
           `SELECT operation_id, workspace_id, command_preview_redacted, args_preview_redacted,
                   cwd_suffix, shell, risk_level, reason_redacted, created_at, expires_at,
@@ -125,6 +127,7 @@ export async function handleHostCommandsRequest(
       const { operationId } = parsed.data;
 
       const db = await Database.getInstance();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const proposal = db.get<any>(
         'SELECT workspace_id, risk_level, shell FROM workspace_host_command_proposals WHERE operation_id = ? AND approved = 1',
         [operationId]

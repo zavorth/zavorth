@@ -6,6 +6,7 @@ import {
   type ZavorthApprovalActionCardTone,
 } from '../contracts/ZavorthApprovalActionCardsUxContract.js';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LooseRecord = Record<string, any>;
 
 export type ZavorthApprovalActionCardsUxInput = {

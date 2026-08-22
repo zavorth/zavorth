@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { resolveZavorthGatewayBaseUrl } from "@/shared/utils/resolveGatewayBaseUrl";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { logger } from '@/shared/utils/logger';const ZavorthGateway_BASE_URL = resolveZavorthGatewayBaseUrl();
+import { logger } from '@/shared/utils/logger';
+const ZavorthGateway_BASE_URL = resolveZavorthGatewayBaseUrl();
 
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
     const health = healthRes.status === "fulfilled" ? await healthRes.value.json() : {};
     const combos = combosRes.status === "fulfilled" ? await combosRes.value.json() : [];
 
-    const breakers: any[] = health?.circuitBreakers || [];
+    const breakers: unknown[] = health?.circuitBreakers || [];
     const providerScores = new Map<string, number>();
 
     if (Array.isArray(combos)) {

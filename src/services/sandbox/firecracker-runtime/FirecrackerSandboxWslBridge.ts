@@ -25,11 +25,13 @@ type WslBridgeReadyEnvelope = {
 type WslBridgeResponseEnvelope = {
   id: string | null;
   ok: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any;
   error?: string;
 };
 
 type WslBridgePendingRequest = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolve: (value: any) => void;
   reject: (error: Error) => void;
   timer: NodeJS.Timeout;
@@ -128,6 +130,7 @@ export async function executeViaWsl(
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function runWslBridge(payload: Record<string, unknown>, wslProjectRoot: string, timeoutMs: number): any {
   const args = buildWslBridgeArgs(payload, wslProjectRoot);
   const raw = execNativeCommandSync(getWslExecutable(), args, {
@@ -154,6 +157,7 @@ async function runWslBridgeAsync(
   payload: Record<string, unknown>,
   wslProjectRoot: string | null,
   timeoutMs: number,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> {
   const bridge = await ensureWslBridge(wslProjectRoot);
   resetWslBridgeIdleTimer();

@@ -38,7 +38,8 @@ export class WorkspaceWriteApprovalService {
     return ext || filename || 'redacted';
   }
 
-  private canonicalStringify(val: any): string {
+  private canonicalStringify(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    val: any): string {
     if (val === null || typeof val !== 'object') {
       return JSON.stringify(val);
     }

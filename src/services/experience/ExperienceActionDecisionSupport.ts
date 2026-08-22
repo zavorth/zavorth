@@ -8,6 +8,15 @@ import {
   type ExperienceReceipt,
   type ExperienceSnapshot,
 } from './ExperienceContracts.js';
+import { NaturalCommandRouterService } from './NaturalCommandRouterService.js';
+import { defaultZavorthSpeculativeAutonomyCancellationRegistry } from '../../autonomy/ZavorthSpeculativeAutonomyService.js';
+import type { UniversalAgentRunResult } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
+import type {
+  ZavorthSelfHealingAction,
+  ZavorthSelfHealingProjection,
+} from '../../contracts/ui/ZavorthSelfHealingUxContract.js';
+import type { ZavorthSelfHealingReceipt } from '../ZavorthSelfHealingReceiptService.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 import type { ExperienceCoreService } from './ExperienceCoreService.js';
 

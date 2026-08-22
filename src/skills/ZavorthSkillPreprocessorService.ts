@@ -1,6 +1,5 @@
 import { logger } from '../logger.js';
 import fs from 'fs';
-import path from 'path';
 import { execSync, spawnSync } from 'child_process';
 import yaml from 'js-yaml';
 import { config as defaultConfig } from '../config/index.js';
@@ -456,8 +455,10 @@ export class ZavorthSkillPreprocessorService {
   /**
    * Helper to resolve nested keys in objects (e.g. executionHost.timeout).
    */
-  private resolveFromObject(obj: Record<string, any>, keyPath: string): unknown {
+  private resolveFromObject(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    obj: Record<string, any>, keyPath: string): unknown {
     const parts = keyPath.split('.');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let current: any = obj;
     for (const part of parts) {
       if (current && typeof current === 'object' && part in current) {
@@ -515,7 +516,7 @@ export class ZavorthSkillPreprocessorService {
         return content;
       }
 
-      const parsed = yaml.load(match[1]) as any;
+      const parsed = yaml.load(match[1]) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
       const configVars = parsed?.metadata?.zavorth?.config;
       if (!Array.isArray(configVars) || configVars.length === 0) {
         return content;

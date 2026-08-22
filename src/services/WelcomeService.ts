@@ -122,6 +122,7 @@ export class WelcomeService {
 
     if (existing) {
       const sets: string[] = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const params: any[] = [];
       for (const [key, value] of Object.entries(fields)) {
         sets.push(`${key} = ?`);
@@ -132,6 +133,7 @@ export class WelcomeService {
       params.push(chatId);
       this.db.run(`UPDATE group_welcome SET ${sets.join(', ')} WHERE chat_id = ?`, params);
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const allFields: any = {
         chat_id: chatId,
         welcome_message: null,

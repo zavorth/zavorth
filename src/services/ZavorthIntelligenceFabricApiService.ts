@@ -2,7 +2,7 @@ import type {
   IntelligenceFabricInput,
   IntelligenceFabricSnapshot,
 } from '../contracts/native/IntelligenceFabricContract.js';
-import { ZavorthIntelligencePipelineService, ZavorthIntelligenceFabricService } from './ZavorthIntelligencePipelineService.js';
+import { ZavorthIntelligenceFabricService } from './ZavorthIntelligencePipelineService.js';
 
 export class ZavorthIntelligenceFabricApiService {
   private readonly fabric: ZavorthIntelligenceFabricService;

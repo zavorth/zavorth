@@ -1,7 +1,6 @@
 import { createHash } from 'node:crypto';
 import {
   NaturalFirstRunClassifier,
-  type NaturalFirstRunClassification,
 } from '../runtime/agent/NaturalFirstRunClassifier.js';
 import { ZavorthTransactionRuntimeOrchestratorService } from './ZavorthTransactionRuntimeOrchestratorService.js';
 

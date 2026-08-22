@@ -1,7 +1,6 @@
 import { assertPublicHttpTargetAllowed } from '../ai-gateway/lib/security/egressGuard.js';
 import { decideSecurityPolicy, formatSecurityPolicyReceipt } from './SecurityPolicyBroker.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
-import { EgressNetPolicyGuard } from './EgressNetPolicyGuard.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
 interface ReadableStreamLike {

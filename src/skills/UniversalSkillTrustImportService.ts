@@ -15,7 +15,6 @@ import {
 import type {
   ZavorthUniversalSkillCandidate,
   ZavorthUniversalSkillIntakePreview,
-  ZavorthUniversalSkillIntakeIssue,
   ZavorthUniversalSkillPermissionProfileId,
 } from '../contracts/ZavorthUniversalSkillIntakeContract.js';
 import type {

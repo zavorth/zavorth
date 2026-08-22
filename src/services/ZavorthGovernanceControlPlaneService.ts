@@ -19,6 +19,8 @@ type SnapshotLike = {
   buildSnapshot: (input?: GovernanceCompatPayload) => GovernanceCompatPayload;
 };
 
+// Compatibility payload: accepts any service snapshot shape for cross-service wiring.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GovernanceCompatPayload = any;
 
 type GovernanceRuntime = {

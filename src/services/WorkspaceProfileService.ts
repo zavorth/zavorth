@@ -75,7 +75,7 @@ export class WorkspaceProfileService {
     return profile;
   }
 
-  public buildTaskMetadata(profile: WorkspaceProfile): Record<string, any> {
+  public buildTaskMetadata(profile: WorkspaceProfile): Record<string, unknown> {
     return {
       workspace: profile.workspace,
       workspace_name: profile.workspace_name,
@@ -197,14 +197,14 @@ export class WorkspaceProfileService {
     };
   }
 
-  private async readPackageJson(workspace: string): Promise<Record<string, any> | null> {
+  private async readPackageJson(workspace: string): Promise<Record<string, unknown> | null> {
     const packageJsonPath = path.join(workspace, 'package.json');
     if (!fs.existsSync(packageJsonPath)) {
       return null;
     }
 
     try {
-      return JSON.parse(await fs.promises.readFile(packageJsonPath, 'utf8')) as Record<string, any>;
+      return JSON.parse(await fs.promises.readFile(packageJsonPath, 'utf8')) as Record<string, unknown>;
     } catch (error: unknown) {logger.warn('[Workspace Profile] JSON parse failed', error); return null; }
   }
 
@@ -213,7 +213,7 @@ export class WorkspaceProfileService {
     return candidates.filter((fileName) => fs.existsSync(path.join(workspace, fileName)));
   }
 
-  private detectFrameworks(packageJson: Record<string, any> | null): string[] {
+  private detectFrameworks(packageJson: Record<string, unknown> | null): string[] {
     const deps = {
       ...(packageJson?.dependencies || {}),
       ...(packageJson?.devDependencies || {}),
@@ -246,7 +246,7 @@ export class WorkspaceProfileService {
     return frameworks;
   }
 
-  private detectLanguages(workspace: string, packageJson: Record<string, any> | null): string[] {
+  private detectLanguages(workspace: string, packageJson: Record<string, unknown> | null): string[] {
     const languages: string[] = [];
     if (packageJson || fs.existsSync(path.join(workspace, 'tsconfig.json'))) {
       languages.push('javascript');
@@ -275,7 +275,7 @@ export class WorkspaceProfileService {
 
   private detectStacks(
     workspace: string,
-    packageJson: Record<string, any> | null,
+    packageJson: Record<string, unknown> | null,
     frameworks: string[],
     languages: string[],
   ): string[] {
@@ -315,7 +315,7 @@ export class WorkspaceProfileService {
     return Array.from(new Set(stacks));
   }
 
-  private extractScripts(packageJson: Record<string, any> | null): Record<string, string> {
+  private extractScripts(packageJson: Record<string, unknown> | null): Record<string, string> {
     const scripts = packageJson?.scripts && typeof packageJson.scripts === 'object'
       ? packageJson.scripts as Record<string, string>
       : {};

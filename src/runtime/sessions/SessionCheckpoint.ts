@@ -18,15 +18,6 @@ export interface SessionCheckpointData {
   metadata: Record<string, unknown>;
 }
 
-interface SessionRegistryEntry {
-  data: Omit<SessionCheckpointData, 'sessionId' | 'timestamp'>;
-  checkpoints: Array<{
-    id: string;
-    label: string;
-    timestamp: string;
-    filePath: string;
-  }>;
-}
 
 export class SessionCheckpoint {
   private basePath: string;

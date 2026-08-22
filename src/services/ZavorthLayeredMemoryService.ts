@@ -2,7 +2,6 @@ import { config } from '../config/index.js';
 import { ZavorthLearningPlaneService, type LearningCandidateSnapshot } from './ZavorthLearningPlaneService.js';
 import {
   ZavorthMemoryPlaneService,
-  type ZavorthMemoryPlaneSnapshot,
   type ZavorthMemoryPlaneTimelineEntry,
 } from './ZavorthMemoryPlaneService.js';
 import { MemoryService, type MemoryEntry } from './MemoryService.js';

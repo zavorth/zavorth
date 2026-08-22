@@ -1,4 +1,3 @@
-import { createHash } from 'crypto';
 import { WorkspaceTaskMandateService } from './WorkspaceTaskMandateService';
 
 export interface PtyInputClassification {
@@ -16,7 +15,7 @@ export class PtyInputPolicyService {
     this.mandateService = mandateService;
   }
 
-  public classifyInput(workspaceId: string, input: string, isFromAgent: boolean, sessionCwd: string): PtyInputClassification {
+  public classifyInput(workspaceId: string, input: string, isFromAgent: boolean, _sessionCwd: string): PtyInputClassification {
     // Basic redaction (not comprehensive, but best-effort to hide obvious secrets in logs)
     const sanitizedInput = this.redactSecrets(input);
 

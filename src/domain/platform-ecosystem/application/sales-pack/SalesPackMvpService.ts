@@ -13,7 +13,6 @@ import type {
   SalesPackInboundMessageInput,
   SalesPackLedgerEvent,
   SalesPackMode,
-  SalesRiskLevel,
 } from '../../../../contracts/SalesPackContract.js';
 import type { AppendSalesPackEventInput } from './SalesPackEventLedgerService.js';
 import { SalesPackEventLedgerService } from './SalesPackEventLedgerService.js';
@@ -665,12 +664,6 @@ function cleanNullable(value: unknown): string | null {
   return normalized || null;
 }
 
-function normalize(value: string): string {
-  return clean(value)
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-}
 
 function clip(value: string, limit: number): string {
   const normalized = clean(value);

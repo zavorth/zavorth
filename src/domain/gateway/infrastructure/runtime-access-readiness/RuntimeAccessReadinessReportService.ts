@@ -283,6 +283,7 @@ export class RuntimeAccessReadinessReportService {
     return `${targets.slice(0, -1).join(', ')} and ${targets[targets.length - 1]}`;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private normalizeMcpSummary(snapshot: Pick<{ summary: any }, 'summary'> | null | undefined): any {
     const summary = snapshot?.summary;
     return {

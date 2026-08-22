@@ -4,7 +4,6 @@ import { ZavorthEvalHistoryFileService } from '../../../../services/ZavorthEvalH
 import { ZavorthTelemetryLedgerService } from '../../../../services/ZavorthTelemetryLedgerService.js';
 import { ZavorthTrustPlaneActionService } from '../../../../services/ZavorthTrustPlaneActionService.js';
 import { ZavorthTrustPlaneService } from '../../../../services/ZavorthTrustPlaneService.js';
-import type { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
 import { McpToolPolicy } from '../../../../mcp/McpToolPolicy.js';
 import { McpToolPolicyFileService } from '../../../../services/McpToolPolicyFileService.js';
 import { NaturalChannelSetupTurnService } from '../../../../services/NaturalChannelSetupTurnService.js';
@@ -19,9 +18,9 @@ import type { WebAppSurfaceRouteDeps } from '../../../../services/WebAppSurfaceR
 import type { WebAppRuntimeContextBridge } from './WebAppRuntimeContextBridge.js';
 import type { CanonicalPublicApiService } from '../../../../api/public/CanonicalPublicApiService.js';
 
-type JsonWriter = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
+// Dynamic service bag: route handlers access dozens of services by key.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SurfaceDynamic = any;
-type JsonReader = (req: http.IncomingMessage) => Promise<Record<string, SurfaceDynamic>>;
 type SurfaceDependency = SurfaceDynamic;
 type SurfaceDependencyMap = Record<string, SurfaceDependency>;
 type SurfaceRuntime = SurfaceDynamic;

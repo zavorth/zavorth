@@ -1,10 +1,10 @@
 import crypto from 'crypto';
-import type { ISandboxRuntime, SandboxLanguage, SandboxRequest, SandboxResult, SandboxSecurityLevel } from './ISandboxRuntime.js';
+import type { ISandboxRuntime, SandboxRequest, SandboxResult, SandboxSecurityLevel } from './ISandboxRuntime.js';
 import { DockerSandboxRuntime } from './DockerSandboxRuntime.js';
 import { FirecrackerSandboxRuntime } from './FirecrackerSandboxRuntime.js';
 import { LocalJailSandboxRuntime } from './LocalJailSandboxRuntime.js';
 import { WasmSandboxRuntime } from './WasmSandboxRuntime.js';
-import { SandboxPolicyService, type CodeSandboxPolicy } from './SandboxPolicyService.js';
+import { SandboxPolicyService } from './SandboxPolicyService.js';
 import { logger } from '../../logger.js';
 import { asErrorLike } from '../../utils/errorLike.js';
 

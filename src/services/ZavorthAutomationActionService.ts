@@ -551,7 +551,7 @@ export class ZavorthAutomationActionService {
     taskId?: string | null;
     requestedBy?: string | null;
     sourceSurface?: string | null;
-  }): Promise<Record<string, any>> {
+  }): Promise<Record<string, unknown>> {
     if (input.actionId === 'create') {
       const plan = this.intentService.buildPlan({
         intentText: String(input.intentText || ''),
@@ -595,7 +595,7 @@ export class ZavorthAutomationActionService {
     };
   }
 
-  private buildMutationTitle(actionId: string, payload: Record<string, any>): string {
+  private buildMutationTitle(actionId: string, payload: Record<string, unknown>): string {
     if (actionId === 'create') {
       return `Create automation ${payload.scheduleLabel || payload.schedule || 'recurring'}`;
     }

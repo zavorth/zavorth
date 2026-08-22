@@ -121,14 +121,14 @@ function pluginSdk(input: ZavorthActionHandlerInput): ZavorthActionResult {
   const action = text(input.args.action, 'status');
   const service = new ZavorthExtensionPluginSdkService({ cwd: input.root });
   const snapshot = service.execute({
-    action: action as any,
+    action: action as any, // eslint-disable-line @typescript-eslint/no-explicit-any
     manifestPath: text(input.args.manifestPath, ''),
     manifestJson: text(input.args.manifestJson, ''),
     pluginId: text(input.args.pluginId || input.args.plugin, ''),
     lifecycle: text(input.args.lifecycle, ''),
     approvalId: text(input.approvalId || input.args.approvalId, ''),
     workspace: input.root,
-  } as any);
+  } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
   const mutating = action.includes('apply') || ['install', 'enable', 'disable', 'uninstall', 'upgrade'].includes(text(input.args.lifecycle).toLowerCase());
   if (mutating && input.operation !== 'action.apply') {
     return result({
@@ -277,7 +277,7 @@ function terminalBackends(input: ZavorthActionHandlerInput): ZavorthActionResult
     approvalId: input.approvalId || text(input.args.approvalId, ''),
     dockerImage: text(input.args.dockerImage, ''),
     sshHost: text(input.args.sshHost, ''),
-  } as any);
+  } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
   return result({
     ok: !['blocked', 'needs-configuration'].includes(snapshot.status),
     actionId: input.actionId,
@@ -329,17 +329,16 @@ async function voiceBackends(input: ZavorthActionHandlerInput): Promise<ZavorthA
 
   if (selected.id === 'edge') {
     try {
-      // @ts-expect-error - dynamic import for optional msedge-tts package
       const { MsEdgeTTS } = await import('msedge-tts');
       const tts = new MsEdgeTTS();
       const voiceName = text(input.args.voice, 'pt-BR-FranciscaNeural');
-      await tts.setMetadata(voiceName, 'audio-24khz-48kbitrate-mono-mp3' as never);
+      await tts.setMetadata(voiceName, 'audio-24khz-48kbitrate-mono-mp3' as any); // eslint-disable-line @typescript-eslint/no-explicit-any
       const artifactPath = path.join(outDir, `tts-${Date.now()}.mp3`);
       const { pipeline } = await import('node:stream/promises');
       const { createWriteStream } = await import('node:fs');
-      const { audioStream } = tts.toStream(speechText);
-      await pipeline(audioStream as any, createWriteStream(artifactPath));
-      (tts as any).close?.();
+      const { audioStream } = tts.toStream(speechText) as unknown as { audioStream: NodeJS.ReadableStream };
+      await pipeline(audioStream as any, createWriteStream(artifactPath)); // eslint-disable-line @typescript-eslint/no-explicit-any
+      (tts as any).close?.(); // eslint-disable-line @typescript-eslint/no-explicit-any
       const stat = await fsp.stat(artifactPath);
       return result({
         ok: true,

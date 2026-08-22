@@ -50,7 +50,7 @@ export async function replyWithTelegramSurfaceResponse(
     const { reply_markup } = output.replyOptions as { reply_markup?: unknown };
     const replyOpts = reply_markup ? { reply_markup } : undefined;
     sent = replyOpts
-      ? ((await ctx.reply(output.text, replyOpts as any)) as { message_id?: number })
+      ? ((await ctx.reply(output.text, replyOpts as never)) as { message_id?: number })
       : ((await ctx.reply(output.text)) as { message_id?: number });
   } else {
     sent = (await ctx.reply(output.text)) as { message_id?: number };

@@ -148,7 +148,7 @@ export function scanSkillForSecurity(skillDir: string): SecurityScanResult {
   return { safe, riskLevel, issues, recommendations, requiredPermissions, gpgVerified };
 }
 
-function inferPermissions(content: string): SkillPermission[] {
+function inferPermissions(_content: string): SkillPermission[] {
   return [...DEFAULT_PERMISSIONS];
 }
 

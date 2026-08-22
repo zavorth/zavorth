@@ -3,7 +3,6 @@ import {
   CAPABILITY_PACK_CATALOG_CONTRACT_VERSION,
   type CapabilityPackCatalogQuery,
   type CapabilityPackCatalogSnapshot,
-  type CapabilityPackCategory,
   type CapabilityPackDefinition,
 } from '../contracts/CapabilityPackCatalogContract.js';
 

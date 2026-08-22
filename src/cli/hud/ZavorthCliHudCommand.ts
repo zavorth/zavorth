@@ -499,10 +499,6 @@ async function waitForInteractiveDecision(input: {
   });
 }
 
-function firstPendingPlanId(mutationPlane: Pick<ZavorthMutationPlaneService, 'listPlans'>): string | null {
-  return mutationPlane.listPlans({ limit: 20, includeExpired: false })
-    .find((plan) => plan.status === 'waiting_approval' || plan.approval.status === 'pending')?.id || null;
-}
 
 function resolvePlanId(
   mutationPlane: Pick<ZavorthMutationPlaneService, 'listPlans'>,

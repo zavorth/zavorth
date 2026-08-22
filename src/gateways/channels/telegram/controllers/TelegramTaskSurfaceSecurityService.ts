@@ -4,7 +4,7 @@ type TelegramTaskSurfaceSecurityInput = {
     platform?: string | null;
     publicServerMode?: boolean | null;
   } | null;
-  composer_payload?: Record<string, any> | null;
+  composer_payload?: Record<string, unknown> | null;
 };
 
 export type TelegramTaskSurfaceSecurityPosture = {

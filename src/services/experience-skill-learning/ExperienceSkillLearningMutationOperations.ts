@@ -1,7 +1,6 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { ChatMessage, ILlmProvider } from '../../providers/ILlmProvider.js';
 import { ExperienceSkillLearningOperations } from './ExperienceSkillLearningOperations.js';
 import { cleanUserId, commonPrefixLength, redact, SIMILAR_GOAL_SLUG_CHARS, SIMILAR_TOOL_JACCARD, slugify, titleFromGoal, type DraftMeta, type ExperienceSkillDraftSummary, type ExperienceSkillLearningResult } from './ExperienceSkillLearningModel.js';
 

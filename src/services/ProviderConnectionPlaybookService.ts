@@ -8,7 +8,6 @@ import {
 } from '../contracts/ProviderConnectionPlaybookContract.js';
 import type {
   ZavorthProviderReadinessEntry,
-  ZavorthProviderReadinessMatrixSnapshot,
 } from '../contracts/ZavorthProviderReadinessMatrixContract.js';
 import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
 

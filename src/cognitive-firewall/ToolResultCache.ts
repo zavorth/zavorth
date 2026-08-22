@@ -302,7 +302,7 @@ export class ToolResultCache {
         if (this.isExpired(entry)) continue;
 
         // Verify key integrity — re-hash and compare
-        const expectedKey = this.buildKey(entry.toolName, { __hash: entry.key });
+        this.buildKey(entry.toolName, { __hash: entry.key });
         // We can't fully verify without original args, so trust entries with valid structure
         this.cache.set(entry.key, entry);
       }

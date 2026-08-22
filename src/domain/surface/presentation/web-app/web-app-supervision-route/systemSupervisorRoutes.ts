@@ -5,7 +5,7 @@ import {
   normalizeSystemOverlordExecutionProfile,
   normalizeSystemOverlordAutonomyLevel,
 } from './helpers.js';
-import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
+import type { WebAppSupervisionRouteHandler } from './types.js';
 import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (ctx) => {

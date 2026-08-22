@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
-import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
 const ALLOWED_SCOPES = ['global', 'session', 'task'] as const;

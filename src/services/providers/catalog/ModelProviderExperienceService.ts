@@ -1,7 +1,6 @@
 import type {
   AccessRouteCatalogEntry,
   ModelCapabilityKind,
-  ModelPickerReadiness,
 } from './ProviderCatalogContracts.js';
 import { ModelPickerService, type ModelPickerServiceResult } from './ModelPickerService.js';
 

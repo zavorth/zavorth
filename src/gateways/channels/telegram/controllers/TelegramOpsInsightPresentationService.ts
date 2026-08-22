@@ -52,6 +52,14 @@ type TelegramOpsModeFlags = {
   presentationEnabled: boolean;
 };
 
+type ResumableWorkflowEntry = {
+  workflow?: unknown;
+  stage_label?: unknown;
+  resume_stage_label?: unknown;
+  workflow_run_id?: unknown;
+  resume_stage_id?: unknown;
+};
+
 export class TelegramOpsInsightPresentationService {
   private static cachedSkillPlaneSnapshot: ReturnType<SkillLibraryPresentationService['buildSnapshot']> | null = null;
   private readonly capabilityRegistry = getDefaultCapabilityRegistry();
@@ -509,16 +517,12 @@ export class TelegramOpsInsightPresentationService {
     }
 
     if (resumableWorkflow) {
-      const workflowLabel = String((resumableWorkflow as any).workflow || '').trim() || 'workflow';
-      const stageLabel = String(
-        (resumableWorkflow as any).stage_label || (resumableWorkflow as any).resume_stage_label || '',
-      ).trim();
-      const workflowRunId = String(
-        (resumableWorkflow as any).workflow_run_id || (recentResumableWorkflow as any)?.workflow_run_id || '',
-      ).trim();
-      const resumeStageId = String(
-        (resumableWorkflow as any).resume_stage_id || (recentResumableWorkflow as any)?.resume_stage_id || '',
-      ).trim();
+      const resumable = resumableWorkflow as ResumableWorkflowEntry;
+      const recent = recentResumableWorkflow as ResumableWorkflowEntry | null;
+      const workflowLabel = String(resumable.workflow || '').trim() || 'workflow';
+      const stageLabel = String(resumable.stage_label || resumable.resume_stage_label || '').trim();
+      const workflowRunId = String(resumable.workflow_run_id || recent?.workflow_run_id || '').trim();
+      const resumeStageId = String(resumable.resume_stage_id || recent?.resume_stage_id || '').trim();
       lines.push(`- Workflow to resume: ${workflowLabel}${stageLabel ? ` ? ${stageLabel}` : ''}.`);
       if (workflowRunId) {
         lines.push(`- Resume shortcut: /workflow resume ${workflowRunId}${resumeStageId ? ` ${resumeStageId}` : ''}`);

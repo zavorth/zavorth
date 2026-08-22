@@ -5,7 +5,7 @@ import type { SessionContinuitySnapshot } from '../../runtime/context/SessionCon
 import { mergeWorkflowRunIntoWorkspaceContinuityContext } from '../../runtime/context/WorkspaceContinuityContext.js';
 import type { WorkflowRunSnapshot } from '../../runtime/workflows/WorkflowRunService.js';
 import { SurfaceIdentityService } from '../SurfaceIdentityService.js';
-import type { ExecutionLifecycleLinkService, ExecutionLifecycleContextLink } from '../ExecutionLifecycleLinkService.js';
+import type { ExecutionLifecycleLinkService } from '../ExecutionLifecycleLinkService.js';
 import type { ToolRunRecord } from '../ToolRunRecordService.js';
 import type {
   GatewaySessionListEntry,

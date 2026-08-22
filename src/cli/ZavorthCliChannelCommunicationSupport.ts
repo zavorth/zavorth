@@ -1,13 +1,25 @@
+import { existsSync } from 'fs';
+import * as fs from 'fs/promises';
 import * as path from 'path';
+import { createHash } from 'crypto';
 import {
   readFlag,
   readNumberFlag,
+  readFlags,
   stateDir,
   readArray,
   writeJson,
   idWithTime,
   splitList,
+  ensureDir,
+  isInside,
+  sha256,
+  getEnv,
+  runProcess,
+  type JsonObject,
 } from './ZavorthCliSharedHelpers.js';
+import { asErrorLike } from '../utils/errorLike.js';
+import { logger } from '../logger.js';
 
 import {
   redact,

@@ -1,5 +1,4 @@
 import { SandboxPolicyService } from './sandbox/SandboxPolicyService.js';
-import { logger } from '../logger.js';
 import { ZavorthRuntimeModesService, type ZavorthRuntimeModeSnapshot } from './ZavorthRuntimeModesService.js';
 import { OperationsHealthService, type OperationsHealthSnapshot } from '../observability/OperationsHealthService.js';
 import type { LogRepository } from '../storage/LogRepository.js';

@@ -54,7 +54,7 @@ const WATCH_EXTENSIONS = new Set(['.js', '.cjs', '.mjs', '.ts', '.json']);
 
 export class PluginHotReloadService {
   public watch(input: PluginHotReloadWatchInput): PluginHotReloadWatchHandle {
-    const root = path.resolve(input.root || process.cwd());
+    path.resolve(input.root || process.cwd());
     const pluginPath = path.resolve(input.pluginPath);
     const intervalMs = Math.max(25, Number(input.intervalMs || 500));
     const debounceMs = Math.max(0, Number(input.debounceMs ?? 150));

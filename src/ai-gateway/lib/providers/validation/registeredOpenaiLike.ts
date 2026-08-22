@@ -10,13 +10,13 @@ connectionFailed,
 import { asErrorLike } from '../../../../utils/errorLike.js';
 
 export async function validateRegisteredOpenAILikeProvider({
-  provider,
+  _provider,
   apiKey,
   baseUrl,
   providerSpecificData = {},
-  modelId = "gpt-4o-mini",
+  _modelId = "gpt-4o-mini",
   modelsUrl: customModelsUrl,
-}: any) {
+}: unknown) {
   if (!baseUrl) {
     return { valid: false, error: "No base URL configured for OpenAI compatible provider" };
   }

@@ -14,7 +14,7 @@ import { ZavorthMnemosProceduralMemoryService } from './ZavorthMnemosProceduralM
 import { ZavorthReplayLearningService, type ZavorthReplayLearningSnapshot } from './ZavorthReplayLearningService.js';
 import { ZavorthSkillEvolutionService, type ZavorthSkillEvolutionSnapshot } from './ZavorthSkillEvolutionService.js';
 import { ZavorthAdaptiveLearningOsService } from './ZavorthAdaptiveLearningOsService.js';
-import { TieredAutonomyClassifier, type TieredAutonomyConfig, type AutonomyTier } from './TieredAutonomyService.js';
+import { TieredAutonomyClassifier } from './TieredAutonomyService.js';
 
 type NativeLearningRuntime = {
   now?: () => Date;

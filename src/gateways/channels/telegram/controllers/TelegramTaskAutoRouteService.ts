@@ -4,7 +4,6 @@ import { Task } from '@zavorth/contracts/TaskContract.js';
 import { RouteIntent } from '../../../../orchestrator/IntentRouter.js';
 import { RiskClassification } from '../../../../orchestrator/RiskClassifier.js';
 import {
-  WorkspaceRoutingAdvisor,
   type WorkspaceRoutingAdvice,
 } from '@zavorth/runtime/context/WorkspaceRoutingAdvisor.js';
 import type {
@@ -78,7 +77,7 @@ export type TelegramTaskAutoRouteServiceDeps = {
     route: RouteIntent,
     advice: WorkspaceRoutingAdvice,
     learnedRoute: LearnedRoute,
-  ) => Record<string, any>;
+  ) => Record<string, unknown>;
 };
 
 export type TelegramTaskAutoRouteServiceParams = {

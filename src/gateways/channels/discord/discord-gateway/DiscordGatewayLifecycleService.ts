@@ -164,7 +164,7 @@ export class DiscordGatewayLifecycleService {
     }
   }
 
-  private buildSlashCommands(): Array<Record<string, any>> {
+  private buildSlashCommands(): Array<Record<string, unknown>> {
     const manifest = getDiscordSlashCommandManifest({
       commandExposure: this.discordSurfacePolicyService.getCommandExposure(),
       publicServerMode: this.discordSurfacePolicyService.isPublicServerMode(),

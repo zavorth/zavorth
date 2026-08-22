@@ -5,7 +5,7 @@ import { ZavorthAutomationHookService } from './ZavorthAutomationHookService.js'
 type HookListener = (payload: {
   event: string;
   workspace: string | null;
-  context: Record<string, any>;
+  context: Record<string, unknown>;
 }) => Promise<void> | void;
 
 type ToolHookPipelineRuntime = {
@@ -98,7 +98,7 @@ export class ToolHookPipelineService {
     event: string;
     workspace?: string | null;
     workspaceProfile?: WorkspaceProfile | Record<string, unknown> | null;
-    context?: Record<string, any>;
+    context?: Record<string, unknown>;
     dryRun?: boolean;
   }): Promise<ToolHookPipelineResult> {
     const event = this.normalizeEvent(input.event);

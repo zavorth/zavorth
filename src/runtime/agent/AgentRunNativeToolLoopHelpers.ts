@@ -1,6 +1,6 @@
 import type { ChatMessage, ToolCall } from '../../providers/ILlmProvider.js';
 import type { LlmRuntimeResult } from '../../services/llm/LlmRuntimeService.js';
-import type { UniversalAgentEvent, UniversalAgentRequest, UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
+import type { UniversalAgentRequest, UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 import type { NativeToolLoopResult } from './AgentRunNativeToolLoopService.js';
 import type { CreateZavorthMutationPlanInput } from '../../services/ZavorthMutationPlaneService.js';
 import type { ZavorthMutationPlan } from '../../contracts/ZavorthMutationPlaneContract.js';

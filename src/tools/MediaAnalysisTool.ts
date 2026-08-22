@@ -59,7 +59,7 @@ export class MediaAnalysisTool extends BaseTool {
         kind: 'artifact-ref',
         artifactId,
       },
-      analysisType: validTypes.includes(analysisType) ? analysisType as any : 'describe',
+      analysisType: validTypes.includes(analysisType) ? analysisType as never : 'describe',
       prompt: typeof args.prompt === 'string' ? args.prompt : null,
     };
   }

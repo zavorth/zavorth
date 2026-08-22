@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
@@ -187,7 +186,7 @@ try {
       const events = content.split('BEGIN:VEVENT').slice(1).map(block => {
         const summary = block.match(/SUMMARY:(.+)/)?.[1] || '(no title)';
         const dtstart = block.match(/DTSTART[^:]*:(.+)/)?.[1] || 'unknown';
-        const dtend = block.match(/DTEND[^:]*:(.+)/)?.[1] || 'unknown';
+        block.match(/DTEND[^:]*:(.+)/)?.[1] || 'unknown';
         const location = block.match(/LOCATION:(.+)/)?.[1] || '';
         return `  ${dtstart} — ${summary}${location ? ` @ ${location}` : ''}`;
       });

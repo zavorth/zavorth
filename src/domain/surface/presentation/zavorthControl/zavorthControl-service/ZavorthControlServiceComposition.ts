@@ -40,7 +40,6 @@ import { CodexRemoteControlPlaneService } from './ZavorthControlServiceDependenc
 import { CodexRemoteActionService } from './ZavorthControlServiceDependencies.js';
 import { IntegrationHubService } from './ZavorthControlServiceDependencies.js';
 import { NodeCapabilityService } from './ZavorthControlServiceDependencies.js';
-import { NodeHeartbeatService } from './ZavorthControlServiceDependencies.js';
 import { SkillCatalogApiService } from './ZavorthControlServiceDependencies.js';
 import { SkillMcpSidecarService } from './ZavorthControlServiceDependencies.js';
 import { SkillLibraryPresentationService } from './ZavorthControlServiceDependencies.js';
@@ -162,6 +161,8 @@ interface ZavorthControlServiceDeps {
   echoOutputStage?: unknown;
   permissionController?: unknown;
   hostIdentityService?: unknown;
+  // Dynamic service bag: route handlers access dozens of services by key.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -170,15 +171,17 @@ export function initializeZavorthControlService(service: ZavorthControlFacadeCom
   initializeRuntimeComposition(service, deps);
 }
 
-function initializeSurfaceFields(service: ZavorthControlFacadeCompat, logRepo: LogRepository, deps: any = {}): void {
+function initializeSurfaceFields(service: ZavorthControlFacadeCompat, logRepo: LogRepository, deps: ZavorthControlServiceDeps = {}): void {
   service.trustedDeviceAccess = deps.trustedDeviceAccess || new TrustedDeviceAccessService();
   service.authService = new ZavorthControlAuthService({
     trustedDevices: service.trustedDeviceAccess,
   });
   service.agentGateway = deps.agentGateway || null;
   service.webApp = new WebAppService(service.authService, {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     agentGateway: service.agentGateway as any,
-    toolRuntime: deps.toolRuntime || null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    toolRuntime: deps.toolRuntime as any,
   });
   service.classicAccess = new ZavorthControlClassicAccessService();
   service.classicAssets = new ZavorthControlClassicAssetService();
@@ -224,7 +227,7 @@ function initializeSurfaceFields(service: ZavorthControlFacadeCompat, logRepo: L
   });
   service.operationsOverviewBridge = new ZavorthControlOperationsOverviewReaderBridgeService(
     () => service.operationsDepsBridge.buildOverviewSnapshotDeps(
-      service as any as ZavorthControlOperationsDepsBridgeSource,
+      service as unknown as ZavorthControlOperationsDepsBridgeSource,
       {
         workspaceRoot: config.projectRoot || process.cwd(),
         continuityUserId: service.continuityUserId || config.allowedUserIds[0] || '1',
@@ -246,7 +249,7 @@ function initializeSurfaceFields(service: ZavorthControlFacadeCompat, logRepo: L
   service.accessManifest = new RuntimeAccessManifestService();
 }
 
-function initializeRuntimeComposition(service: ZavorthControlFacadeCompat, deps: any): void {
+function initializeRuntimeComposition(service: ZavorthControlFacadeCompat, deps: ZavorthControlServiceDeps): void {
   const continuityUserId = deps.webUserId || config.allowedUserIds[0] || '1';
 
   service.workflowRuns = deps.workflowRunService || new WorkflowRunService();
@@ -397,6 +400,7 @@ function initializeRuntimeComposition(service: ZavorthControlFacadeCompat, deps:
       service.productObservability,
     );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const anyDeps = deps as any;
   service.channelMesh = anyDeps.channelMeshService || buildChannelMeshService(service);
   service.channelActions = anyDeps.channelActionService || buildChannelActionService(service);

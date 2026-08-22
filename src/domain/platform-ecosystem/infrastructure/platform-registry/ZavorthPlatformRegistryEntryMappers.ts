@@ -24,7 +24,6 @@ import {
   normalizePlatformReadiness,
   normalizePlatformSearchText,
   normalizePlatformStateTrust,
-  normalizePlatformValue,
   resolvePlatformLocalState,
 } from './ZavorthPlatformRegistrySnapshotBuilderSupport.js';
 

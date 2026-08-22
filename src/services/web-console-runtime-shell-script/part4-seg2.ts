@@ -168,7 +168,7 @@ export const runtimeShellScriptPart4Seg2: string = [
     "        + String((skills.allowedSourceIds || []).length || summary.skillAllowedSources || 0)",
     "        + ' fontes | '",
     "        + String((skills.explicitRules || []).length || summary.explicitSkillRules || 0)",
-    "        + ' regras explicit',",
+    "        + ' rules explicit',",
     "      ),",
     "      '<strong>Plugins:</strong> ' + escapeHtml(",
     "        String(plugins.trusted || summary.trustedPlugins || 0)",

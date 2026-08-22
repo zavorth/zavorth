@@ -14,8 +14,6 @@ import { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import type { ChannelAdapterStatus, ChannelFeatureSet } from '../contracts/ChannelMeshContract.js';
 import type {
-  PlatformReadiness,
-  PlatformImplementationState,
   PlatformTransport,
   PlatformKey,
 } from '../contracts/PlatformContract.js';

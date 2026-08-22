@@ -124,7 +124,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
-      `Channels: ${snapshot.summary.readyChannels}/${snapshot.summary.totalChannels} ready | avancados ${snapshot.summary.readyAdvancedChannels}/${snapshot.summary.advancedChannels} | attachments ${snapshot.summary.channelsWithAttachments} | threads ${snapshot.summary.channelsWithThreads}.`,
+      `Channels: ${snapshot.summary.readyChannels}/${snapshot.summary.totalChannels} ready | advanced ${snapshot.summary.readyAdvancedChannels}/${snapshot.summary.advancedChannels} | attachments ${snapshot.summary.channelsWithAttachments} | threads ${snapshot.summary.channelsWithThreads}.`,
       `Fleet: ${snapshot.summary.onlineNodes}/${snapshot.summary.totalNodes} online | paired ${snapshot.summary.pairedNodes} | queue ${snapshot.summary.queuedInvocations} | stale ${snapshot.summary.staleQueued} | advanced capability coverage ${snapshot.summary.advancedCapabilityCoverage}/${ADVANCED_CAPABILITY_IDS.length}.`,
       `Transports: ${snapshot.summary.readyTransports}/${snapshot.summary.totalTransports} ready | live ${snapshot.summary.liveTransports} | attention ${snapshot.summary.transportAttention}.`,
       `Surfaces: ${snapshot.summary.readySurfaces}/${snapshot.summary.totalSurfaces} ready | primaria ${snapshot.summary.primarySurfaceReady ? 'ok' : 'pending'} | remote ${snapshot.summary.remoteReady ? 'ok' : 'pending'}.`,
@@ -159,7 +159,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     if (snapshot.advancedChannels.length > 0) {
       lines.push(
         '',
-        'Channels avancados:',
+        'Advanced channels:',
         ...snapshot.advancedChannels.slice(0, 6).map(entry =>
           `- ${this.text(entry?.label, entry?.id || 'channel')}: ${this.text(entry?.readiness, 'unknown')} | ${this.text(entry?.summary, 'without summary.')}`),
       );
@@ -306,10 +306,10 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     return [
       {
         id: 'channels',
-        label: 'Channel Mesh avancado',
+        label: 'Advanced Channel Mesh',
         posture: channelPosture,
         summary:
-          `${readyAdvancedChannels}/${input.advancedChannels.length} channel(s) avancado(s) ready, `
+          `${readyAdvancedChannels}/${input.advancedChannels.length} advanced channel(s) ready, `
           + `${Number(input.channels?.summary?.ready || 0) || 0}/${Number(input.channels?.summary?.total || 0) || 0} ready in the general contract.`,
         nextAction: this.pickChannelNextAction(input.advancedChannels),
         command: '/channels',
@@ -679,7 +679,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     const next = prioritized.find(entry => this.isActionableAdvancedChannel(entry)) || prioritized[0];
     return this.text(
       next?.operatorNextStep,
-      next?.actionHint || 'review channels avancados sob o mesmo contrato canonical.',
+      next?.actionHint || 'review channels advanced sob o mesmo contrato canonical.',
     );
   }
 

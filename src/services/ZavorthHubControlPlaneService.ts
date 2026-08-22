@@ -515,7 +515,7 @@ export class ZavorthHubControlPlaneService {
         command: integration.readiness === 'ready' ? `/integrations ${integration.manifest.id}` : `/connect ${integration.manifest.id}`,
       });
     }
-    const plugin = input.plugins?.selected || (Array.isArray(input.plugins?.entries) ? input.plugins.entries.find((entry: any) => entry?.featured === true) || input.plugins.entries[0] : null);
+    const plugin = input.plugins?.selected || (Array.isArray(input.plugins?.entries) ? input.plugins.entries.find((entry: any) => entry?.featured === true) || input.plugins.entries[0] : null); // eslint-disable-line @typescript-eslint/no-explicit-any
     if (plugin?.id) {
       push({
         id: plugin.id,
@@ -535,7 +535,7 @@ export class ZavorthHubControlPlaneService {
         command: `/skills ${skill.id}`,
       });
     }
-    const mcpEntry = Array.isArray(input.mcp?.entries) ? input.mcp.entries.find((entry: any) => String(entry?.status || '').trim().toLowerCase() === 'connected') || input.mcp.entries[0] : null;
+    const mcpEntry = Array.isArray(input.mcp?.entries) ? input.mcp.entries.find((entry: any) => String(entry?.status || '').trim().toLowerCase() === 'connected') || input.mcp.entries[0] : null; // eslint-disable-line @typescript-eslint/no-explicit-any
     if (mcpEntry?.id) {
       push({
         id: mcpEntry.id,

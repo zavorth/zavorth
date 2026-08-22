@@ -1,5 +1,5 @@
 import { isComputerUseAllowed } from './helpers.js';
-import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
+import type { WebAppSupervisionRouteHandler } from './types.js';
 import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx) => {

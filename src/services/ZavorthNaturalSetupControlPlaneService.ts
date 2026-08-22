@@ -163,9 +163,9 @@ export class ZavorthNaturalSetupControlPlaneService {
         previewOnly: true,
       })
       : null;
-    const channels = turn?.assistant?.channels || assistant.channels || this.channels.buildSnapshot({
+    const channels = (turn?.assistant?.channels || assistant.channels || this.channels.buildSnapshot({
       selectedId: turn?.channelId || assistant.selected?.channelId || selectedChannelId,
-    });
+    })) as ChannelMeshSnapshot;
     const selected = turn?.assistant?.selected || assistant.selected || null;
     const status = this.text(turn?.assistant?.status || assistant.status, 'needs_channel');
     const missingEnvKeys = Array.isArray(turn?.remainingEnvKeys)

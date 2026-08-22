@@ -317,6 +317,7 @@ function normalizeWarningMs(value: unknown): number {
   return Math.min(numeric, 30 * 24 * 60 * 60 * 1000);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function readGuardrails(task: ScheduledTask): Record<string, any> {
   try {
     const parsed = JSON.parse(String(task.guardrail_json || '{}'));

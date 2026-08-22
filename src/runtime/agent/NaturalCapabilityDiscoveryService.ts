@@ -1,6 +1,5 @@
 import {
   CapabilityLoopGovernanceService,
-  type StrongCapabilityId,
 } from './CapabilityLoopGovernanceService.js';
 import type { ToolExposurePolicyHintProfile } from './ToolExposurePolicy.js';
 import { inferUniversalAgentRequestedTools } from './UniversalAgentRequestHeuristics.js';
@@ -112,13 +111,7 @@ type Candidate = {
 };
 
 /** Reserved; free-text phrase→category maps are not used. */
-const CATEGORY_PATTERNS: Array<{
-  category: NaturalCapabilityDiscoveryIntentCategory;
-  pattern: RegExp;
-  tools: string[];
-  groups: string[];
-  reason: string;
-}> = [];
+
 
 function normalizeText(value: unknown, fallback = ''): string {
   const text = String(value ?? '').trim();

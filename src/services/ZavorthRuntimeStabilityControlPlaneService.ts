@@ -5,6 +5,8 @@ import { KeepaliveStatusService, type KeepaliveStatusSnapshot } from './Keepaliv
 import { NodeMeshRecoveryService } from './NodeMeshRecoveryService.js';
 import { RemoteTransportDoctorService } from './RemoteTransportDoctorService.js';
 import { logger } from '../logger.js';
+// Dynamic service bag: accepts arbitrary runtime service snapshot shapes.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type RuntimeStabilityDynamic = any;
 
 type RuntimeStabilityPosture = 'healthy' | 'attention' | 'critical';

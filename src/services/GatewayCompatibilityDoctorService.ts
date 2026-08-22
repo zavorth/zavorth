@@ -84,7 +84,7 @@ export class GatewayCompatibilityDoctorService {
         error: null,
       });
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       logger.warn('[way Compatibility Doctor] network request failed', error);
     return this.persist({
         ok: false,

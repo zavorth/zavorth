@@ -47,7 +47,7 @@ function toNumber(value: unknown, fallback = 0): number {
  */
 export function computeCostFromPricing(
   pricing: Record<string, unknown> | null | undefined,
-  tokens: any
+  tokens: unknown
 ): number {
   if (!pricing || !tokens) return 0;
   const inputPrice = toNumber(pricing.input, 0);

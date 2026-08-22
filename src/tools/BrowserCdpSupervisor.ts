@@ -234,7 +234,7 @@ export class BrowserCdpSupervisor extends EventEmitter {
     this.dialogQueue.push(dialog);
     this.emit('dialog', dialog);
 
-    const sessionId = params.sessionId ? String(params.sessionId) : undefined;
+    params.sessionId ? String(params.sessionId) : undefined;
 
     switch (this.dialogPolicy) {
       case 'auto_accept':

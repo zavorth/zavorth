@@ -20,7 +20,7 @@ export const buildOpenCodeProviderConfig = ({
   baseUrl,
   apiKey,
   model,
-}: OpenCodeConfigInput): Record<string, any> => {
+}: OpenCodeConfigInput): Record<string, unknown> => {
   const normalizedBaseUrl = String(baseUrl || "")
     .trim()
     .replace(/\/+$/, "");
@@ -47,7 +47,7 @@ export const buildOpenCodeProviderConfig = ({
 };
 
 export const mergeOpenCodeConfig = (
-  existingConfig: Record<string, any> | null | undefined,
+  existingConfig: Record<string, unknown> | null | undefined,
   input: OpenCodeConfigInput
 ) => {
   const safeConfig =
@@ -58,7 +58,7 @@ export const mergeOpenCodeConfig = (
   return {
     ...safeConfig,
     provider: {
-      ...((safeConfig as any).provider || {}),
+      ...((safeConfig as unknown as Record<string, unknown>).provider || {}),
       ZavorthGateway: buildOpenCodeProviderConfig(input),
     },
   };

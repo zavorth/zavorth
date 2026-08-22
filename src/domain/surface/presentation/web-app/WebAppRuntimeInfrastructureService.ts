@@ -89,7 +89,10 @@ export class WebAppRuntimeInfrastructureService {
   }
 
   public buildRealtimeInfrastructure(runtime: SharedSurfaceRuntime): WebAppRealtimeInfrastructure {
-    const realtime!: WebRealtimeService;
+    // reassigned after the session ledger wiring below; prefer-const has a known
+    // false positive for closure-captured deferred assignments.
+    // eslint-disable-next-line prefer-const
+    let realtime: WebRealtimeService;
     const sessionLedger = new GatewaySessionLedgerService();
     const gatewaySessionStore = new GatewaySessionStoreService({
       createWebSession: () => realtime.createSession(),

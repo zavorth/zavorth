@@ -122,7 +122,7 @@ function validateUrlForFetch(url: string): string | null {
     // Check for IP address patterns (IPv4)
     const ipv4Match = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
     if (ipv4Match) {
-      const [, a, b] = ipv4Match.map(Number);
+      const [, a, _b] = ipv4Match.map(Number);
       // Block private ranges
       if (a === 10 || a === 172 || a === 192 || a === 169) {
         return `Blocked: IP "${hostname}" is in private range`;

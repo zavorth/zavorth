@@ -71,8 +71,11 @@ export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): Bo
       audioHandler: gateway.audioHandler || null,
       preferenceStore: gateway.zavorthBridgePreferenceStore || null,
     }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     processTextMessage: (ctx: any, text: any) => gateway.processTextMessage?.(ctx, text) ?? Promise.resolve(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     processGroupCommand: (ctx: any, text: any) => gateway.processGroupCommand?.(ctx, text) ?? Promise.resolve(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     canUseInteractiveGroupAi: (ctx: any) => gateway.canUseInteractiveGroupAi?.(ctx) ?? Promise.resolve(false),
     state: {
       supervisedRuntimeNotificationTimer: null,
@@ -83,7 +86,7 @@ export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): Bo
       gateway.getSharedSurfaceCommandService?.()
       ?? gateway.sharedSurfaceCommandService
       ?? null,
-  } as any);
+  } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
   gateway.botGatewaySupport = created;
   return created;

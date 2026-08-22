@@ -3,7 +3,6 @@ import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { Database } from '../storage/Database.js';
 import { executionContextScope } from '../runtime/context/ExecutionContextScope.js';
 import { WorkspaceFsPolicy } from './workspace/WorkspaceFsPolicy.js';
-import path from 'path';
 
 export interface GitFileLock {
   filepath: string;

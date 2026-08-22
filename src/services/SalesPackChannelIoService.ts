@@ -374,9 +374,9 @@ function firstRecord(values: unknown[]): Record<string, unknown> | null {
   return null;
 }
 
-function asRecord(value: unknown): Record<string, any> | null {
+function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as Record<string, any>
+    ? value as Record<string, unknown>
     : null;
 }
 

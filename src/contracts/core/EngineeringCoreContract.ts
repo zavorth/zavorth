@@ -145,6 +145,7 @@ export type RepairProposal = {
 export type EngineeringAction = {
   kind: EngineeringActionKind;
   label: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>;
 };
 
@@ -193,6 +194,7 @@ export type EngineeringRunSnapshot = {
 
 export type EngineeringReplaySnapshot = {
   run: EngineeringRunSnapshot;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   session: any | null;
   recordings: Array<{ filename: string; path: string; sizeBytes: number }>;
 };

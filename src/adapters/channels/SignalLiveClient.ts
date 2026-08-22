@@ -191,8 +191,8 @@ export class SignalLiveClient {
       throw new Error(`Signal JSON-RPC live send failed with HTTP ${response.status}.`);
     }
     if (payload?.error) {
-      const messageText = typeof payload.error?.message === 'string'
-        ? payload.error.message
+      const messageText = typeof (payload.error as { message?: string } | undefined)?.message === 'string'
+        ? (payload.error as { message: string }).message
         : JSON.stringify(payload.error);
       throw new Error(`Signal JSON-RPC live send failed: ${messageText}`);
     }

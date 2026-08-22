@@ -17,6 +17,16 @@ type WebSessionContext = RuntimeRecord & {
   chatId?: string | null;
 };
 
+const AGENT_RUN_STATUS_VALUES = new Set([
+  'queued',
+  'thinking',
+  'running',
+  'waiting_approval',
+  'completed',
+  'failed',
+  'cancelled',
+]);
+
 type UiSurfaceHintsInput = {
   localControlEntry: string;
   localControlReady: boolean;
@@ -28,8 +38,8 @@ type UiSurfaceHintsInput = {
 export type WebAppRuntimeStateRouteHelpers = {
   buildSessionContext: (sessionId: string) => WebSessionContext;
   isFullDetailRequested: (url: URL) => boolean;
-  previewGatewayMemoryRecall: (input: any) => Promise<any>;
-  listGatewayMemorySources: (input: any) => Promise<any>;
+  previewGatewayMemoryRecall: (input: unknown) => Promise<unknown>;
+  listGatewayMemorySources: (input: unknown) => Promise<unknown>;
   buildRecallQueryFromSnapshot: (snapshot: RuntimeRecord | null | undefined) => string;
   buildLightweightStateResponse: (state: RuntimeRecord) => RuntimeRecord;
   buildProductMode: () => RuntimeRecord | null;

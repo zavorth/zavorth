@@ -149,7 +149,7 @@ const PATTERN_TASKS: Record<ZavorthMissionPattern, TaskTemplate[]> = {
 };
 
 const MUTATION_EFFECTS = new Set<ZavorthMissionEffect>(['write', 'shell', 'provider-change']);
-const EXTERNAL_IO_EFFECTS = new Set<ZavorthMissionEffect>(['network', 'external-send']);
+new Set<ZavorthMissionEffect>(['network', 'external-send']);
 
 export class ZavorthDynamicMissionHarnessService {
   private readonly now: () => Date;

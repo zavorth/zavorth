@@ -159,7 +159,7 @@ export function initializeBotGatewayControllers(
   logRepo: LogRepository,
   workflowRunService: WorkflowRunService,
   productObservabilityService: ProductObservabilityService,
-  runtimeOptions?: BotGatewayRuntimeOptions,
+  _runtimeOptions?: BotGatewayRuntimeOptions,
 ): void {
   gateway.demoGuideService = new DemoGuideService();
   gateway.demoModeService = new DemoModeService();
@@ -339,7 +339,7 @@ export function initializeBotGatewayControllers(
               gateway.botGatewaySupport.toWslPath(targetPath),
           },
           task,
-          result as any,
+          result as never,
         ),
       createAiStudioPermissionRequest: (task, result) =>
         createAiStudioPermissionRequest(
@@ -348,7 +348,7 @@ export function initializeBotGatewayControllers(
             permissionService: gateway.permissionService,
           },
           task,
-          result as any,
+          result as never,
         ),
       presentationModeService: gateway.presentationModeService,
     },
@@ -414,7 +414,7 @@ export function initializeBotGatewayControllers(
     },
     formatSystemStatusReply: gateway.opsController.formatSystemStatusReply.bind(
       gateway.opsController,
-    ) as any,
+    ) as never,
     formatModelsReply: gateway.opsController.formatModelsReply.bind(
       gateway.opsController,
     ),

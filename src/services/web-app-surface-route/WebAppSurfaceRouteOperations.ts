@@ -7,7 +7,7 @@ import {
   readTrimmedSearchParam,
 } from './WebAppSurfaceRouteParsing.js';
 import type { WebAppSurfaceRouteDeps } from './WebAppSurfaceRouteTypes.js';
-import { KanbanSQLiteDispatcherService } from '../plugins/KanbanSQLiteDispatcherService.js';
+import { KanbanSQLiteDispatcherService, type KanbanCard } from '../plugins/KanbanSQLiteDispatcherService.js';
 import { asErrorLike } from '../../utils/errorLike.js';
 
 export async function handleWebAppSurfaceOperationRoutes(
@@ -454,7 +454,7 @@ export async function handleWebAppSurfaceOperationRoutes(
   }
 
   if (pathname === '/api/web/kanban/board' && req.method === 'POST') {
-    const body = await deps.readJsonBody(req) as any;
+    const body = await deps.readJsonBody(req);
     const name = String(body?.name || '').trim();
     if (!name) {
       deps.writeJson(res, { ok: false, error: 'name required.' }, 400);
@@ -471,7 +471,7 @@ export async function handleWebAppSurfaceOperationRoutes(
   }
 
   if (pathname === '/api/web/kanban/card' && req.method === 'POST') {
-    const body = await deps.readJsonBody(req) as any;
+    const body = await deps.readJsonBody(req);
     const boardId = String(body?.boardId || '').trim();
     const title = String(body?.title || '').trim();
     if (!boardId || !title) {
@@ -483,7 +483,7 @@ export async function handleWebAppSurfaceOperationRoutes(
       const result = kanban.addCard(boardId, title, {
         description: body?.description ? String(body.description) : undefined,
         column: body?.column ? String(body.column) : undefined,
-        priority: body?.priority ? String(body.priority) as any : undefined,
+        priority: body?.priority ? String(body.priority) as KanbanCard['priority'] : undefined,
         assignee: body?.assignee ? String(body.assignee) : undefined,
         labels: Array.isArray(body?.labels) ? (body.labels as string[]) : undefined,
         blocked_by: body?.blocked_by ? String(body.blocked_by) : undefined,
@@ -497,7 +497,7 @@ export async function handleWebAppSurfaceOperationRoutes(
   }
 
   if (pathname === '/api/web/kanban/card/move' && req.method === 'POST') {
-    const body = await deps.readJsonBody(req) as any;
+    const body = await deps.readJsonBody(req);
     const boardId = String(body?.boardId || '').trim();
     const cardId = String(body?.cardId || '').trim();
     const targetColumn = String(body?.targetColumn || '').trim();
@@ -516,7 +516,7 @@ export async function handleWebAppSurfaceOperationRoutes(
   }
 
   if (pathname === '/api/web/kanban/card/comment' && req.method === 'POST') {
-    const body = await deps.readJsonBody(req) as any;
+    const body = await deps.readJsonBody(req);
     const cardId = String(body?.cardId || '').trim();
     const author = String(body?.author || '').trim();
     const content = String(body?.content || '').trim();
@@ -551,7 +551,7 @@ export async function handleWebAppSurfaceOperationRoutes(
   }
 
   if (pathname === '/api/web/kanban/card/subagent' && req.method === 'POST') {
-    const body = await deps.readJsonBody(req) as any;
+    const body = await deps.readJsonBody(req);
     const cardId = String(body?.cardId || '').trim();
     const subagentId = body?.subagentId ? String(body.subagentId).trim() : null;
     if (!cardId) {

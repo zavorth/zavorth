@@ -22,15 +22,7 @@ type Runtime = {
   now?: () => Date;
 };
 
-const REQUIRED_CHANNELS: ChannelCapabilityChannel[] = [
-  'telegram',
-  'discord',
-  'whatsapp',
-  'signal',
-  'imessage',
-  'cli',
-  'web',
-];
+
 
 const FALLBACK_CHANNELS = new Set<ChannelCapabilityChannel>([
   'whatsapp',

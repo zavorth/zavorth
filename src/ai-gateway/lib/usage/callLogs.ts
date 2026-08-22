@@ -381,7 +381,7 @@ export function cleanupOverflowCallLogFiles(baseDir = CALL_LOGS_DIR, maxEntries?
   }
 }
 
-export async function saveCallLog(entry: any) {
+export async function saveCallLog(entry: unknown) {
   if (!shouldPersistToDisk) return;
 
   try {
@@ -499,7 +499,7 @@ if (shouldPersistToDisk) {
     }
 }
 
-export async function getCallLogs(filter: any = {}) {
+export async function getCallLogs(filter: unknown = {}) {
   const db = getDbInstance();
   let sql = "SELECT * FROM call_logs";
   const conditions: string[] = [];

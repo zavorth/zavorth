@@ -8,7 +8,6 @@ import type {
   I18nRuntime,
   TranslationOptions,
   LocaleSource,
-  InterpolationVars,
 } from './types.js';
 import { DEFAULT_LOCALE, NAMESPACE_LIST } from './types.js';
 

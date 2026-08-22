@@ -1,7 +1,7 @@
 import * as http from 'http';
 import { errorMessage } from '../utils/errorLike.js';
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
-type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, any>>;
+type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
 type EnsureAuthorized = (
   req: http.IncomingMessage,
   res: http.ServerResponse,
@@ -10,7 +10,9 @@ type EnsureAuthorized = (
 ) => boolean;
 
 type IntegrationHubLike = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   buildCatalogSnapshot: (selectedId?: string | null) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   executeGuidedAction: (integrationId: string, actionId: string, context: any) => Promise<any>;
 };
 

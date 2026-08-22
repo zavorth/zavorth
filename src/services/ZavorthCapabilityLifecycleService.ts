@@ -14,7 +14,6 @@ import {
 } from '../contracts/ZavorthCapabilityLifecycleContract.js';
 import type {
   ZavorthCapabilityUsageActionSummary,
-  ZavorthCapabilityUsageSignalsSnapshot,
 } from '../contracts/ZavorthCapabilityUsageSignalsContract.js';
 
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';

@@ -226,6 +226,7 @@ export class RuntimeBootstrapService {
         if (!doc || !Array.isArray(doc.sources)) {
           skillSourcesValid = false;
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           doc.sources.forEach((source: any) => {
             if (source.enabled && source.createIfMissing !== false && source.path) {
               const targetDir = path.isAbsolute(source.path)

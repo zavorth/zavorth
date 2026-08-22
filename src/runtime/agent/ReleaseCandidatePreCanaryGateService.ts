@@ -10,7 +10,6 @@ import {
   recordOrNull,
   resolveReleaseCandidateNextSafeAction,
   statusLevel,
-  type LooseRecord,
 } from './ReleaseCandidatePreCanaryGateHelpers.js';
 
 export const RELEASE_CANDIDATE_PRE_CANARY_GATE_CONTRACT_VERSION = '2026-05-04.pre-canary' as const;

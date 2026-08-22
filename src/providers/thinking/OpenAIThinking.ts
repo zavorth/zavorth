@@ -2,12 +2,7 @@ import { ThinkingAdapter, ThinkingLevelConfig } from './types.js';
 
 const REASONING_MODELS = ['o1', 'o1-mini', 'o1-pro', 'o3', 'o3-mini', 'o4-mini'];
 
-const REASONING_EFFORT_MAP: Record<string, string> = {
-  none: 'low',
-  low: 'low',
-  medium: 'medium',
-  high: 'high',
-};
+
 
 const MODEL_MAX_BUDGET: Record<string, number> = {
   'o1': 100000,
@@ -27,7 +22,7 @@ export class OpenAIThinking implements ThinkingAdapter {
   }
 
   getThinkingConfig(modelId: string, level: string): ThinkingLevelConfig {
-    const effort = REASONING_EFFORT_MAP[level] ?? 'medium';
+    
     return {
       level: level as ThinkingLevelConfig['level'],
       budgetTokens: level === 'none' ? undefined : this.getMaxThinkingBudget(modelId),

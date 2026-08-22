@@ -3,6 +3,7 @@ import fs from 'fs';
 import * as http from 'http';
 import { config } from '../../config/index.js';
 import { ApiResponse, ForbiddenError, NotFoundError, UnauthorizedError } from '../../contracts/public/errors';
+import type { PublicErrorDetail } from '../../contracts/public/errors';
 import { isWeakZavorthControlToken } from '../../services/ZavorthControlTokenService.js';
 import { logger } from '../../logger.js';
 
@@ -214,7 +215,7 @@ export class PublicApiRouter {
       responseBody.error = {
         code: publicError.code ?? 'INTERNAL_ERROR',
         message: publicError.message ?? 'Internal server error',
-        details: publicError.details
+        details: publicError.details as PublicErrorDetail[] | undefined
       };
     } else {
       logger.error('[PublicApiRouter] Unhandled error:', error);

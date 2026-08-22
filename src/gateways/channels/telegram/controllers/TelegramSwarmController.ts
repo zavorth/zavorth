@@ -1,4 +1,4 @@
-import type { IMessageContext } from '@zavorth/contracts/IMessageBroker.js';
+import type { Context } from 'grammy';
 import { SwarmOrchestrator, type SwarmRole } from '@zavorth/runtime/sessions/v2/SwarmOrchestrator.js';
 import { LlmRuntimeService } from '@zavorth/services/llm/LlmRuntimeService.js';
 import path from 'path';
@@ -7,7 +7,8 @@ import { asErrorLike } from '../../../../utils/errorLike';
 
 type TelegramSwarmDeps = {
   botApi: {
-    sendMessage(chatId: string | number, text: string, options?: Record<string, any>): Promise<any>;
+    sendMessage(chatId: string | number, text: string, options?: Record<string, any>): Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     editMessageText(chatId: string | number, messageId: number, text: string, options?: Record<string, any>): Promise<any>;
   };
   getLlmRuntime: () => LlmRuntimeService;
@@ -32,7 +33,7 @@ export class TelegramSwarmController {
   /**
    * Handle the /swarm command.
    */
-  public async handleSwarm(ctx: IMessageContext | any, args: string): Promise<void> {
+  public async handleSwarm(ctx: Context, args: string): Promise<void> {
     const chatId = ctx.chat?.id || ctx.message?.chat?.id;
     if (!chatId) return;
 

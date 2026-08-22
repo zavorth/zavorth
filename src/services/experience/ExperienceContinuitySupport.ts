@@ -1,12 +1,26 @@
 import { logger } from '../../logger.js';
 import {
   type ExperienceAction,
+  type ExperienceApproval,
+  type ExperienceApprovalSurfaceProjection,
   type ExperienceCommand,
   type ExperienceCommandResult,
+  type ExperienceHealthStatus,
+  type ExperienceLearningCandidate,
   type ExperienceSnapshot,
 } from './ExperienceContracts.js';
 import { ZavorthFirstRunHumanOnboardingService } from '../ZavorthFirstRunHumanOnboardingService.js';
 import { ZavorthLearningRuntimeHubService } from '../ZavorthLearningRuntimeHubService.js';
+import type {
+  UniversalAgentModelProfile,
+  UniversalAgentRun,
+  UniversalApprovalRequest,
+} from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
+import type { ZavorthRuntimeStateBusSnapshot } from '../../contracts/runtime/ZavorthRuntimeStateBusContract.js';
+import type { ZavorthAgentGatewaySnapshot } from '../../runtime/agent/ZavorthAgentGateway.js';
+import { buildAgentPermissionApprovalResponse } from '../permission/AgentPermissionApprovalPresentation.js';
+import { projectResponseForChannel } from '../../domain/surface/application/surface-projection/projectors/SurfaceProjectorRegistry.js';
+import { normalizeText, recordOrNull } from '../../runtime/agent/AgentRunValueHelpers.js';
 
 import type { ExperienceCoreService } from './ExperienceCoreService.js';
 
@@ -141,7 +155,7 @@ export class ExperienceContinuitySupport {
           title: 'First run',
           summary: snapshotState.headline,
           nextSafeAction: 'Use buttons or /start lang=en surface=telegram learn=yes',
-        } as any,
+        } as never,
         snapshot,
         replies: [
           this.owner.replyFromText(
@@ -174,7 +188,7 @@ export class ExperienceContinuitySupport {
           title: 'First run',
           summary: done.summary,
           nextSafeAction: null,
-        } as any,
+        } as never,
         snapshot,
         replies: [this.owner.replyFromText(done.summary, command, snapshot.agent.activeRunId)],
         receipts: snapshot.receipts,
@@ -200,7 +214,7 @@ export class ExperienceContinuitySupport {
         title: 'First run',
         summary: snap.headline,
         nextSafeAction: snap.nextPrompt || 'Use /start buttons',
-      } as any,
+      } as never,
       snapshot,
       replies: [this.owner.replyFromText(lines.join('\n'), command, snapshot.agent.activeRunId)],
       receipts: snapshot.receipts,

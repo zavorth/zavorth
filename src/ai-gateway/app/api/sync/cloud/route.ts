@@ -67,7 +67,7 @@ export async function GET(request: Request) {
  * POST /api/sync/cloud
  * Sync data with Cloud
  */
-export async function POST(request: any) {
+export async function POST(request: unknown) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
 
@@ -109,7 +109,7 @@ export async function POST(request: any) {
         return enableResult;
       }
       case "sync": {
-        const syncResult: any = await syncToCloud(machineId);
+        const syncResult: unknown = await syncToCloud(machineId);
         if (syncResult.error) {
           return NextResponse.json(syncResult, { status: 502 });
         }
@@ -131,9 +131,9 @@ export async function POST(request: any) {
 /**
  * Sync and verify connection with ping (retry on verify)
  */
-async function syncAndVerify(machineId: string, createdKey: any, existingKeys: any[]) {
+async function syncAndVerify(machineId: string, createdKey: unknown, existingKeys: unknown[]) {
   // Step 1: Sync data to cloud
-  const syncResult: any = await syncToCloud(machineId, createdKey);
+  const syncResult: unknown = await syncToCloud(machineId, createdKey);
   if (syncResult.error) {
     return NextResponse.json(
       { error: `Cloud sync failed: ${syncResult.error}` },
@@ -206,7 +206,7 @@ async function syncAndVerify(machineId: string, createdKey: any, existingKeys: a
 /**
  * Disable Cloud - delete cache and update Claude CLI settings
  */
-async function handleDisable(machineId: string, request: any) {
+async function handleDisable(machineId: string, request: unknown) {
   if (!CLOUD_URL) {
     return NextResponse.json({ error: "NEXT_PUBLIC_CLOUD_URL is not configured" }, { status: 500 });
   }

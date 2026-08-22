@@ -10,6 +10,7 @@ import { PtySessionService } from './PtySessionService.js';
 import { PtySessionApprovalService } from './PtySessionApprovalService.js';
 import { PtyInputApprovalService } from './PtyInputApprovalService.js';
 import { Database } from '../storage/Database.js';
+import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 
 import * as schemas from '../domain/validation/controlSchemas.js';
 
@@ -25,6 +26,14 @@ export type ZavorthControlRouteInput = {
 
 type WorkspaceRouteContext = {
   validateWorkspaceSession: (workspaceId: string) => boolean;
+};
+
+type CommandApprovalRow = {
+  operation_id: string;
+  workspace_id: string;
+  command: string;
+  created_at: string;
+  expires_at: string;
 };
 
 export async function handleControlWorkspaceTrustRoutes(

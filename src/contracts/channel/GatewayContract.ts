@@ -102,6 +102,7 @@ export type GatewayCanonicalSessionBundle = {
 };
 
 export type GatewayCanonicalStatePayload = GatewayCanonicalSessionBundle & {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   snapshot: Record<string, any> | null;
   agentRuntime: ZavorthAgentGatewaySnapshot | null;
   productMode: ZavorthProductModeSnapshot | null;
@@ -111,13 +112,20 @@ export type GatewayCanonicalStatePayload = GatewayCanonicalSessionBundle & {
   memoryRecall: HybridMemoryRecallResult | null;
   controlPlane: ZavorthGatewaySnapshot['controlPlane'] | null;
   sessionPlane: ZavorthSessionPlaneSnapshot | ZavorthSessionPlaneStatusSummarySnapshot | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   approvalPlane: Record<string, any> | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   capabilityPlane: Record<string, any> | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   artifactPlane: Record<string, any> | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selfmodPlane: Record<string, any> | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resourcePlane: Record<string, any> | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   companionPlane: Record<string, any> | null;
   runtimeWarnings: string[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actionRecommendations: Record<string, any>[];
 };
 

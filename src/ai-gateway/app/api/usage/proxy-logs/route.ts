@@ -1,7 +1,8 @@
-import { getProxyLogs, clearProxyLogs, getProxyLogStats } from "@/lib/proxyLogger";
+import { getProxyLogs, clearProxyLogs } from "@/lib/proxyLogger";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { safeParseInt } from "@/shared/utils/safeParseInt";
-import { logger } from '@/shared/utils/logger';/**
+import { logger } from '@/shared/utils/logger';
+/**
  * GET /api/usage/proxy-logs — get proxy usage logs
  * Query params: ...status=ok|error|timeout&type=http|socks5&provider=xxx&level=global|provider|combo|key&search=xxx&limit=300
  */
@@ -12,7 +13,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
 
-    const filters: Record<string, any> = {};
+    const filters: Record<string, unknown> = {};
     if (searchParams.get("status")) filters.status = searchParams.get("status");
     if (searchParams.get("type")) filters.type = searchParams.get("type");
     if (searchParams.get("provider")) filters.provider = searchParams.get("provider");
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
     return Response.json(logs);
   } catch (error: unknown) {logger.warn('[route] parsing failed', error);
     return Response.json(
-      { error: { message: (error as any).message, type: "server_error" } },
+      { error: { message: (error as unknown as Record<string, unknown>).message, type: "server_error" } },
       { status: 500 }
     );
   }
@@ -42,7 +43,7 @@ export async function DELETE(request: Request) {
     return Response.json({ cleared: true });
   } catch (error: unknown) {logger.warn('[route] delete operation failed', error);
     return Response.json(
-      { error: { message: (error as any).message, type: "server_error" } },
+      { error: { message: (error as unknown as Record<string, unknown>).message, type: "server_error" } },
       { status: 500 }
     );
   }

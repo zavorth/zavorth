@@ -97,7 +97,7 @@ function runExport(args: string[]): number {
     title,
     redact,
     includeSystem,
-    messages: messages as any,
+    messages: messages as never,
   });
 
   if (json) {

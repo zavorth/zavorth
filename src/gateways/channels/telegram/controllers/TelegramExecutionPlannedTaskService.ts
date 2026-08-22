@@ -16,7 +16,6 @@ interface PlannedShellStep {
   command: string;
 }
 
-type PlannedStep = PlannedToolStep | PlannedShellStep;
 
 function isToolStep(step: unknown): step is PlannedToolStep {
   return (

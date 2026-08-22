@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { getCallLogs } from "@/lib/usageDb";
-import { safeParseInt } from "@/shared/utils/safeParseInt";export async function GET(request: Request) {
+import { safeParseInt } from "@/shared/utils/safeParseInt";
+export async function GET(request: Request) {
   try {
     const authError = await requireManagementAuth(request);
     if (authError) return authError;
 
     const { searchParams } = new URL(request.url);
 
-    const filter: Record<string, any> = {};
+    const filter: Record<string, unknown> = {};
     if (searchParams.get("status")) filter.status = searchParams.get("status");
     if (searchParams.get("model")) filter.model = searchParams.get("model");
     if (searchParams.get("provider")) filter.provider = searchParams.get("provider");

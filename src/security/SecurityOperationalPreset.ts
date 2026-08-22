@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/index.js';
-import { logger } from '../logger.js';export type SecurityOperationalPresetId = 'personal' | 'professional' | 'enterprise';
+import { logger } from '../logger.js';
+export type SecurityOperationalPresetId = 'personal' | 'professional' | 'enterprise';
 export type PresetSecurityProfileId = 'personal' | 'professional' | 'enterprise';
 export type PresetMcpProfile = 'safe' | 'trusted' | 'dangerous';
 export type PresetSkillAllowMode = 'all' | 'explicit' | 'review' | 'none';
@@ -498,6 +499,7 @@ function readJsonFile(
   filePath: string,
   existsSyncImpl: typeof fs.existsSync,
   readFileSyncImpl: typeof fs.readFileSync,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Record<string, any> | null {
   try {
     if (!existsSyncImpl(filePath)) {
@@ -519,6 +521,7 @@ function sameSkillRules(actual: unknown, expected: SecurityOperationalPresetDefi
   if (!Array.isArray(actual)) {
     return false;
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const normalize = (rules: any[]) => rules.map((rule) => ({
     sourceId: String(rule.sourceId || ''),
     mode: String(rule.mode || ''),
@@ -526,5 +529,5 @@ function sameSkillRules(actual: unknown, expected: SecurityOperationalPresetDefi
   })).sort((left, right) =>
     `${left.sourceId}:${left.mode}:${left.skillNames.join(',')}`.localeCompare(`${right.sourceId}:${right.mode}:${right.skillNames.join(',')}`),
   );
-  return JSON.stringify(normalize(actual)) === JSON.stringify(normalize(expected as any[]));
+  return JSON.stringify(normalize(actual)) === JSON.stringify(normalize(expected));
 }

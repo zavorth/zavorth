@@ -209,7 +209,7 @@ export class ZavorthHumanReachService {
         recommended: false,
         stable: false,
         ready: Boolean(waBridge) || waProvider === 'baileys',
-        howToStart: 'scripts/whatsapp-bridge + WHATSAPP_PROVIDER=baileys (avancado).',
+        howToStart: 'scripts/whatsapp-bridge + WHATSAPP_PROVIDER=baileys (advanced).',
         setupSteps: [
           'cd scripts/whatsapp-bridge && npm install',
           'npm run whatsapp-bridge:start e escaneie o QR',

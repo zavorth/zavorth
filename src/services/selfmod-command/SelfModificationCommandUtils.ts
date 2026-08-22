@@ -39,14 +39,14 @@ export function formatSelfModificationResourceImpact(resourceImpact: SelfmodReso
   return resourceImpact.notes ? `${base} (${resourceImpact.notes})` : base;
 }
 
-export function tryParseSelfModificationJson(rawValue: string): Record<string, any> | null {
+export function tryParseSelfModificationJson(rawValue: string): Record<string, unknown> | null {
   const normalized = String(rawValue || '').trim();
   if (!normalized) {
     return null;
   }
 
   try {
-    return JSON.parse(normalized) as Record<string, any>;
+    return JSON.parse(normalized) as Record<string, unknown>;
   } catch {
     const fencedMatch = normalized.match(/```(?:json)?\s*([\s\S]*?)```/i);
     if (!fencedMatch) {
@@ -54,7 +54,7 @@ export function tryParseSelfModificationJson(rawValue: string): Record<string, a
     }
 
     try {
-      return JSON.parse(String(fencedMatch[1] || '').trim()) as Record<string, any>;
+      return JSON.parse(String(fencedMatch[1] || '').trim()) as Record<string, unknown>;
     } catch (error: unknown) {
       logger.warn('[Self Modification Command Utils] JSON parse failed', error);
       return null;

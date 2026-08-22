@@ -1,7 +1,8 @@
 import { marked } from 'marked';
 import { markedTerminal } from 'marked-terminal';
 import { TerminalTheme } from './TerminalTheme.js';
-import { logger } from '../../logger.js';// Apply the terminal renderer
+import { logger } from '../../logger.js';
+// Apply the terminal renderer
 marked.use(markedTerminal({
   // Customizing colors to match Zavorth theme
   code: TerminalTheme.colors.muted,
@@ -19,7 +20,7 @@ marked.use(markedTerminal({
   del: TerminalTheme.format.strikethrough,
   link: TerminalTheme.colors.info,
   href: TerminalTheme.format.underline,
-}) as any);
+}) as never);
 
 export class TerminalMarkdown {
   static render(markdownText: string): string {

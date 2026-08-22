@@ -80,13 +80,13 @@ export class TelegramChainController {
 
       const capturedOutputs: string[] = [];
       const chainedCtx: Context = Object.create(ctx);
-      (chainedCtx as any).reply = async (message: string, options?: Record<string, unknown>) => {
+      (chainedCtx as unknown as Record<string, unknown>).reply = async (message: string, options?: Record<string, unknown>) => {
         if (typeof message === 'string') {
           capturedOutputs.push(message);
         }
         return { message_id: 0, text: message, options };
       };
-      (chainedCtx as any).replyWithDocument = async (_file: unknown, extra?: Record<string, unknown>) => {
+      (chainedCtx as unknown as Record<string, unknown>).replyWithDocument = async (_file: unknown, extra?: Record<string, unknown>) => {
         const summary = String(extra?.caption || '[document sent]');
         capturedOutputs.push(summary);
         return { message_id: 0, caption: summary };

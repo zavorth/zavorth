@@ -119,7 +119,7 @@ export class ChannelMeshConsistencyService {
     this.sourceChannels = runtime.sourceChannels || DEFAULT_PRIVATE_CAPABILITY_SOURCE_MODULES
       .filter((sourceName) => this.normalization.resolveSourceModule(sourceName).primitiveId === 'channel.message');
 
-    const registryService = runtime.adapterRegistry || new GatewayChannelAdapterRegistryService({
+    runtime.adapterRegistry || new GatewayChannelAdapterRegistryService({
       hasDispatcher: true,
       canSpawnWeb: true,
     });

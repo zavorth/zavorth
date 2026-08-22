@@ -15,7 +15,8 @@ import { toJsonErrorPayload } from "@/shared/utils/upstreamError";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { v1ImageGenerationSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';/**
+import { logger } from '@/shared/utils/logger';
+/**
  * Handle CORS preflight
  */
 export async function OPTIONS() {
@@ -98,15 +99,15 @@ export async function POST(request, { params }) {
 
   if (result.success) {
     await clearRecoveredProviderState(credentials);
-    return new Response(JSON.stringify((result as any).data), {
+    return new Response(JSON.stringify((result as unknown as Record<string, unknown>).data), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   }
 
-  const errorPayload = toJsonErrorPayload((result as any).error, "Image generation provider error");
+  const errorPayload = toJsonErrorPayload((result as unknown as Record<string, unknown>).error, "Image generation provider error");
   return new Response(JSON.stringify(errorPayload), {
-    status: (result as any).status,
+    status: (result as unknown as Record<string, unknown>).status,
     headers: { "Content-Type": "application/json" },
   });
 }

@@ -128,7 +128,7 @@ export class TaskResponseEnvelopeService {
     ].join(' | ');
   }
 
-  public static buildExecutionResult(task: Task, label: string, workspace: string, result: any): string {
+  public static buildExecutionResult(task: Task, label: string, workspace: string, result: any): string { // eslint-disable-line @typescript-eslint/no-explicit-any
     return [
       `kind=execution_result`,
       `task=${task.task_id}`,

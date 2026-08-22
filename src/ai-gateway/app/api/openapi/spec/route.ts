@@ -11,7 +11,7 @@ import yaml from "js-yaml";
 import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../../../utils/errorLike.js';
 
-let cachedSpec: { data: any; mtime: number } | null = null;
+let cachedSpec: { data: unknown; mtime: number } | null = null;
 
 export async function GET() {
   try {
@@ -42,22 +42,22 @@ export async function GET() {
     }
 
     const content = fs.readFileSync(specPath, "utf-8");
-    const raw: any = yaml.load(content);
+    const raw: unknown = yaml.load(content);
 
     // Build a structured catalog
-    const catalog: any = {
+    const catalog: unknown = {
       info: raw.info || {},
       servers: raw.servers || [],
       tags: Array.isArray(raw.tags) ? raw.tags : [],
-      endpoints: [] as any[],
+      endpoints: [] as unknown as unknown[],
       schemas: Object.keys(raw.components?.schemas || {}),
     };
 
     // Parse paths into flat endpoint list
     const paths = raw.paths || {};
-    for (const [pathStr, methods] of Object.entries(paths as Record<string, any>)) {
+    for (const [pathStr, methods] of Object.entries(paths as Record<string, unknown>)) {
       if (!methods || typeof methods !== "object") continue;
-      for (const [method, spec] of Object.entries(methods as Record<string, any>)) {
+      for (const [method, spec] of Object.entries(methods as Record<string, unknown>)) {
         if (["get", "post", "put", "patch", "delete"].includes(method) && spec) {
           catalog.endpoints.push({
             method: method.toUpperCase(),

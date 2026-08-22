@@ -76,8 +76,8 @@ export class SystemScreenshotTool implements IZavorthTool {
             if (params.returnBase64) {
                 const fileBuffer = fs.readFileSync(outputPath);
                 const base64 = fileBuffer.toString('base64');
-                result.data.base64 = base64;
-                result.data.mimeType = 'image/png';
+                (result.data as Record<string, unknown>).base64 = base64;
+                (result.data as Record<string, unknown>).mimeType = 'image/png';
                 result.message += ' (base64 included for visual analysis)';
             }
 

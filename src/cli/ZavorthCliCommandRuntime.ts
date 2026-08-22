@@ -4,6 +4,7 @@ import { existsSync } from 'fs';
 import path from 'path';
 import { getCommandAliases } from './locales/localeManager.js';
 import { resolveZavorthSimpleCommand, type ZavorthSimpleCommandPlan } from './SimpleCommandRouter.js';
+import { formatCliHelp } from './ZavorthCliSurfaceHelpers.js';
 
 export async function logCliError(message: string, title = 'Zavorth Error'): Promise<void> {
   const isTTY = process.stderr.isTTY && !process.argv.includes('--json');

@@ -271,6 +271,7 @@ export class TelegramGatewayHandlerRegistrar {
     });
 
     // F5e — emoji reactions on approval messages
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.dependencies.bot.on('message_reaction' as any, async (ctx: Context) => {
       if (!this.dependencies.permissionReactionHandler) return;
       try {
@@ -290,6 +291,7 @@ export class TelegramGatewayHandlerRegistrar {
    * Removes all registered handlers to prevent listener leaks on restart.
    */
   public unregisterHandlers(): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const bot = this.dependencies.bot as any;
     bot.off('message:new_chat_members');
     bot.off('message:left_chat_member');

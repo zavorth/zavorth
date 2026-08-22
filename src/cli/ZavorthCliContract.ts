@@ -37,7 +37,7 @@ import type { GatewayCompatibilityDoctorService } from '../services/GatewayCompa
 import type { GatewayUpstreamSyncService } from '../services/GatewayUpstreamSyncService.js';
 import type { OperationsHealthService } from '../observability/OperationsHealthService.js';
 import type { OperationsActionService } from '../services/OperationsActionService.js';
-import type { OperationsDashboardService, OperationsCockpitService } from '../services/OperationsDashboardService.js';
+import type { OperationsCockpitService } from '../services/OperationsDashboardService.js';
 import type { OperatorBriefService } from '../observability/OperatorBriefService.js';
 import type { ZavorthCapabilityOsService } from '../services/ZavorthCapabilityOsService.js';
 import type { ZavorthTaskOperatingSystemService } from '../services/ZavorthTaskOperatingSystemService.js';

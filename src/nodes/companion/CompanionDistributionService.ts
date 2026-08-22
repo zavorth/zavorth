@@ -118,7 +118,7 @@ export class CompanionDistributionService {
     const launcherCmdPath = path.join(bundleDir, 'companion-start.cmd');
     const readmePath = path.join(bundleDir, 'README.txt');
 
-    const appPackage = JSON.parse(String(this.readFileSync(this.appPackageFile, 'utf8') || '{}')) as Record<string, any>;
+    const appPackage = JSON.parse(String(this.readFileSync(this.appPackageFile, 'utf8') || '{}')) as Record<string, unknown>;
     this.writeFileSync(
       launcherPs1Path,
       [
@@ -213,7 +213,7 @@ export class CompanionDistributionService {
   }
 
   private buildManifest(
-    appPackage: Record<string, any>,
+    appPackage: Record<string, unknown>,
     files: CompanionDistributionFileManifest[],
   ): CompanionDistributionManifest {
     const manifestHash = crypto

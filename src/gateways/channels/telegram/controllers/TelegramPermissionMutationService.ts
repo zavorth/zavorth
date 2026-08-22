@@ -98,7 +98,7 @@ export class TelegramPermissionMutationService {
       permission,
       this.parsePermissionPatch(rawPatch),
     );
-    const updated = await this.deps.permissionService.updateRequest(permission.permission_id, patch as any);
+    const updated = await this.deps.permissionService.updateRequest(permission.permission_id, patch as never);
     await replyWithTelegramSurfaceResponse(
       ctx,
       this.deps.permissionPresentation.buildPermissionDecisionSurfaceResponse(updated, 'edit'),
@@ -142,8 +142,8 @@ export class TelegramPermissionMutationService {
     );
   }
 
-  public parsePermissionPatch(input: string): Record<string, any> {
-    const assignments: Record<string, any> = {};
+  public parsePermissionPatch(input: string): Record<string, unknown> {
+    const assignments: Record<string, unknown> = {};
     if (!input) {
       return assignments;
     }

@@ -14,7 +14,6 @@ import { searchGitHubReposBroad } from '../skills/marketplace/SkillGitHubSearch.
 import type { GitHubRepoInfo } from '../skills/marketplace/SkillPackageTypes.js';
 import { detectSource } from '../skills/marketplace/SkillSourceDetector.js';
 import { WorkerMeshService } from './WorkerMeshService.js';
-import type { WorkerProfile } from '../contracts/skill/ZavorthSkillWorkerMeshContract.js';
 import { SkillTrustScoreService } from './SkillTrustScoreService.js';
 import { SkillSearchIndexService } from './SkillSearchIndexService.js';
 import { LlmSkillRankService, type LlmSkillRankChat } from './LlmSkillRankService.js';

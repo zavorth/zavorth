@@ -1,4 +1,4 @@
-export function useZavorthControlOperatorWorkbench(viewModel: any = {}) {
+export function useZavorthControlOperatorWorkbench(viewModel: unknown = {}) {
   const canonicalPath = '/api/v2/nexus/workbench';
   return viewModel.operatorWorkbench || viewModel.nexusWorkbench || {
     canonicalPath,

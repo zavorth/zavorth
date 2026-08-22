@@ -100,7 +100,7 @@ export class WorkflowRunLifecycleSupport {
         if (!entry || typeof entry !== 'object') {
           return null;
         }
-        const record = entry as Record<string, any>;
+        const record = entry as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
         return buildExecutionLifecycleRecord({
           kind: this.normalizeLifecycleKind(record.kind),
           id: String(record.id || '').trim() || null,

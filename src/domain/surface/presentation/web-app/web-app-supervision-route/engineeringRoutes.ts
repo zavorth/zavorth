@@ -4,7 +4,7 @@ import {
   buildWebOperatorApprovalSafety,
   normalizeSystemOverlordCapability,
 } from './helpers.js';
-import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
+import type { WebAppSupervisionRouteHandler } from './types.js';
 import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx) => {

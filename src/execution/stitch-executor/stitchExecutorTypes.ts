@@ -15,11 +15,15 @@ export type StitchGeneratedScreen = {
 };
 
 export type StitchSdkModule = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Stitch: new (client: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     createProject(title: string): Promise<any>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     projects(): Promise<any>;
   };
   StitchToolClient: new (options: Record<string, unknown>) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callTool(name: string, payload: Record<string, unknown>): Promise<any>;
     close(): Promise<void>;
   };
@@ -68,7 +72,9 @@ export type StitchPersistArtifactsInput = {
 };
 
 export type StitchPersistArtifactsResult = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   artifacts: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata: Record<string, any>;
   downloadedImage: StitchDownloadResult | null;
   downloadedHtml: StitchDownloadResult | null;

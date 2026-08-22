@@ -8,7 +8,8 @@ import {
 } from "@/domain/configAudit";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 
-import { safeParseInt } from "@/shared/utils/safeParseInt";export async function GET(req: Request) {
+import { safeParseInt } from "@/shared/utils/safeParseInt";
+export async function GET(req: Request) {
   const authError = await requireStrictManagementAuth(req);
   if (authError) return authError;
 
@@ -27,7 +28,7 @@ import { safeParseInt } from "@/shared/utils/safeParseInt";export async functio
     const source = url.searchParams.get("source") as AuditSource | null;
     const since = url.searchParams.get("since");
 
-    const options: any = { limit, offset };
+    const options: unknown = { limit, offset };
     if (target) options.target = target;
     if (action) options.action = action;
     if (source) options.source = source;

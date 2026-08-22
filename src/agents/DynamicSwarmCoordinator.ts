@@ -5,7 +5,6 @@
 
 import crypto from 'node:crypto';
 import { SessionPersistenceService } from '../storage/SessionPersistenceService.js';
-import { ProjectEvolutionMemoryService } from '../storage/ProjectEvolutionMemoryService.js';
 import { StackAwarePersonaEngine, type TailoredSpecialist } from './swarm/StackAwarePersonaEngine.js';
 import { SwarmTreeRenderer, type SwarmTreeNode } from '../cli/presentation/SwarmTreeRenderer.js';
 import { SelfHealingSwarmLoop, type SelfHealingLoopResult } from './swarm/SelfHealingSwarmLoop.js';

@@ -149,12 +149,14 @@ export class SystemCleanupService {
     const items = Array.isArray(parsed) ? parsed : [parsed];
 
     return items
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       .filter((p: any) => p && p.ProcessName)
       .map((p: any) => ({
         name: `${p.ProcessName}.exe`.toLowerCase() === p.ProcessName.toLowerCase()
           ? p.ProcessName
           : `${p.ProcessName}.exe`,
         pid: p.Id,
+        /* eslint-enable @typescript-eslint/no-explicit-any */
       }));
   }
 

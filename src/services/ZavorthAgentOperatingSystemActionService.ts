@@ -12,6 +12,7 @@ import {
 } from './ZavorthTeamCatalogService.js';
 
 type WorkflowControllerLike = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleWorkflow: (ctx: any, args: string) => Promise<void>;
 };
 

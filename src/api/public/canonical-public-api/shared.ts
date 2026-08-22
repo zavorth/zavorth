@@ -204,7 +204,7 @@ export class CanonicalPublicApiSharedSupport {
       promotedFromLearning: entry.promotedFromLearning === true,
       discoveryOnly: entry.discoveryOnly === true,
       featured: entry.featured === true,
-      summary: entry.summary,
+      summary: entry.summary || '',
       registrySource: entry.registrySource || undefined,
       provenance: {
         sourceLocator: entry.provenance?.sourceLocator || undefined,
@@ -225,7 +225,7 @@ export class CanonicalPublicApiSharedSupport {
       author: entry.registrySource || entry.source || undefined,
       status: entry.readiness === 'disabled'
         ? 'error'
-        : (['installed', 'enabled', 'workspace'].includes(entry.installState) ? 'active' : 'installed'),
+        : (['installed', 'enabled', 'workspace'].includes(entry.installState as string) ? 'active' : 'installed'),
     };
   }
 }

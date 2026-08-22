@@ -219,7 +219,7 @@ export class MediaGenerationService {
   private async storeAsArtifact(
     output: AdapterGenerationOutput,
     modality: MediaGenerationModality,
-    request: MediaGenerationRequest,
+    _request: MediaGenerationRequest,
   ): Promise<GeneratedMediaArtifact> {
     const artifactId = randomUUID();
     const ext = this.inferExtension(output.contentType);

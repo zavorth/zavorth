@@ -128,7 +128,7 @@ export class TaskSecurityPostureService {
     return parts.join(' | ');
   }
 
-  public appendApprovalDecision(metadata: Record<string, any> | undefined, entry: ApprovalDecisionEntry): Record<string, any> {
+  public appendApprovalDecision(metadata: Record<string, unknown> | undefined, entry: ApprovalDecisionEntry): Record<string, unknown> {
     const nextMetadata = { ...(metadata || {}) };
     const history = Array.isArray(nextMetadata.approval_history)
       ? nextMetadata.approval_history.filter((value: unknown) => Boolean(value))
@@ -139,7 +139,7 @@ export class TaskSecurityPostureService {
     return nextMetadata;
   }
 
-  public appendPermissionDecision(metadata: Record<string, any> | undefined, entry: PermissionDecisionEntry): Record<string, any> {
+  public appendPermissionDecision(metadata: Record<string, unknown> | undefined, entry: PermissionDecisionEntry): Record<string, unknown> {
     const nextMetadata = { ...(metadata || {}) };
     const history = Array.isArray(nextMetadata.permission_history)
       ? nextMetadata.permission_history.filter((value: unknown) => Boolean(value))

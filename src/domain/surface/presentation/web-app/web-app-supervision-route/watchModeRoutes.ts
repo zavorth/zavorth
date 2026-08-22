@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
+import type { WebAppSupervisionRouteHandler } from './types.js';
 import { getRequestedBy } from './helpers.js';
 import { asErrorLike } from '../../../../../utils/errorLike.js';
 
@@ -277,7 +277,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
     }
     const runId = decodeURIComponent(actionMatch[1] || '').trim();
     const action = actionMatch[2];
-    const body = await deps.readJsonBody(req);
+    await deps.readJsonBody(req);
     if (!runId) {
       deps.writeJson(res, { ok: false, error: 'runId required.' }, 400);
       return true;

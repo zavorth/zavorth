@@ -1,5 +1,4 @@
 import { Context } from 'grammy';
-import { t } from '../../../../gateways/channels/telegram/i18n.js';
 import { OperatorModeService } from '@zavorth/services/OperatorModeService.js';
 
 type ModeAction = 'activate' | 'deactivate' | 'status';

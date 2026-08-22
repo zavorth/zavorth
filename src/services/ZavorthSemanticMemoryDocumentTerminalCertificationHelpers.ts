@@ -3,7 +3,6 @@ import type {
   SourceMemoryDocumentTerminalPackageName,
 } from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
 import type {
-  ZavorthSemanticMemoryDocumentTerminalCertificationSnapshot,
   ZavorthSemanticMemoryDocumentTerminalClaim,
   ZavorthSemanticMemoryDocumentTerminalClaimPriority,
   ZavorthSemanticMemoryDocumentTerminalClaimStatus,

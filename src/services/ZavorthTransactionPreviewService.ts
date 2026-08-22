@@ -6,7 +6,6 @@ import {
 
 import type {
   ZavorthTransactionActionKind,
-  ZavorthTransactionRiskLevel,
 } from '../contracts/ZavorthTransactionPlaneContract.js';
 
 import type { ZavorthTransactionIntent } from '../contracts/ZavorthTransactionIntentContract.js';

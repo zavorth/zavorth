@@ -104,7 +104,9 @@ export type DiscordGatewayInteractionLike = {
 export type DiscordGatewayClientLike = {
   login(token: string): Promise<string>;
   destroy(): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   on(event: string, listener: (...args: any[]) => void): unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   once(event: string, listener: (...args: any[]) => void): unknown;
   isReady?: () => boolean;
   user?: {
@@ -113,6 +115,7 @@ export type DiscordGatewayClientLike = {
   } | null;
   application?: {
     commands?: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       set?: (commands: Array<Record<string, any>>) => Promise<unknown>;
     };
   } | null;
@@ -124,6 +127,7 @@ export type DiscordGatewayClientLike = {
   guilds?: {
     fetch?: (guildId: string) => Promise<{
       commands?: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         set?: (commands: Array<Record<string, any>>) => Promise<unknown>;
       };
     } | null>;

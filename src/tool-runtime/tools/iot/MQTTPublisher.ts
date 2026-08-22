@@ -35,6 +35,17 @@ type MqttPublisherState = {
     lastError: string | null;
 };
 
+type MqttClientLike = {
+    end: (force?: boolean) => void;
+    publish: (topic: string, payload: string, options: { qos: number }, callback: (error: Error | null) => void) => void;
+    on: ((event: 'connect', listener: () => void) => void)
+        & ((event: 'error', listener: (error: Error) => void) => void);
+};
+
+type MqttModuleLike = {
+    connect: (broker: string, options: { connectTimeout: number; reconnectPeriod: number }) => MqttClientLike;
+};
+
 /**
  * MQTTPublisher publishes messages to local MQTT brokers.
  */
@@ -77,7 +88,7 @@ export class MQTTPublisher implements IZavorthTool {
         topic: string;
         payload: string;
         qos?: number;
-    }, context?: Record<string, any>): Promise<ToolExecutionResult> {
+    }, context?: Record<string, unknown>): Promise<ToolExecutionResult> {
         const broker = params.broker || 'mqtt://localhost:1883';
         const qos = Number.isFinite(Number(params.qos)) ? Number(params.qos) : 0;
         const payloadBytes = Buffer.byteLength(String(params.payload || ''), 'utf8');
@@ -107,7 +118,7 @@ export class MQTTPublisher implements IZavorthTool {
         }
 
         try {
-            let mqtt: any;
+            let mqtt: MqttModuleLike;
             try {
                 mqtt = this.loadMqttModule();
             } catch (error: unknown) {this.updateState({
@@ -154,7 +165,7 @@ export class MQTTPublisher implements IZavorthTool {
                         params.topic,
                         params.payload,
                         { qos },
-                        (err: any) => {
+                        (err) => {
                             client.end();
                             if (err) {
                                 this.updateState({
@@ -194,7 +205,7 @@ export class MQTTPublisher implements IZavorthTool {
                     );
                 });
 
-                client.on('error', (err: any) => {
+                client.on('error', (err) => {
                     client.end(true);
                     this.updateState({
                         status: 'failed',
@@ -279,7 +290,7 @@ export class MQTTPublisher implements IZavorthTool {
     private buildArtifact(
         broker: string,
         topic: string,
-        context?: Record<string, any>,
+        context?: Record<string, unknown>,
     ): Record<string, unknown> {
         return {
             id: String(context?.artifactId || `mqtt:${topic}:${Date.now()}`),
@@ -290,7 +301,7 @@ export class MQTTPublisher implements IZavorthTool {
         };
     }
 
-    private extractCorrelation(context?: Record<string, any>): Record<string, unknown> | null {
+    private extractCorrelation(context?: Record<string, unknown>): Record<string, unknown> | null {
         const correlation = {
             traceId: String(context?.traceId || '').trim() || null,
             runId: String(context?.runId || '').trim() || null,
@@ -304,7 +315,7 @@ export class MQTTPublisher implements IZavorthTool {
     private fail(
         error: string,
         policy: MqttBrokerPolicy,
-        context?: Record<string, any>,
+        context?: Record<string, unknown>,
         status: MqttLifecycleStatus = this.state.status,
     ): ToolExecutionResult {
         return {
@@ -325,7 +336,7 @@ export class MQTTPublisher implements IZavorthTool {
         };
     }
 
-    protected loadMqttModule(): any {
+    protected loadMqttModule(): MqttModuleLike {
         return requireFromHere('mqtt');
     }
 }

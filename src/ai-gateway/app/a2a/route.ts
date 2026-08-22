@@ -24,7 +24,7 @@ import { logger } from '@/shared/utils/logger';
 
 export const runtime = "nodejs";
 
-const SKILL_HANDLERS: Record<string, (task: any) => Promise<any>> = {
+const SKILL_HANDLERS: Record<string, (task: unknown) => Promise<unknown>> = {
   "smart-routing": executeSmartRouting,
   "quota-management": executeQuotaManagement,
 };
@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Parse JSON-RPC body
-  let body: any;
+  let body: unknown;
   try {
     body = await req.json();
   } catch (error: unknown) {logger.warn('[route] parsing failed', error);

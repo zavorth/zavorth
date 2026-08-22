@@ -28,7 +28,6 @@ import { normalizeSetupSection } from './ZavorthSetupStudioWizardContract.js';
 import { renderZavorthChannelLiveValidationResult, validateZavorthChannelLive } from './ZavorthChannelLiveValidationService.js';
 
 import type { ZavorthSetupStudioSection, ZavorthSetupStudioSnapshot } from './ZavorthSetupStudioSchema.js';
-import picocolors from 'picocolors';
 import { ZavorthFirstBootDetectionService } from '../../services/ZavorthFirstBootDetectionService.js';
 import { FirstRunPersonalizationService } from '../../services/FirstRunPersonalizationService.js';
 import { ZavorthConversationalSetupService } from '../../services/ZavorthConversationalSetupService.js';

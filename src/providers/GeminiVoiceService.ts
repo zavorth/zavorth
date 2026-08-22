@@ -2,7 +2,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { config } from '../config/index.js';
 import { readSafeJsonResponse } from '../security/SafeFetchService.js';
-import { logger } from '../logger.js';export type GeminiVoiceSynthesisOptions = {
+import { logger } from '../logger.js';
+export type GeminiVoiceSynthesisOptions = {
   model?: string;
   voiceName?: string;
   languageCode?: string;
@@ -120,6 +121,7 @@ export class GeminiVoiceService {
       }),
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body = await readSafeJsonResponse<any>(response as any, 'Gemini Voice Service').catch(() => null);
     if (!response.ok) {
       const message =
@@ -170,6 +172,7 @@ export class GeminiVoiceService {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function readInlineAudio(body: any): { data?: string; mimeType?: string } | null {
   const candidates = Array.isArray(body?.candidates) ? body.candidates : [];
   for (const candidate of candidates) {

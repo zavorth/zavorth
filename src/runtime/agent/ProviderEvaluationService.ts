@@ -174,12 +174,6 @@ function clampScore(value: number): number {
   return Number(value.toFixed(2));
 }
 
-function averageScore(values: number[]): number {
-  if (values.length === 0) {
-    return 0;
-  }
-  return clampScore(values.reduce((total, value) => total + value, 0) / values.length);
-}
 
 function normalizeReadiness(value: unknown, ready?: boolean): ProviderArenaCandidate['readiness'] {
   const raw = normalizeText(value).toLowerCase();

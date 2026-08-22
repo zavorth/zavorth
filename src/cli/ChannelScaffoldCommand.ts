@@ -1,4 +1,3 @@
-import { ChannelPolicyManager } from '../channels/policies/ChannelPolicyManager.js';
 /**
  * ChannelScaffoldCommand — Generates boilerplate for new channel adapters.
  *
@@ -31,10 +30,6 @@ function toPascalCase(str: string): string {
     .join('');
 }
 
-function toCamelCase(str: string): string {
-  const pascal = toPascalCase(str);
-  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
-}
 
 function generateAdapterTemplate(name: string, pascalName: string, type: string): string {
   return `/**

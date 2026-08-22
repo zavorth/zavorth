@@ -28,17 +28,18 @@ type TelemetryLedgerLike = {
   buildSnapshot: (input?: Date | Partial<{ referenceDate: Date; windowHours: number }>) => ZavorthTelemetryLedgerSnapshot;
 };
 type EvalHistoryLike = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   capture: (snapshot: any) => ZavorthEvalHistorySnapshot;
   readHistory?: (limit?: number) => ZavorthEvalHistorySnapshot;
 };
 
 type OperatorBriefLike = {
-  readSnapshot?: () => any;
+  readSnapshot?: () => unknown;
 };
 
 type OperationsHealthLike = {
-  readLastReport?: () => any;
-  readSnapshot?: () => any;
+  readLastReport?: () => unknown;
+  readSnapshot?: () => unknown;
 };
 
 type ZavorthEvalScope = ProductObservabilitySnapshot['scope'];
@@ -293,7 +294,7 @@ export class ZavorthEvalControlPlaneService {
     };
   }
 
-  private readOperatorBrief(): any {
+  private readOperatorBrief(): unknown {
     try {
       return typeof this.deps.operatorBriefService?.readSnapshot === 'function'
         ? this.deps.operatorBriefService.readSnapshot()
@@ -301,7 +302,7 @@ export class ZavorthEvalControlPlaneService {
     } catch (error: unknown) {logger.warn('[Zavorth Eval Control Plane] code compilation failed', error); return null; }
   }
 
-  private readOperationsHealth(): any {
+  private readOperationsHealth(): unknown {
     try {
       if (typeof this.deps.operationsHealthService?.readLastReport === 'function') {
         return this.deps.operationsHealthService.readLastReport();

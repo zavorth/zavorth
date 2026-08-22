@@ -150,7 +150,7 @@ export class FileInspectionService {
 
   private detectDesiredExtensions(_loweredRequest: string): string[] {
     const extensions = new Set<string>();
-    const pushAll = (...values: string[]) => values.forEach((value) => extensions.add(value));
+    (...values: string[]) => values.forEach((value) => extensions.add(value));
 
     return Array.from(extensions);
   }

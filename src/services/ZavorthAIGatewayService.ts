@@ -33,9 +33,6 @@ interface GatewayWebSocketMessage {
   body?: Record<string, unknown>;
 }
 
-interface GatewayError extends Error {
-  code?: string;
-}
 
 export class ZavorthGatewayService {
   private static server: http.Server | null = null;

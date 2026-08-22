@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
-import type { SkillSourceRegistryEntry } from '../services/SkillSourceRegistryService.js';type SkillLicenseClassification = {
+import type { SkillSourceRegistryEntry } from '../services/SkillSourceRegistryService.js';
+type SkillLicenseClassification = {
   license: string | null;
   confidence: 'high' | 'medium' | 'low';
   evidence: string[];
@@ -136,13 +137,13 @@ export class SkillLicenseClassifierService {
     return fields;
   }
 
-  private readJsonFile(filePath: string): Record<string, any> | null {
+  private readJsonFile(filePath: string): Record<string, unknown> | null {
     try {
       if (!this.existsSyncImpl(filePath)) {
         return null;
       }
       const parsed = JSON.parse(this.readFileSyncImpl(filePath, 'utf8'));
-      return parsed && typeof parsed === 'object' ? parsed as Record<string, any> : null;
+      return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : null;
     } catch (error: unknown) {return null;
     }
   }

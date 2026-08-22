@@ -6,7 +6,6 @@ import { TaskRepository } from '../storage/TaskRepository.js';
 import { TaskManager } from '../orchestrator/TaskManager.js';
 import { RuntimeDiagnosticsService } from './RuntimeDiagnosticsService.js';
 import { ErrorNormalizationService } from './ErrorNormalizationService.js';
-import { config } from '../config/index.js';
 import { logger } from '../logger.js';
 
 export type DiagnosticsExportReport = {
@@ -27,7 +26,7 @@ export class DiagnosticsExporterService {
   private readonly normalizer = ErrorNormalizationService.getInstance();
 
   public async export(options: { projectRoot: string; outputPath: string }): Promise<DiagnosticsExportReport> {
-    const db = await Database.getInstance();
+    await Database.getInstance();
     const logRepo = new LogRepository();
     await logRepo.init();
     const taskRepo = new TaskRepository();
@@ -122,7 +121,7 @@ export class DiagnosticsExporterService {
     return result;
   }
 
-  private sanitizeObject(obj: any): any {
+  private sanitizeObject(obj: unknown): unknown {
     if (obj === null || obj === undefined) {
       return obj;
     }
@@ -133,7 +132,7 @@ export class DiagnosticsExporterService {
       return obj.map((item) => this.sanitizeObject(item));
     }
     if (typeof obj === 'object') {
-      const result: Record<string, any> = {};
+      const result: Record<string, unknown> = {};
       for (const [key, val] of Object.entries(obj)) {
         const sanitizedKey = this.normalizer.sanitizeText(key);
         result[sanitizedKey] = this.sanitizeObject(val);

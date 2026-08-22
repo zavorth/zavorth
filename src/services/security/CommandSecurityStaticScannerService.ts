@@ -1,4 +1,3 @@
-import * as path from 'node:path';
 
 export type SecurityViolationKind =
   | 'homoglyph_spoof'

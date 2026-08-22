@@ -367,7 +367,7 @@ export class ZavorthProductExcellenceService {
       label: 'Mobile approval companion',
       ttlSeconds: 120,
     });
-    const surfaces = new Set(snapshot.surfaces.map((surface: any) => surface.id));
+    const surfaces = new Set(snapshot.surfaces.map((surface: any) => surface.id)); // eslint-disable-line @typescript-eslint/no-explicit-any
     const ready = snapshot.health.satellitePwaReady
       && snapshot.health.nodeHostReady
       && snapshot.offlineQueue.available

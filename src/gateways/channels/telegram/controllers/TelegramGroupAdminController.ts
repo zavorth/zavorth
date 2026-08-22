@@ -205,7 +205,7 @@ export class TelegramGroupAdminController {
     await this.warnCommands.handleClearWarns(ctx, this.getTargetUserId(ctx, args), ctx.chat!.id.toString());
   }
 
-  public async handleRegras(ctx: Context, args: string): Promise<void> {
+  public async handleRules(ctx: Context, args: string): Promise<void> {
     if (!this.isGroupChat(ctx)) {
       await ctx.reply('Warning: this command only works in groups.');
       return;
@@ -220,7 +220,7 @@ export class TelegramGroupAdminController {
 
     const rules = await this.welcomeService.getGroupRules(chatId);
     if (!rules) {
-      await ctx.reply('No rules have been defined. Use `/regras <text>` to save the group rules.', {
+      await ctx.reply('No rules have been defined. Use `/rules <text>` to save the group rules.', {
         parse_mode: 'Markdown',
       });
       return;

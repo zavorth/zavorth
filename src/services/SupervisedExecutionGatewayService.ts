@@ -223,7 +223,7 @@ export class SupervisedExecutionGatewayService {
           },
         }));
       } catch (error: unknown) {
-        const err = asErrorLike(error);
+        asErrorLike(error);
         if (this.isCancelled(actionId)) {
           return this.ledger.find(actionId) || this.recordBuilder.buildRecord({
             actionId,
@@ -333,7 +333,7 @@ export class SupervisedExecutionGatewayService {
         },
       }));
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       logger.warn('[Supervised Execution way] process execution failed', error);
     return this.ledger.record(this.recordBuilder.buildRecord({
         actionId,

@@ -57,8 +57,15 @@ type LearningPlaneLike = Pick<ZavorthLearningPlaneService, 'buildSnapshot' | 're
 
 type WorkflowRunLike = Pick<WorkflowRunService, 'listRuns'>;
 type HostActionLike = {
-  listActions: (limit?: number) => any[];
+  listActions: (limit?: number) => any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
+
+type MemoryPlaneSnapshot = Awaited<ReturnType<AsyncSnapshotLike['buildSnapshot']>> | null;
+type LayeredMemoryStatusSnapshot = Awaited<ReturnType<NonNullable<LayeredMemoryLike['buildStatus']>>> | null | undefined;
+type LayeredMemoryMetricsSnapshot = Awaited<ReturnType<NonNullable<LayeredMemoryLike['readMetrics']>>> | null | undefined;
+type LayeredMemoryProceduresSnapshot = Awaited<ReturnType<NonNullable<LayeredMemoryLike['readProcedures']>>> | null | undefined;
+type LearningPlaneSnapshot = Awaited<ReturnType<NonNullable<LearningPlaneLike['buildSnapshot']>>> | null;
+type LearningPlaneMetricsSnapshot = Awaited<ReturnType<NonNullable<LearningPlaneLike['readMetrics']>>> | null | undefined;
 
 type ReplayLearningRuntime = {
   now?: () => Date;
@@ -149,14 +156,14 @@ export type ZavorthReplayLearningControlPlaneSnapshot = {
     prompt: string | null;
   }>;
   sourceSnapshots: {
-    memoryPlane: any;
-    layeredMemory: any;
-    layeredMemoryMetrics: any;
-    procedures: any;
-    learningPlane: any;
-    learningMetrics: any;
+    memoryPlane: MemoryPlaneSnapshot;
+    layeredMemory: LayeredMemoryStatusSnapshot;
+    layeredMemoryMetrics: LayeredMemoryMetricsSnapshot;
+    procedures: LayeredMemoryProceduresSnapshot;
+    learningPlane: LearningPlaneSnapshot;
+    learningMetrics: LearningPlaneMetricsSnapshot;
     workflowRuns: WorkflowRunSnapshot[];
-    hostActions: any[];
+    hostActions: unknown[];
     lifecycle: ExecutionLifecycleReadModelSnapshot;
   };
   narrative: {

@@ -2,7 +2,6 @@ import type {
   SwarmOrchestrator,
   SwarmRole,
   SwarmSnapshot,
-  SwarmTaskResult,
 } from '../runtime/sessions/v2/SwarmOrchestrator.js';
 import type {
   SubagentBudgetInput,

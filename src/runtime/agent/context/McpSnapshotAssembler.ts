@@ -11,7 +11,8 @@ import {
   type ImportedCapabilityTrustSummary,
 } from '../security/index.js';
 
-import type { CanonicalColdContextInput } from './CanonicalSessionContextAssembler.js';export type McpSnapshotRuntime = Pick<McpRuntimeService, 'readSnapshot'>;
+import type { CanonicalColdContextInput } from './CanonicalSessionContextAssembler.js';
+export type McpSnapshotRuntime = Pick<McpRuntimeService, 'readSnapshot'>;
 export type McpSnapshotQuarantinePolicy = Pick<McpQuarantinePolicy, 'evaluate'>;
 
 export type McpSnapshotAssemblerOptions = {
@@ -154,7 +155,8 @@ export class McpSnapshotAssembler {
     };
   }
 
-  private failedSnapshot(error: any, metadata: Record<string, unknown> | undefined): McpContextSnapshot {
+  private failedSnapshot(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    error: any, metadata: Record<string, unknown> | undefined): McpContextSnapshot {
     const summary = normalizeSummary(null);
     const trustSummary: ImportedCapabilityTrustSummary = {
       trusted: 0,

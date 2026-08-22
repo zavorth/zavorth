@@ -17,7 +17,7 @@ import {
 
 
 type ChannelMeshSnapshotLike = {
-  buildSnapshot: (input?: { selectedId?: string | null }) => any;
+  buildSnapshot: (input?: { selectedId?: string | null }) => unknown;
 };
 
 type ChannelInstallLike = Pick<
@@ -66,7 +66,7 @@ export type ChannelSetupAssistantSession = {
     command: string;
   }>;
   report: ChannelInstallReport;
-  channels: any | null;
+  channels: unknown | null;
 };
 
 export type ChannelSetupAssistantApplyResult = {

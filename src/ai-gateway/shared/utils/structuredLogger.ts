@@ -189,7 +189,7 @@ export function createLogger(component: string) {
         logger.warn("[auto-fix] Empty catch block", err); }
       writeToFile(entry);
     },
-    child(defaultMeta: Record<string, unknown>) {
+    child(_defaultMeta: Record<string, unknown>) {
       return createLogger(component);
     },
   };

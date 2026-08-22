@@ -339,7 +339,7 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
     return `Merge of ${trajectories.length} trajectories saved to ${outputPath}. Total: ${merged.total_turns} turns, ${merged.total_tool_calls} tool calls.`;
   }
 
-  private getStats(args: Record<string, unknown>): string {
+  private getStats(_args: Record<string, unknown>): string {
     const trajectories = this.loadTrajectories();
 
     if (trajectories.length === 0) return 'No trajectories found.';
@@ -404,7 +404,7 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
     const trajectories = this.loadTrajectories().filter((t) => ids.includes(t.id));
     if (trajectories.length === 0) return 'No trajectories found.';
 
-    const format = String(args.format || 'alpaca');
+    String(args.format || 'alpaca');
     return this.exportTrajectories({ ...args, trajectory_ids: JSON.stringify(ids) });
   }
 

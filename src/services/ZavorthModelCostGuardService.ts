@@ -340,7 +340,7 @@ function readiness(status: string, liveReady: boolean): ZavorthModelCostGuardPro
   return status === 'ready' ? 'ready' : 'unknown';
 }
 
-function classifyMission(request: string | null): ZavorthModelCostGuardContract['missionKind'] {
+function classifyMission(_request: string | null): ZavorthModelCostGuardContract['missionKind'] {
   return 'unknown';
 }
 

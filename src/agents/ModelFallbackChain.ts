@@ -187,7 +187,7 @@ export class ModelFallbackChain {
     knownBad: number;
     soonestRecoveryMs: number;
   } {
-    const now = Date.now();
+    Date.now();
     let available = 0;
     let inCooldown = 0;
 

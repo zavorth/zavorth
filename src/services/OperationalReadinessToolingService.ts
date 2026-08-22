@@ -20,7 +20,7 @@ import { CapabilityNormalizationService } from './CapabilityNormalizationService
 import { ChannelMeshConsistencyService } from './ChannelMeshConsistencyService.js';
 import { MemoryArtifactConsistencyService } from './MemoryArtifactConsistencyService.js';
 import { ProviderMeshReadinessService } from './ProviderMeshReadinessService.js';
-import { WebRemoteAppConsistencyService, SatelliteAppConsistencyService } from './WebRemoteAppConsistencyService.js';
+import { SatelliteAppConsistencyService } from './WebRemoteAppConsistencyService.js';
 
 type OperationalReadinessToolingRuntime = {
   now?: () => Date;

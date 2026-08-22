@@ -6,7 +6,6 @@ import type {
   DesktopDockerDesktopSample,
   DesktopResourceCollection,
   DesktopResourceProcessSample,
-  DesktopResourceWslDistroSample,
 } from '../contracts/DesktopResourceContract.js';
 
 import { logger } from '../logger.js';

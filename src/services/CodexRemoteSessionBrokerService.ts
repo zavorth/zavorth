@@ -334,7 +334,7 @@ export class CodexRemoteSessionBrokerService {
     };
   }
 
-  private readRuntimeMetadata(metadata: Record<string, any> | null | undefined): {
+  private readRuntimeMetadata(metadata: Record<string, unknown> | null | undefined): {
     presence: RuntimePresenceMetadata | null;
     guardrails: RuntimeGuardrailMetadata | null;
   } {

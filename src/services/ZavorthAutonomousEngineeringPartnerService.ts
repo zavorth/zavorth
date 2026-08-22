@@ -101,6 +101,7 @@ interface ControlPlaneSnapshot {
     canProceed?: boolean;
     rolloutBlocked?: boolean;
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actions?: any[];
 }
 

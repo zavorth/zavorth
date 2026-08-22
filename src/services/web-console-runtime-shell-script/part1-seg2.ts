@@ -1,4 +1,3 @@
-import { asErrorLike } from '../../utils/errorLike';
 export const runtimeShellScriptPart1Seg2: string = [
     "  hideOpenAction(prioritySecondaryOpen);",
     "}",

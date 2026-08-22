@@ -101,7 +101,8 @@ export class CodexExecutor implements IExecutor {
     ].join('\n');
   }
 
-  private toTaskShape(request: ExecutionRequest): any {
+  private toTaskShape(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    request: ExecutionRequest): any {
     const now = new Date().toISOString();
 
     return {

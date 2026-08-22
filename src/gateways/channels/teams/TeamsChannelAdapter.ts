@@ -45,6 +45,7 @@ export class TeamsChannelAdapter implements GatewayChannelAdapter {
     logger.info('[ChannelMesh] Teams bridge detached.');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async onMessageReceived(payload: any): Promise<void> {
     const userId = String(
       payload?.userId
@@ -83,6 +84,7 @@ export class TeamsChannelAdapter implements GatewayChannelAdapter {
     }));
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async sendMessage(outboundPayload: any): Promise<void> {
     const envelope = buildOutboundChannelEnvelope({
       platform: 'teams',

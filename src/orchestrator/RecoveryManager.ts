@@ -118,7 +118,8 @@ export class RecoveryManager {
     }
   }
 
-  private shouldPreserveZavorthBridgeTask(task: any): boolean {
+  private shouldPreserveZavorthBridgeTask(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    task: any): boolean {
     const tracking = this.readZavorthBridgeTracking(task);
     if (!this.isZavorthBridgeTask(task) || !tracking) {
       return false;
@@ -139,6 +140,7 @@ export class RecoveryManager {
   }
 
   private reconcileFinishedZavorthBridgeTask(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     task: any,
     tracking: {
       completedAt?: string | null;
@@ -193,7 +195,8 @@ export class RecoveryManager {
     this.taskManager.saveTask(task);
   }
 
-  private readZavorthBridgeTracking(task: any): {
+  private readZavorthBridgeTracking(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    task: any): {
     launchedAt?: string | null;
     completedAt?: string | null;
     deliveredResponse?: boolean;
@@ -218,13 +221,15 @@ export class RecoveryManager {
     } catch (error: unknown) {logger.warn('[Recovery Manager] JSON parse failed', error); return null; }
   }
 
-  private closeZavorthBridgeTracking(task: any, reason: string): void {
+  private closeZavorthBridgeTracking(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    task: any, reason: string): void {
     const trackingFile = String(task?.metadata?.zavorthBridgeTrackingFile || '').trim();
     if (!trackingFile || !fs.existsSync(trackingFile)) {
       return;
     }
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tracking = JSON.parse(fs.readFileSync(trackingFile, 'utf8')) as Record<string, any>;
       tracking.completedAt = tracking.completedAt || new Date().toISOString();
       if (!tracking.deliveredResponse) {
@@ -237,7 +242,8 @@ export class RecoveryManager {
     }
   }
 
-  private isZavorthBridgeTask(task: any): boolean {
+  private isZavorthBridgeTask(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    task: any): boolean {
     const commandType = String(task?.command_type || '').trim().toLowerCase();
     const executor = String(task?.executor_used || '').trim().toLowerCase();
     return commandType.startsWith('/ag') || executor.startsWith('zavorthBridge');

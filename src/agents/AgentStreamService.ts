@@ -115,7 +115,7 @@ export class AgentStreamService extends EventEmitter {
   }
 
   public abortAll(): void {
-    for (const [id, controller] of this.activeStreams) {
+    for (const [_id, controller] of this.activeStreams) {
       controller.abort();
     }
     this.activeStreams.clear();

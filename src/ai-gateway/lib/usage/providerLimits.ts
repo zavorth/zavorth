@@ -189,8 +189,8 @@ async function syncExpiredStatusIfNeeded(connection: ProviderConnectionLike, usa
       lastErrorAt: new Date().toISOString(),
     });
   } catch (dbError: unknown) {
-    const err = asErrorLike(dbError);
-    const error = err;
+    asErrorLike(dbError);
+    
     console.error("[ProviderLimits] Failed to sync expired status to DB:", dbError);
   }
 }

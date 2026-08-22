@@ -1,6 +1,4 @@
 import {
-  ZavorthTerminalCanvasFX,
-  type ModelCardMetrics,
   type ModelRecommendationResult,
 } from '../../services/tui/ZavorthTerminalCanvasFX.js';
 

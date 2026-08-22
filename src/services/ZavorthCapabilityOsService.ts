@@ -556,7 +556,7 @@ export class ZavorthCapabilityOsService {
         reason: 'Decision recorded in the Trust Plane ledger with a redacted entry.',
       };
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       logger.warn('[Zavorth Capability Os] filesystem check failed', error);
       return {
         recorded: false,

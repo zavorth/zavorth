@@ -228,11 +228,13 @@ export class StitchExecutor implements IExecutor {
     return buildStitchProjectTitle(prompt, taskId);
   }
 
-  private resolveProjectId(project: any): string {
+  private resolveProjectId(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    project: any): string {
     return resolveStitchProjectId(project);
   }
 
-  private extractGeneratedScreen(raw: any): StitchGeneratedScreen | null {
+  private extractGeneratedScreen(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    raw: any): StitchGeneratedScreen | null {
     return extractStitchGeneratedScreen(raw);
   }
 
@@ -240,7 +242,8 @@ export class StitchExecutor implements IExecutor {
     return resolveStitchScreenId(screen);
   }
 
-  private extractDownloadUrl(value: any): string | null {
+  private extractDownloadUrl(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    value: any): string | null {
     return extractStitchDownloadUrl(value);
   }
 
@@ -261,7 +264,8 @@ export class StitchExecutor implements IExecutor {
     return sanitizeStitchFilePart(value);
   }
 
-  private async generateScreenWithRetry(client: any, input: {
+  private async generateScreenWithRetry(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    client: any, input: {
     projectId: string;
     prompt: string;
     generationPrompt: string;
@@ -269,7 +273,7 @@ export class StitchExecutor implements IExecutor {
     modelId: StitchModelId | null;
     request: ExecutionRequest;
     result: ExecutionResult;
-  }): Promise<any> {
+  }): Promise<any> { // eslint-disable-line @typescript-eslint/no-explicit-any
     return generateStitchScreenWithRetry({
       client,
       input,

@@ -355,7 +355,7 @@ export class ZavorthPlatformCatalogSyncService {
     contentSha256: string | null,
   ): string {
     if (!sourceTrusted) {
-      return 'Registry remote blocked por policy de origem ou transporte inseguro.';
+      return 'Registry remote blocked by origin policy or insecure transport.';
     }
     switch (status) {
       case 'disabled':

@@ -11,6 +11,10 @@ import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 import { ProviderConfigService } from './ProviderConfigService.js';
 import { LocalEncryptedProviderSecretStore } from './ProviderSecretStore.js';
 import { ProviderConnectionTestService } from './ProviderConnectionTestService.js';
+import { WorkspaceRuntimeReadinessService } from './WorkspaceRuntimeReadinessService.js';
+import { WorkspacePolicyPreviewService } from './WorkspacePolicyPreviewService.js';
+import { InternalBetaDiagnosticsService } from './InternalBetaDiagnosticsService.js';
+import { InternalBetaChecklistService } from './InternalBetaChecklistService.js';
 import * as schemas from '../domain/validation/controlSchemas.js';
 
 import type { ZavorthControlCoreRouteDeps } from './ZavorthControlCoreRouteService.js';

@@ -4,7 +4,6 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createTwoFilesPatch } from 'diff';
-import { config } from '../config/index.js';
 import {
   DISK_MUTATION_GATE_CONTRACT_VERSION,
   type DiskMutationGateApplyResult,

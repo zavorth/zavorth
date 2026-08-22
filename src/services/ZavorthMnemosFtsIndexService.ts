@@ -64,6 +64,7 @@ export class ZavorthMnemosFtsIndexService {
     }
 
     fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let db: any = null;
     try {
       db = new Database(dbPath);
@@ -136,6 +137,7 @@ export class ZavorthMnemosFtsIndexService {
     if (!normalized) {
       return { available: true, hits: [] };
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let db: any = null;
     try {
       db = new Database(dbPath, { readonly: true });
@@ -198,7 +200,7 @@ export class ZavorthMnemosFtsIndexService {
     return absolute;
   }
 
-  private loadBetterSqlite(): any | null {
+  private loadBetterSqlite(): typeof import('better-sqlite3') | null {
     try {
       return this.require('better-sqlite3');
     } catch (error: unknown) {logger.warn('[Zavorth Mnemos Fts] lifecycle operation failed', error); return null; }

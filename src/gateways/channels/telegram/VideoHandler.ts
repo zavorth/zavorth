@@ -10,7 +10,6 @@ import { GeminiVideoAnalyzer } from '../../../gateways/channels/telegram/GeminiV
 import { StorageMaintenance } from '../../../gateways/channels/telegram/StorageMaintenance.js';
 import { YtDlpFallback } from '../../../gateways/channels/telegram/YtDlpFallback.js';
 import {
-  type DownloadedFile,
   type ProcessedVideoContext,
   type TelegramVideoDescriptor,
   type VideoMetadata,

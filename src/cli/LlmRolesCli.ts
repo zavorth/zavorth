@@ -66,7 +66,7 @@ export async function runLlmRolesCli(rawArgs: string[] = []): Promise<number> {
     return 0;
   }
 
-  const args = rawArgs.filter(
+  rawArgs.filter(
     (a) =>
       a !== '--user' &&
       a !== '--surface' &&

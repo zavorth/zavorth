@@ -70,7 +70,7 @@ export class ZavorthBridgeMobileAccessVerificationService {
 
         lastError = `HTTP ${response.status}`;
       } catch (error: unknown) {
-        const err = asErrorLike(error);
+        asErrorLike(error);
         logger.warn('[Zavorth Bridge Mobile Access Verification] network request failed', error);
     lastError = errorMessage(error);
   }

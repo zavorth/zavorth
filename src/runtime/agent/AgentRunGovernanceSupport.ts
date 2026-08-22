@@ -137,7 +137,7 @@ export class AgentRunGovernanceSupport {
     try {
       const swarmResult = await this.owner.executeApprovedSwarmProposalIfNeeded(run, request);
       if (swarmResult) {
-        return swarmResult;
+        return swarmResult as UniversalAgentRunResult;
       }
     } catch (error: unknown) {
       return this.owner.buildFailureResult(run, error, 'swarm');
@@ -145,13 +145,13 @@ export class AgentRunGovernanceSupport {
 
     const selfModificationActionResult = this.owner.acknowledgeApprovedSelfModificationActionProposalIfNeeded(run, request);
     if (selfModificationActionResult) {
-      return selfModificationActionResult;
+      return selfModificationActionResult as UniversalAgentRunResult;
     }
 
     try {
       const watchModeVisualResult = await this.owner.acknowledgeApprovedWatchModeVisualProposalIfNeeded(run, request);
       if (watchModeVisualResult) {
-        return watchModeVisualResult;
+        return watchModeVisualResult as UniversalAgentRunResult;
       }
     } catch (error: unknown) {
       return this.owner.buildFailureResult(run, error, 'watch-mode');
@@ -160,12 +160,12 @@ export class AgentRunGovernanceSupport {
     this.owner.applyToolRehearsal(run, request, run.updatedAt);
     const toolRehearsalProposal = this.owner.createToolRehearsalProposalIfNeeded(run, request);
     if (toolRehearsalProposal) {
-      return toolRehearsalProposal;
+      return toolRehearsalProposal as UniversalAgentRunResult;
     }
 
     const agenticManagedAgentResult = await this.owner.executeApprovedAgenticManagedAgentIfNeeded(run, request);
     if (agenticManagedAgentResult) {
-      return agenticManagedAgentResult;
+      return agenticManagedAgentResult as UniversalAgentRunResult;
     }
 
     await this.owner.applyAutomaticSkillInvocationIfNeeded(run, request);
@@ -215,7 +215,7 @@ export class AgentRunGovernanceSupport {
       detail: decision.reason,
       status: decision.blocked ? 'failed' : 'done',
       createdAt: now,
-      metadata,
+      metadata: metadata as Record<string, unknown>,
     });
     run.updatedAt = now;
     this.owner.applyCapabilityLoopGovernance(run, input, decision);

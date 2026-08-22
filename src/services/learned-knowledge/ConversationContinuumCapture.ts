@@ -179,7 +179,7 @@ export function continuumBackendLabel(options: {
   dbPath?: string | null;
 } = {}): 'operational-fts' | 'json-store' {
   const continuum = getConversationContinuum(options);
-  const storePath = continuum.getStorePath();
+  continuum.getStorePath();
   // When state DB path is configured and file exists or path set, recall service prefers FTS.
   // Honesty: if dbPath provided to constructor, label operational-fts; else json-store.
   if (options.dbPath) return 'operational-fts';

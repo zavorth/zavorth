@@ -411,6 +411,7 @@ function parseProceduralMemoryArgs(tokens: string[]): {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function formatProceduralMemoryCli(snapshot: any): string {
   const lines = [
     'Mnemos Procedural Memory',
@@ -431,6 +432,7 @@ function formatProceduralMemoryCli(snapshot: any): string {
   return lines.join('\n');
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function formatMnemosQueryCli(snapshot: any): string {
   const lines = [
     'Mnemos Wiki Query',

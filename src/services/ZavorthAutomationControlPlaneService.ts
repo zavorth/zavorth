@@ -495,9 +495,9 @@ export class ZavorthAutomationControlPlaneService {
     };
   }
 
-  private parseJson(value: unknown): Record<string, any> {
+  private parseJson(value: unknown): Record<string, unknown> {
     if (value && typeof value === 'object') {
-      return value as Record<string, any>;
+      return value as Record<string, unknown>;
     }
     try {
       const parsed = JSON.parse(String(value || '{}'));

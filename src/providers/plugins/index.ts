@@ -1,4 +1,4 @@
-import { registerPlugin, registerBatch } from './PluginLoader.js';
+import { registerBatch } from './PluginLoader.js';
 import type { ProviderPlugin, ProviderPluginManifest, ProviderPluginFactory } from './ProviderPluginManifest.js';
 
 export type { ProviderPlugin, ProviderPluginManifest, ProviderPluginFactory };

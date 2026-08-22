@@ -12,7 +12,6 @@ import {
 } from '../contracts/ZavorthUxRolloutEvidenceCanaryContract.js';
 import type { ZavorthCrossSurfaceProjectionSurface } from '../contracts/ZavorthCrossSurfaceRuntimeProjectionContract.js';
 import type {
-  ZavorthOperationalRolloutEvalInput,
   ZavorthOperationalRolloutEvalSnapshot,
   ZavorthOperationalRolloutScenarioEval,
 } from '../contracts/ZavorthOperationalRolloutEvalContract.js';

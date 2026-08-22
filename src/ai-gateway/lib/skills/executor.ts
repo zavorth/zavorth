@@ -136,7 +136,7 @@ class SkillExecutor {
 
   getExecution(executionId: string): SkillExecution | undefined {
     const db = getDbInstance();
-    const row = db.prepare("SELECT * FROM skill_executions WHERE id = ...").get(executionId) as any;
+    const row = db.prepare("SELECT * FROM skill_executions WHERE id = ...").get(executionId) as never;
     if (!row) return undefined;
 
     return {
@@ -163,7 +163,7 @@ class SkillExecutor {
           .all(apiKeyId, limit)
       : db.prepare("SELECT * FROM skill_executions ORDER BY created_at DESC LIMIT ...").all(limit);
 
-    return (rows as any[]).map((row) => ({
+    return (rows as unknown as unknown[]).map((row) => ({
       id: row.id,
       skillId: row.skill_id,
       apiKeyId: row.api_key_id,

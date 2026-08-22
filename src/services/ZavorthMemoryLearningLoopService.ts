@@ -187,6 +187,7 @@ export class ZavorthMemoryLearningLoopService {
     const rows = ftsQuery
       ? this.searchFts(db, ftsQuery, input, layers, limit, nowIso)
       : this.searchLike(db, query, input, layers, limit, nowIso);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const entries = rows.map((row: any) => ({
       ...this.mapEntry(row),
       score: Number(row.score || 0),
@@ -411,6 +412,7 @@ export class ZavorthMemoryLearningLoopService {
     layers: ZavorthLearningMemoryLayer[],
     limit: number,
     nowIso: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any[] {
     const placeholders = layers.map(() => '...').join(', ');
     const params: unknown[] = [ftsQuery, ...layers];
@@ -445,6 +447,7 @@ export class ZavorthMemoryLearningLoopService {
     layers: ZavorthLearningMemoryLayer[],
     limit: number,
     nowIso: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any[] {
     const placeholders = layers.map(() => '?').join(', ');
     const params: unknown[] = [...layers, `%${query}%`, `%${query}%`];
@@ -491,7 +494,8 @@ export class ZavorthMemoryLearningLoopService {
     }
   }
 
-  private mapEntry(row: any): ZavorthLearningMemoryEntry {
+  private mapEntry(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    row: any): ZavorthLearningMemoryEntry {
     let metadata: Record<string, unknown> = {};
     try {
       metadata = JSON.parse(String(row.metadata_json || '{}'));

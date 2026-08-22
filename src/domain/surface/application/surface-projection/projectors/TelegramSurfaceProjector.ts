@@ -31,7 +31,7 @@ export class TelegramSurfaceProjector extends BaseSurfaceProjector {
       voiceReplyEnabled: voiceOn,
     };
 
-    const hasReplyMarkup = Boolean((base.replyOptions as any)?.reply_markup);
+    const hasReplyMarkup = Boolean((base.replyOptions as unknown as Record<string, unknown>)?.reply_markup);
     const hasExtras = suggestedReactions.length > 0 || voiceOn;
 
     return {

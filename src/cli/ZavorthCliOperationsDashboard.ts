@@ -1,4 +1,4 @@
-import type { OperationsDashboardSnapshot, OperationsCockpitSnapshot } from '../services/OperationsDashboardService.js';
+import type { OperationsCockpitSnapshot } from '../services/OperationsDashboardService.js';
 import type { OperatorBriefSnapshot } from '../services/OperatorBriefService.js';
 import type { ZavorthCliFlags, ZavorthCliRuntime } from './ZavorthCliContract.js';
 import type { CliStatusSnapshot } from './ZavorthCliSurfaceHelpers.js';
@@ -178,6 +178,7 @@ function resolvePosture(cockpit: OperationsCockpitSnapshot): CliOperationsCockpi
   return 'attention';
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function summarizeMemory(memorySnapshot: any): CliStage25MemorySummary | null {
   if (!memorySnapshot || !memorySnapshot.summary) {
     return null;
@@ -320,6 +321,7 @@ function buildCards(params: {
   const publish = operations?.publish || null;
   const maintenance = operations?.maintenance || null;
   const automation = operations?.maintenanceAutomation || null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const security = (operations?.security || null) as Record<string, any> | null;
 
   return [
@@ -399,7 +401,7 @@ export async function buildCliOperationsCockpitSnapshot(
       const report = runtime.runtimeAccessReadinessService.inspect(probeInput);
       doctor = await buildCliOperationsDoctorSnapshot(report, runtime, flags);
     } catch (error: unknown) {
-      const err = asErrorLike(error);
+      asErrorLike(error);
       logger.warn('[Zavorth Cli Operations] creation failed', error);
     doctorError = errorMessage(error);
   }

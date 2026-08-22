@@ -52,14 +52,6 @@ interface RegistryModel {
   id: string;
 }
 
-interface ConnectionRecord {
-  providerSpecificData?: JsonRecord;
-  displayName?: string;
-  email?: string;
-  name?: string;
-  provider?: string;
-  id?: string | number;
-}
 
 function asRecord(value: unknown): JsonRecord {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as JsonRecord) : {};

@@ -7,20 +7,6 @@ interface RuntimeStateWriter {
   clear(filePath: string, pid: number): void;
 }
 
-interface LogRepository {
-  log(level: string, context: string, message: string): void;
-}
-
-interface ResponseWriter {
-  writeJson(res: http.ServerResponse, body: unknown, status: number): void;
-}
-
-interface WebAppService {
-  handleUpgrade(req: http.IncomingMessage, socket: Socket, head: Buffer): boolean;
-  start(): void;
-  stop(): void;
-}
-
 export interface ZavorthControlServerService extends ZavorthControlFacadeCompat {
   isRunning: boolean;
   server: http.Server | null;
@@ -29,9 +15,6 @@ export interface ZavorthControlServerService extends ZavorthControlFacadeCompat 
   port: number;
   runtimeStateFile: string;
   runtimeState: RuntimeStateWriter;
-  logRepo: LogRepository;
-  responseWriter: any;
-  webApp: any;
   openSockets: Set<Socket>;
   routeRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void>;
 }

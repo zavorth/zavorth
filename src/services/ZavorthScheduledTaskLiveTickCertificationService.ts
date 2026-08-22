@@ -609,6 +609,7 @@ function readGovernedMetadata(task: ScheduledTask | null): SchedulerGovernedSche
   return null;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function readGuardrails(task: ScheduledTask): any {
   try {
     return JSON.parse(String(task.guardrail_json || '{}'));

@@ -4,7 +4,7 @@ import path from 'path';
 import os from 'os';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
-import { getBestProvider, getAvailableProviders, callVisionProvider, listProviders } from './MultimodalProviderSelector.js';
+import { getBestProvider, callVisionProvider } from './MultimodalProviderSelector.js';
 import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
 import { logger } from '../../logger.js';
 import { asErrorLike } from '../../utils/errorLike.js';
@@ -157,7 +157,7 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
     return lines.join('\n');
   }
 
-  private async generateSummary(videoPath: string, args: Record<string, unknown>): Promise<string> {
+  private async generateSummary(videoPath: string, _args: Record<string, unknown>): Promise<string> {
     return this.analyzeVideo(videoPath);
   }
 

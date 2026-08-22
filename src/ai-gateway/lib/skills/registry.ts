@@ -217,7 +217,7 @@ class SkillRegistry {
       ? db.prepare("SELECT * FROM skills WHERE api_key_id = ...").all(apiKeyId)
       : db.prepare("SELECT * FROM skills").all();
 
-    for (const row of rows as any[]) {
+    for (const row of rows as unknown as unknown[]) {
       const skill: Skill = {
         id: row.id,
         apiKeyId: row.api_key_id,

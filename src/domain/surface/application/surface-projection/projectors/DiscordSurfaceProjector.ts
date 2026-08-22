@@ -16,14 +16,6 @@ type DiscordSelectOption = {
   default?: boolean;
 };
 
-type DiscordStringSelect = {
-  type: 3;
-  custom_id: string;
-  placeholder?: string;
-  min_values?: number;
-  max_values?: number;
-  options: DiscordSelectOption[];
-};
 
 /**
  * F5b — Discord projector with select menus for long choice_groups.
@@ -121,7 +113,7 @@ export class DiscordSurfaceProjector extends BaseSurfaceProjector {
       },
       rendered: {
         ...base.rendered,
-        native: native as any,
+        native: native as never,
       },
     };
   }

@@ -13,7 +13,7 @@ const TOOL_ID_TO_PROVIDER_ID: Record<string, string> = {
 };
 
 const DERIVED_PROVIDER_IDS = Object.values(CLI_TOOLS)
-  .map((tool: any) => TOOL_ID_TO_PROVIDER_ID[tool.id] ?? tool.id)
+  .map((tool: unknown) => TOOL_ID_TO_PROVIDER_ID[tool.id] ?? tool.id)
   // "continue" currently has no provider id in AI_PROVIDERS
   .filter((providerId) => providerId !== "continue");
 

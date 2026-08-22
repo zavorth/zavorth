@@ -1,4 +1,4 @@
-import { logger } from '../logger.js';
+﻿import { logger } from '../logger.js';
 import fs from 'fs';
 import { config } from '../config/index.js';
 import { ChannelGatewayFactory } from '../gateways/ChannelGatewayFactory.js';
@@ -213,11 +213,13 @@ export class ChannelProviderDoctorService {
     };
   }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   private readStatusFile(filePath: string): Record<string, any> | null {
     try {
       if (!filePath || !this.existsSync(filePath)) {
         return null;
       }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       return JSON.parse(this.readFileSync(filePath, 'utf8')) as Record<string, any>;
     } catch (error: unknown) {logger.warn('[Channel  Doctor] JSON parse failed', error); return null; }
   }
@@ -242,6 +244,7 @@ export class ChannelProviderDoctorService {
     };
   }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async safeReadJson(response: Response): Promise<Record<string, any> | null> {
     return safeReadChannelProviderDoctorJson(response);
   }

@@ -16,13 +16,13 @@ export function addModelsSuffix(baseUrl: string) {
   return `${normalized}/models`;
 }
 
-function getCustomUserAgent(providerSpecificData: any = {}) {
+function getCustomUserAgent(providerSpecificData: unknown = {}) {
   if (typeof providerSpecificData?.customUserAgent !== "string") return null;
   const customUserAgent = providerSpecificData.customUserAgent.trim();
   return customUserAgent || null;
 }
 
-export function applyCustomUserAgent(headers: Record<string, string>, providerSpecificData: any = {}) {
+export function applyCustomUserAgent(headers: Record<string, string>, providerSpecificData: unknown = {}) {
   const customUserAgent = getCustomUserAgent(providerSpecificData);
   if (!customUserAgent) return headers;
   headers["User-Agent"] = customUserAgent;
@@ -32,7 +32,7 @@ export function applyCustomUserAgent(headers: Record<string, string>, providerSp
   return headers;
 }
 
-export function withCustomUserAgent(init: RequestInit, providerSpecificData: any = {}) {
+export function withCustomUserAgent(init: RequestInit, providerSpecificData: unknown = {}) {
   return {
     ...init,
     headers: applyCustomUserAgent(
@@ -42,7 +42,7 @@ export function withCustomUserAgent(init: RequestInit, providerSpecificData: any
   };
 }
 
-export function buildBearerHeaders(apiKey: string, providerSpecificData: any = {}) {
+export function buildBearerHeaders(apiKey: string, providerSpecificData: unknown = {}) {
   return applyCustomUserAgent(
     {
       "Content-Type": "application/json",

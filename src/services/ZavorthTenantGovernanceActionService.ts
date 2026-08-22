@@ -38,6 +38,7 @@ type RuntimeModesLike = Pick<ZavorthRuntimeModesService, 'buildSnapshot'>;
 type SecurityMeshLike = Pick<ZavorthSecurityMeshService, 'buildSnapshot'>;
 type SessionPlaneLike = Pick<ZavorthSessionPlaneService, 'buildSnapshot'>;
 type WorkflowControllerLike = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleWorkflow: (ctx: any, args: string) => Promise<void>;
 };
 

@@ -3,7 +3,6 @@ import { CodexRemoteProfileRegistryService } from './CodexRemoteProfileRegistryS
 import { CodexRemoteNotificationService } from './CodexRemoteNotificationService.js';
 import {
   CodexRemotePowerShellBrokerClientService,
-  type CodexRemotePowerShellBrokerInspectResult,
 } from './CodexRemotePowerShellBrokerClientService.js';
 import {
   CodexRemoteSessionStoreService,
@@ -439,8 +438,8 @@ export class CodexRemoteSidecarService {
     if (!broker || typeof broker !== 'object') {
       return null;
     }
-    const mode = String((broker as Record<string, any>).mode || '').trim();
-    const statusFilePath = String((broker as Record<string, any>).statusFilePath || '').trim();
+    const mode = String((broker as Record<string, unknown>).mode || '').trim();
+    const statusFilePath = String((broker as Record<string, unknown>).statusFilePath || '').trim();
     if (mode !== 'powershell' || !statusFilePath) {
       return null;
     }
@@ -623,7 +622,7 @@ export class CodexRemoteSidecarService {
     return this.metadata.buildGuardrailMetadata(session, observedAt, stateOverride, presenceOverride);
   }
 
-  private buildNotificationMetadata(metadata: Record<string, any>): Record<string, any> {
+  private buildNotificationMetadata(metadata: Record<string, unknown>): Record<string, unknown> {
     return this.metadata.buildNotificationMetadata(metadata);
   }
 

@@ -76,6 +76,7 @@ export class ProviderConfigService {
 
   public async getProviders(): Promise<ProviderConfig[]> {
     const db = await Database.getInstance();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rows = db.all<any>(`SELECT * FROM provider_config ORDER BY display_name ASC`);
     return rows.map(r => ({
       providerId: r.provider_id,
@@ -93,6 +94,7 @@ export class ProviderConfigService {
 
   public async getProvider(providerId: string): Promise<ProviderConfig | null> {
     const db = await Database.getInstance();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const r = db.get<any>(`SELECT * FROM provider_config WHERE provider_id = ?`, [providerId]);
     if (!r) return null;
 

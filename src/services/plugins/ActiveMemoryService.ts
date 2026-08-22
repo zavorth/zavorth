@@ -293,7 +293,7 @@ export class ActiveMemoryService {
     return lines.join('\n');
   }
 
-  public processInteraction(userMessage: string, assistantResponse: string): MemoryDecision[] {
+  public processInteraction(_userMessage: string, _assistantResponse: string): MemoryDecision[] {
     return [];
   }
   private computeRelevance(query: string, entry: MemoryEntry): number {
@@ -311,7 +311,7 @@ export class ActiveMemoryService {
     return wordScore * entry.importance * (1 + Math.log(1 + entry.access_count));
   }
 
-  private estimateImportance(content: string): number {
+  private estimateImportance(_content: string): number {
     return 0.5;
   }
   private maybeEvict(): void {

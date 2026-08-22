@@ -1,6 +1,5 @@
 import type {
   SourceAgentRuntimeToolDecision,
-  SourceAgentRuntimeToolPolicyDecisionReceipt,
   SourceAgentRuntimeToolPolicyDoctorSnapshot,
   SourceAgentRuntimeToolPolicyMode,
   SourceAgentRuntimeToolRisk,

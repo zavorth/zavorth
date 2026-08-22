@@ -17,7 +17,7 @@ import { asErrorLike } from '../../../utils/errorLike.js';
 export class ActionHarnessToolAdapter implements IZavorthTool {
   public readonly name: string;
   public readonly description: string;
-  public readonly schema: z.ZodType<any, any, any>;
+  public readonly schema: z.ZodTypeAny;
   public readonly category: ToolCategory;
   public readonly dangerLevel: ToolDangerLevel;
   public readonly requiresPermission: boolean;
@@ -39,14 +39,14 @@ export class ActionHarnessToolAdapter implements IZavorthTool {
   }
 
   public async execute(
-    params: Record<string, any>,
-    context?: Record<string, any>,
+    params: Record<string, unknown>,
+    context?: Record<string, unknown>,
   ): Promise<ToolExecutionResult> {
     try {
       const result: ZavorthActionResult = await this.gateway.apply(this.actionId, params, {
         trustedOperatorConfirmation: !this.actionRequiresApproval,
         sourceSurface: 'llm',
-        actorId: context?.traceId || context?.sessionId || null,
+        actorId: String(context?.traceId || context?.sessionId || '') || null,
       });
 
       if (result.ok) {
@@ -116,7 +116,7 @@ function scrubLlmToolData(value: unknown): unknown {
  * Maps an ActionHarness inputSchema (JSON-Schema-like) into a Zod schema
  * that ToolSchemaHelper can serialize for the LLM.
  */
-function buildZodSchemaFromActionSchema(schema: ZavorthActionSchema): z.ZodType<any, any, any> {
+function buildZodSchemaFromActionSchema(schema: ZavorthActionSchema): z.ZodTypeAny {
   const shape: Record<string, z.ZodTypeAny> = {};
   const requiredFields = new Set(schema.required || []);
 

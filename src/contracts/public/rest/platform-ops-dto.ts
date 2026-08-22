@@ -1,5 +1,4 @@
 // schemas complementares a Intent model
-import { NodeDTO } from './dto';
 
 export interface PluginDTO {
   id: string;

@@ -14,7 +14,7 @@ import { asErrorLike } from '../../../../../../utils/errorLike.js';
  * POST /api/oauth/kiro/import
  * Import and validate refresh token from Kiro IDE
  */
-export async function POST(request: any) {
+export async function POST(request: unknown) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
 
@@ -54,7 +54,7 @@ export async function POST(request: any) {
     const email = kiroService.extractEmailFromJWT(tokenData.accessToken);
 
     // Save to database
-    const connection: any = await createProviderConnection({
+    const connection: unknown = await createProviderConnection({
       provider: "kiro",
       authType: "oauth",
       accessToken: tokenData.accessToken,

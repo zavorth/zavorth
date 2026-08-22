@@ -386,12 +386,10 @@ export class AgentConsensusTool extends BaseTool {
     });
   }
 
-  private safeDefaultModel(providerName: string): string | null {
+  private safeDefaultModel(_providerName: string): string | null {
     try {
       // Only use runtime-configured default for THAT provider — never a product catalog.
-      const anyRuntime = this.llmRuntime as unknown as {
-        getProviderFactoryDefaultModel?: (n: string) => string;
-      };
+      
       // Prefer not calling private APIs; model must come from user selection when possible.
       return null;
     } catch {

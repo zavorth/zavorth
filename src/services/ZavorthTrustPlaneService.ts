@@ -13,7 +13,7 @@ import {
   type SkillTrustPolicyDefault,
   type SkillTrustPolicyDocument,
 } from './SkillTrustPolicyService.js';
-import type { SystemSupervisorControlService, SystemOverlordControlService } from './SystemSupervisorControlService.js';
+import type { SystemOverlordControlService } from './SystemSupervisorControlService.js';
 import type { SystemOverlordRiskLevel, SystemOverlordControlSnapshot, SystemOverlordProfileDescriptor, SystemOverlordCapabilityDescriptor } from '../contracts/SystemOverlordContract.js';
 import type { WorkspaceExtensionRegistryService } from './WorkspaceExtensionRegistryService.js';
 import {

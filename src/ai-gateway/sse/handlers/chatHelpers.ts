@@ -102,24 +102,6 @@ export function checkPipelineGates(
   return null;
 }
 
-interface ExecuteChatWithBreakerParams {
-  bypassCircuitBreaker: boolean;
-  breaker: { canExecute: () => boolean; execute: <T>(fn: () => Promise<T>) => Promise<T> };
-  body: Record<string, unknown>;
-  provider: string;
-  model: string;
-  refreshedCredentials: Record<string, unknown>;
-  proxyInfo: { proxy?: string; level?: string; levelId?: string } | null;
-  log: typeof log;
-  clientRawRequest: Record<string, unknown>;
-  credentials: Record<string, unknown>;
-  apiKeyInfo: Record<string, unknown>;
-  userAgent: string | null;
-  comboName: string | null;
-  comboStrategy: string | null;
-  isCombo: boolean;
-  extendedContext: boolean;
-}
 
 export async function executeChatWithBreaker({
   bypassCircuitBreaker,
@@ -139,7 +121,7 @@ export async function executeChatWithBreaker({
   isCombo,
   extendedContext,
 }): Promise<{ result: unknown; tlsFingerprintUsed: boolean }> {
-  const tlsFingerprintUsed = false;
+  
 
   try {
     const chatFn: () => Promise<unknown> = () =>

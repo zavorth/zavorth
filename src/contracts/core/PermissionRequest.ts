@@ -22,5 +22,6 @@ export interface PermissionRequest {
   requested_by: string | null;
   decided_by: string | null;
   decision_note: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata: Record<string, any>;
 }

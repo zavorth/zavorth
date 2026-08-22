@@ -78,8 +78,8 @@ export class TelegramZavorthBridgeResearchService {
       };
       this.deps.persistTask(task);
       await SmartOutputService.send(
-        this.deps.botApi as any,
-        task.chat_id as any,
+        this.deps.botApi as never,
+        task.chat_id as never,
         resultText,
         { parse_mode: 'Markdown' },
       );

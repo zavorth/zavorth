@@ -25,7 +25,7 @@ export class TelegramSkillCatalogController {
       deps.skillLibraryPresentationService || new SkillLibraryPresentationService();
     this.skillInstallPlanPresentationService =
       deps.skillInstallPlanPresentationService || new SkillInstallPlanPresentationService({
-        skillLibraryPresentationService: this.skillLibraryPresentationService as any,
+        skillLibraryPresentationService: this.skillLibraryPresentationService as any, // eslint-disable-line @typescript-eslint/no-explicit-any
       });
     this.skillBridgeActivationService =
       deps.skillBridgeActivationService || new UniversalSkillBridgeActivationService();
@@ -41,7 +41,7 @@ export class TelegramSkillCatalogController {
       const snapshot = await this.skillBridgeActivationService.executeCommand({
         args: normalizedArgs,
         channel: 'telegram',
-        actorId: String((ctx as any).from?.id || '').trim() || null,
+        actorId: String((ctx as any).from?.id || '').trim() || null, // eslint-disable-line @typescript-eslint/no-explicit-any
       });
       await this.replySkillReport(
         ctx,

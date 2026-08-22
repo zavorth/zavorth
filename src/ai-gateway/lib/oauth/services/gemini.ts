@@ -11,7 +11,7 @@ import { asErrorLike } from '../../../../utils/errorLike.js';
  * Uses standard OAuth2 Authorization Code flow (no PKCE)
  */
 export class GeminiCLIService {
-  config: any;
+  config: unknown;
 
   constructor() {
     this.config = GEMINI_CONFIG;
@@ -131,7 +131,7 @@ export class GeminiCLIService {
   /**
    * Save Gemini CLI tokens to server
    */
-  async saveTokens(tokens: any, userInfo: any, projectId: string) {
+  async saveTokens(tokens: unknown, userInfo: unknown, projectId: string) {
     const { server, token, userId } = getServerCredentials();
 
     const response = await fetch(`${server}/api/cli/providers/gemini-cli`, {
@@ -169,7 +169,7 @@ export class GeminiCLIService {
       spinner.text = "Starting local server...";
 
       // Start local server for callback
-      let callbackParams: any = null;
+      let callbackParams: unknown = null;
       const { port, close } = await startLocalServer((params) => {
         callbackParams = params;
       });

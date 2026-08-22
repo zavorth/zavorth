@@ -62,7 +62,7 @@ export class ZavorthControlHttpSupportService {
     return true;
   }
 
-  public readJsonBody(req: http.IncomingMessage): Promise<Record<string, any>> {
+  public readJsonBody(req: http.IncomingMessage): Promise<Record<string, unknown>> {
     return this.readRawBody(req).then((body) => {
       if (!body.trim()) {
         return {};

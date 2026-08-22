@@ -288,11 +288,11 @@ export class ZavorthLlmBrainService {
     const requested = Array.isArray(nativeTools.requested) ? nativeTools.requested : [];
     const activated = Array.isArray(nativeTools.activated) ? nativeTools.activated : [];
     const fallbackRecommended = Boolean(matrix.fallbackRecommended)
-      || assessments.some((assessment: any) => assessment?.fallbackRecommended === true);
+      || assessments.some((assessment: any) => assessment?.fallbackRecommended === true); // eslint-disable-line @typescript-eslint/no-explicit-any
     const fallbackUsed = run.events.some((event) =>
       event.kind === 'tool'
       && recordOrEmpty(event.metadata).providerNativeFallback);
-    const citationCount = assessments.reduce((total: number, assessment: any) =>
+    const citationCount = assessments.reduce((total: number, assessment: any) => // eslint-disable-line @typescript-eslint/no-explicit-any
       total + numberValue(assessment?.citationCount), 0);
     const enabled = requested.length > 0 || activated.length > 0 || assessments.length > 0;
     const used = activated.length > 0 || citationCount > 0;

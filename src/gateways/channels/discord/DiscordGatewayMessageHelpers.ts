@@ -1,4 +1,5 @@
-import { ChannelType } from 'discord.js';import type { MessageAttachment } from '../../../contracts/IMessageBroker.js';
+import { ChannelType } from 'discord.js';
+import type { MessageAttachment } from '../../../contracts/IMessageBroker.js';
 import { logger } from '../../../logger.js';
 import {
 MAX_DISCORD_MESSAGE_LENGTH,
@@ -45,7 +46,7 @@ export function resolveDiscordThreadId(
     'AnnouncementThread',
   ]);
 
-  return threadTypes.has(channelType as any) ? channelId : null;
+  return threadTypes.has(channelType as never) ? channelId : null;
 }
 
 export function extractDiscordAttachments(rawAttachments: unknown): MessageAttachment[] {
@@ -65,7 +66,7 @@ export function toDiscordAttachmentValues(rawAttachments: unknown): unknown[] {
   }
 
   if (typeof rawAttachments === 'object') {
-    const candidate = rawAttachments as Record<string, any>;
+    const candidate = rawAttachments as Record<string, unknown>;
     if (typeof candidate.values === 'function') {
       try {
         return Array.from(candidate.values());
@@ -84,7 +85,7 @@ export function normalizeDiscordAttachment(entry: unknown, index: number): Messa
     return null;
   }
 
-  const attachment = entry as Record<string, any>;
+  const attachment = entry as Record<string, unknown>;
   const name = String(attachment.name || attachment.filename || '').trim() || `attachment-${index + 1}`;
   const url = String(attachment.url || attachment.proxyURL || attachment.proxyUrl || '').trim() || null;
   const contentType = String(attachment.contentType || attachment.content_type || '').trim() || null;

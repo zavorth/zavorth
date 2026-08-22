@@ -2,10 +2,21 @@ import { logger } from '../../logger.js';
 import {
   type ExperienceCommand,
   type ExperienceCommandResult,
+  type ExperienceLearningCandidate,
+  type ExperienceMemorySignal,
   type ExperienceReceipt,
+  type ExperienceTimelineItem,
+  LEARNING_CANDIDATE_CONTRACT_VERSION,
 } from './ExperienceContracts.js';
 import { ZavorthHumanReachService } from '../ZavorthHumanReachService.js';
 import { ZavorthHumanSuperpowersService } from '../ZavorthHumanSuperpowersService.js';
+import type {
+  UniversalAgentRun,
+  UniversalApprovalRequest,
+} from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
+import type { ZavorthLlmBrainSnapshot } from '../../contracts/runtime/ZavorthLlmBrainContract.js';
+import type { ZavorthRuntimeStateBusSnapshot } from '../../contracts/runtime/ZavorthRuntimeStateBusContract.js';
+import { recordOrNull } from '../../runtime/agent/AgentRunValueHelpers.js';
 
 import type { ExperienceCoreService } from './ExperienceCoreService.js';
 
@@ -209,7 +220,7 @@ export class ExperienceProjectionSupport {
           title: 'Where to find me',
           summary: snapshot.reach?.summary || 'Reach paths',
           nextSafeAction: matched.kind === 'list' ? 'Ask for a telegram guide if you want to set up the phone.' : null,
-        } as any,
+        } as never,
         snapshot,
         replies: [this.owner.replyFromText(text, command, snapshot.agent.activeRunId)],
         receipts: snapshot.receipts,
@@ -275,7 +286,7 @@ export class ExperienceProjectionSupport {
             title: 'Superpowers',
             summary: snapshot.superpowers?.summary || 'Human capability catalog.',
             nextSafeAction: 'Ask for a capability in plain language.',
-          } as any,
+          } as never,
           snapshot,
           replies: [this.owner.replyFromText(text, command, snapshot.agent.activeRunId)],
           receipts: snapshot.receipts,
@@ -303,7 +314,7 @@ export class ExperienceProjectionSupport {
           title: 'Superpowers',
           summary: `Suggestions for: ${matched.query}`,
           nextSafeAction: found[0]?.howToAsk || null,
-        } as any,
+        } as never,
         snapshot,
         replies: [this.owner.replyFromText(lines.join('\n'), command, snapshot.agent.activeRunId)],
         receipts: snapshot.receipts,

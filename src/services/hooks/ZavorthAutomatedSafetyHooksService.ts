@@ -7,7 +7,6 @@ import {
   type CompressionResult,
 } from '../compression/ZavorthTrajectoryCompressorService.js';
 import { ZavorthSystemPowerService, type PowerWakeLock } from '../power/ZavorthSystemPowerService.js';
-import { logger } from '../../logger.js';
 
 export interface PreToolHookResult {
   readonly snapshotId?: string;
@@ -77,7 +76,7 @@ export class ZavorthAutomatedSafetyHooksService {
   public afterToolExecution(
     toolName: string,
     args: Record<string, unknown>,
-    resultContent?: string
+    _resultContent?: string
   ): PostToolHookResult {
     const codeModifyingTools = [
       'write_to_file',

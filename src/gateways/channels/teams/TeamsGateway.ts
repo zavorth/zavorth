@@ -132,8 +132,8 @@ export class TeamsGateway implements LiveChannelBroadcastGatewayContract {
     }
 
     await this.dispatchIncomingMessage({
-      userId: String((input.body.from as any)?.id || (input.body.from as any)?.aadObjectId || '').trim(),
-      chatId: String((input.body.conversation as any)?.id || '').trim(),
+      userId: String((input.body.from as unknown as Record<string, unknown>)?.id || (input.body.from as unknown as Record<string, unknown>)?.aadObjectId || '').trim(),
+      chatId: String((input.body.conversation as unknown as Record<string, unknown>)?.id || '').trim(),
       rawText: String(input.body.text || '').trim(),
       messageId: String(input.body.id || '').trim() || null,
       replyToId: String(input.body.replyToId || '').trim() || null,
