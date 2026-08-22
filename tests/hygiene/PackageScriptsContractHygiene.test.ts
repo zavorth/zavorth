@@ -118,4 +118,23 @@ describe('PackageScriptsContractHygiene', () => {
     const resurrected = Object.keys(manifest.scripts).filter((name) => pkg.scripts[name] !== undefined);
     expect(resurrected).toEqual([]);
   });
+
+  it(
+    'never quarantines scripts referenced by source or test literals',
+    () => {
+      const escapedNames = Object.keys(manifest.scripts).map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      const anyNameLiteral = new RegExp(`['"](${escapedNames.join('|')})['"]`);
+      const offenders: string[] = [];
+      for (const directory of ['src', 'tests']) {
+        for (const filePath of collectFilesRecursively(path.join(root, directory))) {
+          if (!/\.(ts|tsx)$/.test(filePath)) continue;
+          const content = fs.readFileSync(filePath, 'utf8');
+          const found = content.match(anyNameLiteral);
+          if (found) offenders.push(`${found[1]} <- ${path.relative(root, filePath)}`);
+        }
+      }
+      expect(offenders).toEqual([]);
+    },
+    120_000,
+  );
 });
