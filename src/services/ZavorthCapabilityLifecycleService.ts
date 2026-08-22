@@ -83,7 +83,7 @@ export class ZavorthCapabilityLifecycleService {
       skippedExisting,
       decisions,
       lines: decisions.length > 0
-        ? decisions.map((decision) => `${decision.kind}: ${decision.actionId} ? ${decision.reason}`)
+        ? decisions.map((decision) => `${decision.kind}: ${decision.actionId} - ${decision.reason}`)
         : ['No new lifecycle decision is ready from current usage signals.'],
       safety: {
         localOnly: true,

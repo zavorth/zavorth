@@ -1784,7 +1784,7 @@ ${current}` : skillPrompt;
           </div>
           <div class="zavorth-permission-card__title">${title}</div>
           <div class="zavorth-permission-card__summary">${summary}</div>
-          <div class="zavorth-permission-card__meta">${capabilityKind} ? ${sideEffect} ? ${previewLabel} ? scope: ${scope}</div>
+          <div class="zavorth-permission-card__meta">${capabilityKind} - ${sideEffect} - ${previewLabel} - target: ${scope}</div>
         </div>
         <div class="zavorth-permission-card__actions b-fade-in" style="animation-delay: 120ms">
           <button class="zavorth-permission-card__btn" data-zavorth-approval-decision="reject" data-zavorth-approval-id="${approvalId}" data-zavorth-approval-kind="${approvalKind}">

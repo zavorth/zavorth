@@ -12,7 +12,7 @@ import { asErrorLike } from '../../../../../../utils/errorLike.js';
 /**
  * POST /api/oauth/kiro/social-exchange
  * Exchange authorization code for tokens (Google/GitHub social login)
- * Callback URL will be in format: kiro://kiro.kiroAgent/authenticate-success...code=XXX&state=YYY
+ * Callback URL will be in format: kiro://kiro.kiroAgent/authenticate-success?code=XXX&state=YYY
  */
 export async function POST(request: Request) {
   const authError = await requireManagementAuth(request);

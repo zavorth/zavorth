@@ -222,7 +222,7 @@ export function resolveSettingsDeepLink(value: string | null | undefined): Setti
     return moduleFromCandidate(hashMatch[1]);
   }
 
-  const pathMatch = raw.match(/(?:^|[/:#...&])settings[=/]([^/...#&]+)/i);
+  const pathMatch = raw.match(/(?:^|[/:#?&])settings[=/]([^/?#&]+)/i);
   if (pathMatch) {
     return moduleFromCandidate(pathMatch[1]);
   }

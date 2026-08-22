@@ -771,7 +771,7 @@ export function useDesktopAppState() {
       appendLocalMessage(
         setMessages,
         'system',
-        slashCommands.map((command) => `${command.usage} ? ${command.description}`).join('\n'),
+        slashCommands.map((command) => `${command.usage} - ${command.description}`).join('\n'),
       );
       return { ok: true };
     }

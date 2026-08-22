@@ -878,7 +878,7 @@ export function initRuntimeBridge() {
       if (label === 'chat') value.textContent = modelProfile.modelLabel;
       if (label === 'agents') value.textContent = modelProfile.modelLabel;
       if (label === 'fallback') value.textContent = modelProfile.fallbackModelLabel || 'not configured';
-      if (label === 'protocol') value.textContent = `${modelProfile.providerLabel} ? ${getCurrentModelRouteLabel()}`;
+      if (label === 'protocol') value.textContent = `${modelProfile.providerLabel} - ${getCurrentModelRouteLabel()}`;
     });
 
     updatePremiumStatus('Auto approvals', pendingApprovalCount() ? 'attention' : 'limited', pendingApprovalCount() ? 'warn' : 'info');
@@ -1031,7 +1031,7 @@ export function initRuntimeBridge() {
     const status = text(run?.status, 'ready');
     const next = deriveNextRunAction(run);
     const channel = text(run?.channel || run?.source || run?.surface, firstReadyChannelLabel());
-    if (next && next !== 'No active run') return `${status} ? ${next}`;
+    if (next && next !== 'No active run') return `${status} - ${next}`;
     return `${status} - ${channel}`;
   }
 

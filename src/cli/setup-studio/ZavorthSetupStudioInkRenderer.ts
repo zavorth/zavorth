@@ -663,7 +663,7 @@ function Header({ Box, Text, snapshot, page, pageIndex }: HeaderProps) {
       createElement(
         Text,
         { color: COLORS.cyan },
-        `${PAGE_TITLES[page as SetupPage] || page} ? ${PAGE_INTENTS[page as SetupPage] || 'Prepare Zavorth safely.'}`
+        `${PAGE_TITLES[page as SetupPage] || page} - ${PAGE_INTENTS[page as SetupPage] || 'Prepare Zavorth safely.'}`
       ),
       createElement(
         Text,

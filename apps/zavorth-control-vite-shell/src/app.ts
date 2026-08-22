@@ -798,7 +798,7 @@ export function initControlApp() {
         <span class="compose-attachment-chip ${file.media?.kind ? 'compose-attachment-chip--media' : ''}" title="${escapeHtml(file.extraction?.detail || file.name)}">
           <span class="compose-attachment-chip__icon">${escapeHtml(attachmentChipIcon(file))}</span>
           <span class="compose-attachment-chip__name">${escapeHtml(file.name)}</span>
-          <span class="compose-attachment-chip__size">${formatBytes(file.size)} ? ${escapeHtml(attachmentStatusLabel(file))}</span>
+          <span class="compose-attachment-chip__size">${formatBytes(file.size)} - ${escapeHtml(attachmentStatusLabel(file))}</span>
           <button type="button" class="compose-attachment-chip__remove" data-attachment-index="${index}" aria-label="Remove ${escapeHtml(file.name)}">&times;</button>
         </span>
       `,
@@ -870,7 +870,7 @@ export function initControlApp() {
               <div class="chat-attachment-card__icon">${escapeHtml(attachmentKindLabel(file))}</div>
               <div class="chat-attachment-card__body">
                 <div class="chat-attachment-card__name">${escapeHtml(String(file.name || 'file').replace(/\.[^.]+$/, ''))}</div>
-                <div class="chat-attachment-card__meta">${escapeHtml(attachmentKindLabel(file))} ? ${formatBytes(file.size)} - ${escapeHtml(attachmentStatusLabel(file))}</div>
+                <div class="chat-attachment-card__meta">${escapeHtml(attachmentKindLabel(file))} - ${formatBytes(file.size)} - ${escapeHtml(attachmentStatusLabel(file))}</div>
                 ${file.media?.kind ? `<div class="chat-attachment-card__status">${file.media.kind === 'video' ? 'Queued for video analysis' : 'Queued for visual analysis'}</div>` : ''}
               </div>
             </div>

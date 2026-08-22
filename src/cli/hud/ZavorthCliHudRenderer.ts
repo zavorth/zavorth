@@ -66,7 +66,7 @@ export function renderZavorthCliHud(snapshot: ZavorthCliHudSnapshot): string {
       title: snapshot.mode === 'review' ? 'Review keys' : 'Keys',
     accent: 'violet',
     lines: snapshot.shortcuts.flatMap((shortcut) => [
-      `[${shortcut.key}] ${shortcut.label} ? ${shortcut.requiresConfirmation ? 'double-confirm' : 'direct'}`,
+      `[${shortcut.key}] ${shortcut.label} - ${shortcut.requiresConfirmation ? 'double-confirm' : 'direct'}`,
       `  ${shortcut.enabled ? shortcut.command : 'disabled'}`,
       shortcut.detail ? `  ${shortcut.detail}` : '',
     ].filter(Boolean)),

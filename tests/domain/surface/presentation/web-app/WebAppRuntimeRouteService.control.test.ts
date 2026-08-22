@@ -531,7 +531,7 @@ describe('WebAppRuntimeRouteService', () => {
       res,
       expect.objectContaining({
         ok: false,
-        error: 'action obrigatoria.',
+        error: 'action is required.',
       }),
       400,
     );

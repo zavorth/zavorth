@@ -48,7 +48,7 @@ export function isProtectedToken(s: string): boolean {
   if (s.length >= 32 && /^[0-9a-fA-F-]+$/.test(s)) return true
 
   // Path-like multi-segment tokens without spaces
-  if (s.includes("/") && s.length > 8 && /^[\w.~@$%+/=[\]()#...&:.-]+$/.test(s)) return true
+  if (s.includes("/") && s.length > 8 && /^[\w.~@$%+/=[\]()#?&:.-]+$/.test(s)) return true
   if (s.includes("\\") && s.length > 8 && /^[\w.~@$%+/=[\]()#...&:\\.-]+$/.test(s)) return true
 
   return false

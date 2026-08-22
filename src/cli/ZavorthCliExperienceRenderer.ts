@@ -261,7 +261,7 @@ export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): stri
   const timeline = snapshot.timeline || [];
   const activityLines = [
     timeline.length > 0
-      ? `timeline ${timeline.slice(-1)[0]?.status || 'active'} ? ${sanitizeHumanCliText(timeline.slice(-1)[0]?.title || 'latest event')}`
+      ? `timeline ${timeline.slice(-1)[0]?.status || 'active'} - ${sanitizeHumanCliText(timeline.slice(-1)[0]?.title || 'latest event')}`
       : 'timeline idle',
     firstAction ? `approval ${sanitizeHumanCliText(firstAction.title)} (${firstAction.risk}) -> zavorth approve`
       : pendingApprovals > 0

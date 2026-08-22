@@ -99,7 +99,7 @@ function pairingFixture() {
     snapshot.pairing?.status === 'preview'
     && snapshot.pairing?.materialized === false
     && String(snapshot.pairing?.setupCode || '').startsWith('ZA-')
-    && String(snapshot.pairing?.qrPayload || '').startsWith('zavorth://pair...code=')
+    && String(snapshot.pairing?.qrPayload || '').startsWith('zavorth://pair?code=')
     && snapshot.pairing?.noRawTokenSerialized === true);
 }
 

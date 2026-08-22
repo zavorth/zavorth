@@ -119,7 +119,7 @@
     try {
       localStorage.setItem(COMPOSER_SETTINGS_KEY, JSON.stringify(composerSettingsState));
     } catch {
-      // local composer preferences are best-effort.
+      // Local composer preferences are best-effort.
     }
     applyComposerSettingsToUi();
   }
@@ -216,7 +216,7 @@
     const normalized = String(value || '').trim();
     if (!normalized || normalized === 'default') return '';
     if (key === 'voice') return normalized.replace('-', ' ');
-    if (key === 'model') return normalized === 'safe' ? 'Safe model' : normalized === 'local' ? 'local model' : '';
+    if (key === 'model') return normalized === 'safe' ? 'Safe model' : normalized === 'local' ? 'Local model' : '';
     if (key === 'sensitivity') return `${normalized} sensitivity`;
     return normalized;
   }
@@ -298,7 +298,7 @@
   }
 
   async function addAttachmentFiles(fileList) {
-    const incoming = Array.from(fileList || []).slice(0, Math.max(0, 5 ? pendingAttachments.length));
+    const incoming = Array.from(fileList || []).slice(0, Math.max(0, 5 - pendingAttachments.length));
     if (incoming.length === 0) return;
     const parsed = await Promise.all(incoming.map(readAttachmentFile));
     pendingAttachments = [...pendingAttachments, ...parsed].slice(0, 5);
@@ -349,7 +349,7 @@
             <div class="chat-attachment-card__icon">${escapeHtml(attachmentKindLabel(file))}</div>
             <div class="chat-attachment-card__body">
               <div class="chat-attachment-card__name">${escapeHtml(String(file.name || 'file').replace(/\.[^.]+$/, ''))}</div>
-              <div class="chat-attachment-card__meta">${escapeHtml(attachmentKindLabel(file))} ? ${formatBytes(file.size)}</div>
+              <div class="chat-attachment-card__meta">${escapeHtml(attachmentKindLabel(file))} - ${formatBytes(file.size)}</div>
             </div>
           </div>
         `).join('')}
@@ -552,7 +552,7 @@
     };
     traceEvents.push(entry);
     if (stableId) traceEventIds.add(stableId);
-    if (traceEvents.length > TRACE_EVENT_LIMIT) traceEvents.splice(0, traceEvents.length ? TRACE_EVENT_LIMIT);
+    if (traceEvents.length > TRACE_EVENT_LIMIT) traceEvents.splice(0, traceEvents.length - TRACE_EVENT_LIMIT);
     renderTraceSheet();
     updateComposerBadges();
     updateDashboardGlass();
@@ -582,7 +582,7 @@
         const left = String(a.time || '').localeCompare(String(b.time || ''));
         return left || String(a.id || '').localeCompare(String(b.id || ''));
       });
-      if (traceEvents.length > TRACE_EVENT_LIMIT) traceEvents.splice(0, traceEvents.length ? TRACE_EVENT_LIMIT);
+      if (traceEvents.length > TRACE_EVENT_LIMIT) traceEvents.splice(0, traceEvents.length - TRACE_EVENT_LIMIT);
     }
     renderTraceSheet();
     updateComposerBadges();
@@ -895,12 +895,13 @@
       snapshot.liveSnapshot.routeLabel || getCurrentModelRouteLabel(),
       snapshot.lastEvent ? snapshot.lastEvent.time : 'Just now',
     );
-    const runtimeTitle = snapshot.thinking ? 'Task in progress'
+    const runtimeTitle = snapshot.thinking
+      ? 'Task in progress'
       : hasActiveRun
         ? compactTraceText(activeRun?.title || activeRun?.summary || activeRun?.id, 80)
         : 'No task running';
     const runtimeText = hasActiveRun
-      ? compactTraceText(`${activeRun?.status || 'running'} ? ${activeRun?.summary || activeRun?.nextAction || 'Zavorth is working on the current request.'}`, 180)
+      ? compactTraceText(`${activeRun?.status || 'running'} - ${activeRun?.summary || activeRun?.nextAction || 'Zavorth is working on the current request.'}`, 180)
       : 'Ask Zavorth in the Inbox. When a request could change files, call tools, or touch external state, Zavorth will preview the risk and ask for approval.';
     setDashboardText('[data-dashboard-runtime-title]', runtimeTitle);
     setDashboardText('[data-dashboard-runtime-text]', runtimeText);
@@ -1305,7 +1306,7 @@
       extensionCounts.set(extension, (extensionCounts.get(extension) || 0) + 1);
     }
     const topExtensions = Array.from(extensionCounts.entries())
-      .sort((a, b) => b[1] ? a[1])
+      .sort((a, b) => b[1] - a[1])
       .slice(0, 6)
       .map(([extension, count]) => ({ extension, count }));
     return {
@@ -1550,7 +1551,8 @@
         prompt,
       });
     }
-    const skillPrompt = prompt ? `Use ${skillTitle}: ${prompt}`
+    const skillPrompt = prompt
+      ? `Use ${skillTitle}: ${prompt}`
       : `Use ${skillTitle} for this request.`;
     const current = composeInput.value.trim();
     composeInput.value = current ? `${skillPrompt}
@@ -1778,7 +1780,8 @@ ${current}` : skillPrompt;
       recordTraceEvent({
         type: 'step',
         title: 'Developer mission preview',
-        detail: pendingWorkspaceSelection ? `Read-only repository review for ${pendingWorkspaceSelection.root}.`
+        detail: pendingWorkspaceSelection
+          ? `Read-only repository review for ${pendingWorkspaceSelection.root}.`
           : 'Workspace selection required before review.',
         meta: 'read-only',
         status: pendingWorkspaceSelection ? 'running' : 'waiting',
@@ -1855,7 +1858,7 @@ ${current}` : skillPrompt;
 
     recordTraceEvent({
       type: 'step',
-      title: 'local preview runtime',
+      title: 'Local preview runtime',
       detail: 'No live bridge is available; using the local dashboard response.',
       status: 'fallback',
     });
@@ -2291,11 +2294,15 @@ ${current}` : skillPrompt;
     const capability = approval.capability || approval.tool || approval.permission || {};
     const rawTitle = String(approval.title || '');
     const rawReason = String(approval.summary || approval.reason || '');
-    const inferredLabel = /shell\.exec|terminal|npm|powershell/i.test(`${rawTitle} ${rawReason}`) ? 'shell.exec'
-      : /apply_patch|patch|editar|write/i.test(`${rawTitle} ${rawReason}`) ? 'apply_patch'
+    const inferredLabel = /shell\.exec|terminal|npm|powershell/i.test(`${rawTitle} ${rawReason}`)
+      ? 'shell.exec'
+      : /apply_patch|patch|editar|write/i.test(`${rawTitle} ${rawReason}`)
+        ? 'apply_patch'
         : capability.label || capability.id || approval.toolName || approval.kind || 'capability';
-    const kind = /shell|terminal|npm|powershell/i.test(inferredLabel) ? 'shell'
-      : /apply_patch|write|edit/i.test(inferredLabel) ? 'workspace'
+    const kind = /shell|terminal|npm|powershell/i.test(inferredLabel)
+      ? 'shell'
+      : /apply_patch|write|edit/i.test(inferredLabel)
+        ? 'workspace'
         : capability.kind || approval.kind || 'tool';
     const sideEffect = capability.sideEffect
       || approval.sideEffect
@@ -2373,7 +2380,8 @@ ${current}` : skillPrompt;
       `data-capability-preview="${escapeHtml(previewLabel)}"`,
       `data-capability-reason="${escapeHtml(approval.reason || approval.summary || '')}"`,
     ].join(' ');
-    const traceButton = runId || traceId ? `<button class="zavorth-permission-card__btn zavorth-permission-card__btn--trace" type="button" data-zavorth-trace-action="open" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}">View trace</button>`
+    const traceButton = runId || traceId
+      ? `<button class="zavorth-permission-card__btn zavorth-permission-card__btn--trace" type="button" data-zavorth-trace-action="open" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}">View trace</button>`
       : '';
     return `
       <div class="zavorth-permission-card b-fade-in zavorth-approval-card" data-zavorth-approval-id="${approvalId}" data-zavorth-approval-kind="${approvalKind}" data-status="pending" data-approval-scope="once" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}" ${capabilityAttrs}>
@@ -2398,7 +2406,7 @@ ${current}` : skillPrompt;
             <span><strong>Expires</strong><small>${ttl}</small></span>
             <span><strong>After decision</strong><small>${rollback}</small></span>
           </div>
-          <div class="zavorth-permission-card__meta">${capabilityKind} ? ${sideEffect} - ${previewLabel} - target: ${scope}</div>
+          <div class="zavorth-permission-card__meta">${capabilityKind} - ${sideEffect} - ${previewLabel} - target: ${scope}</div>
           <div class="zavorth-permission-card__meta" data-zavorth-approval-scope-label>Decision scope: allow once</div>
         </div>
         <div class="zavorth-permission-card__actions b-fade-in" style="animation-delay: 120ms">
@@ -2578,7 +2586,8 @@ ${current}` : skillPrompt;
       'data-capability-preview="server-side preview"',
       `data-capability-reason="${summary}"`,
     ].join(' ');
-    const traceButton = runId || traceId ? `<button class="zavorth-permission-card__btn zavorth-permission-card__btn--trace" type="button" data-zavorth-trace-action="open" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}">View trace</button>`
+    const traceButton = runId || traceId
+      ? `<button class="zavorth-permission-card__btn zavorth-permission-card__btn--trace" type="button" data-zavorth-trace-action="open" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}">View trace</button>`
       : '';
     return `
       <div class="zavorth-permission-card b-fade-in zavorth-remote-mesh-card" data-zavorth-remote-mesh-approval-id="${approvalId}" data-status="pending" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}" ${capabilityAttrs}>
@@ -2603,7 +2612,7 @@ ${current}` : skillPrompt;
             <span><strong>Expires</strong><small>${ttl}</small></span>
             <span><strong>After decision</strong><small>${rollback}</small></span>
           </div>
-          <div class="zavorth-permission-card__meta">${targetKind} ? ${sideEffect} - server-side proxy - token protected</div>
+          <div class="zavorth-permission-card__meta">${targetKind} - ${sideEffect} - server-side proxy - token protected</div>
         </div>
         <div class="zavorth-permission-card__actions b-fade-in" style="animation-delay: 120ms">
           <button class="zavorth-permission-card__btn" data-zavorth-remote-mesh-action="deny" data-zavorth-remote-mesh-approval-id="${approvalId}">
@@ -2861,7 +2870,6 @@ ${current}` : skillPrompt;
 
   function generateCoreResponse(userText) {
     const lower = userText.toLowerCase();
-    const command = lower.trim().split(/\s+/)[0] || '';
 
     if (shouldHandlePersonalDayFlow(userText, '')) {
       renderPersonalDayFlow(userText);
@@ -2873,7 +2881,7 @@ ${current}` : skillPrompt;
     else if (shouldHandleBusinessAuditFlow(userText, '')) {
       renderBusinessAuditFlow(userText);
     }
-    else if (command === '/status' || command === '/health') {
+    else if (lower.includes('status') || lower.includes('health') || lower.includes('teste')) {
       const traces = buildSystemTrace("Scanning the gateway...") + buildSystemTrace("Checking PID 4821...");
       const cells = buildLogicCell(
         'system_health_check',
@@ -2883,7 +2891,7 @@ ${current}` : skillPrompt;
       );
       appendEcho('core', 'Systems are operational. Full report below:', traces + cells);
     }
-    else if (command === '/agent' || command === 'agent.create') {
+    else if (lower.includes('agente') || lower.includes('criar')) {
       const traces = buildSystemTrace("Compiling the new agent manifest...") + buildSystemTrace("Waiting for operator approval.");
       const cells = buildLogicCell(
         'generate_manifest',
@@ -2892,10 +2900,10 @@ ${current}` : skillPrompt;
         `{\n  "name": "Data Analyst",\n  "model": ${JSON.stringify(getCurrentModelLabel())},\n  "tools": ["python_exec", "db_read"]\n}`
       );
       const buttons = buildInteractiveButtons();
-      appendEcho('core', 'Manifest created successfully. Do you want me to deploy it to the mesh...', traces + cells + buttons);
+      appendEcho('core', 'Manifest created successfully. Do you want me to deploy it to the mesh?', traces + cells + buttons);
     }
-    else if (command === 'shell.exec' || command === 'terminal.run') {
-      const traces = buildSystemTrace("Connecting to shell TTY1...");
+    else if (lower.includes('run') || lower.includes('exec') || lower.includes('comando')) {
+      const traces = buildSystemTrace("Conectando ao shell TTY1...");
       const cells = buildLogicCell(
         'run_command',
         'M4 17l6-6-6-6M12 19h8',
@@ -2911,9 +2919,13 @@ ${current}` : skillPrompt;
   }
 
   function shouldHandlePersonalDayFlow(userText, guidedFlow) {
-    void userText;
     if (guidedFlow === 'personal-organize-day') return true;
-    return false;
+    const lower = String(userText || '').toLowerCase();
+    const asksOrganizeDay = /(organize|plan|arrange|structure).{0,28}\b(day|today|routine|schedule)\b/.test(lower)
+      || lower.includes('organize my day')
+      || lower.includes('personal mode');
+    const asksCodeOrBusiness = /\b(workspace|repository|repo|business|audit|provider|channel|sandbox|terminal|command)\b/.test(lower);
+    return asksOrganizeDay && !asksCodeOrBusiness;
   }
 
   function renderPersonalDayFlow(userText) {
@@ -2986,9 +2998,14 @@ ${current}` : skillPrompt;
   }
 
   function shouldHandleDeveloperReviewFlow(userText, guidedFlow) {
-    void userText;
     if (guidedFlow === 'developer-review-workspace') return true;
-    return false;
+    const lower = String(userText || '').toLowerCase();
+    const asksReview = /\b(review|audit|analyze|analyse|inspect)\b.{0,42}\b(repository|repo|workspace|project|codebase|folder)\b/.test(lower)
+      || lower.includes('review this workspace')
+      || lower.includes('review this repository')
+      || lower.includes('developer mode');
+    const asksPersonal = /\b(day|routine|reminder|calendar|message)\b/.test(lower);
+    return asksReview && !asksPersonal;
   }
 
   function renderDeveloperWorkspacePicker(userText) {
@@ -3151,9 +3168,13 @@ ${current}` : skillPrompt;
   }
 
   function shouldHandleBusinessAuditFlow(userText, guidedFlow) {
-    void userText;
     if (guidedFlow === 'business-audit') return true;
-    return false;
+    const lower = String(userText || '').toLowerCase();
+    const asksBusiness = lower.includes('business mode')
+      || /\b(run|start|prepare|show)\b.{0,34}\b(audit|policy|approvals?|compliance|governance)\b/.test(lower)
+      || /\b(audit|policy|approvals?|compliance|governance)\b.{0,34}\b(business|company|team|enterprise)\b/.test(lower);
+    const asksDeveloperOnly = /\b(repository|repo|workspace|patch|codebase)\b/.test(lower);
+    return asksBusiness && !asksDeveloperOnly;
   }
 
   function renderBusinessAuditFlow(userText) {
@@ -3765,7 +3786,7 @@ ${current}` : skillPrompt;
     recordTraceEvent({
       type: 'session',
       title: 'Dashboard opened',
-      detail: 'local runtime access is being checked.',
+      detail: 'Local runtime access is being checked.',
       meta: location.origin,
       status: 'checking',
     });

@@ -2,6 +2,8 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
+type CommandCatalogModule = typeof import('../../src/telegram/commandCatalog');
+
 describe('commandCatalog plugin integration', () => {
   const originalPluginDir = process.env.ZAVORTH_CAPABILITY_PLUGINS_DIR;
 
@@ -44,7 +46,10 @@ describe('commandCatalog plugin integration', () => {
     process.env.ZAVORTH_CAPABILITY_PLUGINS_DIR = tempDir;
     jest.resetModules();
 
-    const catalogModule = await import('../../src/telegram/commandCatalog');
+    // Re-require after resetModules so the catalog rebuilds from the temp plugin dir (CJS-safe fresh instance).
+    const catalogModule = require('../../src/telegram/commandCatalog') as CommandCatalogModule & {
+      default?: CommandCatalogModule;
+    };
     const catalog = catalogModule.default ?? catalogModule;
 
     try {

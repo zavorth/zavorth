@@ -223,7 +223,7 @@ export class ZavorthAppsSatelliteNodesService {
       nodeKind: input.nodeKind,
       label: input.label,
       setupCode: input.setupCode,
-      qrPayload: `zavorth://pair...code=${encodeURIComponent(input.setupCode)}&surface=${encodeURIComponent(input.nodeKind)}&exp=${encodeURIComponent(input.expiresAt)}`,
+      qrPayload: `zavorth://pair?code=${encodeURIComponent(input.setupCode)}&surface=${encodeURIComponent(input.nodeKind)}&exp=${encodeURIComponent(input.expiresAt)}`,
       expiresAt: input.expiresAt,
       ttlSeconds: input.ttlSeconds,
       materialized: input.materialized,

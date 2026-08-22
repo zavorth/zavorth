@@ -678,7 +678,7 @@ async function installZavorthAgent(options: { installStartup: boolean }): Promis
   ];
 
   for (const check of checks) {
-    console.log(`[setup:agent] ${check.ok ? 'ok' : 'optional missing'} ? ${check.label}${check.detail ? `: ${check.detail}` : ''}`);
+    console.log(`[setup:agent] ${check.ok ? 'ok' : 'optional missing'} - ${check.label}${check.detail ? `: ${check.detail}` : ''}`);
   }
 
   if (options.installStartup) {

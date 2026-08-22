@@ -111,7 +111,7 @@ export function buildApprovalCard(approval: any) {
           <span><strong>Expires</strong><small>${ttl}</small></span>
           <span><strong>After decision</strong><small>${rollback}</small></span>
         </div>
-        <div class="zavorth-permission-card__meta">${capabilityKind} ? ${sideEffect} - ${previewLabel} - target: ${scope}</div>
+        <div class="zavorth-permission-card__meta">${capabilityKind} - ${sideEffect} - ${previewLabel} - target: ${scope}</div>
         <div class="zavorth-permission-card__meta" data-zavorth-approval-scope-label>Decision scope: allow once</div>
       </div>
       <div class="zavorth-permission-card__actions b-fade-in" style="animation-delay: 120ms">
@@ -173,7 +173,7 @@ export function buildRemoteMeshApprovalCard(card: any) {
           <span><strong>Expires</strong><small>${ttl}</small></span>
           <span><strong>After decision</strong><small>${rollback}</small></span>
         </div>
-        <div class="zavorth-permission-card__meta">${targetKind} ? ${sideEffect} - server-side proxy - token protected</div>
+        <div class="zavorth-permission-card__meta">${targetKind} - ${sideEffect} - server-side proxy - token protected</div>
       </div>
       <div class="zavorth-permission-card__actions b-fade-in" style="animation-delay: 120ms">
         <button class="zavorth-permission-card__btn" data-zavorth-remote-mesh-action="deny" data-zavorth-remote-mesh-approval-id="${approvalId}">Deny</button>

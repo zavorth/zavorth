@@ -422,9 +422,9 @@ function localizedEngineStatusLabel(snapshot: EngineSnapshot): string {
   if (decision.engineId !== snapshot.activeEngineId) {
     return `${engineShortLabel(decision.engineId, decision.engineId)} ${t('required')}`;
   }
-  if (decision.mode === 'trusted-workspace') return `${t('Trusted')} ? ${activeLabel}`;
-  if (decision.mode === 'sandbox') return `${t('Sandbox')} ? ${activeLabel}`;
-  if (decision.status === 'needs-approval') return `${t('Approval')} ? ${activeLabel}`;
+  if (decision.mode === 'trusted-workspace') return `${t('Trusted')} - ${activeLabel}`;
+  if (decision.mode === 'sandbox') return `${t('Sandbox')} - ${activeLabel}`;
+  if (decision.status === 'needs-approval') return `${t('Approval')} - ${activeLabel}`;
   return activeLabel;
 }
 

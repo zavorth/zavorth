@@ -158,7 +158,7 @@ export function fromClaude(name: string, input: unknown): { config: Info } | { w
 export function redactString(input: string) {
   return input
     .replace(/(Bearer\s+)[^\s]+/gi, "$1****")
-    .replace(/([...&][^=\s&]*(?:authorization|token|api[_-]...key|apikey|key|secret|password|credential)[^=\s&]*=)[^&\s]+/gi, "$1****")
+    .replace(/([?&][^=\s&]*(?:authorization|token|api[_-]?key|apikey|key|secret|password|credential)[^=\s&]*=)[^&\s]+/gi, "$1****")
     .replace(/((?:authorization|token|api[_-]...key|apikey|key|secret|password|credential)=)[^\s]+/gi, "$1****")
 }
 

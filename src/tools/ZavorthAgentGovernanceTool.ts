@@ -188,7 +188,7 @@ export class ZavorthAgentGovernanceTool extends BaseTool {
         `WARNING: "${actionToCheck}"`,
         '',
         'Warning policies:',
-        ...warned.map((p) => `  ${p.id}: ${p.name} ? ${p.description}`),
+        ...warned.map((p) => `  ${p.id}: ${p.name} - ${p.description}`),
         '',
         'Action may proceed with caution.',
       ].join('\n');

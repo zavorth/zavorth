@@ -597,7 +597,7 @@ export class RemoteMeshSandboxContractService {
       return value
         .replace(/sk-[A-Za-z0-9_-]{12,}/g, 'sk-[redacted]')
         .replace(/xox[baprs]-[A-Za-z0-9-]{12,}/g, 'xox-[redacted]')
-        .replace(/([...&](?:token|key|secret|password)=)[^&\s]+/gi, '$1[redacted]');
+        .replace(/([?&](?:token|key|secret|password)=)[^&\s]+/gi, '$1[redacted]');
     }
     if (Array.isArray(value)) {
       return value.map((item) => this.redactJson(item));

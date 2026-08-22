@@ -65,7 +65,7 @@ function redactSecrets(value: unknown): unknown {
     );
   }
   if (typeof value === 'string') {
-    return value.replace(/([...&](?:access_token|token|key|secret|code)=)[^&\s]+/giu, '$1[redacted]');
+    return value.replace(/([?&](?:access_token|token|key|secret|code)=)[^&\s]+/giu, '$1[redacted]');
   }
   return value;
 }

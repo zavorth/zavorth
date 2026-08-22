@@ -236,7 +236,7 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
     return [
       `Trust profile: ${trust.getProfile()} (ZAVORTH_SKILL_TRUST_PROFILE)`,
       'Owner-trusted:',
-      ...(entries.length ? entries.map((e) => `  ? [${e.kind}] ${e.pattern}`) : ['  (none)']),
+      ...(entries.length ? entries.map((e) => `  - [${e.kind}] ${e.pattern}`) : ['  (none)']),
     ].join('\n');
   }
 
@@ -683,7 +683,7 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
     if (action === 'list') {
       const bundles = bundleManager.listBundles();
       if (bundles.length === 0) return 'No bundles created.';
-      return bundles.map((b) => `${b.id} ? ${b.name}: ${b.skills.join(', ')}`).join('\n');
+      return bundles.map((b) => `${b.id} - ${b.name}: ${b.skills.join(', ')}`).join('\n');
     }
     if (action === 'create') {
       const id = String(args.skill_id || '').trim();

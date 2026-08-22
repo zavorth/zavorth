@@ -13,7 +13,7 @@ const retiredPreviousDatabaseStem = ['aster', 'lyn'].join('');
 const sensitivePatterns = [
   { name: 'personal-workspace-path', pattern: /C:(?:\\|\/)TESTES DEV/i },
   { name: 'personal-user-profile', pattern: /C:\\Users\\ermys/i },
-  { name: 'query-token-auth', pattern: /[...&]token=/i },
+  { name: 'query-token-auth', pattern: /[?&]token=/i },
 ];
 
 const scanTargets = [

@@ -372,7 +372,7 @@ export class ZavorthProductExcellenceService {
       && snapshot.health.nodeHostReady
       && snapshot.offlineQueue.available
       && snapshot.pairing.status === 'preview'
-      && snapshot.pairing.qrPayload.startsWith('zavorth://pair...code=')
+      && snapshot.pairing.qrPayload.startsWith('zavorth://pair?code=')
       && snapshot.safety.noRawPairingSecretsSerialized
       && snapshot.safety.mobileAndTraySpecsDoNotClaimAppStoreBinaries
       && surfaces.has('approval-companion');

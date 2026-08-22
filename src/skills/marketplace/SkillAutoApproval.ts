@@ -383,7 +383,7 @@ export class SkillAutoApproval {
     this.auditLog.push(entry);
     this.persistAudit(entry);
 
-    logger.info(`[SkillAutoApproval] ${decision.approved ? 'Approved' : 'Rejected'}: ${skillId} ? ${decision.reason}`);
+    logger.info(`[SkillAutoApproval] ${decision.approved ? 'Approved' : 'Rejected'}: ${skillId} - ${decision.reason}`);
   }
 
   /**

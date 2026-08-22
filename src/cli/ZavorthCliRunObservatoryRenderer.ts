@@ -89,7 +89,7 @@ export function formatRunObservatorySnapshot(
     `Status: ${snapshot.health.status}`,
     `Runs: ${snapshot.matchedRuns}/${snapshot.totalRuns}`,
     `Receipts: ${snapshot.summary.receiptCount} | Events: ${snapshot.summary.eventCount} | Artifacts: ${snapshot.summary.artifactCount}`,
-    `Replay: ${snapshot.replay.available ? 'available' : 'unavailable'} ? ${snapshot.replay.summary}`,
+    `Replay: ${snapshot.replay.available ? 'available' : 'unavailable'} - ${snapshot.replay.summary}`,
     `next step: ${snapshot.health.nextSafeAction}`,
   ];
 

@@ -65,7 +65,7 @@ export class SharedSurfaceAccessCommandPack {
           `Public URL: ${officialRemote.remote.baseUrl || manifest.remote.baseUrl || 'not configured'}`,
           `Remote app: ${officialRemote.remote.appUrl || manifest.remote.appUrl || 'not configured'}`,
           `HTTPS required: ${manifest.remote.requiresHttps ? 'yes' : 'ok'}`,
-          `Recommended path: ${officialRemote.recommendedPathId || 'official'} ? ${officialRemote.recommendedPathReason}`,
+          `Recommended path: ${officialRemote.recommendedPathId || 'official'} - ${officialRemote.recommendedPathReason}`,
           '',
           ...officialRemote.nextSteps.slice(0, 4).map((line) => `- ${line}`),
           '',

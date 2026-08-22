@@ -1024,5 +1024,5 @@ function maskHome(value: string): string {
 }
 
 function redactEndpoint(value: string): string {
-  return value.replace(/:\/\/([^/@]+)@/g, '://***@').replace(/([...&](?:token|key|secret)=)[^&]+/gi, '$1***');
+  return value.replace(/:\/\/([^/@]+)@/g, '://***@').replace(/([?&](?:token|key|secret)=)[^&]+/gi, '$1***');
 }

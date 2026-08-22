@@ -87,7 +87,7 @@ function normalizeText(value: unknown, fallback = ''): string {
 function redactSecrets(value: string): string {
   return value
     .replace(/(api[_-]?key|token|secret|password|authorization)\s*[:=]\s*["']?[^"'\s]+/giu, '$1=[redacted]')
-    .replace(/([...&](?:access_token|token|key|secret|code)=)[^&\s]+/giu, '$1[redacted]');
+    .replace(/([?&](?:access_token|token|key|secret|code)=)[^&\s]+/giu, '$1[redacted]');
 }
 
 function truncateText(value: string, maxLength: number): string {

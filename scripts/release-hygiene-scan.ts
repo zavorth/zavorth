@@ -37,7 +37,7 @@ const RULES: Rule[] = [
   {
     id: 'query-token-auth',
     description: 'Token ainda aparece em query string.',
-    pattern: /[...&]token=/i,
+    pattern: /[?&]token=/i,
   },
   {
     id: 'wildcard-cors',

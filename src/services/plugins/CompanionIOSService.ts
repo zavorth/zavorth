@@ -252,7 +252,7 @@ export class CompanionIOSService {
     const lines: string[] = [`iOS Shortcuts (${this.shortcuts.size}):`];
     for (const shortcut of this.shortcuts.values()) {
       const params = Object.keys(shortcut.parameters).join(', ');
-      lines.push(`  ${shortcut.id}: ${shortcut.name} ? ${shortcut.description}${params ? ` [${params}]` : ''}`);
+      lines.push(`  ${shortcut.id}: ${shortcut.name} - ${shortcut.description}${params ? ` [${params}]` : ''}`);
     }
     return lines.join('\n');
   }

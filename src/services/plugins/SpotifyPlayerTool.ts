@@ -230,13 +230,13 @@ export class SpotifyPlayerTool extends BaseTool {
 
   private async setShuffle(args: Record<string, unknown>, accessToken: string): Promise<string> {
     const state = String(args.state || 'on') === 'on';
-    await this.apiCall(accessToken, 'PUT', `/me/player/shuffle...state=${state}`);
+    await this.apiCall(accessToken, 'PUT', `/me/player/shuffle?state=${state}`);
     return `Shuffle ${state ? 'ativado' : 'desativado'}.`;
   }
 
   private async setRepeat(args: Record<string, unknown>, accessToken: string): Promise<string> {
     const state = String(args.state || 'context');
-    await this.apiCall(accessToken, 'PUT', `/me/player/repeat...state=${state}`);
+    await this.apiCall(accessToken, 'PUT', `/me/player/repeat?state=${state}`);
     return `Repeat alterado para: ${state}`;
   }
 
