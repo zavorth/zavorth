@@ -3,8 +3,15 @@ import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import { Unicode11Addon } from '@xterm/addon-unicode11';
 import '@xterm/xterm/css/xterm.css';
-import { getPtyOutput, sendPtyInput } from '../apiClient';
+import {
+  getPtyOutput,
+  sendPtyInput,
+  listPtySessions,
+  terminatePtySession,
+} from '../apiClient';
+import type { PtyRegistryEntry } from '../apiClient';
 import { t } from '../i18n';
+import { pickPtySession } from './ptySessionSelection';
 import { createLogger } from '../logger.js';
 
 const logger = createLogger('shell');
@@ -45,6 +52,8 @@ const TERMINAL_THEME = {
   brightWhite: '#f0f6fc',
 };
 
+type ActiveSession = { sessionId: string; cwd?: string };
+
 export function PtyTerminalPanel({
   workspaceId,
   mode = 'floating',
@@ -54,22 +63,55 @@ export function PtyTerminalPanel({
   trustLabel,
   className,
 }: PtyTerminalPanelProps) {
-  const [sessions, setSessions] = useState<Array<{ sessionId: string; cwd?: string }>>([]);
-  const [activeSession, setActiveSession] = useState<{ sessionId: string; cwd?: string } | null>(null);
+  const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
+  const [sessionLookupDone, setSessionLookupDone] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const termRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const afterSeqRef = useRef<number>(0);
-  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const failureCountRef = useRef<number>(0);
+  const activeSessionRef = useRef<ActiveSession | null>(null);
 
   const embeddedLike = mode === 'embedded' || mode === 'rail';
   const effectiveOpen = embeddedLike ? (open === undefined ? true : Boolean(open)) : isPanelOpen;
   const sessionIdentity = sessionKey || `shell:${workspaceId}`;
 
+  useEffect(() => {
+    activeSessionRef.current = activeSession;
+  }, [activeSession]);
+
+  // Resolve an attachable session from the runtime registry when opened.
+  useEffect(() => {
+    if (!effectiveOpen || !workspaceId) return;
+    let alive = true;
+    setSessionLookupDone(false);
+
+    const resolveSession = async () => {
+      try {
+        const entries: PtyRegistryEntry[] = await listPtySessions(workspaceId);
+        if (!alive) return;
+        const picked = pickPtySession(entries, sessionIdentity);
+        setActiveSession(picked ? { sessionId: picked.sessionId as string, cwd: picked.cwd } : null);
+        setSessionLookupDone(true);
+      } catch (error) {
+        if (!alive) return;
+        logger.warn('[pty] registry lookup failed', error);
+        setActiveSession(null);
+        setSessionLookupDone(true);
+      }
+    };
+
+    void resolveSession();
+    return () => {
+      alive = false;
+    };
+  }, [effectiveOpen, workspaceId, sessionIdentity]);
+
   const initTerminal = useCallback(() => {
-    if (termRef.current || !containerRef.current) return;
+    if (termRef.current || !containerRef.current) return undefined;
 
     const term = new Terminal({
       theme: TERMINAL_THEME,
@@ -100,11 +142,11 @@ export function PtyTerminalPanel({
     term.writeln('');
 
     term.onData((data) => {
-      if (activeSession) {
-        sendPtyInput(workspaceId, activeSession.sessionId, data).catch((err) => {
-          logger.warn('[pty] send input failed', err);
-        });
-      }
+      const current = activeSessionRef.current;
+      if (!current) return;
+      sendPtyInput(workspaceId, current.sessionId, data).catch((err) => {
+        logger.warn('[pty] send input failed', err);
+      });
     });
 
     const resizeObserver = new ResizeObserver(() => {
@@ -118,7 +160,7 @@ export function PtyTerminalPanel({
       termRef.current = null;
       fitAddonRef.current = null;
     };
-  }, [workspaceId, activeSession]);
+  }, [workspaceId]);
 
   useEffect(() => {
     if (effectiveOpen) {
@@ -127,31 +169,45 @@ export function PtyTerminalPanel({
     }
   }, [effectiveOpen, initTerminal]);
 
+  // Output polling with backoff; resets when the attached session changes.
   useEffect(() => {
-    if (!activeSession || !effectiveOpen || !termRef.current) return;
+    if (!effectiveOpen) return;
+    if (!termRef.current) return;
 
-    const term = termRef.current;
-    afterSeqRef.current = 0;
+    let cancelled = false;
 
-    pollingRef.current = setInterval(async () => {
+    const poll = async () => {
+      const current = activeSessionRef.current;
+      if (!current || cancelled) return;
       try {
-        const chunks = await getPtyOutput(workspaceId, activeSession.sessionId, afterSeqRef.current);
+        const chunks = await getPtyOutput(workspaceId, current.sessionId, afterSeqRef.current);
+        if (cancelled) return;
+        failureCountRef.current = 0;
         if (chunks.length > 0) {
           let maxSeq = afterSeqRef.current;
           for (const chunk of chunks) {
-            term.write(chunk.chunk);
+            termRef.current?.write(chunk.chunk);
             if (chunk.seq > maxSeq) maxSeq = chunk.seq;
           }
           afterSeqRef.current = maxSeq;
         }
-      } catch {
-        // silent poll failures
+      } catch (error) {
+        if (cancelled) return;
+        failureCountRef.current += 1;
+        logger.warn('[pty] poll failed', error);
       }
-    }, 200);
+      if (cancelled) return;
+      pollingRef.current = setTimeout(poll, nextDelay());
+    };
+
+    const nextDelay = () => 200 + Math.min(failureCountRef.current, 4) * 400;
+
+    pollingRef.current = setTimeout(poll, 200);
 
     return () => {
+      cancelled = true;
       if (pollingRef.current) {
-        clearInterval(pollingRef.current);
+        clearTimeout(pollingRef.current);
         pollingRef.current = null;
       }
     };
@@ -163,10 +219,39 @@ export function PtyTerminalPanel({
     }
   }, [effectiveOpen, isMaximized]);
 
-  // Silence unused until PTY session list API is wired.
-  void sessions;
-  void setSessions;
-  void setActiveSession;
+  const handleTerminate = useCallback(() => {
+    const current = activeSessionRef.current;
+    if (!current) return;
+    terminatePtySession(workspaceId, current.sessionId).catch((err) => {
+      logger.warn('[pty] terminate failed', err);
+    });
+    setActiveSession(null);
+  }, [workspaceId]);
+
+  const renderSessionMeta = () => (
+    <div className="zvd-pty-embedded__meta">
+      <span className="zvd-pty-dot" aria-hidden="true" />
+      <span>
+        PTY{' '}
+        {activeSession
+          ? `— ${activeSession.sessionId.slice(0, 8)}`
+          : `— ${t('shell.ptyNoSession')}`}
+      </span>
+      {!activeSession && !sessionLookupDone ? (
+        <span className="zvd-pty-cwd">│ {t('loading')}</span>
+      ) : null}
+      {!activeSession && sessionLookupDone ? (
+        <span className="zvd-pty-cwd">│ {t('chooseWorkspaceToEnableShell')}</span>
+      ) : null}
+      {trustLabel ? <span className="zvd-pty-trust">│ {trustLabel}</span> : null}
+      {activeSession?.cwd ? <span className="zvd-pty-cwd">│ {activeSession.cwd}</span> : null}
+      {activeSession ? (
+        <button type="button" className="zvd-pty-trust" onClick={handleTerminate}>
+          {t('runtime.stop')}
+        </button>
+      ) : null}
+    </div>
+  );
 
   if (embeddedLike) {
     if (!effectiveOpen) return null;
@@ -180,14 +265,7 @@ export function PtyTerminalPanel({
         ].filter(Boolean).join(' ')}
         data-session-key={sessionIdentity}
       >
-        <div className="zvd-pty-embedded__meta">
-          <span className="zvd-pty-dot" aria-hidden="true" />
-          <span>
-            PTY {activeSession ? `— ${activeSession.sessionId.slice(0, 8)}` : `— ${t('shell.ptyNoSession')}`}
-          </span>
-          {trustLabel ? <span className="zvd-pty-trust">│ {trustLabel}</span> : null}
-          {activeSession?.cwd ? <span className="zvd-pty-cwd">│ {activeSession.cwd}</span> : null}
-        </div>
+        {renderSessionMeta()}
         <div ref={containerRef} className="zvd-pty-embedded__term" />
       </div>
     );

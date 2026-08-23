@@ -236,6 +236,25 @@ export type PtyOutputChunk = {
   [key: string]: unknown;
 };
 
+export type PtyRegistryEntry = {
+  sessionId?: string;
+  workspaceId?: string;
+  status?: string;
+  processAlive?: boolean;
+  lastSeq?: number;
+  cwd?: string;
+  [key: string]: unknown;
+};
+
+export type PtyAttachInfo = {
+  sessionId: string;
+  attachToken?: string | null;
+  status?: string;
+  processAlive?: boolean;
+  lastSeq?: number;
+  [key: string]: unknown;
+};
+
 export type MutationReceipt = {
   receiptId?: string;
   status?: string;
@@ -1322,6 +1341,37 @@ export async function sendPtyInput(workspaceId: string, sessionId: string, data:
     method: 'POST',
     path: '/api/v2/workspace/pty/input',
     body: { workspaceId, sessionId, data },
+  });
+}
+
+export async function listPtySessions(workspaceId: string): Promise<PtyRegistryEntry[]> {
+  const result = await apiRequest<{ data?: PtyRegistryEntry[] } | PtyRegistryEntry[]>({
+    method: 'GET',
+    path: '/api/v2/workspace/pty/registry',
+    query: { workspaceId },
+  });
+  const data = requireOk(result, 'Could not list PTY sessions.');
+  if (Array.isArray(data)) return data;
+  return Array.isArray(data?.data) ? data.data : [];
+}
+
+export async function getPtyAttachToken(sessionId: string): Promise<PtyAttachInfo> {
+  const result = await apiRequest<{ data?: PtyAttachInfo }>({
+    method: 'GET',
+    path: '/api/v2/workspace/pty/attach-token',
+    query: { sessionId },
+  });
+  const data = requireOk(result, 'Could not fetch PTY attach token.');
+  const info: PtyAttachInfo | undefined = Array.isArray(data) ? undefined : data?.data;
+  if (!info) throw new Error('PTY attach token payload was missing.');
+  return info;
+}
+
+export async function terminatePtySession(workspaceId: string, sessionId: string): Promise<void> {
+  await apiRequest<Record<string, unknown>>({
+    method: 'POST',
+    path: '/api/v2/workspace/pty/terminate',
+    body: { workspaceId, sessionId },
   });
 }
 
