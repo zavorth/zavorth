@@ -136,6 +136,67 @@ export function extractChannelMeshReplyEvent(
   };
 }
 
+/**
+ * Outbound in-place update of an already-sent surface message (an approval
+ * prompt card, for example). Surfaces that cannot edit their own messages
+ * must treat this envelope as a hint and fall back to a fresh reply instead.
+ */
+export type CanonicalChannelOutboundReplyEdit = {
+  platform: CanonicalChannelPlatform;
+  chatId: string;
+  userId: string;
+  messageId: string;
+  text: string;
+  createdAt: string;
+};
+
+type BuildOutboundReplyEditEventInput = {
+  platform: CanonicalChannelPlatform;
+  chatId: string;
+  userId: string;
+  messageId: string | number;
+  text: string;
+  now?: Date;
+};
+
+export function buildOutboundReplyEditEvent(input: BuildOutboundReplyEditEventInput) {
+  const data: CanonicalChannelOutboundReplyEdit = {
+    platform: normalizePlatform(input.platform),
+    chatId: normalizeRequired(input.chatId, 'chatId'),
+    userId: normalizeRequired(input.userId, 'userId'),
+    messageId: normalizeRequired(input.messageId, 'messageId'),
+    text: String(input.text ?? ''),
+    createdAt: (input.now || new Date()).toISOString(),
+  };
+  return {
+    type: 'public_ws' as const,
+    payload: {
+      id: `${data.platform}-reply-edit-${randomUUID()}`,
+      type: 'event' as const,
+      payload: {
+        topic: 'im_reply_edit',
+        data,
+      },
+    },
+  };
+}
+
+export function extractChannelMeshReplyEditEvent(
+  event: unknown,
+  platform: CanonicalChannelPlatform | string,
+): CanonicalChannelOutboundReplyEdit | null {
+  const data = extractChannelMeshOutboundEventData(event, platform, 'im_reply_edit');
+  if (!data || typeof data.text !== 'string' || !normalizeNullable(data.messageId)) return null;
+  return {
+    platform: normalizePlatform(data.platform as CanonicalChannelPlatform),
+    chatId: String(data.chatId || ''),
+    userId: String(data.userId || ''),
+    messageId: String(data.messageId),
+    text: data.text,
+    createdAt: String(data.createdAt || ''),
+  };
+}
+
 export type BuildOutboundTypingEventInput = {
   platform: CanonicalChannelPlatform;
   chatId: string;

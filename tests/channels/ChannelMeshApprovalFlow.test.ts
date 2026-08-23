@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import {
   buildInboundChannelEvent,
+  extractChannelMeshReplyEditEvent,
   extractChannelMeshReplyEvent,
 } from '../../src/channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../src/channels/policies/ChannelPolicyManager.js';
@@ -56,6 +57,20 @@ describe('Channel Mesh approval flow', () => {
       }
     });
     return texts;
+  }
+
+  function collectOutboundEdits(
+    eventBus: GatewayEventBus,
+    platform: string,
+  ): Array<{ chatId: string; messageId: string; text: string }> {
+    const edits: Array<{ chatId: string; messageId: string; text: string }> = [];
+    eventBus.subscribe('public_ws', (event) => {
+      const edit = extractChannelMeshReplyEditEvent(event, platform);
+      if (edit) {
+        edits.push({ chatId: edit.chatId, messageId: edit.messageId, text: edit.text });
+      }
+    });
+    return edits;
   }
 
   async function emitInbound(
@@ -290,5 +305,91 @@ describe('Channel Mesh approval flow', () => {
     ).toBe(false);
     const resolvedRun = gateway.listRuns().find((run) => run.approvals.some((entry) => entry.id === approvalRef));
     expect(resolvedRun?.approvals.find((entry) => entry.id === approvalRef)?.status).toBe('approved');
+  });
+
+  it('edits the stored telegram prompt card in place instead of sending a follow-up receipt', async () => {
+    const eventBus = await createOpenSlackBus();
+    const telegramTexts = collectOutboundTexts(eventBus, 'telegram');
+    const telegramEdits = collectOutboundEdits(eventBus, 'telegram');
+    const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
+      status: 'completed',
+      summary: 'Executed after approval.',
+      replyText: 'done',
+    }));
+    const gateway = new ZavorthAgentGateway({
+      now: () => new Date('2026-04-27T17:00:00.000Z'),
+      idFactory: createIdFactory(),
+      executor,
+    });
+    gateway.attachChannelMeshEventBus(eventBus, {}, { onboardingGate: null });
+
+    await emitInbound(eventBus, 'hello from telegram', '171234.0600', 'T-eip', 'telegram', 'U-telegram');
+
+    // The risky request pends on another surface; the telegram presenter had
+    // already rendered its card and captured the native message id (the same
+    // capture the grammy guidance path performs via ctx.reply).
+    await gateway.handle({
+      userId: 'U123',
+      channel: 'api',
+      sessionId: 'cli:eip',
+      text: 'wipe the production database table now',
+      requestedTools: ['shell.exec'],
+    });
+    const pendingRun = gateway.listRuns().find((run) => run.status === 'waiting_approval');
+    const approvalRef = pendingRun?.approvals.find((approval) => approval.status === 'pending')?.id || '';
+    expect(approvalRef).not.toBe('');
+    gateway.registerChannelMeshApprovalMenu('telegram', 'T-eip', [approvalRef], { promptMessageId: '5501' });
+    executor.mockClear();
+
+    await emitInbound(eventBus, `/approve ${approvalRef} once`, '171234.0602');
+
+    // Edit-in-place wins over the follow-up receipt for the card surface.
+    expect(telegramEdits).toEqual([
+      {
+        chatId: 'T-eip',
+        messageId: '5501',
+        text: `Resolved elsewhere: approval ${approvalRef} was approved on another surface. No action is needed here.`,
+      },
+    ]);
+    expect(telegramTexts.every((text) => !text.includes('Resolved elsewhere'))).toBe(true);
+  });
+
+  it('falls back to a follow-up receipt when the resolved presenter cannot edit its cards', async () => {
+    const eventBus = await createOpenSlackBus();
+    const signalTexts = collectOutboundTexts(eventBus, 'signal');
+    const signalEdits = collectOutboundEdits(eventBus, 'signal');
+    const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
+      status: 'completed',
+      summary: 'Executed after approval.',
+      replyText: 'done',
+    }));
+    const gateway = new ZavorthAgentGateway({
+      now: () => new Date('2026-04-27T17:10:00.000Z'),
+      idFactory: createIdFactory(),
+      executor,
+    });
+    gateway.attachChannelMeshEventBus(eventBus, {}, { onboardingGate: null });
+
+    await gateway.handle({
+      userId: 'U123',
+      channel: 'api',
+      sessionId: 'cli:fallback',
+      text: 'wipe the production database table now',
+      requestedTools: ['shell.exec'],
+    });
+    const pendingRun = gateway.listRuns().find((run) => run.status === 'waiting_approval');
+    const approvalRef = pendingRun?.approvals.find((approval) => approval.status === 'pending')?.id || '';
+
+    await emitInbound(eventBus, 'hello from signal', '171234.0610', 'S-fallback', 'signal', 'U-signal');
+    // A numbered-text surface has no editable card even when a message id leaked in.
+    gateway.registerChannelMeshApprovalMenu('signal', 'S-fallback', [approvalRef], { promptMessageId: '4242' });
+    executor.mockClear();
+
+    await emitInbound(eventBus, `/approve ${approvalRef} once`, '171234.0612');
+
+    expect(signalEdits).toEqual([]);
+    expect(signalTexts).toContain(
+      `Resolved elsewhere: approval ${approvalRef} was approved on another surface. No action is needed here.`,
+    );
   });
 });

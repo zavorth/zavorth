@@ -57,6 +57,7 @@ export type ApprovalInteractionResolution =
 type RegisteredApprovalMenu = {
   refs: string[];
   registeredAtMs: number;
+  promptMessageId: string | null;
 };
 
 function splitMenuKey(menuKey: string): { platform: string; chatId: string } {
@@ -91,12 +92,25 @@ export type PendingApprovalRegistration = {
  * dismissed once the referenced approval resolves somewhere else. The gateway
  * turns each dismissal into an edit-in-place update or a follow-up receipt on
  * that chat, so stale actionable prompts never linger across surfaces.
+ * `promptMessageId` carries the surface-native id of the already-sent prompt
+ * card; when present and the surface can edit its own cards, the dismissal is
+ * applied by editing that message instead of appending a new receipt.
  */
 export type ApprovalPresenterDismissal = {
   menuKey: string;
   platform: string;
   chatId: string;
   resolvedRefs: string[];
+  promptMessageId: string | null;
+};
+
+/**
+ * Presenter-declared metadata published alongside a per-chat menu: the native
+ * message id of the rendered approval card, captured where the guidance is
+ * sent, so cross-surface resolutions can update that exact message in place.
+ */
+export type ApprovalMenuRegistrationOptions = {
+  promptMessageId?: string | null;
 };
 
 type CoalescedFollowerEntry = {
@@ -208,12 +222,16 @@ export class ApprovalCoordinator {
     return { leaderRef: ref, isDuplicate: false };
   }
 
-  public registerPendingMenu(menuKey: string, refs: string[]): void {
+  public registerPendingMenu(menuKey: string, refs: string[], options: ApprovalMenuRegistrationOptions = {}): void {
     const key = normalizeMenuKey(menuKey);
     if (!key || refs.length === 0) {
       return;
     }
-    this.menus.set(key, { refs: [...refs], registeredAtMs: this.nowMs() });
+    this.menus.set(key, {
+      refs: [...refs],
+      registeredAtMs: this.nowMs(),
+      promptMessageId: normalizeMenuKey(options.promptMessageId ?? '') || null,
+    });
     for (const ref of refs) {
       const normalizedRef = normalizeMenuKey(ref);
       if (!normalizedRef) {
@@ -248,7 +266,7 @@ export class ApprovalCoordinator {
     const excluded = new Set(excludeMenuKeys.map(normalizeMenuKey).filter(Boolean));
     const resolvedSet = new Set(resolvedRefs.map(normalizeMenuKey).filter(Boolean));
     const dismissalsByKey = new Map<string, ApprovalPresenterDismissal>();
-    const recordDismissal = (key: string, ref: string): void => {
+    const recordDismissal = (key: string, ref: string, promptMessageId: string | null): void => {
       const existing = dismissalsByKey.get(key);
       if (existing) {
         if (!existing.resolvedRefs.includes(ref)) {
@@ -257,7 +275,13 @@ export class ApprovalCoordinator {
         return;
       }
       const { platform, chatId } = splitMenuKey(key);
-      dismissalsByKey.set(key, { menuKey: key, platform, chatId, resolvedRefs: [ref] });
+      dismissalsByKey.set(key, {
+        menuKey: key,
+        platform,
+        chatId,
+        resolvedRefs: [ref],
+        promptMessageId,
+      });
     };
     for (const rawRef of resolvedRefs) {
       const ref = normalizeMenuKey(rawRef);
@@ -274,7 +298,7 @@ export class ApprovalCoordinator {
           this.forgetPresenterEntry(key, ref);
           continue;
         }
-        recordDismissal(key, ref);
+        recordDismissal(key, ref, menu.promptMessageId);
         this.clearPendingMenu(key);
         this.armedOtherCaptures.delete(key);
         const group = this.findLiveCoalescedGroupByRef(ref);
@@ -293,7 +317,7 @@ export class ApprovalCoordinator {
       if (!hit) {
         continue;
       }
-      recordDismissal(key, normalizeMenuKey(hit));
+      recordDismissal(key, normalizeMenuKey(hit), null);
       this.armedOtherCaptures.delete(key);
     }
     return [...dismissalsByKey.values()];

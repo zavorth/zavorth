@@ -60,6 +60,8 @@ export type TelegramDailyAssistantApprovalInput = {
   text: string;
   userId: string;
   sessionId: string;
+  /** Approval-spine menu key of THIS chat, so its own decision skips cross-surface fan-out. */
+  decidingPresenterMenuKey?: string | null;
 };
 
 export class TelegramDailyAssistantService {
@@ -87,13 +89,16 @@ export class TelegramDailyAssistantService {
   public async handleApprovalIntent(
     input: TelegramDailyAssistantApprovalInput,
   ): Promise<TelegramDailyAssistantTurnResult | null> {
-    const approvalIntent = await this.runtime.agentGateway.resolveApprovalIntent({
-      text: input.text,
-      source: 'text',
-      channel: 'telegram',
-      userId: input.userId,
-      sessionId: input.sessionId,
-    });
+    const approvalIntent = await this.runtime.agentGateway.resolveApprovalIntent(
+      {
+        text: input.text,
+        source: 'text',
+        channel: 'telegram',
+        userId: input.userId,
+        sessionId: input.sessionId,
+      },
+      { decidingPresenterMenuKeys: input.decidingPresenterMenuKey ? [input.decidingPresenterMenuKey] : null },
+    );
     if (approvalIntent.resolution.status === 'not_approval_intent') {
       return null;
     }

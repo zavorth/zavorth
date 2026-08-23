@@ -254,6 +254,7 @@ async function tryHandleExplicitAgentApproval(
     text,
     userId,
     sessionId: telegramContract.threadId || chatId,
+    decidingPresenterMenuKey: `telegram:${chatId}`,
   });
   if (!result || result.receipt.status === 'approval-not-found') {
     return false;
@@ -406,8 +407,47 @@ async function tryHandleNaturalConversationThroughAgentGateway(
       legacyUnifiedGatewayBypassed: Boolean(runtime.legacyUnifiedGateway),
     },
   });
-  await ctx.reply(result.text);
+  const sentReply = await ctx.reply(result.text);
+  captureTelegramApprovalPromptMessage(runtime, result, sentReply, chatId);
   return true;
+}
+
+/**
+ * Edit-in-place capture point of the approval spine: when the assistant turn
+ * ends waiting for an approval, the guidance text just sent carries the
+ * numbered presenter. Its native message id is registered with the spine so a
+ * decision resolved on any other surface edits THIS message in place (grammy
+ * editMessageText path) instead of appending a stale follow-up receipt.
+ */
+function captureTelegramApprovalPromptMessage(
+  runtime: BotGatewaySupportRuntime,
+  turnResult: { run: { status: string; approvals: Array<{ id: string; status: string }> } | null },
+  sentReply: unknown,
+  chatId: string,
+): void {
+  if (!runtime.agentGateway?.registerChannelMeshApprovalMenu) {
+    return;
+  }
+  const run = turnResult.run;
+  if (!run || run.status !== 'waiting_approval') {
+    return;
+  }
+  const pendingRefs = run.approvals
+    .filter((approval) => approval.status === 'pending')
+    .map((approval) => approval.id)
+    .filter(Boolean);
+  if (pendingRefs.length === 0) {
+    return;
+  }
+  const promptMessageId = String(
+    (sentReply as { message_id?: number | string | null } | undefined)?.message_id ?? '',
+  ).trim();
+  if (!promptMessageId) {
+    return;
+  }
+  runtime.agentGateway.registerChannelMeshApprovalMenu('telegram', chatId, pendingRefs, {
+    promptMessageId,
+  });
 }
 
 async function tryHandleNaturalConversationThroughLegacyUnifiedGateway(

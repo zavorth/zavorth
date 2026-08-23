@@ -138,7 +138,10 @@ export type BotGatewaySupportRuntime = {
   };
   surfaceTaskDispatcher: SurfaceTaskDispatcher;
   legacyUnifiedGateway?: LegacyUnifiedGatewayAdapter | null;
-  agentGateway?: Pick<ZavorthAgentGateway, 'handle' | 'buildSnapshot' | 'resolveApprovalIntent'> | null;
+  agentGateway?: Pick<
+    ZavorthAgentGateway,
+    'handle' | 'buildSnapshot' | 'resolveApprovalIntent' | 'registerChannelMeshApprovalMenu'
+  > | null;
   surfaceIdentityService: SurfaceIdentity;
   workspaceProfileService: {
     getProfile: (workspace: string) => Promise<WorkspaceProfile | null>;

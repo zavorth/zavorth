@@ -568,10 +568,69 @@ describe('ApprovalCoordinator', () => {
       const dismissals = coordinator.collectPresenterDismissals(['approval-a'], ['slack:C-ops']);
 
       expect(dismissals).toEqual([
-        { menuKey: 'telegram:T-ops', platform: 'telegram', chatId: 'T-ops', resolvedRefs: ['approval-a'] },
+        {
+          menuKey: 'telegram:T-ops',
+          platform: 'telegram',
+          chatId: 'T-ops',
+          resolvedRefs: ['approval-a'],
+          promptMessageId: null,
+        },
       ]);
       expect(coordinator.hasLivePendingMenu('slack:C-ops')).toBe(true);
       expect(coordinator.hasLivePendingMenu('telegram:T-ops')).toBe(false);
+    });
+
+    it('threads the stored prompt message id into the dismissal for edit-in-place updates', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      coordinator.registerPendingMenu('slack:C-ops', ['approval-a']);
+      coordinator.registerPendingMenu('telegram:T-ops', ['approval-a'], { promptMessageId: '7755' });
+      coordinator.registerPendingMenu('signal:S-ops', ['approval-a'], { promptMessageId: ' ' });
+
+      const dismissals = coordinator.collectPresenterDismissals(['approval-a'], []);
+
+      expect(dismissals).toEqual([
+        {
+          menuKey: 'slack:C-ops',
+          platform: 'slack',
+          chatId: 'C-ops',
+          resolvedRefs: ['approval-a'],
+          promptMessageId: null,
+        },
+        {
+          menuKey: 'telegram:T-ops',
+          platform: 'telegram',
+          chatId: 'T-ops',
+          resolvedRefs: ['approval-a'],
+          promptMessageId: '7755',
+        },
+        {
+          menuKey: 'signal:S-ops',
+          platform: 'signal',
+          chatId: 'S-ops',
+          resolvedRefs: ['approval-a'],
+          promptMessageId: null,
+        },
+      ]);
+    });
+
+    it('replaces the stored prompt message id when a presenter re-renders its card', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      coordinator.registerPendingMenu('telegram:T-ops', ['approval-a'], { promptMessageId: '100' });
+      coordinator.registerPendingMenu('telegram:T-ops', ['approval-a', 'approval-b'], { promptMessageId: '200' });
+
+      const dismissals = coordinator.collectPresenterDismissals(['approval-a'], []);
+
+      expect(dismissals).toEqual([
+        {
+          menuKey: 'telegram:T-ops',
+          platform: 'telegram',
+          chatId: 'T-ops',
+          resolvedRefs: ['approval-a'],
+          promptMessageId: '200',
+        },
+      ]);
     });
 
     it('retires armed "other" captures together with the dismissed presenter menu', () => {
@@ -627,7 +686,13 @@ describe('ApprovalCoordinator', () => {
       const dismissals = coordinator.collectPresenterDismissals(['approval-a'], []);
 
       expect(dismissals).toEqual([
-        { menuKey: 'slack:C-ops', platform: 'slack', chatId: 'C-ops', resolvedRefs: ['approval-a'] },
+        {
+          menuKey: 'slack:C-ops',
+          platform: 'slack',
+          chatId: 'C-ops',
+          resolvedRefs: ['approval-a'],
+          promptMessageId: null,
+        },
       ]);
       expect(coordinator.hasLivePendingMenu('telegram:T-ops')).toBe(true);
     });

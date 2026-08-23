@@ -2,6 +2,7 @@ import {
   renderApprovalDecisionReceiptForSurface,
   renderApprovalPromptForSurface,
   resolveSurfaceCapabilityPresentation,
+  supportsSurfacePromptCardEdits,
 } from '../../src/channels/capabilities/SurfaceCapabilityGate.js';
 import {
   registerSurfaceProfile,
@@ -114,6 +115,21 @@ describe('SurfaceCapabilityGate', () => {
           { label: 'Anything', risk: 'danger', ref: 'approval-1' },
         ]),
       ).toBeNull();
+    });
+  });
+
+  describe('prompt card editing', () => {
+    it('allows in-place card edits only for native interactive-card surfaces', () => {
+      expect(supportsSurfacePromptCardEdits({ platform: 'telegram' })).toBe(true);
+      expect(supportsSurfacePromptCardEdits({ platform: 'discord' })).toBe(true);
+      expect(supportsSurfacePromptCardEdits({ platform: 'signal' })).toBe(false);
+      expect(supportsSurfacePromptCardEdits({ platform: 'slack' })).toBe(false);
+    });
+
+    it('denies card edits when the surface declares approvals disabled', () => {
+      expect(
+        supportsSurfacePromptCardEdits({ platform: 'telegram', features: { approvals: false } }),
+      ).toBe(false);
     });
   });
 

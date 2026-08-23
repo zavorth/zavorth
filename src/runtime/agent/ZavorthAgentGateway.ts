@@ -26,22 +26,25 @@ import { resolveAgentGatewayTraceId, withAgentGatewayTraceMetadata } from './Age
 
 import { ChannelFormattingService, type ChannelMessagePlatform } from '../../channels/formatting/ChannelFormattingService.js';
 import { resolveOutboundCharLimitOverride } from '../../channels/formatting/ChannelMessageLimitDirectory.js';
-import {
-  buildOutboundReplyEvent,
-  buildOutboundTypingEvent,
-  type CanonicalChannelPlatform,
-} from '../../channels/contracts/ChannelMessageContract.js';
 import { ChannelMeshOnboardingGate } from '../../channels/onboarding/ChannelMeshOnboardingGate.js';
 import { TypingHeartbeat } from '../../channels/presence/TypingHeartbeat.js';
 import {
   renderApprovalPromptForSurface,
   resolveSurfaceCapabilityPresentation,
+  supportsSurfacePromptCardEdits,
 } from '../../channels/capabilities/SurfaceCapabilityGate.js';
 import {
   formatChannelApprovalString,
   resolveChannelApprovalLocale,
 } from '../../channels/approval-strings/ChannelApprovalLocaleCatalog.js';
+import {
+  buildOutboundReplyEditEvent,
+  buildOutboundReplyEvent,
+  buildOutboundTypingEvent,
+  type CanonicalChannelPlatform,
+} from '../../channels/contracts/ChannelMessageContract.js';
 import { clearPendingSurfaceApprovalsByApprovalId } from '../../domain/surface/application/surface-projection/PendingSurfaceApprovalIndex.js';
+import type { ApprovalMenuRegistrationOptions } from '../../services/approvals/ApprovalCoordinator.js';
 import { config } from '../../config/index.js';
 
 import type { StrongCapabilityLoopSnapshot } from './CapabilityLoopGovernanceService.js';
@@ -384,17 +387,27 @@ export class ZavorthAgentGateway {
    * Presenter-facing registration entry point of the approval spine: thin
    * presenters publish the pending-approval listing they rendered for a chat
    * so fast-path tokens and the "other" escape resolve against that state.
+   * Presenters that know the native id of their sent prompt card pass it via
+   * options so a cross-surface resolution can edit that exact message instead
+   * of appending a follow-up receipt.
    */
-  public registerChannelMeshApprovalMenu(platform: string, chatId: string, approvalRefs: string[]): void {
-    this.approvalCoordinator.registerPendingMenu(`${platform}:${chatId}`, approvalRefs);
+  public registerChannelMeshApprovalMenu(
+    platform: string,
+    chatId: string,
+    approvalRefs: string[],
+    options: ApprovalMenuRegistrationOptions = {},
+  ): void {
+    this.approvalCoordinator.registerPendingMenu(`${platform}:${chatId}`, approvalRefs, options);
   }
 
   /**
    * Cross-surface dismissal fan-out of the approval spine: when a decision
    * resolves an approval on any surface, every OTHER surface presenter that
-   * rendered it receives a follow-up receipt (edit-in-place where the native
-   * surface supports editing its own card), and its canonical prompt state is
-   * retired so stale buttons and tokens can never re-decide.
+   * rendered it is retired. Edit-capable card surfaces receive an in-place
+   * edit event for their stored prompt message; every other surface falls
+   * back to a follow-up receipt. Canonical prompt state (menus, armed
+   * captures, coalescing groups, surface projection index) is always retired,
+   * so stale buttons and tokens can never re-decide.
    */
   private dismissCrossSurfacePresenters(
     resolvedRefs: string[],
@@ -415,19 +428,45 @@ export class ZavorthAgentGateway {
       if (!target || !this.channelMeshEventBus) {
         continue;
       }
+      // Capability enforcement: surfaces that declared approvals disabled
+      // never receive resolution traffic; their state is retired silently.
+      const presentation = resolveSurfaceCapabilityPresentation({ platform: target.platform });
+      if (presentation.mode === 'none') {
+        continue;
+      }
       const locale = resolveChannelApprovalLocale(target.preferredLocale);
-      this.emitChannelMeshReplies(
-        this.channelMeshEventBus,
-        target,
-        dismissal.resolvedRefs.map((ref) => formatChannelApprovalString(locale, receiptKey, { ref })),
-        this.channelMeshBridgeOptions,
+      const resolutionTexts = dismissal.resolvedRefs.map((ref) =>
+        formatChannelApprovalString(locale, receiptKey, { ref }),
       );
+      if (dismissal.promptMessageId && supportsSurfacePromptCardEdits({ platform: target.platform })) {
+        // Edit-in-place: one consolidated update per presenter card. Security
+        // gates stay intact — only the already-authorized presenter chat is
+        // touched, and canonical state was retired before any emission.
+        this.emitChannelMeshReplyEdits(
+          this.channelMeshEventBus,
+          target,
+          dismissal.promptMessageId,
+          [resolutionTexts.join('\n')],
+          this.channelMeshBridgeOptions,
+        );
+        continue;
+      }
+      this.emitChannelMeshReplies(this.channelMeshEventBus, target, resolutionTexts, this.channelMeshBridgeOptions);
     }
   }
 
-  private decidingMenuKeysFromOptions(options: { sessionId?: string | null }): string[] {
+  private decidingMenuKeysFromOptions(options: {
+    sessionId?: string | null;
+    decidingPresenterMenuKeys?: string[] | null;
+  }): string[] {
     const sessionKey = normalizeText(options.sessionId);
-    return sessionKey ? [sessionKey] : [];
+    const explicitKeys = (options.decidingPresenterMenuKeys || [])
+      .map((key) => normalizeText(key))
+      .filter(Boolean);
+    if (sessionKey) {
+      return [sessionKey, ...explicitKeys];
+    }
+    return explicitKeys;
   }
 
   private appendPendingApprovalGuidance(
@@ -591,6 +630,61 @@ export class ZavorthAgentGateway {
     }
   }
 
+  /**
+   * Emits in-place edit events for an already-sent surface message. Surfaces
+   * whose transport cannot edit fall back to a fresh reply on their adapter
+   * side, so a failed hint never loses the resolution receipt.
+   */
+  private emitChannelMeshReplyEdits(
+    eventBus: ChannelMeshEventBusLike,
+    target: ChannelMeshReplyTarget,
+    messageId: string,
+    texts: string[],
+    bridgeOptions: ChannelMeshBridgeOptions = {},
+  ): void {
+    if (typeof eventBus.emit !== 'function') {
+      return;
+    }
+    const emit = eventBus.emit.bind(eventBus);
+    const charLimitOverride =
+      bridgeOptions.getCharLimitOverride?.(target.platform) ??
+      resolveOutboundCharLimitOverride(target.platform);
+    const chunkOptions =
+      typeof charLimitOverride === 'number' && Number.isFinite(charLimitOverride) && charLimitOverride > 0
+        ? { charLimitOverride }
+        : {};
+    for (const text of texts) {
+      // Only the first chunk targets the original message; any overflow chunk
+      // degrades to a fresh reply so no content is dropped by the platform.
+      ChannelFormattingService.chunkMessageForPlatform(
+        target.platform as ChannelMessagePlatform,
+        text,
+        chunkOptions,
+      ).forEach((chunk, index) => {
+        if (index === 0) {
+          emit(
+            buildOutboundReplyEditEvent({
+              platform: target.platform,
+              chatId: target.chatId,
+              userId: target.userId,
+              messageId,
+              text: chunk,
+            }),
+          );
+          return;
+        }
+        emit(
+          buildOutboundReplyEvent({
+            platform: target.platform,
+            chatId: target.chatId,
+            userId: target.userId,
+            text: chunk,
+          }),
+        );
+      });
+    }
+  }
+
   public async handle(
     input: UniversalAgentRequest,
     options: AgentRunExecutionOptions = {},
@@ -618,6 +712,8 @@ export class ZavorthAgentGateway {
       choice?: string | null;
       workspaceId?: string | null;
       sessionId?: string | null;
+      /** Menu keys of the presenter chats whose own decision resolved the ref. */
+      decidingPresenterMenuKeys?: string[] | null;
     } = {},
   ): Promise<UniversalAgentApprovalDecisionResult | null> {
     const target = this.findPendingApproval(ref);
@@ -752,7 +848,7 @@ export class ZavorthAgentGateway {
 
   public async reject(
     ref: string,
-    options: { reason?: string | null } = {},
+    options: { reason?: string | null; decidingPresenterMenuKeys?: string[] | null } = {},
   ): Promise<UniversalAgentApprovalDecisionResult | null> {
     const target = this.findPendingApproval(ref);
     if (!target) {
@@ -779,7 +875,11 @@ export class ZavorthAgentGateway {
         ...(operatorReason ? { operatorReason } : {}),
       },
     });
-    this.dismissCrossSurfacePresenters([approval.id], [], 'deny');
+    this.dismissCrossSurfacePresenters(
+      [approval.id],
+      this.decidingMenuKeysFromOptions({ decidingPresenterMenuKeys: options.decidingPresenterMenuKeys }),
+      'deny',
+    );
     this.runService.recordLifecycleDefenseReview(run, 'cancelled', now);
     const job = this.findWorkflowJob(run.id, approval.id);
     if (job) {
@@ -821,7 +921,7 @@ export class ZavorthAgentGateway {
 
   public async resolveApprovalIntent(
     input: ZavorthAgentGatewayApprovalIntentInput,
-    options: AgentRunExecutionOptions = {},
+    options: AgentRunExecutionOptions & { decidingPresenterMenuKeys?: string[] | null } = {},
   ): Promise<UniversalApprovalIntentDecisionResult> {
     const resolver = new UniversalApprovalIntentResolver();
     const resolution = resolver.resolve({
@@ -838,7 +938,11 @@ export class ZavorthAgentGateway {
     }
 
     const ref = resolution.ref || resolution.target.approval.id;
-    const result = resolution.decision === 'approved' ? await this.approve(ref, options) : await this.reject(ref);
+    const decidingPresenterMenuKeys = options.decidingPresenterMenuKeys || null;
+    const result =
+      resolution.decision === 'approved'
+        ? await this.approve(ref, { ...options, decidingPresenterMenuKeys })
+        : await this.reject(ref, { decidingPresenterMenuKeys });
 
     return {
       ok: Boolean(result),

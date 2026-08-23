@@ -118,6 +118,15 @@ export function renderApprovalPromptForSurface(
   return lines.join('\n');
 }
 
+/**
+ * Whether a surface can update an approval card it already sent. Only native
+ * interactive-card surfaces own editable messages; numbered-text fallback
+ * surfaces receive follow-up receipts instead of in-place edits.
+ */
+export function supportsSurfacePromptCardEdits(input: SurfaceCapabilityInput): boolean {
+  return resolveSurfaceCapabilityPresentation(input).mode === 'interactive-cards';
+}
+
 export function renderApprovalDecisionReceiptForSurface(
   presentation: SurfaceApprovalPresentation | null,
   parts: ApprovalDecisionReceiptParts,
