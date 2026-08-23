@@ -51,12 +51,34 @@ const GATE_SCRIPT_KEYS = [
  */
 
 /**
+ * Merges operator-provided keys from <root>/.env over a copy of the given
+ * environment. Existing variables always win; values are never logged.
+ * @param {NodeJS.ProcessEnv} baseEnv
+ * @param {string} root
+ * @returns {NodeJS.ProcessEnv}
+ */
+function withLocalDotEnv(baseEnv, root) {
+ const envPath = path.join(root, '.env');
+ if (!fs.existsSync(envPath)) return baseEnv;
+ const merged = { ...baseEnv };
+ const lines = fs.readFileSync(envPath, 'utf8').split(/\r?\n/);
+ for (const line of lines) {
+ const match = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/.exec(line);
+ if (!match) continue;
+ const [, key, raw] = match;
+ if (key in merged && merged[key] !== undefined && String(merged[key]).trim() !== '') continue;
+ merged[key] = raw.trim().replace(/^['"](.*)['"]$/, '$1');
+ }
+ return merged;
+}
+
+/**
  * @param {{ root?: string, env?: NodeJS.ProcessEnv, strict?: boolean }} [options]
  * @returns {MaturityProductionReadinessReport}
  */
 export function runMaturityProductionReadiness(options = {}) {
  const root = options.root || process.cwd();
- const env = options.env || process.env;
+ const env = options.env ? options.env : withLocalDotEnv(process.env, root);
  const strict = Boolean(options.strict);
  /** @type {CheckResult[]} */
  const checks = [];
