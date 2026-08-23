@@ -85,4 +85,22 @@ describe('ChannelFormattingService', () => {
       }
     }
   });
+
+  it('re-checks the rendered size before merging segments whose raw length fits', () => {
+    // A pipe-heavy row renders wider than its raw length (each pipe becomes
+    // cell padding), so the merged candidate fits the raw budget but would
+    // render oversized on the platform.
+    const prose = 'Deployment finished for all staging clusters.';
+    const pipeRow = `|${'x|'.repeat(29)}x`;
+    expect(pipeRow.length).toBe(60);
+    const message = `${prose}\n\n${pipeRow}`;
+    // Raw length (107) fits; rendered size of the whole message does not.
+    const limit = 130;
+
+    const chunks = ChannelFormattingService.chunkMessage(message, limit);
+
+    expect(chunks.length).toBe(2);
+    expect(chunks[0]?.trim()).toBe(prose);
+    expect(chunks[1]).toBe(pipeRow);
+  });
 });

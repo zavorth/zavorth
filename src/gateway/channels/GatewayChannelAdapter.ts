@@ -9,6 +9,13 @@ export interface GatewayChannelAdapter {
    */
   readonly messageCharLimit?: number;
 
+  /**
+   * Optional API negotiation of the effective outbound message size limit,
+   * invoked once during channel registration when implemented. Returns the
+   * negotiated limit, or null to keep the declared limit.
+   */
+  negotiateMessageCharLimit?(): Promise<number | null>;
+
   initialize(): Promise<void>;
   shutdown(): Promise<void>;
 

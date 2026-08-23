@@ -25,6 +25,7 @@ import {
 import { resolveAgentGatewayTraceId, withAgentGatewayTraceMetadata } from './AgentGatewayTelemetry.js';
 
 import { ChannelFormattingService, type ChannelMessagePlatform } from '../../channels/formatting/ChannelFormattingService.js';
+import { resolveOutboundCharLimitOverride } from '../../channels/formatting/ChannelMessageLimitDirectory.js';
 import {
   buildOutboundReplyEvent,
   buildOutboundTypingEvent,
@@ -140,7 +141,8 @@ export type ChannelMeshBridgeOptions = {
   onboardingGate?: ChannelMeshOnboardingGate | null;
   /**
    * Declared per-platform outbound message limit override. When provided and
-   * finite, it wins over the built-in platform limit table.
+   * finite, it wins over the workspace config override, the negotiated or
+   * declared adapter limits, and the built-in platform table.
    */
   getCharLimitOverride?(platform: string): number | undefined;
 };
@@ -505,7 +507,11 @@ export class ZavorthAgentGateway {
     if (typeof eventBus.emit !== 'function') {
       return;
     }
-    const charLimitOverride = bridgeOptions.getCharLimitOverride?.(target.platform);
+    // Precedence: explicit bridge option > workspace config override >
+    // negotiated adapter API limit > declared adapter limit > platform table.
+    const charLimitOverride =
+      bridgeOptions.getCharLimitOverride?.(target.platform) ??
+      resolveOutboundCharLimitOverride(target.platform);
     const chunkOptions =
       typeof charLimitOverride === 'number' && Number.isFinite(charLimitOverride) && charLimitOverride > 0
         ? { charLimitOverride }

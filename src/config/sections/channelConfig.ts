@@ -19,12 +19,43 @@ function getEnvInt(key: string, fallback: number): number {
   return isNaN(parsed) ? fallback : parsed;
 }
 
+/**
+ * Parses the workspace-level outbound message char limit overrides declared
+ * as `<platform>=<limit>` pairs separated by `;` or newlines. Entries with
+ * invalid platforms or non-positive limits are ignored.
+ */
+export function parseChannelMessageCharLimitOverrides(rawValue: string): Record<string, number> {
+  const overrides: Record<string, number> = {};
+  for (const chunk of String(rawValue || '').split(/[;\n]/)) {
+    const entry = chunk.trim();
+    if (!entry) {
+      continue;
+    }
+    const separatorIndex = entry.indexOf('=');
+    if (separatorIndex <= 0) {
+      continue;
+    }
+    const platform = entry.slice(0, separatorIndex).trim().toLowerCase();
+    const limit = Number.parseInt(entry.slice(separatorIndex + 1).trim(), 10);
+    if (!platform || !Number.isFinite(limit) || limit <= 0) {
+      continue;
+    }
+    overrides[platform] = limit;
+  }
+  return overrides;
+}
+
 function getEnvUrl(key: string, fallback = ''): string {
   return normalizeUrl(process.env[key] || fallback);
 }
 
 export function buildChannelConfig(projectRoot: string) {
   return {
+    // Workspace-level outbound message char limit overrides per platform,
+    // e.g. CHANNEL_MESSAGE_CHAR_LIMITS="telegram=3000;slack=2500".
+    messageCharLimitOverrides: parseChannelMessageCharLimitOverrides(
+      getEnv('CHANNEL_MESSAGE_CHAR_LIMITS'),
+    ),
     // Prepared multi-platform channels
     discordBotToken: getEnv('DISCORD_BOT_TOKEN'),
     discordAllowedGuildIds: parseList(getEnv('DISCORD_ALLOWED_GUILD_IDS', getEnv('DISCORD_GUILD_ID'))),

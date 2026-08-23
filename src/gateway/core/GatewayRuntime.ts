@@ -1,7 +1,11 @@
 import { DomainRegistry } from '../../domain/DomainRegistry.js';
 import { GatewayFacade } from '../../domain/gateway/GatewayFacade.js';
+import { logger } from '../../logger.js';
 import { GatewayChannelAdapter } from '../channels/GatewayChannelAdapter.js';
 import { GatewayEventBus } from '../events/GatewayEventBus.js';
+import {
+  getChannelMessageLimitDirectory,
+} from '../../channels/formatting/ChannelMessageLimitDirectory.js';
 import { GatewaySessionRouter } from '../session-routing/GatewaySessionRouter.js';
 import { GatewayLifecycle } from './GatewayLifecycle.js';
 
@@ -35,6 +39,24 @@ export class GatewayRuntime {
 
     this.channels.set(adapter.id, adapter);
     await adapter.initialize();
+
+    // Dynamic message-limit levels: record the declared static limit, then
+    // negotiate the effective limit once through the adapter API when it
+    // implements negotiation. A null outcome keeps the declared limit.
+    const limitDirectory = getChannelMessageLimitDirectory();
+    limitDirectory.recordDeclaredLimit(adapter.id, adapter.messageCharLimit);
+    if (typeof adapter.negotiateMessageCharLimit === 'function') {
+      try {
+        const negotiated = await adapter.negotiateMessageCharLimit();
+        limitDirectory.recordNegotiatedLimit(adapter.id, negotiated);
+      } catch (error: unknown) {
+        logger.warn(
+          `[GatewayRuntime] Message char-limit negotiation failed for channel ${adapter.id}; keeping declared limit.`,
+          error,
+        );
+        limitDirectory.recordNegotiatedLimit(adapter.id, null);
+      }
+    }
 
     await this.events.emit({
       type: 'channel_registered',

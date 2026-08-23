@@ -1,3 +1,5 @@
+import { estimateVisibleMessageSize } from './visibleMessageSize.js';
+
 export type ChannelMessagePlatform =
   | 'telegram'
   | 'discord'
@@ -33,6 +35,12 @@ type MessageSegment =
  * breaking fenced code blocks, table rows, or words. A code block longer
  * than the limit is split by lines and each fragment is re-wrapped in the
  * original fence so every chunk stays renderable on its own.
+ *
+ * Each assembled chunk is additionally re-checked with the rendered-size
+ * estimator (see estimateVisibleMessageSize): when the visible size of the
+ * candidate chunk would exceed the limit even though its raw length fits,
+ * the pending chunk is flushed first so no transport receives a message
+ * that renders oversized on the target platform.
  */
 export class ChannelFormattingService {
   public static resolveMessageCharLimit(platform: ChannelMessagePlatform): number {
@@ -51,7 +59,7 @@ export class ChannelFormattingService {
   public static chunkMessage(text: string, charLimit: number): string[] {
     const normalized = String(text ?? '').replace(/\r\n/g, '\n');
     const limit = Math.max(1, Math.floor(charLimit));
-    if (normalized.length <= limit) {
+    if (normalized.length <= limit && estimateVisibleMessageSize(normalized) <= limit) {
       return [normalized];
     }
     const segments = segmentMessage(normalized);
@@ -59,7 +67,10 @@ export class ChannelFormattingService {
     let current = '';
     for (const segment of segments) {
       const rendered = renderSegment(segment);
-      if (rendered.length > limit) {
+      if (
+        rendered.length > limit ||
+        estimateVisibleMessageSize(rendered) > limit
+      ) {
         if (current.trim().length > 0) {
           chunks.push(current);
           current = '';
@@ -71,7 +82,10 @@ export class ChannelFormattingService {
       }
       if (current.length === 0) {
         current = rendered;
-      } else if (current.length + 2 + rendered.length <= limit) {
+      } else if (
+        current.length + 2 + rendered.length <= limit &&
+        estimateVisibleMessageSize(`${current}\n\n${rendered}`) <= limit
+      ) {
         current = `${current}\n\n${rendered}`;
       } else {
         chunks.push(current);
@@ -176,8 +190,12 @@ function splitPlainText(content: string, limit: number): string[] {
   const atomicPieces = content.split('\n').flatMap((line) => hardSplitToken(line, limit));
   for (const piece of atomicPieces) {
     const separator = current.length === 0 ? '' : '\n';
-    if (current.length + separator.length + piece.length <= limit) {
-      current = `${current}${separator}${piece}`;
+    const candidate = `${current}${separator}${piece}`;
+    if (
+      candidate.length <= limit &&
+      estimateVisibleMessageSize(candidate) <= limit
+    ) {
+      current = candidate;
       continue;
     }
     if (current.length > 0) {
