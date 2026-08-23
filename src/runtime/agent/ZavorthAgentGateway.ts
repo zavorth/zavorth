@@ -30,11 +30,6 @@ import {
   type CanonicalChannelPlatform,
 } from '../../channels/contracts/ChannelMessageContract.js';
 import { ChannelMeshOnboardingGate } from '../../channels/onboarding/ChannelMeshOnboardingGate.js';
-import {
-  parseChannelMeshApprovalCommand,
-  parseChannelMeshApprovalToken,
-  type ChannelMeshApprovalCommand,
-} from '../../channels/commands/ChannelMeshCommandParser.js';
 import { TypingHeartbeat } from '../../channels/presence/TypingHeartbeat.js';
 import { config } from '../../config/index.js';
 
@@ -59,6 +54,7 @@ import { errorMessage } from '../../utils/errorLike.js';
 import { normalizeAgentPermissionChoice } from '../../contracts/permission/AgentPermissionContract.js';
 import { getAgentPermissionService } from '../../services/permission/AgentPermissionService.js';
 import { assertSurfaceApproveGate } from '../../services/surface/SurfaceApprovalGate.js';
+import { ApprovalCoordinator } from '../../services/approvals/ApprovalCoordinator.js';
 export type ZavorthAgentGatewayRuntime = AgentRunServiceRuntime & {
   runStore?: AgentRunStore | null;
   workflowQueueStore?: AgentWorkflowQueueStore | null;
@@ -187,8 +183,8 @@ export class ZavorthAgentGateway {
   private readonly workflowMaxAttempts: number;
   private readonly runtimePromotionGovernance: RuntimePromotionGovernanceService;
   private readonly agentLLMRuntime: AgentLLMRuntime;
+  private readonly approvalCoordinator: ApprovalCoordinator;
   private readonly runs = new Map<string, UniversalAgentRun>();
-  private readonly channelMeshApprovalMenus = new Map<string, Array<{ ref: string }>>();
   private readonly inFlightRuns = new Map<string, UniversalAgentRun>();
   private readonly workflowJobs = new Map<string, UniversalAgentWorkflowJob>();
   private readonly pendingExecutions = new Map<string, PendingExecution>();
@@ -229,6 +225,7 @@ export class ZavorthAgentGateway {
         now: this.now,
       });
     this.agentLLMRuntime = runtime.agentLLMRuntime || new AgentLLMRuntime();
+    this.approvalCoordinator = new ApprovalCoordinator(this);
     this.hydrateRuns();
     this.hydrateWorkflowJobs();
   }
@@ -279,18 +276,15 @@ export class ZavorthAgentGateway {
       if (!target) return;
 
       const menuKey = `${target.platform}:${target.chatId}`;
-      const approvalCommand =
-        parseChannelMeshApprovalCommand(request.text) ??
-        this.resolveChannelMeshApprovalToken(menuKey, request.text);
-      if (approvalCommand) {
-        this.channelMeshApprovalMenus.delete(menuKey);
-        await this.executeChannelMeshApprovalCommand(eventBus, target, approvalCommand);
+      const interaction = this.approvalCoordinator.resolveApprovalInteraction(menuKey, request.text);
+      if (interaction.kind !== 'free-prose') {
+        const receipt = await this.approvalCoordinator.executeApprovalDecision({
+          command: interaction.command,
+          surface: target.platform,
+          sessionId: menuKey,
+        });
+        this.emitChannelMeshReplies(eventBus, target, [receipt]);
         return;
-      }
-      if (this.channelMeshApprovalMenus.has(menuKey)) {
-        // A pending menu exists but the text is neither a token nor a command:
-        // free prose belongs to the interview/agent, never to silent approval.
-        this.channelMeshApprovalMenus.delete(menuKey);
       }
 
       if (onboardingGate) {
@@ -337,32 +331,6 @@ export class ZavorthAgentGateway {
     };
   }
 
-  private resolveChannelMeshApprovalToken(
-    menuKey: string,
-    text: string,
-  ): ChannelMeshApprovalCommand | null {
-    const menu = this.channelMeshApprovalMenus.get(menuKey);
-    if (!menu || menu.length === 0) {
-      return null;
-    }
-    const token = parseChannelMeshApprovalToken(text);
-    if (!token) {
-      return null;
-    }
-    if (token.kind === 'ordinal') {
-      const entry = menu[token.ordinal - 1];
-      if (!entry) {
-        return null;
-      }
-      return { action: 'approve', ref: entry.ref, choice: 'once' };
-    }
-    const firstEntry = menu[0];
-    if (token.action === 'approve') {
-      return { action: 'approve', ref: firstEntry.ref, choice: token.choice };
-    }
-    return { action: 'deny', ref: firstEntry.ref, choice: 'once' };
-  }
-
   private appendPendingApprovalGuidance(run: UniversalAgentRun, texts: string[], menuKey?: string): string[] {
     if (run.status !== 'waiting_approval') {
       return texts;
@@ -371,9 +339,11 @@ export class ZavorthAgentGateway {
     if (pendingApprovals.length === 0) {
       return texts;
     }
-    const menuEntries = pendingApprovals.map((approval) => ({ ref: approval.id }));
     if (menuKey) {
-      this.channelMeshApprovalMenus.set(menuKey, menuEntries);
+      this.approvalCoordinator.registerPendingMenu(
+        menuKey,
+        pendingApprovals.map((approval) => approval.id),
+      );
     }
     const lines = pendingApprovals.map((approval, index) => {
       const label = approval.title || approval.reason || 'action';
@@ -385,30 +355,6 @@ export class ZavorthAgentGateway {
       'Reply 1 (or the ref) to allow once, approve / approve session / approve always, or reject to deny.',
     ];
     return [...texts, guidance.join('\n')];
-  }
-
-  private async executeChannelMeshApprovalCommand(
-    eventBus: ChannelMeshEventBusLike,
-    target: ChannelMeshReplyTarget,
-    command: NonNullable<ReturnType<typeof parseChannelMeshApprovalCommand>>,
-  ): Promise<void> {
-    let outcomeText: string;
-    if (command.action === 'deny') {
-      const rejected = await this.reject(command.ref).catch(() => null);
-      outcomeText = rejected
-        ? `Denied approval ${command.ref}.`
-        : `No pending approval found for ${command.ref}.`;
-    } else {
-      const approved = await this.approve(command.ref, {
-        choice: command.choice,
-        surface: target.platform,
-        sessionId: `${target.platform}:${target.chatId}`,
-      }).catch(() => null);
-      outcomeText = approved
-        ? `Approved ${command.ref} (${command.choice}).`
-        : `No pending approval found for ${command.ref}.`;
-    }
-    this.emitChannelMeshReplies(eventBus, target, [outcomeText]);
   }
 
   private extractChannelMeshReplyTarget(request: UniversalAgentRequest): ChannelMeshReplyTarget | null {
