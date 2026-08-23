@@ -58,6 +58,18 @@ export interface CognitiveFirewallOptions extends ToolGatekeeperOptions {
   llmClassifierOptions?: LLMIntentClassifierOptions;
 }
 
+/** Cumulative tool-selection counters across every evaluation of one firewall instance. */
+export interface ToolSelectionTelemetrySnapshot {
+  evaluations: number;
+  compactModeEvaluations: number;
+  clusterModeEvaluations: number;
+  predictiveModeEvaluations: number;
+  quarantinedToolExposures: number;
+  tokensFull: number;
+  tokensCompact: number;
+  tokensSaved: number;
+}
+
 export class CognitiveFirewall {
   private readonly regexClassifier = new IntentClassifier();
   private readonly llmClassifier: LLMIntentClassifier | null;
@@ -65,6 +77,16 @@ export class CognitiveFirewall {
   private readonly baseGatekeeper: ToolGatekeeper;
   private readonly gatekeeperCache: Map<string, ToolGatekeeper> = new Map();
   private readonly llmConfidenceThreshold: number;
+  private readonly telemetry: ToolSelectionTelemetrySnapshot = {
+    evaluations: 0,
+    compactModeEvaluations: 0,
+    clusterModeEvaluations: 0,
+    predictiveModeEvaluations: 0,
+    quarantinedToolExposures: 0,
+    tokensFull: 0,
+    tokensCompact: 0,
+    tokensSaved: 0,
+  };
 
   constructor(options?: CognitiveFirewallOptions) {
     this.baseOptions = options ?? {};
@@ -189,6 +211,14 @@ export class CognitiveFirewall {
       toolHintProfile.isPredictiveMode ?? false,
     );
 
+    this.recordTelemetry({
+      isCompactMode,
+      isClusterMode: toolHintProfile.isClusterMode ?? false,
+      isPredictiveMode: toolHintProfile.isPredictiveMode ?? false,
+      quarantinedCount: toolHintProfile.quarantinedToolNames.length,
+      tokenSavings,
+    });
+
     return {
       tools: toolHintProfile.tools,
       toolHintProfile,
@@ -199,6 +229,30 @@ export class CognitiveFirewall {
       stats,
       tokenSavings,
     };
+  }
+
+  /** Cumulative per-instance counters for observability consumers. */
+  public getToolSelectionTelemetry(): ToolSelectionTelemetrySnapshot {
+    return { ...this.telemetry };
+  }
+
+  private recordTelemetry(input: {
+    isCompactMode: boolean;
+    isClusterMode: boolean;
+    isPredictiveMode: boolean;
+    quarantinedCount: number;
+    tokenSavings?: FirewallDecision['tokenSavings'];
+  }): void {
+    this.telemetry.evaluations += 1;
+    if (input.isCompactMode) this.telemetry.compactModeEvaluations += 1;
+    if (input.isClusterMode) this.telemetry.clusterModeEvaluations += 1;
+    if (input.isPredictiveMode) this.telemetry.predictiveModeEvaluations += 1;
+    this.telemetry.quarantinedToolExposures += input.quarantinedCount;
+    if (input.tokenSavings) {
+      this.telemetry.tokensFull += input.tokenSavings.fullTokens;
+      this.telemetry.tokensCompact += input.tokenSavings.compactTokens;
+      this.telemetry.tokensSaved += input.tokenSavings.savedTokens;
+    }
   }
 }
 

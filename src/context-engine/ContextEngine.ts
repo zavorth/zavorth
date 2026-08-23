@@ -420,11 +420,13 @@ export class ContextEngine {
     cache: { hits: number; misses: number; evictions: number; size: number };
     usageTracker: { activeSessions: number };
     injector: { activeSessions: number };
+    toolSelection: ReturnType<CognitiveFirewall['getToolSelectionTelemetry']>;
   } {
     return {
       cache: this.cache.getStats(),
       usageTracker: { activeSessions: this.usageTracker.getActiveSessionCount() },
       injector: { activeSessions: this.injector.getActiveSessionCount() },
+      toolSelection: this.firewall.getToolSelectionTelemetry(),
     };
   }
 

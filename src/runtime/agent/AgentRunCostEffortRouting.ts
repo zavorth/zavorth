@@ -22,6 +22,8 @@ import { resolveLlmRoleScopeId } from '../../contracts/runtime/LlmRoleRoutingCon
 
 export type AgentRunCostRouteClass = 'premium' | 'standard' | 'background';
 
+export type AgentRunCostBudgetHint = 'minimal-context' | 'session-context' | 'workspace-context' | 'governed-runtime';
+
 export type AgentRunCostEffortRoute = {
   class: AgentRunCostRouteClass;
   useFastModel: boolean;
@@ -34,7 +36,24 @@ export type AgentRunCostEffortRoute = {
   savingsHint: string;
   /** Where the cheap hop came from (user stack / env / none). */
   cheapHopSource: string | null;
+  /** Classifier cost tier produced by NaturalFirstRunClassifier, when present. */
+  budgetHint: AgentRunCostBudgetHint | null;
 };
+
+const BUDGET_HINTS: readonly AgentRunCostBudgetHint[] = [
+  'minimal-context',
+  'session-context',
+  'workspace-context',
+  'governed-runtime',
+];
+
+function resolveNaturalFirstBudgetHint(run: UniversalAgentRun, request: UniversalAgentRequest): AgentRunCostBudgetHint | null {
+  const meta = mergeMeta(run, request);
+  const natural = recordOrNull(meta.naturalFirstRoute) || recordOrNull(meta.naturalRoute);
+  const cost = recordOrNull(natural?.cost);
+  const hint = normalizeText(cost?.budgetHint);
+  return BUDGET_HINTS.includes(hint as AgentRunCostBudgetHint) ? (hint as AgentRunCostBudgetHint) : null;
+}
 
 export function classifyAgentRunCostEffortRoute(
   run: UniversalAgentRun,
@@ -48,11 +67,13 @@ export function classifyAgentRunCostEffortRoute(
   const useFastModel = resolveUseFastModel(run, request);
   const effortLevel = resolveEffortLevel(run, request);
   const providerReasoningEffort = effortLevel ? effortService.toProviderReasoningEffort(effortLevel) : null;
+  const budgetHint = resolveNaturalFirstBudgetHint(run, request);
 
   let routeClass: AgentRunCostRouteClass = 'standard';
   let reason = 'Default standard route for interactive agent turns.';
 
-  // Structured signals only (useFastModel / effortLevel). Free-text never selects cost route class.
+  // Structured signals only (useFastModel / effortLevel / classifier budget hint).
+  // Free-text never selects a cost route class by itself.
   if (useFastModel) {
     routeClass = 'background';
     reason = 'Kernel/intent marked useFastModel.';
@@ -62,6 +83,9 @@ export function classifyAgentRunCostEffortRoute(
   } else if (effortLevel === 'low') {
     routeClass = 'background';
     reason = 'Low effort maps to cheap worker routing.';
+  } else if (budgetHint === 'minimal-context') {
+    routeClass = 'background';
+    reason = 'Classifier marked this turn minimal-context; routing through the cheap hop.';
   }
 
   let suggested =
@@ -115,6 +139,7 @@ export function classifyAgentRunCostEffortRoute(
     suggestedProviderName: suggested.providerName,
     userModelPinned,
     cheapHopSource: suggested.source,
+    budgetHint,
     savingsHint:
       routeClass === 'background' && suggested.modelName ? `Background route uses user-stack cheap hop ${suggested.providerName || 'provider'}/${suggested.modelName} (${suggested.source || 'stack'}).`
         : routeClass === 'premium' && suggested.modelName ? `Premium route may use strong role ${suggested.providerName}/${suggested.modelName}.`
@@ -141,6 +166,10 @@ export function applyCostEffortRouteToLlmOptions(base: LlmRunOptions, route: Age
 
   if (route.providerReasoningEffort) {
     next.reasoningEffort = route.providerReasoningEffort;
+  } else if (route.budgetHint === 'minimal-context' && !base.reasoningEffort) {
+    // Minimal-context turns never need deep synthesis; cap provider effort
+    // unless the caller pinned one explicitly.
+    next.reasoningEffort = 'low';
   }
 
   next.costRouteClass = route.class;
