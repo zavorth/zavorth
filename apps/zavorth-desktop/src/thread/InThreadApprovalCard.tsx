@@ -2,6 +2,7 @@ import { useEffect, useMemo, useCallback, useState } from 'react';
 import { Badge, Button } from '../primitives/ui';
 import { t } from '../i18n';
 import type { ApprovalSurfaceProjection } from '../apiClient';
+import { DiffViewerPanel } from './DiffViewerPanel';
 
 export type ApprovalRisk = 'low' | 'medium' | 'high' | string;
 
@@ -37,6 +38,11 @@ export type InThreadApprovalCardProps = {
   summary?: string;
   risk?: ApprovalRisk;
   busy?: boolean;
+  /**
+   * Unified diff preview for file-mutation approvals. Render-only: the
+   * mutation stays gated behind the explicit approve decision below.
+   */
+  diffText?: string | null;
   /** Rich surface projection (shortcuts, copy targets, open receipt). */
   surfaceProjection?: ApprovalSurfaceProjection | null;
   onDecide(id: string, choice: ApprovalChoice): void | Promise<void>;
@@ -215,6 +221,12 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
           </Badge>
         ) : null}
       </div>
+
+      {props.diffText ? (
+        <div className="zvd-approval-card__diff">
+          <DiffViewerPanel diffText={props.diffText} compact maxLines={120} />
+        </div>
+      ) : null}
 
       <div className="zvd-approval-card__actions" style={{ flexWrap: 'wrap', gap: '0.35rem' }}>
         {choiceButtons.map(({ choice, key, label }) => (

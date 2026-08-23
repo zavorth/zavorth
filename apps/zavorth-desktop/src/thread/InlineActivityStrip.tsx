@@ -1,6 +1,7 @@
 import type { ApprovalItem, ApprovalSurfaceProjection } from '../apiClient';
 import { itemId } from '../primitives/desktopPrimitives';
 import { t } from '../i18n';
+import { looksLikeUnifiedDiff } from '../trust/hunkApproval';
 import { InThreadApprovalCard } from './InThreadApprovalCard';
 
 /** Local fallback when API has not attached a desktop surface projection. */
@@ -57,6 +58,8 @@ export function InlineActivityStrip(props: {
     const title =
       firstApproval.title || firstApproval.action || t('thread.approvalTitle');
     const surfaceProjection = resolveSurfaceProjection(firstApproval, id);
+    const embeddedDiff = [firstApproval.action, firstApproval.summary]
+      .find((value) => typeof value === 'string' && looksLikeUnifiedDiff(value)) || null;
 
     return (
       <div className="zvd-activity-footer">
@@ -75,6 +78,7 @@ export function InlineActivityStrip(props: {
           summary={firstApproval.summary}
           risk={firstApproval.risk}
           busy={props.busy}
+          diffText={embeddedDiff}
           surfaceProjection={surfaceProjection}
           onDecide={(approvalId, choice) => void props.onDecision(approvalId, choice)}
           onDecideOther={props.onDecisionWithAnswer ? (approvalId, answer) => void props.onDecisionWithAnswer?.(approvalId, answer) : undefined}

@@ -10,6 +10,7 @@ import {
   type DiffHunk,
   type HunkReceipt,
 } from '../trust/hunkApproval';
+import { DiffViewerPanel } from './DiffViewerPanel';
 
 export type HunkReviewCardProps = {
   diffText: string;
@@ -117,9 +118,7 @@ export function HunkReviewCard(props: HunkReviewCardProps) {
                     : t('thread.hunkPending')}
               </span>
             </div>
-            <pre className="zvd-hunk-review__preview" tabIndex={0}>
-              {hunk.lines.slice(0, 14).join('\n')}
-            </pre>
+            <DiffViewerPanel diffText={[hunk.header, ...hunk.lines].join('\n')} compact maxLines={16} />
             {hunk.decision === 'pending' ? (
               <div className="zvd-hunk-review__actions">
                 <Button
