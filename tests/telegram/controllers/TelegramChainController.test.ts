@@ -8,6 +8,12 @@ import { SnippetService } from '../../../src/services/SnippetService';
 import { CommandParser } from '../../../src/telegram/CommandParser';
 import { TelegramChainController } from '../../../src/telegram/controllers/TelegramChainController';
 
+// resolveChainTemplates constructs its own SQLite-backed MemoryService and
+// SnippetService internally, so the real database must be exercised here
+// (no seam exists to inject fixtures). First-use database creation plus
+// migrations on Windows CI regularly approach the 5s default under parallel
+// load; this suite only needs a bounded wait, never coverage removal.
+jest.setTimeout(30000);
 
 describe('TelegramChainController', () => {
   const originalDbPath = config.dbPath;
