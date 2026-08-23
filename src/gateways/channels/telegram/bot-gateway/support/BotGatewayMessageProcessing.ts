@@ -56,25 +56,6 @@ export async function processTextMessage(
   runtime.logRepo.log('info', 'Telegram', `Received message from ${userId}`);
   await recordIncomingMessageTelemetry(runtime, chatId, userId, text, ctx.chat?.type || 'unknown');
 
-  // HIGH_RISK callback challenge: bare TOTP / pin= after task:approve button.
-  const permissionController =
-    (
-      runtime as {
-        permissionController?: { tryConsumeHighRiskTotpReply?: (c: Context, t: string) => Promise<boolean> };
-      }
-    ).permissionController ||
-    (
-      runtime as {
-        getPermissionController?: () => { tryConsumeHighRiskTotpReply?: (c: Context, t: string) => Promise<boolean> };
-      }
-    ).getPermissionController?.();
-  if (
-    permissionController?.tryConsumeHighRiskTotpReply &&
-    (await permissionController.tryConsumeHighRiskTotpReply(ctx, text))
-  ) {
-    return;
-  }
-
   // agent-first: free text never goes through priority interceptors.
   // Only explicit slash commands may be handled before the agent.
   const isSlashText = String(text || '')

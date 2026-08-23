@@ -23,7 +23,7 @@ export type ChannelApprovalResolvedLocale = (typeof CHANNEL_APPROVAL_LOCALES)[nu
 const EN_US: Record<ChannelApprovalLocaleKey, string> = {
   'prompt.entry': '{ordinal}[{risk}] {label} — ref {ref}',
   'prompt.hint':
-    'Reply 1 (or the ref) to allow once, approve / approve session / approve always, or reject to deny.',
+    'Reply 1 (or the ref) to allow once, approve / approve session / approve always, or reject (or deny) to refuse.',
   'receipt.approved': 'Approved {ref} ({choice}).',
   'receipt.denied': 'Denied approval {ref}.',
   'receipt.notFound': 'No pending approval found for {ref}.',
@@ -41,7 +41,7 @@ const EN_US: Record<ChannelApprovalLocaleKey, string> = {
 const PT_BR: Record<ChannelApprovalLocaleKey, string> = {
   'prompt.entry': '{ordinal}[{risk}] {label} — ref {ref}',
   'prompt.hint':
-    'Responda 1 (ou a referência) para permitir uma vez; use /approve <referência> com once/session/always ou /reject <referência> para negar.',
+    'Responda 1 (ou a referência) para permitir uma vez; use /approve <referência> com once/session/always ou /reject <referência> (ou /deny) para negar.',
   'receipt.approved': 'Aprovado {ref} ({choice}).',
   'receipt.denied': 'Aprovação {ref} negada.',
   'receipt.notFound': 'Nenhuma aprovação pendente encontrada para {ref}.',

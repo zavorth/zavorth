@@ -110,6 +110,7 @@ export class AuthGuard {
     '/ag_prompt',
     '/approve',
     '/reject',
+    '/deny',
     '/undo',
     '/tasks',
     '/logs',

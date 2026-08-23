@@ -48,6 +48,8 @@ const STATIC_COMMAND_ALIASES: Record<string, string> = {
   '/sessions_spawn': '/agents',
   '/invocar': '/invoke',
   '/aigateway': '/AIGateway',
+  // Unified deny vocabulary: /deny resolves exactly like /reject.
+  '/deny': '/reject',
   // Legacy web-surface aliases still resolve to /dashboard (ops handleDashboard).
   '/app': '/dashboard',
   '/miniapp': '/dashboard',

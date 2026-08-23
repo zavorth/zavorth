@@ -20,6 +20,8 @@ import {
 } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionDecisionService.js';
 
 import { TelegramPermissionInteractionService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionInteractionService.js';
+import type { ParsedPermissionCallback } from '../../../../services/approvals/PermissionCallbackAlias.js';
+import { toTaskApprovalChoice } from '../../../../services/approvals/PermissionCallbackAlias.js';
 import { TelegramPermissionPolicyService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPolicyService.js';
 import { TelegramPermissionPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPresentationService.js';
 import { TelegramPersistedPermissionPolicyService } from '../../../../gateways/channels/telegram/controllers/TelegramPersistedPermissionPolicyService.js';
@@ -72,17 +74,7 @@ export type TelegramPermissionControllerDeps = {
   createCompanionBridge?: () => ZavorthBridgeCompanionBridgeLike;
 };
 
-type HighRiskApprovalChallenge = {
-  userId: string;
-  chatId: string;
-  taskId: string;
-  expiresAt: number;
-};
-
 export class TelegramPermissionController {
-  /** Pending HIGH_RISK TOTP replies after task:approve callback (userId:chatId → challenge). */
-  private readonly highRiskChallenges = new Map<string, HighRiskApprovalChallenge>();
-  private static readonly HIGH_RISK_CHALLENGE_TTL_MS = 5 * 60 * 1000;
   private taskSecurityPosture = new TaskSecurityPostureService();
   private readonly permissionDecision: TelegramPermissionDecisionService;
   private readonly permissionPolicy = new TelegramPermissionPolicyService();
@@ -139,7 +131,30 @@ export class TelegramPermissionController {
       resolvePermissionReference: (ref) => this.resolvePermissionReference(ref),
       shortPermissionId: (permission) => this.shortPermissionId(permission),
       assertHostWritable: () => this.assertHostWritable(),
+      resolveUnifiedApprovalFallback: (ctx, parsed) =>
+        this.resolveUnifiedApprovalFallback(ctx, parsed),
     });
+  }
+
+  /**
+   * Alias layer of the unified approval spine: a `perm:*` callback whose
+   * reference is not a legacy PermissionRequest resolves through the exact
+   * decision path used by task:* callbacks (TelegramTaskApprovalService), so
+   * both callback families share one approval semantics.
+   */
+  private async resolveUnifiedApprovalFallback(
+    ctx: Context,
+    parsed: ParsedPermissionCallback,
+  ): Promise<boolean> {
+    if (parsed.action === 'deny') {
+      await ctx.answerCallbackQuery({ text: 'Denying...' }).catch(() => undefined);
+      await this.taskApproval.handleRejection(ctx, parsed.reference);
+      return true;
+    }
+    const choice = toTaskApprovalChoice(parsed.scope);
+    await ctx.answerCallbackQuery({ text: `Allow ${choice}...` }).catch(() => undefined);
+    await this.taskApproval.handleApproval(ctx, `${parsed.reference} ${choice}`);
+    return true;
   }
 
   public async handlePermissionAllowCommand(ctx: Context, args: string): Promise<void> {
@@ -509,17 +524,5 @@ export class TelegramPermissionController {
     if (!userRoles.includes('admin')) {
       throw new Error('Only administrators can decide on approvals/permissions.');
     }
-  }
-
-  /**
-   * @deprecated TOTP challenge path removed. Always returns false (message not consumed).
-   */
-  public async tryConsumeHighRiskTotpReply(_ctx: Context, _rawText: string): Promise<boolean> {
-    return false;
-  }
-
-  /** Test/diagnostics helper. */
-  public clearHighRiskApprovalChallenges(): void {
-    this.highRiskChallenges.clear();
   }
 }

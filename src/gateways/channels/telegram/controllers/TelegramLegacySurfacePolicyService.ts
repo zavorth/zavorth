@@ -4,6 +4,7 @@ export const TELEGRAM_OPERATOR_SLASH_COMMANDS = new Set([
   '/status',
   '/approve',
   '/reject',
+  '/deny',
   '/lock',
   '/unlock',
   '/doctor',

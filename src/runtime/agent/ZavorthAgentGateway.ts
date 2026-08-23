@@ -385,24 +385,35 @@ export class ZavorthAgentGateway {
     if (pendingApprovals.length === 0) {
       return texts;
     }
-    if (menuKey) {
+    // Duplicate-request coalescing: identical concurrent approvals collapse
+    // into their leader entry, so one decision menu covers every copy.
+    const menuEntries: Array<{ label: string; risk: string; ref: string }> = [];
+    for (const approval of pendingApprovals) {
+      const registration = this.approvalCoordinator.registerPendingApproval({
+        sessionId: run.sessionId,
+        ref: approval.id,
+        title: approval.title || approval.reason || approval.id,
+        reason: approval.reason,
+        risk: approval.risk,
+      });
+      if (!registration.isDuplicate && registration.leaderRef) {
+        menuEntries.push({
+          label: approval.title || approval.reason || 'action',
+          risk: approval.risk,
+          ref: registration.leaderRef,
+        });
+      }
+    }
+    if (menuKey && menuEntries.length > 0) {
       this.approvalCoordinator.registerPendingMenu(
         menuKey,
-        pendingApprovals.map((approval) => approval.id),
+        menuEntries.map((entry) => entry.ref),
       );
     }
     const presentation = surface
       ? resolveSurfaceCapabilityPresentation({ platform: surface })
       : null;
-    const prompt = renderApprovalPromptForSurface(
-      presentation,
-      pendingApprovals.map((approval) => ({
-        label: approval.title || approval.reason || 'action',
-        risk: approval.risk,
-        ref: approval.id,
-      })),
-      preferredLanguageCode,
-    );
+    const prompt = renderApprovalPromptForSurface(presentation, menuEntries, preferredLanguageCode);
     if (!prompt) {
       // Capability enforcement: this surface declared approvals disabled (or
       // has no text fallback), so it never receives approval prompts.

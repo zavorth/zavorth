@@ -1784,15 +1784,6 @@ describe('TelegramPermissionController', () => {
     expect(resumeTaskExecution).toHaveBeenCalled();
   });
 
-  it('does not consume free-text as TOTP (challenge path removed)', async () => {
-    const controller = createController();
-    const ctx = {
-      from: { id: 42 },
-      chat: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined)} as any;
-    expect(await controller.tryConsumeHighRiskTotpReply(ctx, '123456')).toBe(false);
-  });
-
   it('blocks inline task callbacks while the host is read-only', async () => {
     const task = {
       task_id: 'task-readonly-inline-1',

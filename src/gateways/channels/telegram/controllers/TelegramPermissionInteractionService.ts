@@ -1,5 +1,6 @@
 import { Context, InlineKeyboard } from 'grammy';
 import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
+import type { ParsedPermissionCallback } from '../../../../services/approvals/PermissionCallbackAlias.js';
 import { TelegramPermissionCallbackService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionCallbackService.js';
 import { TelegramPermissionDecisionService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionDecisionService.js';
 import { TelegramPermissionKeyboardService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionKeyboardService.js';
@@ -11,6 +12,10 @@ export type TelegramPermissionInteractionServiceDeps = {
   resolvePermissionReference: (ref: string) => Promise<PermissionRequest>;
   shortPermissionId: (permission: PermissionRequest) => string;
   assertHostWritable: () => void;
+  resolveUnifiedApprovalFallback?: (
+    ctx: Context,
+    parsed: ParsedPermissionCallback,
+  ) => Promise<boolean>;
 };
 
 export class TelegramPermissionInteractionService {
@@ -23,6 +28,7 @@ export class TelegramPermissionInteractionService {
       permissionPolicy: this.deps.permissionPolicy,
       resolvePermissionReference: this.deps.resolvePermissionReference,
       assertHostWritable: this.deps.assertHostWritable,
+      resolveUnifiedApprovalFallback: this.deps.resolveUnifiedApprovalFallback,
     });
     this.keyboardService = new TelegramPermissionKeyboardService({
       shortPermissionId: this.deps.shortPermissionId,

@@ -41,7 +41,7 @@ describe('ChannelApprovalLocaleCatalog', () => {
         }),
       ).toBe('2. [danger] Run shell command — ref approval-9');
       expect(formatChannelApprovalString('en-US', 'prompt.hint', {})).toBe(
-        'Reply 1 (or the ref) to allow once, approve / approve session / approve always, or reject to deny.',
+        'Reply 1 (or the ref) to allow once, approve / approve session / approve always, or reject (or deny) to refuse.',
       );
       expect(formatChannelApprovalString('en-US', 'receipt.approved', { ref: 'a1', choice: 'session' })).toBe(
         'Approved a1 (session).',

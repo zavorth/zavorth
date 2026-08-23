@@ -23,6 +23,7 @@ type FakeGatewayPort = ApprovalCoordinatorGatewayPort & {
   recordedApprovals: RecordedApproval[];
   recordedRejections: RecordedRejection[];
   runs: ApprovalCoordinatorRunView[];
+  resolvedRefs: Set<string>;
 };
 
 function createFakeGateway(
@@ -32,15 +33,18 @@ function createFakeGateway(
     recordedApprovals: [],
     recordedRejections: [],
     runs: [],
+    resolvedRefs: new Set<string>(),
     findPendingApproval(ref) {
-      return ref ? { run: { id: 'run-1' }, approval: { id: ref } } : null;
+      return ref && !port.resolvedRefs.has(ref) ? { run: { id: 'run-1' }, approval: { id: ref } } : null;
     },
     async approve(ref, options) {
       port.recordedApprovals.push({ ref, options });
+      port.resolvedRefs.add(ref);
       return { ok: true };
     },
     async reject(ref, options) {
       port.recordedRejections.push({ ref, options });
+      port.resolvedRefs.add(ref);
       return { ok: true };
     },
     listRuns(limit = 20) {
@@ -338,6 +342,215 @@ describe('ApprovalCoordinator', () => {
 
       expect(receipt).toBe('No pending approval found for all.');
       expect(gateway.recordedApprovals).toEqual([]);
+    });
+  });
+
+  describe('duplicate-request coalescing', () => {
+    function registerPair(
+      coordinator: ApprovalCoordinator,
+      refs: [string, string],
+      sessionId = 'slack:C-ops',
+    ): void {
+      coordinator.registerPendingApproval({
+        sessionId,
+        ref: refs[0],
+        title: 'run npm test',
+        risk: 'high',
+      });
+      coordinator.registerPendingApproval({
+        sessionId,
+        ref: refs[1],
+        title: 'run npm test',
+        risk: 'high',
+      });
+    }
+
+    it('collapses two simultaneous identical requests into one leader entry', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+
+      const leaderRegistration = coordinator.registerPendingApproval({
+        sessionId: 'slack:C-ops',
+        ref: 'approval-a',
+        title: 'run npm test',
+        risk: 'high',
+      });
+      const followerRegistration = coordinator.registerPendingApproval({
+        sessionId: 'slack:C-ops',
+        ref: 'approval-b',
+        title: 'run npm test',
+        risk: 'high',
+      });
+
+      expect(leaderRegistration).toEqual({ leaderRef: 'approval-a', isDuplicate: false });
+      expect(followerRegistration).toEqual({ leaderRef: 'approval-a', isDuplicate: true });
+    });
+
+    it('keeps requests with different titles or sessions independent', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+
+      expect(
+        coordinator.registerPendingApproval({
+          sessionId: 'slack:C-ops',
+          ref: 'approval-a',
+          title: 'run npm test',
+          risk: 'high',
+        }),
+      ).toEqual({ leaderRef: 'approval-a', isDuplicate: false });
+      expect(
+        coordinator.registerPendingApproval({
+          sessionId: 'slack:C-ops',
+          ref: 'approval-b',
+          title: 'deploy the service',
+          risk: 'high',
+        }),
+      ).toEqual({ leaderRef: 'approval-b', isDuplicate: false });
+      expect(
+        coordinator.registerPendingApproval({
+          sessionId: 'slack:C-other',
+          ref: 'approval-c',
+          title: 'run npm test',
+          risk: 'high',
+        }),
+      ).toEqual({ leaderRef: 'approval-c', isDuplicate: false });
+    });
+
+    it('applies a deny decision on the leader to every follower as well', async () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      registerPair(coordinator, ['approval-a', 'approval-b']);
+
+      const receipt = await coordinator.executeApprovalDecision({
+        command: { action: 'deny', ref: 'approval-a', choice: 'once' },
+        surface: 'slack',
+        sessionId: 'slack:C-ops',
+      });
+
+      expect(receipt).toBe('Denied approval approval-a.');
+      expect(gateway.recordedRejections.map((entry) => entry.ref)).toEqual(['approval-a', 'approval-b']);
+      expect(gateway.recordedApprovals).toEqual([]);
+    });
+
+    it('propagates scoped approvals (session/always) to every follower', async () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      registerPair(coordinator, ['approval-a', 'approval-b']);
+
+      const receipt = await coordinator.executeApprovalDecision({
+        command: { action: 'approve', ref: 'approval-a', choice: 'session' },
+        surface: 'slack',
+        sessionId: 'slack:C-ops',
+      });
+
+      expect(receipt).toBe('Approved approval-a (session).');
+      expect(gateway.recordedApprovals.map((entry) => entry.ref)).toEqual(['approval-a', 'approval-b']);
+      expect(gateway.recordedApprovals.every((entry) => entry.options?.choice === 'session')).toBe(true);
+    });
+
+    it('resolves only the leader for a once approval and re-prompts the followers', async () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      registerPair(coordinator, ['approval-a', 'approval-b']);
+
+      const receipt = await coordinator.executeApprovalDecision({
+        command: { action: 'approve', ref: 'approval-a', choice: 'once' },
+        surface: 'slack',
+        sessionId: 'slack:C-ops',
+      });
+
+      expect(receipt).toBe(
+        'Approved approval-a (once).\n[high] run npm test — ref approval-b\nReply 1 (or the ref) to allow once, approve / approve session / approve always, or reject (or deny) to refuse.',
+      );
+      expect(gateway.recordedApprovals.map((entry) => entry.ref)).toEqual(['approval-a']);
+      // The remaining follower stays independently decidable.
+      const followerDecision = await coordinator.executeApprovalDecision({
+        command: { action: 'deny', ref: 'approval-b', choice: 'once' },
+        surface: 'slack',
+        sessionId: 'slack:C-ops',
+      });
+      expect(followerDecision).toBe('Denied approval approval-b.');
+    });
+
+    it('treats an identical later request as a fresh leader after the previous leader was resolved', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      registerPair(coordinator, ['approval-a', 'approval-b']);
+      void coordinator.executeApprovalDecision({
+        command: { action: 'approve', ref: 'approval-a', choice: 'session' },
+        surface: 'slack',
+        sessionId: 'slack:C-ops',
+      });
+
+      expect(
+        coordinator.registerPendingApproval({
+          sessionId: 'slack:C-ops',
+          ref: 'approval-c',
+          title: 'run npm test',
+          risk: 'high',
+        }),
+      ).toEqual({ leaderRef: 'approval-c', isDuplicate: false });
+    });
+
+    it('expires coalescing groups with the same fail-closed timeout window', () => {
+      let nowMs = 10_000_000;
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway, () => nowMs);
+      coordinator.registerPendingApproval({
+        sessionId: 'slack:C-ops',
+        ref: 'approval-a',
+        title: 'run npm test',
+        risk: 'high',
+      });
+      nowMs += APPROVAL_MENU_TIMEOUT_MS;
+
+      expect(
+        coordinator.registerPendingApproval({
+          sessionId: 'slack:C-ops',
+          ref: 'approval-b',
+          title: 'run npm test',
+          risk: 'high',
+        }),
+      ).toEqual({ leaderRef: 'approval-b', isDuplicate: false });
+    });
+
+    it('suppresses the follower re-prompt on surfaces whose capability presentation resolves to none', async () => {
+      registerSurfaceProfile({
+        id: 'silent-coalesce-relay',
+        channel: 'plain',
+        label: 'Silent coalesce relay',
+        preset: 'chat-basic',
+        overrides: {
+          affordances: { text: false, slash_commands: false },
+        },
+      });
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      try {
+        coordinator.registerPendingApproval({
+          sessionId: 'silent-coalesce-relay:chat-1',
+          ref: 'approval-a',
+          title: 'run npm test',
+          risk: 'high',
+        });
+        coordinator.registerPendingApproval({
+          sessionId: 'silent-coalesce-relay:chat-1',
+          ref: 'approval-b',
+          title: 'run npm test',
+          risk: 'high',
+        });
+
+        const receipt = await coordinator.executeApprovalDecision({
+          command: { action: 'approve', ref: 'approval-a', choice: 'once' },
+          surface: 'silent-coalesce-relay',
+          sessionId: 'silent-coalesce-relay:chat-1',
+        });
+
+        expect(receipt).toBeNull();
+        expect(gateway.recordedApprovals.map((entry) => entry.ref)).toEqual(['approval-a']);
+      } finally {
+        resetSurfaceProfileRegistryForTests();
+      }
     });
   });
 

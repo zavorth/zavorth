@@ -79,6 +79,23 @@ describe('SurfaceInteractionNormalizer (F4)', () => {
     expect(reject?.action).toBe('reject');
   });
 
+  it('accepts /deny as an exact synonym of /reject', () => {
+    const viaReject = parseSurfaceInteraction({
+      surface: 'telegram',
+      raw: `/reject ${TASK_ID}`,
+      kindHint: 'text',
+    });
+    const viaDeny = parseSurfaceInteraction({
+      surface: 'telegram',
+      raw: `/deny ${TASK_ID}`,
+      kindHint: 'text',
+    });
+    expect(viaDeny?.kind).toBe(viaReject?.kind);
+    expect(viaDeny?.choice).toBe('deny');
+    expect(viaDeny?.action).toBe(viaReject?.action);
+    expect(viaDeny?.approvalId).toBe(TASK_ID);
+  });
+
   it('parses bare approve/reject commands (CLI style)', () => {
     const event = parseSurfaceInteraction({
       surface: 'cli',
