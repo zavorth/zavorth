@@ -4,6 +4,7 @@ import { FitAddon } from '@xterm/addon-fit';
 import { Unicode11Addon } from '@xterm/addon-unicode11';
 import '@xterm/xterm/css/xterm.css';
 import { getPtyOutput, sendPtyInput } from '../apiClient';
+import { t } from '../i18n';
 import { createLogger } from '../logger.js';
 
 const logger = createLogger('shell');
@@ -94,8 +95,8 @@ export function PtyTerminalPanel({
     termRef.current = term;
     fitAddonRef.current = fitAddon;
 
-    term.writeln('\x1b[1;36m Zavorth Terminal\x1b[0m');
-    term.writeln('\x1b[90m Ready. Waiting for PTY session...\x1b[0m');
+    term.writeln(`\x1b[1;36m ${t('shell.ptyBannerTitle')}\x1b[0m`);
+    term.writeln(`\x1b[90m ${t('shell.ptyBannerSubtitle')}\x1b[0m`);
     term.writeln('');
 
     term.onData((data) => {
@@ -182,7 +183,7 @@ export function PtyTerminalPanel({
         <div className="zvd-pty-embedded__meta">
           <span className="zvd-pty-dot" aria-hidden="true" />
           <span>
-            PTY {activeSession ? `— ${activeSession.sessionId.slice(0, 8)}` : '— No session yet'}
+            PTY {activeSession ? `— ${activeSession.sessionId.slice(0, 8)}` : `— ${t('shell.ptyNoSession')}`}
           </span>
           {trustLabel ? <span className="zvd-pty-trust">│ {trustLabel}</span> : null}
           {activeSession?.cwd ? <span className="zvd-pty-cwd">│ {activeSession.cwd}</span> : null}
@@ -199,7 +200,7 @@ export function PtyTerminalPanel({
         onClick={() => setIsPanelOpen(true)}
       >
         <span className="text-green-400">●</span>
-        Terminal
+        {t('shell.ptyDockLabel')}
       </div>
     );
   }
@@ -215,7 +216,7 @@ export function PtyTerminalPanel({
         <div className="flex items-center gap-3">
           <span className="text-green-400">●</span>
           <span className="font-medium text-slate-300">
-            PTY {activeSession ? `— ${activeSession.sessionId.slice(0, 8)}` : '— No Session'}
+            PTY {activeSession ? `— ${activeSession.sessionId.slice(0, 8)}` : `— ${t('shell.ptyNoSession')}`}
           </span>
           {activeSession && (
             <span className="text-slate-500">│ {activeSession.cwd || '~'}</span>
@@ -225,7 +226,7 @@ export function PtyTerminalPanel({
           <button
             onClick={() => setIsMaximized(!isMaximized)}
             className="hover:text-white px-1.5 py-0.5 rounded hover:bg-slate-700"
-            title={isMaximized ? 'Restore' : 'Maximize'}
+            title={isMaximized ? t('shell.ptyRestore') : t('shell.ptyMaximize')}
             type="button"
           >
             {isMaximized ? '❐' : '□'}
@@ -233,7 +234,7 @@ export function PtyTerminalPanel({
           <button
             onClick={() => { setIsPanelOpen(false); setIsMaximized(false); }}
             className="hover:text-white px-1.5 py-0.5 rounded hover:bg-slate-700"
-            title="Close"
+            title={t('shell.close')}
             type="button"
           >
             ✕

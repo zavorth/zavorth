@@ -56,6 +56,14 @@ export function resolveLanguage(language?: string | null): SupportedLocale {
   return normalized || 'en';
 }
 
+/**
+ * Sync the facade's default resolution locale with the UI selection so direct
+ * `t(key)` consumers switch languages on re-render without a reload.
+ */
+export function setActiveLocale(locale: SupportedLocale): void {
+  globalLocalizationService.setLocale(locale);
+}
+
 /** Resolve one desktop UI string synchronously; returns the raw key when untranslated. */
 export function t(key: string, language?: string | null): string {
   const requestedTag =

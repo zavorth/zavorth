@@ -10,18 +10,25 @@ export type ApprovalChoice = 'once' | 'session' | 'always' | 'deny';
 
 const CHOICE_ORDER: ApprovalChoice[] = ['once', 'session', 'always', 'deny'];
 
-const DEFAULT_LABELS: Record<ApprovalChoice, string> = {
-  once: 'Run once',
-  session: 'Session',
-  always: 'Always',
-  deny: 'Deny',
-};
-
 const DEFAULT_KEYS: Record<ApprovalChoice, string> = {
   once: '1',
   session: '2',
   always: '3',
   deny: '4',
+};
+
+const DEFAULT_LABEL_KEYS: Record<ApprovalChoice, string> = {
+  once: 'thread.approvalOnce',
+  session: 'thread.approvalSession',
+  always: 'thread.approvalAlways',
+  deny: 'thread.approvalDeny',
+};
+
+const CHOICE_HINT_KEYS: Record<ApprovalChoice, string> = {
+  once: 'thread.hintOnce',
+  session: 'thread.hintSession',
+  always: 'thread.hintAlways',
+  deny: 'thread.hintDeny',
 };
 
 export type InThreadApprovalCardProps = {
@@ -100,7 +107,7 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
     return CHOICE_ORDER.map((choice) => {
       const fromShortcut = shortcuts.find((s) => resolveChoiceFromShortcut(s) === choice);
       const key = fromShortcut?.key || DEFAULT_KEYS[choice];
-      const label = fromShortcut?.label || DEFAULT_LABELS[choice];
+      const label = fromShortcut?.label || t(DEFAULT_LABEL_KEYS[choice]);
       return { choice, key, label };
     });
   }, [projection?.shortcuts]);
@@ -116,7 +123,7 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
     if (byId) return byId;
     return {
       id: 'approvalId',
-      label: 'Copy approval id',
+      label: t('thread.copyApprovalId'),
       value: props.id,
     };
   }, [projection?.copyTargets, props.id]);
@@ -217,15 +224,7 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
             size="sm"
             disabled={busy}
             onClick={() => handleDecide(choice)}
-            title={
-              choice === 'once'
-                ? 'Allow once'
-                : choice === 'session'
-                  ? 'Allow for this session'
-                  : choice === 'always'
-                    ? 'Always allow this tool/pattern'
-                    : 'Deny this action'
-            }
+            title={t(CHOICE_HINT_KEYS[choice])}
           >
             {label}
             {shortcutsEnabled && key ? (
@@ -237,7 +236,7 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
           </Button>
         ))}
         <Button variant="ghost" size="sm" onClick={handleCopyId} title={copyTarget.label}>
-          {copyTarget.label || 'Copy approval id'}
+          {copyTarget.label || t('thread.copyApprovalId')}
         </Button>
         {props.onDecideOther ? (
           <Button
@@ -245,9 +244,9 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
             size="sm"
             disabled={busy}
             onClick={() => setOtherOpen((open) => !open)}
-            title="Type your answer; Zavorth denies the action and relays it to the agent"
+            title={t('thread.hintOther')}
           >
-            Other…
+            {t('thread.otherChoice')}
           </Button>
         ) : null}
         {openReceipt ? (
@@ -255,9 +254,9 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
             variant="ghost"
             size="sm"
             onClick={handleOpenReceipt}
-            title={openReceipt.label || 'Open receipt'}
+            title={openReceipt.label || t('thread.openReceipt')}
           >
-            {openReceipt.label || 'Open receipt'}
+            {openReceipt.label || t('thread.openReceipt')}
           </Button>
         ) : null}
         <Button variant="ghost" size="sm" onClick={props.onOpenReview}>
@@ -280,11 +279,11 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
             disabled={busy}
             autoFocus
             onChange={(event) => setOtherAnswer(event.target.value)}
-            placeholder="Type your answer; Zavorth denies and relays it to the agent."
-            aria-label="Free-text approval answer"
+            placeholder={t('thread.otherPlaceholder')}
+            aria-label={t('thread.otherAriaLabel')}
           />
           <Button type="submit" variant="secondary" size="sm" disabled={busy || !otherAnswer.trim()}>
-            Send answer
+            {t('thread.sendAnswer')}
           </Button>
         </form>
       ) : null}

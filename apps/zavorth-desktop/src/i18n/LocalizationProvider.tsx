@@ -8,7 +8,7 @@ import {
 } from '../../../../src/services/localization/localeContracts.js';
 import { ZavorthLocalizationService } from '../../../../src/services/localization/ZavorthLocalizationService.js';
 import { hydrateDesktopStrings } from './hydration';
-import { t as resolveDesktopString } from '../i18n';
+import { t as resolveDesktopString, setActiveLocale } from '../i18n';
 
 export interface LocalizationContextValue {
   locale: SupportedLocale;
@@ -73,6 +73,7 @@ export function LocalizationProvider({ children, initialLocale }: LocalizationPr
   }, [locale]);
 
   const setLocale = useCallback((newLocale: SupportedLocale) => {
+    setActiveLocale(newLocale);
     setLocaleState(newLocale);
     try {
       if (typeof localStorage !== 'undefined') {
@@ -82,6 +83,10 @@ export function LocalizationProvider({ children, initialLocale }: LocalizationPr
       // Storage write error
     }
   }, []);
+
+  useEffect(() => {
+    setActiveLocale(locale);
+  }, [locale]);
 
   const isRtl = useMemo(() => RTL_LOCALES.has(locale), [locale]);
   const catalog = useMemo(() => localizationService.getCatalog(locale), [localizationService, locale]);

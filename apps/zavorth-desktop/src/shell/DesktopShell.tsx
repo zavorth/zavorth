@@ -683,7 +683,7 @@ export function DesktopShell(props: {
       props.messages
         .filter((message) => message.role === 'tool')
         .map((message) => ({
-          name: message.title || 'Runtime tool',
+          name: message.title || t('thread.timeline.tool'),
           success: !/\b(error|failed|failure)\b/i.test(message.content),
           timestamp: Number.isFinite(Date.parse(message.at || '')) ? Date.parse(message.at || '') : undefined,
         })),
@@ -818,7 +818,7 @@ export function DesktopShell(props: {
           onToggleTrustedOperator={handleToggleTrustedOperator}
         />
 
-        <section id="zvd-main-content" className="zvd-content-stage" aria-label="Workspace content" tabIndex={-1}>
+        <section id="zvd-main-content" className="zvd-content-stage" aria-label={t('shell.workspaceContent')} tabIndex={-1}>
           <div className="zvd-ambient-field" aria-hidden="true" />
           {props.activePanel === 'chat' ? (
             <>

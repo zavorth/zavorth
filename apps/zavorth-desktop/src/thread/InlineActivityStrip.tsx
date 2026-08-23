@@ -7,12 +7,12 @@ import { InThreadApprovalCard } from './InThreadApprovalCard';
 export function synthesizeApprovalSurfaceProjection(id: string): ApprovalSurfaceProjection {
   return {
     shortcuts: [
-      { key: '1', choice: 'once', label: 'Run once' },
-      { key: '2', choice: 'session', label: 'Session' },
-      { key: '3', choice: 'always', label: 'Always' },
-      { key: '4', choice: 'deny', label: 'Deny' },
+      { key: '1', choice: 'once', label: t('thread.approvalOnce') },
+      { key: '2', choice: 'session', label: t('thread.approvalSession') },
+      { key: '3', choice: 'always', label: t('thread.approvalAlways') },
+      { key: '4', choice: 'deny', label: t('thread.approvalDeny') },
     ],
-    copyTargets: [{ id: 'approvalId', label: 'Copy approval id', value: id }],
+    copyTargets: [{ id: 'approvalId', label: t('thread.copyApprovalId'), value: id }],
     keyboardShortcuts: true,
   };
 }
@@ -28,7 +28,7 @@ function resolveSurfaceProjection(
       copyTargets:
         existing.copyTargets && existing.copyTargets.length > 0
           ? existing.copyTargets
-          : [{ id: 'approvalId', label: 'Copy approval id', value: id }],
+          : [{ id: 'approvalId', label: t('thread.copyApprovalId'), value: id }],
       keyboardShortcuts: existing.keyboardShortcuts !== false,
     };
   }

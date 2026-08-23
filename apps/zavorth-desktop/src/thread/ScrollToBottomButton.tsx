@@ -1,5 +1,6 @@
 import { useCallback, memo } from 'react';
 import { IconArrowDown } from '@tabler/icons-react';
+import { t } from '../i18n';
 
 interface ScrollToBottomProps {
   containerRef: React.RefObject<HTMLElement | null>;
@@ -24,8 +25,8 @@ export const ScrollToBottomButton = memo(function ScrollToBottomButton({
       className={`zvd-scroll-bottom${visible ? '' : ' zvd-scroll-bottom--hidden'}`}
       onClick={scrollToBottom}
       type="button"
-      aria-label="Scroll to bottom"
-      title="Scroll to bottom"
+      aria-label={t('thread.scrollBottom')}
+      title={t('thread.scrollBottom')}
     >
       <IconArrowDown size={18} stroke={2} />
     </button>

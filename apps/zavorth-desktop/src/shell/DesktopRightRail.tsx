@@ -59,7 +59,7 @@ export function DesktopRightRail(props: {
   return (
     <aside className="zvd-right-rail" aria-label={t('workspaceSideRail')} style={{ width: props.width }}>
       <button
-        aria-label="Resize side rail"
+        aria-label={t('shell.resizeRail')}
         className="zvd-right-rail-resize-handle"
         onMouseDown={props.onResizeMouseDown}
         type="button"

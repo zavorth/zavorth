@@ -1,6 +1,7 @@
 import type { ChatMessage, RuntimeCapabilitiesSnapshot } from '../apiClient';
 import { FileExplorer } from '../components/FileExplorer';
 import { AppWindow, Folder, Terminal } from '../icons';
+import { t } from '../i18n';
 import type { DesktopPanel } from '../slashCommands';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
 
@@ -31,10 +32,10 @@ export function DesktopPreviewRail(props: {
   ].filter(Boolean) as PreviewOutputItem[];
 
   return (
-    <section className={`zvd-preview-rail zavorth-preview-rail is-quiet is-${props.mode}`} aria-label="Progress">
+    <section className={`zvd-preview-rail zavorth-preview-rail is-quiet is-${props.mode}`} aria-label={t('preview.progress')}>
       <header className="zvd-preview-header">
         <div>
-          <span>Progress</span>
+          <span>{t('preview.progress')}</span>
           <strong>{props.activePanel === 'chat' ? 'Context summary' : 'Active panel'}</strong>
         </div>
       </header>
@@ -42,10 +43,10 @@ export function DesktopPreviewRail(props: {
       <div className="zvd-preview-section">
         <div className="zvd-preview-card-title">
           <AppWindow aria-hidden="true" size={16} stroke={1.8} />
-          <strong>Outputs</strong>
+          <strong>{t('preview.outputs')}</strong>
         </div>
         {outputItems.length === 0 ? (
-          <p>No pinned output for this chat.</p>
+          <p>{t('preview.outputsEmpty')}</p>
         ) : (
           <ul className="zvd-preview-output-list">
             {outputItems.map((item, index) => (
@@ -78,10 +79,10 @@ export function DesktopPreviewRail(props: {
       <div className="zvd-preview-section">
         <div className="zvd-preview-card-title">
           <Terminal aria-hidden="true" size={16} stroke={1.8} />
-          <strong>Sources</strong>
+          <strong>{t('preview.sources')}</strong>
         </div>
         {ragSources.length === 0 ? (
-          <p>No active sources.</p>
+          <p>{t('preview.sourcesEmpty')}</p>
         ) : (
           <ul>
             {ragSources.slice(0, 4).map(source => (
