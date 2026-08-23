@@ -36,13 +36,39 @@ const ALLOW_BASENAMES = new Set([
 function isI18nCatalogPath(filePath) {
   const base = path.basename(filePath).toLowerCase();
   if (base.includes('i18n') && (base.endsWith('.ts') || base.endsWith('.js'))) return true;
+  // Typed catalogs like ChannelApprovalLocaleCatalog.ts hold per-locale translations by contract; they are catalog paths.
+  if (base.includes('localecatalog')) return true;
   if (filePath.toLowerCase().includes(`${path.sep}locales${path.sep}`)) return true;
   if (filePath.toLowerCase().includes('locale-pack')) return true;
   return false;
 }
 
+/**
+ * Targeted allowlist for provably non-user-facing literals that legitimately
+ * carry localized letters in product source. Every entry needs a one-line
+ * justification; genuinely user-facing copy belongs in locale catalogs instead.
+ */
+const ALLOWED_NON_USER_FACING_LITERALS = [
+  {
+    // Golden-set eval assertion regex graded against model output; never rendered to users.
+    filePart: path.join('ai-gateway', 'lib', 'evals', 'evalRunner.ts'),
+    literalIncludes: 'arigatou|arigatō|ありがとう',
+  },
+  {
+    // Few-shot prompt example teaching the LLM intent classifier RTL input handling; model-bound, never rendered.
+    filePart: path.join('services', 'ZavorthNaturalInvocationRouter.ts'),
+    literalIncludes: 'استورد مهارة الطقس',
+  },
+];
+
+function isAllowlistedNonUserFacingLiteral(filePath, line) {
+  return ALLOWED_NON_USER_FACING_LITERALS.some(
+    (entry) => filePath.includes(entry.filePart) && line.includes(entry.literalIncludes),
+  );
+}
+
 /** Letters outside basic Latin (a–zA–Z) — language-neutral localization signal. */
-const NON_ASCII_LETTER = /[^\u0000-\u007F]/;
+const NON_ASCII_LETTER = /[^\p{ASCII}]/u;
 
 function walk(dir, out = []) {
   if (!fs.existsSync(dir)) return out;
@@ -122,7 +148,7 @@ function scanFile(filePath) {
       continue;
     }
     for (const lit of extractStringLiterals(line)) {
-      if (stringHasLocalizedLetters(lit)) {
+      if (stringHasLocalizedLetters(lit) && !isAllowlistedNonUserFacingLiteral(filePath, line)) {
         hits.push({ line: i + 1, snippet: line.trim().slice(0, 160) });
         break;
       }
