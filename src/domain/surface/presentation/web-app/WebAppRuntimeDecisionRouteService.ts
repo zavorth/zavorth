@@ -128,7 +128,14 @@ export class WebAppRuntimeDecisionRouteService {
         return true;
       }
 
-      const intentResult = deps.agentGateway.resolveApprovalIntent
+      // Free-text "other" answers are fail-closed like every other surface:
+      // prose never approves, it denies with the answer relayed to the agent.
+      const operatorAnswer = String(body.answer || '').trim();
+      let result = null;
+      if (operatorAnswer && decision === 'reject') {
+        result = await deps.agentGateway.reject(approvalRef, { reason: operatorAnswer });
+      }
+      const intentResult = !result && !operatorAnswer && deps.agentGateway.resolveApprovalIntent
         ? await deps.agentGateway.resolveApprovalIntent({
           decision: decision === 'approve' ? 'approved' : 'rejected',
           ref: approvalRef,
@@ -139,11 +146,11 @@ export class WebAppRuntimeDecisionRouteService {
           sessionId: String(body.sessionId || '').trim() || null,
         })
         : null;
-      const result = intentResult
+      result = intentResult
         ? intentResult.result
-        : decision === 'approve'
+        : result || (decision === 'approve'
           ? await deps.agentGateway.approve(approvalRef)
-          : await deps.agentGateway.reject(approvalRef);
+          : await deps.agentGateway.reject(approvalRef));
       if (!result) {
         deps.writeJson(
           res,

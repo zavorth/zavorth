@@ -279,6 +279,61 @@ export function bindNeuralFeedInteractions(neuralFeed: HTMLElement | null, optio
       return;
     }
 
+    const approvalOtherToggle = target.closest('[data-zavorth-approval-other-toggle]');
+    if (approvalOtherToggle) {
+      event.preventDefault();
+      event.stopPropagation();
+      const card = approvalOtherToggle.closest('.zavorth-approval-card');
+      const row = card?.querySelector('[data-zavorth-approval-other-row]');
+      if (row instanceof HTMLElement) {
+        row.hidden = !row.hidden;
+        if (!row.hidden) row.querySelector('[data-zavorth-approval-other-input]')?.focus();
+      }
+      return;
+    }
+
+    const approvalOtherSubmit = target.closest('[data-zavorth-approval-other-submit]');
+    if (approvalOtherSubmit) {
+      const runtimeBridge = window.ZavorthRuntimeBridge;
+      if (!runtimeBridge || typeof runtimeBridge.decideApproval !== 'function') return;
+      const card = approvalOtherSubmit.closest('.zavorth-approval-card');
+      const id = approvalOtherSubmit.dataset.zavorthApprovalId;
+      const kind = approvalOtherSubmit.dataset.zavorthApprovalKind;
+      const answerInput = card?.querySelector('[data-zavorth-approval-other-input]');
+      const answer = String((answerInput instanceof HTMLInputElement ? answerInput.value : '') || '').trim();
+      if (!id || !answer) {
+        if (answerInput instanceof HTMLInputElement) answerInput.focus();
+        return;
+      }
+      options.recordTraceEvent({
+        type: 'approval-decision',
+        title: 'Free-text answer sent',
+        detail: `${id}: ${answer}`,
+        meta: kind,
+        status: 'reject',
+        approvalId: id,
+      });
+      if (card) card.dataset.status = 'denied';
+      approvalOtherSubmit.textContent = 'Answer sent';
+      card?.querySelectorAll('button').forEach((button: HTMLButtonElement) => {
+        button.disabled = true;
+      });
+      runtimeBridge.decideApproval({ id, kind, decision: 'reject', scope: 'once', answer }, {
+        appendEcho: options.appendEcho,
+        renderApprovals: options.renderApprovals,
+        renderTranscript: options.renderTranscript,
+        emitSignal: window.emitSignal,
+      }).catch((error: unknown) => {
+        card?.querySelectorAll('button').forEach((button: HTMLButtonElement) => {
+          button.disabled = false;
+        });
+        const detail = messageFromCaughtError(error, 'Try again.');
+        options.recordTraceEvent({ type: 'error', title: 'Approval failed', detail, meta: kind, status: 'failed' });
+        options.appendEcho('core', `I could not relay your answer.\n\n${detail}`);
+      });
+      return;
+    }
+
     const editScopeButton = target.closest('[data-zavorth-approval-edit-scope]');
     if (editScopeButton) {
       event.preventDefault();

@@ -2599,8 +2599,12 @@ export function initRuntimeBridge() {
     const decision = String(input?.decision || '').trim().toLowerCase();
     const scope = String(input?.scope || 'once').trim() || 'once';
     const scopeNote = String(input?.scopeNote || '').trim();
+    const answer = String(input?.answer || '').trim();
     if (!id || !['approve', 'reject'].includes(decision)) {
       throw new Error('Invalid approval.');
+    }
+    if (answer && decision !== 'reject') {
+      throw new Error('Free-text answers deny the action and relay context; use Deny or Allow instead.');
     }
     const sessionId = readSessionId();
     const action = decision === 'approve' ? 'approve' : 'reject';
@@ -2610,10 +2614,10 @@ export function initRuntimeBridge() {
         ? `/api/web/tasks/${action}`
         : `/api/web/permissions/${action}`;
     const body = kind === 'agent-run'
-      ? { approvalId: id, sessionId, source: 'zavorth-control', scope, scopeNote }
+      ? { approvalId: id, sessionId, source: 'zavorth-control', scope, scopeNote, answer }
       : kind === 'task'
-        ? { taskId: id, sessionId, scope, scopeNote }
-        : { permissionId: id, sessionId, scope, scopeNote };
+        ? { taskId: id, sessionId, scope, scopeNote, answer }
+        : { permissionId: id, sessionId, scope, scopeNote, answer };
 
     const payload = await readJson(path, {
       method: 'POST',

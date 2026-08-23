@@ -118,7 +118,12 @@ export function buildApprovalCard(approval: any) {
         <button class="zavorth-permission-card__btn" data-zavorth-approval-decision="reject" data-zavorth-approval-id="${approvalId}" data-zavorth-approval-kind="${approvalKind}">Deny</button>
         <button class="zavorth-permission-card__btn zavorth-permission-card__btn--primary" data-zavorth-approval-decision="approve" data-zavorth-approval-id="${approvalId}" data-zavorth-approval-kind="${approvalKind}">Allow once</button>
         <button class="zavorth-permission-card__btn" type="button" data-zavorth-approval-edit-scope data-zavorth-approval-id="${approvalId}">Edit scope</button>
+        <button class="zavorth-permission-card__btn" type="button" data-zavorth-approval-other-toggle data-zavorth-approval-id="${approvalId}" data-zavorth-approval-kind="${approvalKind}">Other…</button>
         ${traceButton}
+      </div>
+      <div class="zavorth-approval-other-row" data-zavorth-approval-other-row hidden>
+        <input class="zavorth-approval-other-row__input" type="text" data-zavorth-approval-other-input data-zavorth-approval-id="${approvalId}" placeholder="Type your answer; Zavorth denies the action and relays it to the agent." aria-label="Free-text approval answer" />
+        <button class="zavorth-permission-card__btn" type="button" data-zavorth-approval-other-submit data-zavorth-approval-id="${approvalId}" data-zavorth-approval-kind="${approvalKind}">Send answer</button>
       </div>
     </div>
   `;
