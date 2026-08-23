@@ -167,9 +167,9 @@ describe('UserModelDialecticReasoningService', () => {
   it('should synthesize from conversations', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
     const conversations = [
-      { user: 'Faça um resumo direto', assistant: 'Ok, resumo curto.' },
-      { user: 'Prefiro respostas detalhadas', assistant: 'Entendido.' },
-      { user: 'Trabalho com Python', assistant: 'Legal!' },
+      { user: 'Make a direct summary', assistant: 'Ok, short summary.' },
+      { user: 'I prefer detailed answers', assistant: 'Understood.' },
+      { user: 'I work with Python', assistant: 'Nice!' },
     ];
     const synthesis = await svc.synthesize(conversations);
     expect(synthesis.insights.length).toBeGreaterThan(0);
@@ -180,10 +180,10 @@ describe('UserModelDialecticReasoningService', () => {
   it('should find cross-conversation patterns', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir, config: { depth: 2 } });
     const conversations = [
-      { user: 'Como fazer X?', assistant: '...' },
-      { user: 'Como fazer Y?', assistant: '...' },
-      { user: 'Como fazer Z?', assistant: '...' },
-      { user: 'Preciso de ajuda', assistant: '...' },
+      { user: 'How do I do X?', assistant: '...' },
+      { user: 'How do I do Y?', assistant: '...' },
+      { user: 'How do I do Z?', assistant: '...' },
+      { user: 'I need help', assistant: '...' },
     ];
     const synthesis = await svc.synthesize(conversations);
     expect(synthesis.patterns.length).toBeGreaterThan(0);
@@ -192,8 +192,8 @@ describe('UserModelDialecticReasoningService', () => {
   it('should generate recommendations', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
     const conversations = [
-      { user: 'Faça isso rapidamente', assistant: 'Ok.' },
-      { user: 'Quero respostas curtas', assistant: 'Ok.' },
+      { user: 'Give me a quick answer please', assistant: 'Ok.' },
+      { user: 'I want short answers', assistant: 'Ok.' },
     ];
     const synthesis = await svc.synthesize(conversations);
     expect(synthesis.recommendations.length).toBeGreaterThan(0);
@@ -202,8 +202,8 @@ describe('UserModelDialecticReasoningService', () => {
   it('should persist synthesis', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
     await svc.synthesize([
-      { user: 'Prefiro respostas diretas e curtas', assistant: 'Entendido, vou ser direto.' },
-      { user: 'Trabalho com Python e Docker', assistant: 'Legal, posso ajudar com isso.' },
+      { user: 'I prefer direct and short answers', assistant: 'Understood, I will be direct.' },
+      { user: 'I work with Python and Docker', assistant: 'Nice, I can help with that.' },
     ]);
     const loaded = svc.loadSynthesis();
     expect(loaded).not.toBeNull();
@@ -218,9 +218,9 @@ describe('UserModelDialecticReasoningService', () => {
     const tmpDir2 = makeTmpDir();
     const svc2 = new UserModelDialecticReasoningService({ homeRoot: tmpDir2, config: { depth: 3 } });
     const s2 = await svc2.synthesize([
-      { user: 'como fazer x?', assistant: '...' },
-      { user: 'como fazer y?', assistant: '...' },
-      { user: 'como fazer z?', assistant: '...' },
+      { user: 'how do i do x?', assistant: '...' },
+      { user: 'how do i do y?', assistant: '...' },
+      { user: 'how do i do z?', assistant: '...' },
     ]);
     expect(s2.depth).toBe(3);
     fs.rmSync(tmpDir2, { recursive: true, force: true });
@@ -251,11 +251,11 @@ describe('UserModelReviewDaemonService', () => {
   it('should run review cycle', async () => {
     const turnCapture = new UserModelTurnCaptureService({ homeRoot: tmpDir });
     const messages = [
-      { user: 'Prefiro respostas diretas e curtas', assistant: 'Entendido, vou ser direto.' },
-      { user: 'Trabalho com Python e Docker', assistant: 'Posso ajudar com isso.' },
-      { user: 'Quero revisar o código', assistant: 'Vou analisar o código.' },
-      { user: 'Preciso criar algo novo', assistant: 'Vou implementar isso.' },
-      { user: 'Como fazer deploy?', assistant: 'Use Docker Compose.' },
+      { user: 'I prefer direct and short answers', assistant: 'Understood, I will be direct.' },
+      { user: 'I work with Python and Docker', assistant: 'I can help with that.' },
+      { user: 'I want to review the code', assistant: 'I will analyze the code.' },
+      { user: 'I need to create something new', assistant: 'I will implement it.' },
+      { user: 'How do I deploy?', assistant: 'Use Docker Compose.' },
     ];
     for (const msg of messages) {
       turnCapture.captureConversation(msg.user, msg.assistant);

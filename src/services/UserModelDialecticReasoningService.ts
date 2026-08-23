@@ -84,6 +84,8 @@ const INFERENCE_PATTERNS: Array<{ pattern: RegExp; trait: string; confidence: nu
   { pattern: /\b(serious|formal|professional)\b/i, trait: 'personality', confidence: 0.4 },
 ];
 
+const QUESTION_STRUCTURE_PATTERN = /\?\s*$|^(?:how|what|where|when|why|prefer|like|dislike|want|need)\b/i;
+
 const LLM_SYNTHESIS_SYSTEM_PROMPT = `You are a user-behavior analyst for a conversational AI agent called Zavorth.
 
 Given a set of user-assistant conversation pairs, analyze the user's behavior and extract deep insights about:
@@ -323,7 +325,7 @@ export class UserModelDialecticReasoningService {
       }
     }
 
-    const questionCount = userMessages.filter((m) => /\.../.test(m)).length;
+    const questionCount = userMessages.filter((m) => QUESTION_STRUCTURE_PATTERN.test(m)).length;
     if (questionCount > userMessages.length * 0.5) {
       patterns.push('User asks many questions (inquiry-heavy style)');
     }
