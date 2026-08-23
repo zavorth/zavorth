@@ -30,7 +30,11 @@ import {
   type CanonicalChannelPlatform,
 } from '../../channels/contracts/ChannelMessageContract.js';
 import { ChannelMeshOnboardingGate } from '../../channels/onboarding/ChannelMeshOnboardingGate.js';
-import { parseChannelMeshApprovalCommand } from '../../channels/commands/ChannelMeshCommandParser.js';
+import {
+  parseChannelMeshApprovalCommand,
+  parseChannelMeshApprovalToken,
+  type ChannelMeshApprovalCommand,
+} from '../../channels/commands/ChannelMeshCommandParser.js';
 import { TypingHeartbeat } from '../../channels/presence/TypingHeartbeat.js';
 import { config } from '../../config/index.js';
 
@@ -184,6 +188,7 @@ export class ZavorthAgentGateway {
   private readonly runtimePromotionGovernance: RuntimePromotionGovernanceService;
   private readonly agentLLMRuntime: AgentLLMRuntime;
   private readonly runs = new Map<string, UniversalAgentRun>();
+  private readonly channelMeshApprovalMenus = new Map<string, Array<{ ref: string }>>();
   private readonly inFlightRuns = new Map<string, UniversalAgentRun>();
   private readonly workflowJobs = new Map<string, UniversalAgentWorkflowJob>();
   private readonly pendingExecutions = new Map<string, PendingExecution>();
@@ -273,10 +278,19 @@ export class ZavorthAgentGateway {
       const target = this.extractChannelMeshReplyTarget(request);
       if (!target) return;
 
-      const approvalCommand = parseChannelMeshApprovalCommand(request.text);
+      const menuKey = `${target.platform}:${target.chatId}`;
+      const approvalCommand =
+        parseChannelMeshApprovalCommand(request.text) ??
+        this.resolveChannelMeshApprovalToken(menuKey, request.text);
       if (approvalCommand) {
+        this.channelMeshApprovalMenus.delete(menuKey);
         await this.executeChannelMeshApprovalCommand(eventBus, target, approvalCommand);
         return;
+      }
+      if (this.channelMeshApprovalMenus.has(menuKey)) {
+        // A pending menu exists but the text is neither a token nor a command:
+        // free prose belongs to the interview/agent, never to silent approval.
+        this.channelMeshApprovalMenus.delete(menuKey);
       }
 
       if (onboardingGate) {
@@ -310,7 +324,7 @@ export class ZavorthAgentGateway {
           .filter((text) => text.trim().length > 0);
         const fallbackTexts =
           replyTexts.length > 0 ? replyTexts : [result.run.summary].filter((text) => text.trim());
-        const finalTexts = this.appendPendingApprovalGuidance(result.run, fallbackTexts);
+        const finalTexts = this.appendPendingApprovalGuidance(result.run, fallbackTexts, menuKey);
         this.emitChannelMeshReplies(eventBus, target, finalTexts);
       } finally {
         typingHeartbeat.stop();
@@ -323,20 +337,54 @@ export class ZavorthAgentGateway {
     };
   }
 
-  private appendPendingApprovalGuidance(run: UniversalAgentRun, texts: string[]): string[] {
+  private resolveChannelMeshApprovalToken(
+    menuKey: string,
+    text: string,
+  ): ChannelMeshApprovalCommand | null {
+    const menu = this.channelMeshApprovalMenus.get(menuKey);
+    if (!menu || menu.length === 0) {
+      return null;
+    }
+    const token = parseChannelMeshApprovalToken(text);
+    if (!token) {
+      return null;
+    }
+    if (token.kind === 'ordinal') {
+      const entry = menu[token.ordinal - 1];
+      if (!entry) {
+        return null;
+      }
+      return { action: 'approve', ref: entry.ref, choice: 'once' };
+    }
+    const firstEntry = menu[0];
+    if (token.action === 'approve') {
+      return { action: 'approve', ref: firstEntry.ref, choice: token.choice };
+    }
+    return { action: 'deny', ref: firstEntry.ref, choice: 'once' };
+  }
+
+  private appendPendingApprovalGuidance(run: UniversalAgentRun, texts: string[], menuKey?: string): string[] {
     if (run.status !== 'waiting_approval') {
       return texts;
     }
-    const pending = run.approvals.find((approval) => approval.status === 'pending');
-    if (!pending) {
+    const pendingApprovals = run.approvals.filter((approval) => approval.status === 'pending');
+    if (pendingApprovals.length === 0) {
       return texts;
     }
+    const menuEntries = pendingApprovals.map((approval) => ({ ref: approval.id }));
+    if (menuKey) {
+      this.channelMeshApprovalMenus.set(menuKey, menuEntries);
+    }
+    const lines = pendingApprovals.map((approval, index) => {
+      const label = approval.title || approval.reason || 'action';
+      const ordinalPrefix = pendingApprovals.length > 1 ? `${index + 1}. ` : '';
+      return `${ordinalPrefix}[${approval.risk}] ${label} — ref ${approval.id}`;
+    });
     const guidance = [
-      `Approval required (${pending.risk}): ${pending.title || pending.reason || 'action'}`,
-      `Ref: ${pending.id}`,
-      '/approve <ref> [once|session|always] or /deny <ref>',
-    ].join('\n');
-    return [...texts, guidance];
+      ...lines,
+      'Reply 1 (or the ref) to allow once, approve / approve session / approve always, or reject to deny.',
+    ];
+    return [...texts, guidance.join('\n')];
   }
 
   private async executeChannelMeshApprovalCommand(
