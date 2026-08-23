@@ -499,6 +499,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
         '  -h, --help       Display help for command',
         '  --json           Output JSON when supported',
         '  --yes            Confirm the approval/rejection action',
+        '  --reason <text>  Reject with a free-text answer relayed to the agent',
         '',
         'Commands:',
         '  list             Show pending approvals',

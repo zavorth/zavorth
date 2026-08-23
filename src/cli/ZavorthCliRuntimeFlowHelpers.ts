@@ -454,6 +454,23 @@ function mapRuntimeEventToTerminalStream(
   return null;
 }
 
+/**
+ * Splits a free-text "--reason <answer>" flag out of the approval args. The
+ * answer is the CLI face of the spine's "other" escape: it denies fail-closed
+ * and is relayed verbatim to the agent as decision context.
+ */
+export function parseCliApprovalReason(args: string): { refArgs: string; reason: string | null } {
+  const normalized = String(args || '').trim();
+  const marker = /(?:^|\s)--reason(?:=|\s+)/i.exec(normalized);
+  if (!marker) {
+    return { refArgs: normalized, reason: null };
+  }
+  const refArgs = normalized.slice(0, marker.index).trim();
+  const rawReason = normalized.slice(marker.index + marker[0].length).trim();
+  const unquoted = rawReason.replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1').trim();
+  return { refArgs, reason: unquoted || null };
+}
+
 export async function executeCliUniversalApprovalDecision(
   runtime: ZavorthCliRuntime,
   args: string,
@@ -462,7 +479,8 @@ export async function executeCliUniversalApprovalDecision(
   writer: CliWriter,
 ): Promise<CliExecutionResult | null> {
   const agentGateway = runtime.agentGateway || null;
-  const approvalRef = String(args || '').trim().split(/\s+/)[0] || '';
+  const { refArgs, reason } = parseCliApprovalReason(args);
+  const approvalRef = String(refArgs || '').trim().split(/\s+/)[0] || '';
   const pendingApproval = agentGateway?.findPendingApproval(approvalRef) || null;
   if (!agentGateway || !approvalRef || !pendingApproval) {
     return null;
@@ -478,7 +496,7 @@ export async function executeCliUniversalApprovalDecision(
     : {};
   const result = decision === 'approve'
     ? await agentGateway.approve(approvalRef, approvalOptions)
-    : await agentGateway.reject(approvalRef);
+    : await agentGateway.reject(approvalRef, { reason });
   if (!result) {
     return null;
   }
