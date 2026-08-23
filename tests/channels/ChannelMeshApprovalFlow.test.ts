@@ -7,6 +7,10 @@ import {
   extractChannelMeshReplyEvent,
 } from '../../src/channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../src/channels/policies/ChannelPolicyManager.js';
+import {
+  registerSurfaceProfile,
+  resetSurfaceProfileRegistryForTests,
+} from '../../src/domain/surface/application/surface-affordance/index.js';
 import { GatewayEventBus } from '../../src/gateway/events/GatewayEventBus.js';
 import { ZavorthAgentGateway } from '../../src/runtime/agent/index.js';
 import type { UniversalAgentExecutor } from '../../src/runtime/agent/index.js';
@@ -391,5 +395,191 @@ describe('Channel Mesh approval flow', () => {
     expect(signalTexts).toContain(
       `Resolved elsewhere: approval ${approvalRef} was approved on another surface. No action is needed here.`,
     );
+  });
+
+  describe('proactive pending-approval broadcast', () => {
+    function extractPromptRefs(texts: string[]): string[] {
+      return texts
+        .map((text) => /\[[^\]]+\] .* — ref ([^\n]+)\n/.exec(text)?.[1] || '')
+        .filter(Boolean);
+    }
+
+    it('prompts every active surface of the same user and dismisses everywhere on one decision', async () => {
+      const eventBus = await createOpenSlackBus();
+      const slackTexts = collectOutboundTexts(eventBus, 'slack');
+      const telegramTexts = collectOutboundTexts(eventBus, 'telegram');
+      const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
+        status: 'completed',
+        summary: 'Executed after approval.',
+        replyText: 'done',
+      }));
+      const gateway = new ZavorthAgentGateway({
+        now: () => new Date('2026-04-27T18:00:00.000Z'),
+        idFactory: createIdFactory(),
+        executor,
+      });
+      gateway.attachChannelMeshEventBus(eventBus, {}, { onboardingGate: null });
+
+      // Three surfaces went active: two belong to the requesting user, one to
+      // somebody else who must never be prompted.
+      await emitInbound(eventBus, 'hello slack', '171234.0700', 'C-b1', 'slack', 'U123');
+      await emitInbound(eventBus, 'hi telegram', '171234.0701', 'T-b1', 'telegram', 'U123');
+      await emitInbound(eventBus, 'other operator chat', '171234.0702', 'C-zz', 'slack', 'U999');
+
+      await gateway.handle({
+        userId: 'U123',
+        channel: 'api',
+        sessionId: 'cli:broadcast',
+        text: 'wipe the production database table now',
+        requestedTools: ['shell.exec'],
+      });
+      const approvalRef = gateway
+        .listRuns()
+        .find((run) => run.status === 'waiting_approval')
+        ?.approvals.find((approval) => approval.status === 'pending')?.id;
+      expect(approvalRef).toBeDefined();
+
+      expect(extractPromptRefs(slackTexts)).toContain(approvalRef);
+      expect(slackTexts.some((text) => text.includes('C-zz') || text.includes('U999'))).toBe(false);
+      expect(telegramTexts.some((text) => text.includes(`ref ${approvalRef}`))).toBe(true);
+
+      // The deciding chat is another idle surface of the same user; every
+      // other prompted presenter receives its dismissal.
+      await emitInbound(eventBus, `/approve ${approvalRef} once`, '171234.0703');
+
+      const telegramDismissals = telegramTexts.filter((text) => text.includes('Resolved elsewhere'));
+      expect(telegramDismissals.length).toBeGreaterThan(0);
+      expect(executor).toHaveBeenCalled();
+
+      // Retired presenters can no longer decide through stale tokens.
+      await emitInbound(eventBus, '1', '171234.0704', 'T-b1', 'telegram', 'U123');
+      expect(
+        telegramTexts.some((text) => text.includes(`Approved ${approvalRef}`)),
+      ).toBe(false);
+    });
+
+    it('never prompts surfaces that declared approvals disabled even when active and allowed', async () => {
+      registerSurfaceProfile({
+        id: 'broadcast-silent-relay',
+        channel: 'plain',
+        label: 'Broadcast silent relay',
+        preset: 'chat-basic',
+        overrides: {
+          affordances: { text: false, slash_commands: false },
+        },
+      });
+      try {
+        const eventBus = await createOpenSlackBus();
+        const silentTexts = collectOutboundTexts(eventBus, 'broadcast-silent-relay');
+        const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
+          status: 'completed',
+          summary: 'Executed after approval.',
+          replyText: 'done',
+        }));
+        const gateway = new ZavorthAgentGateway({
+          now: () => new Date('2026-04-27T18:05:00.000Z'),
+          idFactory: createIdFactory(),
+          executor,
+        });
+        gateway.attachChannelMeshEventBus(eventBus, {}, { onboardingGate: null });
+
+        await eventBus.emit(
+          buildInboundChannelEvent({
+            platform: 'broadcast-silent-relay',
+            userId: 'U123',
+            chatId: 'BSR-1',
+            rawText: 'silent hello',
+            messageId: '171234.0710',
+            now: new Date('2026-04-27T18:05:00.000Z'),
+          }),
+        );
+
+        await gateway.handle({
+          userId: 'U123',
+          channel: 'api',
+          sessionId: 'cli:silent-broadcast',
+          text: 'wipe the production database table now',
+          requestedTools: ['shell.exec'],
+        });
+
+        expect(extractPromptRefs(silentTexts)).toEqual([]);
+      } finally {
+        resetSurfaceProfileRegistryForTests();
+      }
+    });
+    it('stays off entirely through the explicit opt-out bridge option', async () => {
+      const eventBus = await createOpenSlackBus();
+      const slackTexts = collectOutboundTexts(eventBus, 'slack');
+      const telegramTexts = collectOutboundTexts(eventBus, 'telegram');
+      const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
+        status: 'completed',
+        summary: 'Executed after approval.',
+        replyText: 'done',
+      }));
+      const gateway = new ZavorthAgentGateway({
+        now: () => new Date('2026-04-27T18:10:00.000Z'),
+        idFactory: createIdFactory(),
+        executor,
+      });
+      gateway.attachChannelMeshEventBus(eventBus, {}, {
+        onboardingGate: null,
+        approvalBroadcastDisabled: true,
+      });
+
+      await emitInbound(eventBus, 'hello slack', '171234.0720', 'C-off', 'slack', 'U123');
+      await emitInbound(eventBus, 'hi telegram', '171234.0721', 'T-off', 'telegram', 'U123');
+
+      await gateway.handle({
+        userId: 'U123',
+        channel: 'api',
+        sessionId: 'cli:optout',
+        text: 'wipe the production database table now',
+        requestedTools: ['shell.exec'],
+      });
+
+      expect(extractPromptRefs(slackTexts)).toEqual([]);
+      expect(extractPromptRefs(telegramTexts)).toEqual([]);
+    });
+
+    it('enforces the channel policy boundary before prompting an idle surface', async () => {
+      const eventBus = await createOpenSlackBus();
+      const slackTexts = collectOutboundTexts(eventBus, 'slack');
+      const telegramTexts = collectOutboundTexts(eventBus, 'telegram');
+      const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
+        status: 'completed',
+        summary: 'Executed after approval.',
+        replyText: 'done',
+      }));
+      const gateway = new ZavorthAgentGateway({
+        now: () => new Date('2026-04-27T18:15:00.000Z'),
+        idFactory: createIdFactory(),
+        executor,
+      });
+      gateway.attachChannelMeshEventBus(eventBus, {}, {
+        onboardingGate: null,
+        policyManager: {
+          verifyAccess: async (channelId: string) => channelId !== 'slack',
+        },
+      });
+
+      await emitInbound(eventBus, 'hello slack', '171234.0730', 'C-pol', 'slack', 'U123');
+      await emitInbound(eventBus, 'hi telegram', '171234.0731', 'T-pol', 'telegram', 'U123');
+
+      await gateway.handle({
+        userId: 'U123',
+        channel: 'api',
+        sessionId: 'cli:policygate',
+        text: 'wipe the production database table now',
+        requestedTools: ['shell.exec'],
+      });
+      const approvalRef = gateway
+        .listRuns()
+        .find((run) => run.status === 'waiting_approval')
+        ?.approvals.find((approval) => approval.status === 'pending')?.id;
+
+      // Telegram passed the policy gate; slack was denied by it.
+      expect(telegramTexts.some((text) => text.includes(`ref ${approvalRef}`))).toBe(true);
+      expect(extractPromptRefs(slackTexts)).toEqual([]);
+    });
   });
 });

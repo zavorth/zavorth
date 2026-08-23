@@ -28,6 +28,7 @@ import { ChannelFormattingService, type ChannelMessagePlatform } from '../../cha
 import { resolveOutboundCharLimitOverride } from '../../channels/formatting/ChannelMessageLimitDirectory.js';
 import { ChannelMeshOnboardingGate } from '../../channels/onboarding/ChannelMeshOnboardingGate.js';
 import { TypingHeartbeat } from '../../channels/presence/TypingHeartbeat.js';
+import type { ChannelPolicyManager } from '../../channels/policies/ChannelPolicyManager.js';
 import {
   renderApprovalPromptForSurface,
   resolveSurfaceCapabilityPresentation,
@@ -64,7 +65,8 @@ import type {
   UniversalApprovalRequest,
   UniversalReplyPacket,
 } from './UniversalAgentRuntimeTypes.js';
-import { errorMessage } from '../../utils/errorLike.js';
+import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
+import { logger } from '../../logger.js';
 import { normalizeAgentPermissionChoice } from '../../contracts/permission/AgentPermissionContract.js';
 import { getAgentPermissionService } from '../../services/permission/AgentPermissionService.js';
 import { assertSurfaceApproveGate } from '../../services/surface/SurfaceApprovalGate.js';
@@ -153,6 +155,19 @@ export type ChannelMeshBridgeOptions = {
    * declared adapter limits, and the built-in platform table.
    */
   getCharLimitOverride?(platform: string): number | undefined;
+  /**
+   * When true, pending approvals prompt only the requesting surface and the
+   * proactive cross-surface broadcast stays off. Overrides the workspace
+   * config knob (CHANNEL_APPROVAL_BROADCAST_DISABLED) when provided.
+   */
+  approvalBroadcastDisabled?: boolean;
+  /**
+   * Channel policy boundary consulted before proactively prompting an idle
+   * surface. Absent gates fall back to the surface's prior ingress
+   * authorization: only chats that already talked through their channel's own
+   * security path are ever prompted proactively.
+   */
+  policyManager?: Pick<ChannelPolicyManager, 'verifyAccess'> | null;
 };
 
 type ChannelMeshReplyTarget = {
@@ -211,6 +226,7 @@ export class ZavorthAgentGateway {
   private channelMeshEventBus: ChannelMeshEventBusLike | null = null;
   private channelMeshBridgeOptions: ChannelMeshBridgeOptions = {};
   private readonly channelMeshPresenterTargets = new Map<string, ChannelMeshPresenterTarget>();
+  private readonly proactivePromptLedger = new Map<string, Set<string>>();
   private readonly runs = new Map<string, UniversalAgentRun>();
   private readonly inFlightRuns = new Map<string, UniversalAgentRun>();
   private readonly workflowJobs = new Map<string, UniversalAgentWorkflowJob>();
@@ -469,6 +485,134 @@ export class ZavorthAgentGateway {
     return explicitKeys;
   }
 
+  /**
+   * Proactive broadcast of the approval spine: when an approval pends, every
+   * active, allowed surface of the same user is prompted with its own rendered
+   * presenter instead of waiting for the operator to ask. Duplicate requests
+   * collapse through the coordinator's coalescing before anything is emitted,
+   * each candidate passes its channel capability and policy gates, and every
+   * proactively prompted surface registers as a presenter so a decision
+   * anywhere dismisses everywhere through the standard fan-out.
+   */
+  private async broadcastPendingApprovalPrompts(run: UniversalAgentRun): Promise<void> {
+    if (!this.channelMeshEventBus || this.resolveApprovalBroadcastDisabled()) {
+      return;
+    }
+    const pendingApprovals = run.approvals.filter((approval) => approval.status === 'pending');
+    if (pendingApprovals.length === 0) {
+      return;
+    }
+    this.pruneProactivePromptLedger();
+    const originMenuKey = normalizeText(run.sessionId);
+    const leaderRefs: string[] = [];
+    const menuEntries: Array<{ label: string; risk: string; ref: string }> = [];
+    for (const approval of pendingApprovals) {
+      const registration = this.approvalCoordinator.registerPendingApproval({
+        sessionId: run.sessionId,
+        ref: approval.id,
+        title: approval.title || approval.reason || approval.id,
+        reason: approval.reason,
+        risk: approval.risk,
+      });
+      if (!registration.isDuplicate && registration.leaderRef) {
+        leaderRefs.push(registration.leaderRef);
+        menuEntries.push({
+          label: approval.title || approval.reason || 'action',
+          risk: approval.risk,
+          ref: registration.leaderRef,
+        });
+      }
+    }
+    // Fully duplicated request: the leader's prompts are already out on every
+    // registered surface, so re-broadcasting would spam identical menus.
+    if (menuEntries.length === 0) {
+      return;
+    }
+    for (const [menuKey, target] of [...this.channelMeshPresenterTargets.entries()]) {
+      if (menuKey === originMenuKey || this.hasSurfaceBeenPrompted(leaderRefs, menuKey)) {
+        continue;
+      }
+      // Capability enforcement: surfaces that declared approvals disabled are
+      // never prompted.
+      const presentation = resolveSurfaceCapabilityPresentation({ platform: target.platform });
+      if (presentation.mode === 'none') {
+        continue;
+      }
+      // Identity continuity: proactive prompts stay inside the requesting
+      // user's own authorized surfaces; other users' chats never receive them.
+      if (!this.isSameBroadcastIdentity(target.userId, run.userId)) {
+        continue;
+      }
+      if (!(await this.isSurfaceAllowedForBroadcast(target))) {
+        continue;
+      }
+      const prompt = renderApprovalPromptForSurface(
+        presentation,
+        menuEntries,
+        target.preferredLocale ?? null,
+      );
+      if (!prompt) {
+        continue;
+      }
+      this.markSurfacePrompted(leaderRefs, menuKey);
+      this.approvalCoordinator.registerPendingMenu(menuKey, leaderRefs);
+      this.emitChannelMeshReplies(this.channelMeshEventBus, target, [prompt], this.channelMeshBridgeOptions);
+    }
+  }
+
+  private resolveApprovalBroadcastDisabled(): boolean {
+    const option = this.channelMeshBridgeOptions.approvalBroadcastDisabled;
+    if (typeof option === 'boolean') {
+      return option;
+    }
+    return config.approvalProactiveBroadcastDisabled === true;
+  }
+
+  private isSameBroadcastIdentity(candidateUserId: string, runUserId: string): boolean {
+    return normalizeText(candidateUserId).toLowerCase() === normalizeText(runUserId).toLowerCase();
+  }
+
+  private async isSurfaceAllowedForBroadcast(target: ChannelMeshPresenterTarget): Promise<boolean> {
+    const policyGate = this.channelMeshBridgeOptions.policyManager;
+    if (!policyGate) {
+      // The surface already passed its channel's ingress authorization on a
+      // previous message; that standing authorization is the gate here.
+      return true;
+    }
+    try {
+      return await policyGate.verifyAccess(target.platform, target.userId);
+    } catch (error: unknown) {
+      // Fail-closed: an unreachable policy boundary must never widen prompts.
+      const err = asErrorLike(error);
+      logger.warn('[ZavorthAgentGateway] approval broadcast policy gate failed', err);
+      return false;
+    }
+  }
+
+  private hasSurfaceBeenPrompted(leaderRefs: string[], menuKey: string): boolean {
+    return leaderRefs.every((ref) => this.proactivePromptLedger.get(ref)?.has(menuKey));
+  }
+
+  private markSurfacePrompted(leaderRefs: string[], menuKey: string): void {
+    for (const ref of leaderRefs) {
+      let prompted = this.proactivePromptLedger.get(ref);
+      if (!prompted) {
+        prompted = new Set<string>();
+        this.proactivePromptLedger.set(ref, prompted);
+      }
+      prompted.add(menuKey);
+    }
+  }
+
+  /** Retires ledger entries whose leader no longer pends anywhere. */
+  private pruneProactivePromptLedger(): void {
+    for (const ref of [...this.proactivePromptLedger.keys()]) {
+      if (!this.findPendingApproval(ref)) {
+        this.proactivePromptLedger.delete(ref);
+      }
+    }
+  }
+
   private appendPendingApprovalGuidance(
     run: UniversalAgentRun,
     texts: string[],
@@ -698,6 +842,7 @@ export class ZavorthAgentGateway {
         options,
       });
       this.ensureWorkflowJobForWaitingApproval(result.run, input);
+      await this.broadcastPendingApprovalPrompts(result.run);
     }
     this.persistAll();
     return result;

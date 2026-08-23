@@ -56,6 +56,11 @@ export function buildChannelConfig(projectRoot: string) {
     messageCharLimitOverrides: parseChannelMessageCharLimitOverrides(
       getEnv('CHANNEL_MESSAGE_CHAR_LIMITS'),
     ),
+    // Opt-out for the proactive cross-surface pending-approval broadcast.
+    // By default every active, policy-allowed surface of the same user is
+    // proactively prompted when an approval pends; operators who want prompts
+    // confined to the requesting surface set CHANNEL_APPROVAL_BROADCAST_DISABLED=true.
+    approvalProactiveBroadcastDisabled: getEnvBool('CHANNEL_APPROVAL_BROADCAST_DISABLED'),
     // Prepared multi-platform channels
     discordBotToken: getEnv('DISCORD_BOT_TOKEN'),
     discordAllowedGuildIds: parseList(getEnv('DISCORD_ALLOWED_GUILD_IDS', getEnv('DISCORD_GUILD_ID'))),
