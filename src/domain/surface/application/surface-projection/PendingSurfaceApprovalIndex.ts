@@ -101,6 +101,32 @@ export function clearPendingSurfaceApproval(input: {
   }
 }
 
+/**
+ * Retires every rendered presenter of an approval across ALL surfaces. The
+ * approval spine calls this when a decision lands on any surface, so taps and
+ * numbered replies against stale cards elsewhere resolve to nothing instead
+ * of re-executing a decision that already happened.
+ */
+export function clearPendingSurfaceApprovalsByApprovalId(approvalId: string): number {
+  const normalized = String(approvalId || '').trim();
+  if (!normalized) {
+    return 0;
+  }
+  let removed = 0;
+  for (const [k, entry] of [...store.entries()]) {
+    if (entry.approvalId !== normalized) {
+      continue;
+    }
+    store.delete(k);
+    removed += 1;
+    const ck = chatKey(entry.surface, entry.chatId);
+    if (latestByChat.get(ck) === k) {
+      latestByChat.delete(ck);
+    }
+  }
+  return removed;
+}
+
 export function resetPendingSurfaceApprovalIndexForTests(): void {
   store.clear();
   latestByChat.clear();

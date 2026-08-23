@@ -59,6 +59,15 @@ type RegisteredApprovalMenu = {
   registeredAtMs: number;
 };
 
+function splitMenuKey(menuKey: string): { platform: string; chatId: string } {
+  const key = normalizeMenuKey(menuKey);
+  const separator = key.indexOf(':');
+  if (separator < 0) {
+    return { platform: key, chatId: '' };
+  }
+  return { platform: key.slice(0, separator), chatId: key.slice(separator + 1) };
+}
+
 type ArmedOtherCapture = {
   refList: string[];
   armedAtMs: number;
@@ -75,6 +84,19 @@ export type PendingApprovalRegistrationInput = {
 export type PendingApprovalRegistration = {
   leaderRef: string;
   isDuplicate: boolean;
+};
+
+/**
+ * A surface presenter that rendered a pending-approval prompt and must be
+ * dismissed once the referenced approval resolves somewhere else. The gateway
+ * turns each dismissal into an edit-in-place update or a follow-up receipt on
+ * that chat, so stale actionable prompts never linger across surfaces.
+ */
+export type ApprovalPresenterDismissal = {
+  menuKey: string;
+  platform: string;
+  chatId: string;
+  resolvedRefs: string[];
 };
 
 type CoalescedFollowerEntry = {
@@ -125,6 +147,7 @@ function isOtherKeyword(text: string): boolean {
 
 export class ApprovalCoordinator {
   private readonly menus = new Map<string, RegisteredApprovalMenu>();
+  private readonly presentersByRef = new Map<string, Set<string>>();
   private readonly armedOtherCaptures = new Map<string, ArmedOtherCapture>();
   private readonly coalescedGroupsByIdentity = new Map<string, CoalescedApprovalGroup>();
   private readonly coalescedGroupsByRef = new Map<string, CoalescedApprovalGroup>();
@@ -191,10 +214,111 @@ export class ApprovalCoordinator {
       return;
     }
     this.menus.set(key, { refs: [...refs], registeredAtMs: this.nowMs() });
+    for (const ref of refs) {
+      const normalizedRef = normalizeMenuKey(ref);
+      if (!normalizedRef) {
+        continue;
+      }
+      let presenterKeys = this.presentersByRef.get(normalizedRef);
+      if (!presenterKeys) {
+        presenterKeys = new Set<string>();
+        this.presentersByRef.set(normalizedRef, presenterKeys);
+      }
+      presenterKeys.add(key);
+    }
   }
 
   public clearPendingMenu(menuKey: string): void {
-    this.menus.delete(normalizeMenuKey(menuKey));
+    const key = normalizeMenuKey(menuKey);
+    this.menus.delete(key);
+    this.forgetPresenterMenu(key);
+  }
+
+  /**
+   * Single source of truth for cross-surface dismissal: given the refs that a
+   * decision just resolved, returns every OTHER surface presenter that still
+   * renders one of them and immediately retires its canonical state (menu,
+   * armed capture, coalescing group). The deciding surfaces listed in
+   * excludeMenuKeys never dismiss themselves.
+   */
+  public collectPresenterDismissals(
+    resolvedRefs: string[],
+    excludeMenuKeys: string[] = [],
+  ): ApprovalPresenterDismissal[] {
+    const excluded = new Set(excludeMenuKeys.map(normalizeMenuKey).filter(Boolean));
+    const resolvedSet = new Set(resolvedRefs.map(normalizeMenuKey).filter(Boolean));
+    const dismissalsByKey = new Map<string, ApprovalPresenterDismissal>();
+    const recordDismissal = (key: string, ref: string): void => {
+      const existing = dismissalsByKey.get(key);
+      if (existing) {
+        if (!existing.resolvedRefs.includes(ref)) {
+          existing.resolvedRefs.push(ref);
+        }
+        return;
+      }
+      const { platform, chatId } = splitMenuKey(key);
+      dismissalsByKey.set(key, { menuKey: key, platform, chatId, resolvedRefs: [ref] });
+    };
+    for (const rawRef of resolvedRefs) {
+      const ref = normalizeMenuKey(rawRef);
+      const presenterKeys = this.presentersByRef.get(ref);
+      if (!presenterKeys) {
+        continue;
+      }
+      for (const key of [...presenterKeys]) {
+        if (excluded.has(key)) {
+          continue;
+        }
+        const menu = this.menus.get(key);
+        if (!menu || !menu.refs.includes(ref)) {
+          this.forgetPresenterEntry(key, ref);
+          continue;
+        }
+        recordDismissal(key, ref);
+        this.clearPendingMenu(key);
+        this.armedOtherCaptures.delete(key);
+        const group = this.findLiveCoalescedGroupByRef(ref);
+        if (group && group.leaderRef === ref) {
+          this.removeCoalescedGroup(group);
+        }
+      }
+    }
+    // An armed free-text capture is itself a rendered presenter state: when
+    // its refs resolve elsewhere the capture must die with them.
+    for (const [key, capture] of [...this.armedOtherCaptures.entries()]) {
+      if (excluded.has(key)) {
+        continue;
+      }
+      const hit = capture.refList.find((ref) => resolvedSet.has(normalizeMenuKey(ref)));
+      if (!hit) {
+        continue;
+      }
+      recordDismissal(key, normalizeMenuKey(hit));
+      this.armedOtherCaptures.delete(key);
+    }
+    return [...dismissalsByKey.values()];
+  }
+
+  private forgetPresenterMenu(menuKey: string): void {
+    for (const [ref, presenterKeys] of [...this.presentersByRef.entries()]) {
+      if (!presenterKeys.delete(menuKey)) {
+        continue;
+      }
+      if (presenterKeys.size === 0) {
+        this.presentersByRef.delete(ref);
+      }
+    }
+  }
+
+  private forgetPresenterEntry(menuKey: string, ref: string): void {
+    const presenterKeys = this.presentersByRef.get(ref);
+    if (!presenterKeys) {
+      return;
+    }
+    presenterKeys.delete(menuKey);
+    if (presenterKeys.size === 0) {
+      this.presentersByRef.delete(ref);
+    }
   }
 
   public hasLivePendingMenu(menuKey: string): boolean {
@@ -236,7 +360,7 @@ export class ApprovalCoordinator {
       if (menuRefs.length > 0) {
         // The "other" escape replaces the menu: the next chat message is
         // captured verbatim as decision context instead of being parsed.
-        this.menus.delete(key);
+        this.clearPendingMenu(menuKey);
         this.armedOtherCaptures.set(key, { refList: [...menuRefs], armedAtMs: this.nowMs() });
         return { kind: 'other-armed', refList: [...menuRefs] };
       }
@@ -580,7 +704,7 @@ export class ApprovalCoordinator {
       return [];
     }
     if (this.nowMs() - menu.registeredAtMs >= APPROVAL_MENU_TIMEOUT_MS) {
-      this.menus.delete(key);
+      this.clearPendingMenu(key);
       return [];
     }
     return menu.refs;

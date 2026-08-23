@@ -7,6 +7,8 @@ export type ChannelApprovalLocaleKey =
   | 'receipt.approved'
   | 'receipt.denied'
   | 'receipt.notFound'
+  | 'receipt.resolvedApprovedElsewhere'
+  | 'receipt.resolvedDeniedElsewhere'
   | 'bulk.approvedAll'
   | 'bulk.deniedAll'
   | 'bulk.approvedPartial'
@@ -27,6 +29,10 @@ const EN_US: Record<ChannelApprovalLocaleKey, string> = {
   'receipt.approved': 'Approved {ref} ({choice}).',
   'receipt.denied': 'Denied approval {ref}.',
   'receipt.notFound': 'No pending approval found for {ref}.',
+  'receipt.resolvedApprovedElsewhere':
+    'Resolved elsewhere: approval {ref} was approved on another surface. No action is needed here.',
+  'receipt.resolvedDeniedElsewhere':
+    'Resolved elsewhere: approval {ref} was denied on another surface. No action is needed here.',
   'bulk.approvedAll': 'Approved all {count} approval(s) ({choice}).',
   'bulk.deniedAll': 'Denied {count} approval(s).',
   'bulk.approvedPartial': 'Approved {resolved} of {total} approval(s) ({choice}).',
@@ -45,6 +51,10 @@ const PT_BR: Record<ChannelApprovalLocaleKey, string> = {
   'receipt.approved': 'Aprovado {ref} ({choice}).',
   'receipt.denied': 'Aprovação {ref} negada.',
   'receipt.notFound': 'Nenhuma aprovação pendente encontrada para {ref}.',
+  'receipt.resolvedApprovedElsewhere':
+    'Resolvida em outra superfície: a aprovação {ref} foi aprovada em outra superfície. Nenhuma ação é necessária aqui.',
+  'receipt.resolvedDeniedElsewhere':
+    'Resolvida em outra superfície: a aprovação {ref} foi negada em outra superfície. Nenhuma ação é necessária aqui.',
   'bulk.approvedAll': 'Todas as {count} aprovações foram aprovadas ({choice}).',
   'bulk.deniedAll': '{count} aprovações foram negadas.',
   'bulk.approvedPartial': '{resolved} de {total} aprovações aprovadas ({choice}).',

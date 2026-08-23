@@ -37,6 +37,11 @@ import {
   renderApprovalPromptForSurface,
   resolveSurfaceCapabilityPresentation,
 } from '../../channels/capabilities/SurfaceCapabilityGate.js';
+import {
+  formatChannelApprovalString,
+  resolveChannelApprovalLocale,
+} from '../../channels/approval-strings/ChannelApprovalLocaleCatalog.js';
+import { clearPendingSurfaceApprovalsByApprovalId } from '../../domain/surface/application/surface-projection/PendingSurfaceApprovalIndex.js';
 import { config } from '../../config/index.js';
 
 import type { StrongCapabilityLoopSnapshot } from './CapabilityLoopGovernanceService.js';
@@ -153,6 +158,10 @@ type ChannelMeshReplyTarget = {
   userId: string;
 };
 
+type ChannelMeshPresenterTarget = ChannelMeshReplyTarget & {
+  preferredLocale?: string | null;
+};
+
 type PendingExecution = {
   request: UniversalAgentRequest;
   options: AgentRunExecutionOptions;
@@ -196,6 +205,9 @@ export class ZavorthAgentGateway {
   private readonly runtimePromotionGovernance: RuntimePromotionGovernanceService;
   private readonly agentLLMRuntime: AgentLLMRuntime;
   private readonly approvalCoordinator: ApprovalCoordinator;
+  private channelMeshEventBus: ChannelMeshEventBusLike | null = null;
+  private channelMeshBridgeOptions: ChannelMeshBridgeOptions = {};
+  private readonly channelMeshPresenterTargets = new Map<string, ChannelMeshPresenterTarget>();
   private readonly runs = new Map<string, UniversalAgentRun>();
   private readonly inFlightRuns = new Map<string, UniversalAgentRun>();
   private readonly workflowJobs = new Map<string, UniversalAgentWorkflowJob>();
@@ -275,6 +287,9 @@ export class ZavorthAgentGateway {
       return { detach: () => undefined };
     }
 
+    this.channelMeshEventBus = eventBus;
+    this.channelMeshBridgeOptions = bridgeOptions;
+
     const onboardingGate =
       bridgeOptions.onboardingGate === undefined
         ? new ChannelMeshOnboardingGate({ projectRoot: config.projectRoot })
@@ -289,6 +304,7 @@ export class ZavorthAgentGateway {
 
       const menuKey = `${target.platform}:${target.chatId}`;
       const preferredLocale = this.extractChannelMeshPreferredLocale(request);
+      this.channelMeshPresenterTargets.set(menuKey, { ...target, preferredLocale });
       const interaction = this.approvalCoordinator.resolveApprovalInteraction(menuKey, request.text);
       if (interaction.kind === 'explicit-command' || interaction.kind === 'fast-path-command') {
         const receipt = await this.approvalCoordinator.executeApprovalDecision({
@@ -371,6 +387,47 @@ export class ZavorthAgentGateway {
    */
   public registerChannelMeshApprovalMenu(platform: string, chatId: string, approvalRefs: string[]): void {
     this.approvalCoordinator.registerPendingMenu(`${platform}:${chatId}`, approvalRefs);
+  }
+
+  /**
+   * Cross-surface dismissal fan-out of the approval spine: when a decision
+   * resolves an approval on any surface, every OTHER surface presenter that
+   * rendered it receives a follow-up receipt (edit-in-place where the native
+   * surface supports editing its own card), and its canonical prompt state is
+   * retired so stale buttons and tokens can never re-decide.
+   */
+  private dismissCrossSurfacePresenters(
+    resolvedRefs: string[],
+    decidingMenuKeys: string[],
+    action: 'approve' | 'deny',
+  ): void {
+    const dismissals = this.approvalCoordinator.collectPresenterDismissals(resolvedRefs, decidingMenuKeys);
+    if (dismissals.length === 0) {
+      return;
+    }
+    const receiptKey =
+      action === 'deny' ? 'receipt.resolvedDeniedElsewhere' : 'receipt.resolvedApprovedElsewhere';
+    for (const dismissal of dismissals) {
+      for (const ref of dismissal.resolvedRefs) {
+        clearPendingSurfaceApprovalsByApprovalId(ref);
+      }
+      const target = this.channelMeshPresenterTargets.get(dismissal.menuKey);
+      if (!target || !this.channelMeshEventBus) {
+        continue;
+      }
+      const locale = resolveChannelApprovalLocale(target.preferredLocale);
+      this.emitChannelMeshReplies(
+        this.channelMeshEventBus,
+        target,
+        dismissal.resolvedRefs.map((ref) => formatChannelApprovalString(locale, receiptKey, { ref })),
+        this.channelMeshBridgeOptions,
+      );
+    }
+  }
+
+  private decidingMenuKeysFromOptions(options: { sessionId?: string | null }): string[] {
+    const sessionKey = normalizeText(options.sessionId);
+    return sessionKey ? [sessionKey] : [];
   }
 
   private appendPendingApprovalGuidance(
@@ -613,6 +670,11 @@ export class ZavorthAgentGateway {
         permissionMessage: remembered.message,
       },
     });
+    this.dismissCrossSurfacePresenters(
+      [approval.id],
+      this.decidingMenuKeysFromOptions(options),
+      'approve',
+    );
 
     const pending = this.pendingExecutions.get(run.id);
     const job = this.ensureWorkflowJobForApproval(
@@ -717,6 +779,7 @@ export class ZavorthAgentGateway {
         ...(operatorReason ? { operatorReason } : {}),
       },
     });
+    this.dismissCrossSurfacePresenters([approval.id], [], 'deny');
     this.runService.recordLifecycleDefenseReview(run, 'cancelled', now);
     const job = this.findWorkflowJob(run.id, approval.id);
     if (job) {

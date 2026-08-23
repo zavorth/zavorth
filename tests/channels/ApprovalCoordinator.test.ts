@@ -554,6 +554,85 @@ describe('ApprovalCoordinator', () => {
     });
   });
 
+  describe('cross-surface presenter dismissals', () => {
+    function registerDualPresenterMenus(coordinator: ApprovalCoordinator, ref: string): void {
+      coordinator.registerPendingMenu('slack:C-ops', [ref]);
+      coordinator.registerPendingMenu('telegram:T-ops', [ref]);
+    }
+
+    it('dismisses every other presenter while the deciding surface excludes itself', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      registerDualPresenterMenus(coordinator, 'approval-a');
+
+      const dismissals = coordinator.collectPresenterDismissals(['approval-a'], ['slack:C-ops']);
+
+      expect(dismissals).toEqual([
+        { menuKey: 'telegram:T-ops', platform: 'telegram', chatId: 'T-ops', resolvedRefs: ['approval-a'] },
+      ]);
+      expect(coordinator.hasLivePendingMenu('slack:C-ops')).toBe(true);
+      expect(coordinator.hasLivePendingMenu('telegram:T-ops')).toBe(false);
+    });
+
+    it('retires armed "other" captures together with the dismissed presenter menu', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      registerDualPresenterMenus(coordinator, 'approval-a');
+      coordinator.resolveApprovalInteraction('telegram:T-ops', 'other');
+
+      coordinator.collectPresenterDismissals(['approval-a'], ['slack:C-ops']);
+
+      expect(
+        coordinator.resolveApprovalInteraction('telegram:T-ops', 'late answer after dismissal'),
+      ).toEqual({ kind: 'free-prose' });
+    });
+
+    it('breaks the coalescing group when the resolved ref is its leader so copies re-register fresh', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      coordinator.registerPendingApproval({
+        sessionId: 'slack:C-ops',
+        ref: 'approval-a',
+        title: 'run npm test',
+        risk: 'high',
+      });
+      coordinator.registerPendingApproval({
+        sessionId: 'slack:C-ops',
+        ref: 'approval-b',
+        title: 'run npm test',
+        risk: 'high',
+      });
+      registerDualPresenterMenus(coordinator, 'approval-a');
+      gateway.resolvedRefs.add('approval-a');
+
+      coordinator.collectPresenterDismissals(['approval-a'], []);
+
+      expect(
+        coordinator.registerPendingApproval({
+          sessionId: 'slack:C-ops',
+          ref: 'approval-c',
+          title: 'run npm test',
+          risk: 'high',
+        }),
+      ).toEqual({ leaderRef: 'approval-c', isDuplicate: false });
+    });
+
+    it('skips presenter entries whose menu no longer references the resolved ref', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      registerDualPresenterMenus(coordinator, 'approval-a');
+      coordinator.clearPendingMenu('telegram:T-ops');
+      coordinator.registerPendingMenu('telegram:T-ops', ['approval-z']);
+
+      const dismissals = coordinator.collectPresenterDismissals(['approval-a'], []);
+
+      expect(dismissals).toEqual([
+        { menuKey: 'slack:C-ops', platform: 'slack', chatId: 'C-ops', resolvedRefs: ['approval-a'] },
+      ]);
+      expect(coordinator.hasLivePendingMenu('telegram:T-ops')).toBe(true);
+    });
+  });
+
   describe('"other" escape option and free-text capture', () => {
     it('arms the capture mode through the ordinal 0 escape on a live menu', () => {
       const gateway = createFakeGateway();

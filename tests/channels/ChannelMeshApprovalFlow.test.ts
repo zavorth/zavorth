@@ -63,11 +63,13 @@ describe('Channel Mesh approval flow', () => {
     rawText: string,
     messageId: string,
     chatId = 'C-bulk',
+    platform: 'slack' | 'telegram' = 'slack',
+    userId = 'U123',
   ): Promise<void> {
     await eventBus.emit(
       buildInboundChannelEvent({
-        platform: 'slack',
-        userId: 'U123',
+        platform,
+        userId,
         chatId,
         rawText,
         messageId,
@@ -238,5 +240,55 @@ describe('Channel Mesh approval flow', () => {
     expect(
       rejectedRun?.events.find((event) => event.metadata?.operatorReason)?.metadata?.operatorReason,
     ).toBe('not now, production is frozen');
+  });
+
+  it('dismisses every other surface presenter when one surface resolves the approval', async () => {
+    const eventBus = await createOpenSlackBus();
+    const slackTexts = collectOutboundTexts(eventBus, 'slack');
+    const telegramTexts = collectOutboundTexts(eventBus, 'telegram');
+    const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>();
+    const gateway = new ZavorthAgentGateway({
+      now: () => new Date('2026-04-27T16:30:00.000Z'),
+      idFactory: createIdFactory(),
+      executor,
+    });
+    gateway.attachChannelMeshEventBus(eventBus, {}, { onboardingGate: null });
+
+    // A risky request pends once; two connected surfaces render their own
+    // presenter for the SAME canonical approval ref.
+    await gateway.handle({
+      userId: 'U123',
+      channel: 'api',
+      sessionId: 'cli:local',
+      text: 'wipe the production database table now',
+      requestedTools: ['shell.exec'],
+    });
+    const pendingRun = gateway.listRuns().find((run) => run.status === 'waiting_approval');
+    expect(pendingRun).toBeDefined();
+    const pendingApproval = pendingRun?.approvals.find((approval) => approval.status === 'pending');
+    expect(pendingApproval).toBeDefined();
+    const approvalRef = pendingApproval?.id || '';
+
+    await emitInbound(eventBus, 'hello there', '171234.0500', 'C-dual');
+    await emitInbound(eventBus, 'hello from telegram', '171234.0501', 'T-dual', 'telegram', 'U-telegram');
+    gateway.registerChannelMeshApprovalMenu('slack', 'C-dual', [approvalRef]);
+    gateway.registerChannelMeshApprovalMenu('telegram', 'T-dual', [approvalRef]);
+    executor.mockClear();
+
+    await emitInbound(eventBus, `/approve ${approvalRef} once`, '171234.0502');
+
+    expect(slackTexts).toContain(`Approved ${approvalRef} (once).`);
+    expect(telegramTexts).toContain(
+      `Resolved elsewhere: approval ${approvalRef} was approved on another surface. No action is needed here.`,
+    );
+
+    // The stale telegram presenter is retired: a later message on that chat is
+    // treated as agent prose and can no longer decide the resolved approval.
+    await emitInbound(eventBus, '1', '171234.0503', 'T-dual', 'telegram', 'U-telegram');
+    expect(
+      telegramTexts.some((text) => text.includes(`Approved ${approvalRef}`) || text.includes('Denied')),
+    ).toBe(false);
+    const resolvedRun = gateway.listRuns().find((run) => run.approvals.some((entry) => entry.id === approvalRef));
+    expect(resolvedRun?.approvals.find((entry) => entry.id === approvalRef)?.status).toBe('approved');
   });
 });
