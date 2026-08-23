@@ -124,7 +124,7 @@ export class ZavorthOnDemandTranslationService {
       this.stringsMemoryCache.set(normalized, persisted);
       const pendingEntries: Record<string, string> = {};
       for (const [key, value] of Object.entries(sourceEntries)) {
-        if (!(key in persisted)) pendingEntries[key] = value;
+        if (!persisted.has(key)) pendingEntries[key] = value;
       }
       if (Object.keys(pendingEntries).length === 0) {
         return Object.fromEntries(persisted.entries());
