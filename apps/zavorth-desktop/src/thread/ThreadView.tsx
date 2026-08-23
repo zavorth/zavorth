@@ -8,6 +8,7 @@ import {
 } from '../onboarding/desktopOnboarding';
 import { InlineActivityStrip } from './InlineActivityStrip';
 import { parsePlanFromText } from './planCard';
+import { parseReceiptSummary } from './receiptSummary';
 
 import { MarkdownContent } from '../lib/markdownRenderer';
 import { ToolCallBlock } from './ToolCallBlock';
@@ -275,6 +276,11 @@ export function ThreadView(props: {
               (message.role === 'assistant' || message.role === 'system') &&
               looksLikeUnifiedDiff(message.content || '');
 
+            const receipt =
+              message.role === 'assistant' && !isStreaming
+                ? parseReceiptSummary(message.content)
+                : null;
+
             return (
               <article
                 key={message.id}
@@ -299,7 +305,17 @@ export function ThreadView(props: {
                       }
                     />
                   ) : null}
-                  <MarkdownContent content={message.content} />
+                  <MarkdownContent content={receipt ? receipt.summary : message.content} />
+                  {receipt ? (
+                    <details className="zvd-receipt-details">
+                      <summary>{t('receipt.technicalTitle')}</summary>
+                      <ul>
+                        {receipt.technicalLines.map((line, index) => (
+                          <li key={`${message.id}-tech-${index}`}>{line.replace(/^- /, '')}</li>
+                        ))}
+                      </ul>
+                    </details>
+                  ) : null}
                   {messageHasDiff ? (
                     <HunkReviewCard
                       diffText={message.content}

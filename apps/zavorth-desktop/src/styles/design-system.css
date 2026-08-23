@@ -3182,6 +3182,37 @@ input:focus-visible,
   font-size: var(--zvd-text-xs, 11px);
 }
 
+.zvd-receipt-details {
+  margin-top: 6px;
+  border: 1px solid var(--zvd-border-soft, var(--zvd-border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--zvd-surface) 92%, transparent);
+  font-size: var(--zvd-text-xs, 12px);
+}
+
+.zvd-receipt-details > summary {
+  cursor: pointer;
+  padding: 6px 10px;
+  color: var(--zvd-muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.zvd-receipt-details[open] > summary {
+  color: var(--zvd-accent-strong, var(--zvd-muted));
+}
+
+.zvd-receipt-details > ul {
+  margin: 0;
+  padding: 4px 12px 8px 26px;
+  display: grid;
+  gap: 2px;
+  color: var(--zvd-faint, var(--zvd-muted));
+  font-family: var(--zvd-font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  word-break: break-all;
+}
+
 .zvd-thread-tool-group {
   display: grid;
   gap: 0;

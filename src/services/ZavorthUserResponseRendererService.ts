@@ -15,11 +15,23 @@ export type ZavorthUserResponseRenderInput = {
   includeTechnicalFooter?: boolean | null;
 };
 
+/**
+ * Plain-language execution receipt: a human summary up front plus the
+ * technical lines (approval ids, run ids, replay commands) kept separate so
+ * surfaces can collapse them by default.
+ */
+export type ZavorthUserResponseReceipt = {
+  summary: string;
+  technicalLines: string[];
+};
+
 export type ZavorthUserResponseRenderResult = {
   text: string;
   audience: ZavorthUserResponseAudience;
   simplified: boolean;
   footerIncluded: boolean;
+  /** Present when the rendered response carries an execution receipt. */
+  receipt?: ZavorthUserResponseReceipt;
 };
 
 function normalizeReply(value: unknown): string {
@@ -58,11 +70,18 @@ export class ZavorthUserResponseRendererService {
           replayCommand: input.replayCommand || null,
         })
       : [];
+    const receipt: ZavorthUserResponseReceipt | undefined = footer.length
+      ? {
+          summary: simplifiedBody,
+          technicalLines: footer.filter((line) => line.startsWith('- ')),
+        }
+      : undefined;
     return {
       text: [simplifiedBody, ...footer].filter(Boolean).join('\n'),
       audience,
       simplified: simplifiedBody !== normalizeReply(input.text),
       footerIncluded: footer.length > 0,
+      receipt,
     };
   }
 
