@@ -23,6 +23,7 @@ export class EmailChannelAdapter implements GatewayChannelAdapter {
   id = 'email';
   name = 'Email SMTP/IMAP Bridge';
   type = 'async' as const;
+  readonly messageCharLimit = 4096;
   private readonly outboxDir: string;
   private readonly now: () => Date;
 

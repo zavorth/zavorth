@@ -3,6 +3,12 @@ export interface GatewayChannelAdapter {
   name: string;
   type: 'sync' | 'async' | 'duplex';
 
+  /**
+   * Declared outbound message size limit used by the shared formatting
+   * pipeline. Optional: adapters without a hard platform limit omit it.
+   */
+  readonly messageCharLimit?: number;
+
   initialize(): Promise<void>;
   shutdown(): Promise<void>;
 

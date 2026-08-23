@@ -137,6 +137,11 @@ export type ChannelMeshBridgeSubscription = {
 
 export type ChannelMeshBridgeOptions = {
   onboardingGate?: ChannelMeshOnboardingGate | null;
+  /**
+   * Declared per-platform outbound message limit override. When provided and
+   * finite, it wins over the built-in platform limit table.
+   */
+  getCharLimitOverride?(platform: string): number | undefined;
 };
 
 type ChannelMeshReplyTarget = {
@@ -287,7 +292,7 @@ export class ZavorthAgentGateway {
           surface: target.platform,
           sessionId: menuKey,
         });
-        this.emitChannelMeshReplies(eventBus, target, [receipt || ''].filter((text) => text.trim().length > 0));
+        this.emitChannelMeshReplies(eventBus, target, [receipt || ''].filter((text) => text.trim().length > 0), bridgeOptions);
         return;
       }
 
@@ -297,7 +302,7 @@ export class ZavorthAgentGateway {
           request.text,
         );
         if (interception.handled) {
-          this.emitChannelMeshReplies(eventBus, target, interception.replies);
+          this.emitChannelMeshReplies(eventBus, target, interception.replies, bridgeOptions);
           return;
         }
       }
@@ -323,7 +328,7 @@ export class ZavorthAgentGateway {
         const fallbackTexts =
           replyTexts.length > 0 ? replyTexts : [result.run.summary].filter((text) => text.trim());
         const finalTexts = this.appendPendingApprovalGuidance(result.run, fallbackTexts, target.platform, menuKey);
-        this.emitChannelMeshReplies(eventBus, target, finalTexts);
+        this.emitChannelMeshReplies(eventBus, target, finalTexts, bridgeOptions);
       } finally {
         typingHeartbeat.stop();
       }
@@ -388,14 +393,21 @@ export class ZavorthAgentGateway {
     eventBus: ChannelMeshEventBusLike,
     target: ChannelMeshReplyTarget,
     texts: string[],
+    bridgeOptions: ChannelMeshBridgeOptions = {},
   ): void {
     if (typeof eventBus.emit !== 'function') {
       return;
     }
+    const charLimitOverride = bridgeOptions.getCharLimitOverride?.(target.platform);
+    const chunkOptions =
+      typeof charLimitOverride === 'number' && Number.isFinite(charLimitOverride) && charLimitOverride > 0
+        ? { charLimitOverride }
+        : {};
     for (const text of texts) {
       for (const chunk of ChannelFormattingService.chunkMessageForPlatform(
         target.platform as ChannelMessagePlatform,
         text,
+        chunkOptions,
       )) {
         eventBus.emit(
           buildOutboundReplyEvent({

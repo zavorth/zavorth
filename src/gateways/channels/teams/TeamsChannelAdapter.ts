@@ -23,6 +23,7 @@ export class TeamsChannelAdapter implements GatewayChannelAdapter {
   id = 'teams';
   name = 'Microsoft Teams Graph/Bot Bridge';
   type = 'async' as const;
+  readonly messageCharLimit = 4096;
   private readonly outboxDir: string;
   private readonly now: () => Date;
 

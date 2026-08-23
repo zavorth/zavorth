@@ -25,6 +25,7 @@ export class SlackChannelAdapter implements GatewayChannelAdapter {
   id = 'slack';
   name = 'Slack Enterprise Grid / Workspace';
   type = 'async' as const;
+  readonly messageCharLimit = 4000;
   private readonly outboxDir: string;
   private readonly now: () => Date;
 

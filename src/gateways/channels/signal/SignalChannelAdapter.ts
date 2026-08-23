@@ -23,6 +23,7 @@ export class SignalChannelAdapter implements GatewayChannelAdapter {
   id = 'signal';
   name = 'Signal signal-cli Bridge';
   type = 'async' as const;
+  readonly messageCharLimit = 4096;
   private readonly outboxDir: string;
   private readonly now: () => Date;
   private readonly outboundReplyHandler = (event: unknown): void => {

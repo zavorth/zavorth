@@ -60,6 +60,7 @@ export class WhatsAppChannelAdapter implements GatewayChannelAdapter {
   id = 'whatsapp';
   name = 'WhatsApp Cloud API';
   type = 'async' as const;
+  readonly messageCharLimit = 4096;
   private readonly outboxDir: string;
   private readonly now: () => Date;
   private readonly auditLogger: SecurityAuditLogger;
