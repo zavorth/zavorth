@@ -6,6 +6,7 @@ import { GatewayEventBus } from '../../../gateway/events/GatewayEventBus';
 import {
   buildInboundChannelEvent,
   buildOutboundChannelEnvelope,
+  extractChannelMeshReplyEvent,
   persistChannelOutboxEnvelope,
 } from '../../../channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
@@ -23,6 +24,11 @@ export class SignalChannelAdapter implements GatewayChannelAdapter {
   type = 'async' as const;
   private readonly outboxDir: string;
   private readonly now: () => Date;
+  private readonly outboundReplyHandler = (event: unknown): void => {
+    const reply = extractChannelMeshReplyEvent(event, this.id);
+    if (!reply) return;
+    void this.sendMessage({ recipients: [reply.userId], text: reply.text });
+  };
 
   constructor(
     private eventBus: GatewayEventBus,
@@ -36,12 +42,14 @@ export class SignalChannelAdapter implements GatewayChannelAdapter {
 
   async initialize(): Promise<void> {
     fs.mkdirSync(this.outboxDir, { recursive: true });
+    this.eventBus.subscribe('public_ws', this.outboundReplyHandler);
     if (!this.bridgeTarget) {
       logger.warn('[ChannelMesh] Signal bridge offline (missing signal-cli target).');
     }
   }
 
   async shutdown(): Promise<void> {
+    this.eventBus.unsubscribe?.('public_ws', this.outboundReplyHandler);
     logger.info('[ChannelMesh] Signal bridge detached.');
   }
 

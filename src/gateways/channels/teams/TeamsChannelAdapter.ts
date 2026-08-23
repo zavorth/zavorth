@@ -7,7 +7,7 @@ import {
   buildInboundChannelEvent,
   buildOutboundChannelEnvelope,
   persistChannelOutboxEnvelope,
-} from '../../../channels/contracts/ChannelMessageContract.js';
+  extractChannelMeshReplyEvent,} from '../../../channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
 
 import { logger } from '../../../logger.js';
@@ -34,7 +34,15 @@ export class TeamsChannelAdapter implements GatewayChannelAdapter {
     this.now = runtime.now || (() => new Date());
   }
 
+
+  private readonly outboundReplyHandler = (event: unknown): void => {
+    const reply = extractChannelMeshReplyEvent(event, this.id);
+    if (!reply) return;
+    void this.sendMessage({ recipients: [reply.userId], text: reply.text });
+  };
+
   async initialize(): Promise<void> {
+    this.eventBus.subscribe('public_ws', this.outboundReplyHandler);
     fs.mkdirSync(this.outboxDir, { recursive: true });
     if (!this.providerHint && !config.teamsAppId) {
       logger.warn('[ChannelMesh] Teams bridge offline (missing Teams app/tenant configuration).');
@@ -42,6 +50,7 @@ export class TeamsChannelAdapter implements GatewayChannelAdapter {
   }
 
   async shutdown(): Promise<void> {
+    this.eventBus.unsubscribe?.('public_ws', this.outboundReplyHandler);
     logger.info('[ChannelMesh] Teams bridge detached.');
   }
 

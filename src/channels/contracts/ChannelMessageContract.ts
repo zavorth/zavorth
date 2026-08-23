@@ -84,6 +84,67 @@ export function buildInboundChannelEvent(input: BuildInboundChannelEventInput) {
   };
 }
 
+export type CanonicalChannelOutboundReply = {
+  platform: CanonicalChannelPlatform;
+  chatId: string;
+  userId: string;
+  text: string;
+  createdAt: string;
+};
+
+type BuildOutboundReplyEventInput = {
+  platform: CanonicalChannelPlatform;
+  chatId: string;
+  userId: string;
+  text: string;
+  now?: Date;
+};
+
+export function buildOutboundReplyEvent(input: BuildOutboundReplyEventInput) {
+  const data: CanonicalChannelOutboundReply = {
+    platform: normalizePlatform(input.platform),
+    chatId: normalizeRequired(input.chatId, 'chatId'),
+    userId: normalizeRequired(input.userId, 'userId'),
+    text: String(input.text ?? ''),
+    createdAt: (input.now || new Date()).toISOString(),
+  };
+  return {
+    type: 'public_ws' as const,
+    payload: {
+      id: `${data.platform}-reply-${randomUUID()}`,
+      type: 'event' as const,
+      payload: {
+        topic: 'im_reply',
+        data,
+      },
+    },
+  };
+}
+
+export function extractChannelMeshReplyEvent(
+  event: unknown,
+  platform: CanonicalChannelPlatform | string,
+): CanonicalChannelOutboundReply | null {
+  if (!event || typeof event !== 'object') return null;
+  const gatewayEvent = event as { type?: unknown; payload?: { payload?: { topic?: unknown; data?: unknown } } };
+  if (gatewayEvent.type !== 'public_ws') return null;
+  const inner = gatewayEvent.payload?.payload;
+  if (!inner || inner.topic !== 'im_reply') return null;
+  const data = inner.data as Partial<CanonicalChannelOutboundReply> | undefined;
+  if (!data) return null;
+  const expectedPlatform = normalizePlatform(platform as CanonicalChannelPlatform);
+  const actualPlatform = normalizePlatform(data.platform as CanonicalChannelPlatform);
+  if (actualPlatform !== expectedPlatform) return null;
+  if (typeof data.text !== 'string') return null;
+  return {
+    platform: actualPlatform,
+    chatId: String(data.chatId || ''),
+    userId: String(data.userId || ''),
+    text: data.text,
+    createdAt: String(data.createdAt || ''),
+  };
+}
+
 export function buildNormalizedInboundMessageFromChannelMessage(
   message: CanonicalChannelInboundMessage,
 ): NormalizedInboundMessage {

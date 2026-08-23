@@ -23,6 +23,14 @@ import {
 
 import { resolveAgentGatewayTraceId, withAgentGatewayTraceMetadata } from './AgentGatewayTelemetry.js';
 
+import { ChannelFormattingService, type ChannelMessagePlatform } from '../../channels/formatting/ChannelFormattingService.js';
+import {
+  buildOutboundReplyEvent,
+  type CanonicalChannelPlatform,
+} from '../../channels/contracts/ChannelMessageContract.js';
+import { ChannelMeshOnboardingGate } from '../../channels/onboarding/ChannelMeshOnboardingGate.js';
+import { config } from '../../config/index.js';
+
 import type { StrongCapabilityLoopSnapshot } from './CapabilityLoopGovernanceService.js';
 import {
   RuntimePromotionGovernanceService,
@@ -113,10 +121,21 @@ export type ChannelMeshGatewayEventHandler = (event: unknown) => void | Promise<
 export type ChannelMeshEventBusLike = {
   subscribe(eventType: string, handler: ChannelMeshGatewayEventHandler): void;
   unsubscribe?(eventType: string, handler: ChannelMeshGatewayEventHandler): void;
+  emit?(event: unknown): void;
 };
 
 export type ChannelMeshBridgeSubscription = {
   detach(): void;
+};
+
+export type ChannelMeshBridgeOptions = {
+  onboardingGate?: ChannelMeshOnboardingGate | null;
+};
+
+type ChannelMeshReplyTarget = {
+  platform: CanonicalChannelPlatform;
+  chatId: string;
+  userId: string;
 };
 
 type PendingExecution = {
@@ -233,22 +252,83 @@ export class ZavorthAgentGateway {
   public attachChannelMeshEventBus(
     eventBus: ChannelMeshEventBusLike | null | undefined,
     options: AgentRunExecutionOptions = {},
+    bridgeOptions: ChannelMeshBridgeOptions = {},
   ): ChannelMeshBridgeSubscription {
     if (!eventBus) {
       return { detach: () => undefined };
     }
 
+    const onboardingGate =
+      bridgeOptions.onboardingGate === undefined
+        ? new ChannelMeshOnboardingGate({ projectRoot: config.projectRoot })
+        : bridgeOptions.onboardingGate;
+
     const handler: ChannelMeshGatewayEventHandler = async (event) => {
       const request = this.extractChannelMeshNormalizedInboundMessage(event);
       if (!request) return;
 
-      await this.handle(this.decorateChannelMeshRequest(request), options);
+      const target = this.extractChannelMeshReplyTarget(request);
+      if (!target) return;
+
+      if (onboardingGate) {
+        const interception = await onboardingGate.intercept(
+          { platform: target.platform, userId: target.userId, chatId: target.chatId },
+          request.text,
+        );
+        if (interception.handled) {
+          this.emitChannelMeshReplies(eventBus, target, interception.replies);
+          return;
+        }
+      }
+
+      const result = await this.handle(this.decorateChannelMeshRequest(request), options);
+      const replyTexts = (result.replies ?? [])
+        .map((reply) => reply.text)
+        .filter((text) => text.trim().length > 0);
+      const fallbackTexts = replyTexts.length > 0 ? replyTexts : [result.run.summary].filter((text) => text.trim());
+      this.emitChannelMeshReplies(eventBus, target, fallbackTexts);
     };
 
     eventBus.subscribe('public_ws', handler);
     return {
       detach: () => eventBus.unsubscribe?.('public_ws', handler),
     };
+  }
+
+  private extractChannelMeshReplyTarget(request: UniversalAgentRequest): ChannelMeshReplyTarget | null {
+    const metadata = toSerializableRecord(request.metadata);
+    const platform = normalizeText(metadata.channelPlatform);
+    const chatId = normalizeText(metadata.chatId);
+    const userId = normalizeText(metadata.channelUserId) || normalizeText(request.userId);
+    if (!platform || !chatId || !userId) {
+      return null;
+    }
+    return { platform: platform as CanonicalChannelPlatform, chatId, userId };
+  }
+
+  private emitChannelMeshReplies(
+    eventBus: ChannelMeshEventBusLike,
+    target: ChannelMeshReplyTarget,
+    texts: string[],
+  ): void {
+    if (typeof eventBus.emit !== 'function') {
+      return;
+    }
+    for (const text of texts) {
+      for (const chunk of ChannelFormattingService.chunkMessageForPlatform(
+        target.platform as ChannelMessagePlatform,
+        text,
+      )) {
+        eventBus.emit(
+          buildOutboundReplyEvent({
+            platform: target.platform,
+            chatId: target.chatId,
+            userId: target.userId,
+            text: chunk,
+          }),
+        );
+      }
+    }
   }
 
   public async handle(

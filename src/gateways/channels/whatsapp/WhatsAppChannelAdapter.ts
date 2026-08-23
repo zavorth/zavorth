@@ -7,7 +7,7 @@ import {
   buildInboundChannelEvent,
   buildOutboundChannelEnvelope,
   persistChannelOutboxEnvelope,
-} from '../../../channels/contracts/ChannelMessageContract.js';
+  extractChannelMeshReplyEvent,} from '../../../channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
 
 import { SecurityAuditLogger } from '../../../services/SecurityAuditLogger.js';
@@ -73,7 +73,15 @@ export class WhatsAppChannelAdapter implements GatewayChannelAdapter {
     this.auditLogger = runtime.auditLogger || new SecurityAuditLogger(runtime.logRepo || new LogRepository());
   }
 
+
+  private readonly outboundReplyHandler = (event: unknown): void => {
+    const reply = extractChannelMeshReplyEvent(event, this.id);
+    if (!reply) return;
+    void this.sendMessage({ recipients: [reply.userId], text: reply.text });
+  };
+
   async initialize(): Promise<void> {
+    this.eventBus.subscribe('public_ws', this.outboundReplyHandler);
     fs.mkdirSync(this.outboxDir, { recursive: true });
     if (!this.apiKey) {
       logger.warn('[ChannelMesh] WhatsApp Channel offline (Missing config)');
@@ -83,6 +91,7 @@ export class WhatsAppChannelAdapter implements GatewayChannelAdapter {
   }
 
   async shutdown(): Promise<void> {
+    this.eventBus.unsubscribe?.('public_ws', this.outboundReplyHandler);
     logger.info('[ChannelMesh] WhatsApp bounds detached.');
   }
 

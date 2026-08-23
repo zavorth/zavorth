@@ -4,7 +4,7 @@ import { applySecurityOperationalPreset } from '../security/SecurityOperationalP
 import { setLearningRuntimeMode } from './ZavorthLearningRuntimePolicy.js';
 import { ZavorthLearningRuntimeHubService } from './ZavorthLearningRuntimeHubService.js';
 
-export type FirstRunSurface = 'desktop' | 'telegram' | 'web' | 'cli';
+export type FirstRunSurface = 'desktop' | 'telegram' | 'web' | 'cli' | 'channel';
 
 export type FirstRunHumanState = {
   version: 1;
@@ -464,7 +464,9 @@ function normalizeSurface(raw: string): FirstRunSurface | null {
   const value = String(raw || '').trim().toLowerCase();
   if (!value) return null;
   const surface = value.startsWith('surface:') ? value.slice('surface:'.length).trim() : value;
-  if (surface === 'desktop' || surface === 'telegram' || surface === 'web' || surface === 'cli') return surface;
+  if (surface === 'desktop' || surface === 'telegram' || surface === 'web' || surface === 'cli' || surface === 'channel') {
+    return surface;
+  }
   return null;
 }
 
