@@ -53,7 +53,10 @@ export const CONTROL_LOCALES: Array<{ code: ControlLocalePreference; label: stri
 
 export function readControlLocalePreference(): ControlLocalePreference {
   const stored = localStorage.getItem(LOCALE_KEY) as ControlLocalePreference | null;
-  if (stored && (stored === 'system' || SUPPORTED_LOCALES.includes(localizationService.normalizeLocaleTag(stored)))) {
+  if (stored === 'system') {
+    return stored;
+  }
+  if (stored && localizationService.normalizeLocaleTag(stored)) {
     return stored;
   }
   return 'system';
@@ -82,7 +85,10 @@ export function persistControlLocale(preference: ControlLocalePreference): Suppo
     localStorage.removeItem(LOCALE_KEY);
   } else {
     localStorage.setItem(LOCALE_KEY, preference);
-    localizationService.setLocale(localizationService.normalizeLocaleTag(preference));
+    const normalized = localizationService.normalizeLocaleTag(preference);
+    if (normalized) {
+      localizationService.setLocale(normalized);
+    }
   }
   return readControlLocale();
 }
@@ -103,7 +109,7 @@ export function translateCount(count: number, singularKey: string, pluralKey: st
 export function applyControlLocale(root: Document | HTMLElement = document) {
   const locale = readControlLocale();
   const normalized = localizationService.normalizeLocaleTag(locale);
-  const isRtl = RTL_LOCALES.includes(normalized);
+  const isRtl = normalized ? RTL_LOCALES.has(normalized) : false;
 
   document.documentElement.lang = locale;
   document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
@@ -130,7 +136,7 @@ export function applyControlLocale(root: Document | HTMLElement = document) {
     const trailing = original.match(/\s*$/)?.[0] || '';
     const translated = translate(original, locale);
     if (translated !== original) node.textContent = `${leading}${translated.trim()}${trailing}`;
-    if (locale === 'en-US' || locale === 'en') node.textContent = original;
+    if (locale === 'en-US') node.textContent = original;
   });
 
   root.querySelectorAll?.('[placeholder], [title], [aria-label], [data-tooltip], [data-prompt]').forEach((el) => {
@@ -142,7 +148,7 @@ export function applyControlLocale(root: Document | HTMLElement = document) {
       const original = el.getAttribute(`data-${key}`) || value;
       const translated = translate(original, locale);
       if (translated !== value) el.setAttribute(attr, translated);
-      if (locale === 'en-US' || locale === 'en') el.setAttribute(attr, original);
+      if (locale === 'en-US') el.setAttribute(attr, original);
     });
   });
 }
