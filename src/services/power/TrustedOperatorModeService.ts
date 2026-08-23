@@ -18,6 +18,11 @@ export type TrustedOperatorDecision = {
 type Runtime = {
   stateFile?: string;
   now?: () => Date;
+  /**
+   * Declarative read-only auto-approval switch (config agent.autoApproveReadOnly).
+   * Defaults to true; false keeps green-lane reads on the explicit approval path.
+   */
+  autoApproveReadOnly?: boolean;
   existsSync?: typeof fs.existsSync;
   mkdirSync?: typeof fs.mkdirSync;
   readFileSync?: typeof fs.readFileSync;
@@ -27,6 +32,7 @@ type Runtime = {
 export class TrustedOperatorModeService {
   private readonly stateFile: string;
   private readonly now: () => Date;
+  private readonly autoApproveReadOnly: boolean;
   private readonly existsSync: typeof fs.existsSync;
   private readonly mkdirSync: typeof fs.mkdirSync;
   private readonly readFileSync: typeof fs.readFileSync;
@@ -39,6 +45,7 @@ export class TrustedOperatorModeService {
         || path.join(process.cwd(), '.zavorth', 'trusted-operator-mode.json'),
     );
     this.now = runtime.now || (() => new Date());
+    this.autoApproveReadOnly = runtime.autoApproveReadOnly !== false;
     this.existsSync = runtime.existsSync || fs.existsSync.bind(fs);
     this.mkdirSync = runtime.mkdirSync || fs.mkdirSync.bind(fs);
     this.readFileSync = runtime.readFileSync || fs.readFileSync.bind(fs);
@@ -113,6 +120,15 @@ export class TrustedOperatorModeService {
         autoApprove: false,
         reason: 'Mutations outside trusted folders still require explicit approval.',
         lane: 'yellow',
+        receiptsRequired: true,
+      };
+    }
+
+    if (risk === 'low' && !mutation && !this.autoApproveReadOnly) {
+      return {
+        autoApprove: false,
+        reason: 'Read-only auto-approval is disabled by configuration (agent.autoApproveReadOnly=false).',
+        lane: 'green',
         receiptsRequired: true,
       };
     }

@@ -68,6 +68,7 @@ import { normalizeAgentPermissionChoice } from '../../contracts/permission/Agent
 import { getAgentPermissionService } from '../../services/permission/AgentPermissionService.js';
 import { assertSurfaceApproveGate } from '../../services/surface/SurfaceApprovalGate.js';
 import { ApprovalCoordinator } from '../../services/approvals/ApprovalCoordinator.js';
+import type { TrustedOperatorModeService } from '../../services/power/TrustedOperatorModeService.js';
 export type ZavorthAgentGatewayRuntime = AgentRunServiceRuntime & {
   runStore?: AgentRunStore | null;
   workflowQueueStore?: AgentWorkflowQueueStore | null;
@@ -78,6 +79,8 @@ export type ZavorthAgentGatewayRuntime = AgentRunServiceRuntime & {
   workflowMaxAttempts?: number;
   runtimePromotionGovernance?: RuntimePromotionGovernanceService | null;
   agentLLMRuntime?: AgentLLMRuntime | null;
+  /** Trusted Operator posture source for green-lane read-only auto-approvals. */
+  trustedOperator?: Pick<TrustedOperatorModeService, 'decide' | 'isEnabled'>;
 };
 
 export type ZavorthAgentGatewaySnapshot = {
@@ -207,6 +210,13 @@ function isTerminalRunStatus(run: UniversalAgentRun | null | undefined): boolean
   return run?.status === 'completed' || run?.status === 'failed' || run?.status === 'cancelled';
 }
 
+/** Fail-closed mapping: only exposure-safe reads map to the operator's low risk. */
+function mapApprovalRiskToOperatorRisk(risk: UniversalApprovalRequest['risk']): 'low' | 'medium' | 'high' {
+  if (risk === 'safe') return 'low';
+  if (risk === 'danger') return 'high';
+  return 'medium';
+}
+
 export class ZavorthAgentGateway {
   private readonly runService: AgentRunService;
   private readonly runStore: AgentRunStore;
@@ -220,6 +230,7 @@ export class ZavorthAgentGateway {
   private readonly runtimePromotionGovernance: RuntimePromotionGovernanceService;
   private readonly agentLLMRuntime: AgentLLMRuntime;
   private readonly approvalCoordinator: ApprovalCoordinator;
+  private readonly trustedOperator: Pick<TrustedOperatorModeService, 'decide' | 'isEnabled'> | null;
   private channelMeshEventBus: ChannelMeshEventBusLike | null = null;
   private channelMeshBridgeOptions: ChannelMeshBridgeOptions = {};
   private readonly channelMeshPresenterTargets = new Map<string, ChannelMeshPresenterTarget>();
@@ -266,6 +277,7 @@ export class ZavorthAgentGateway {
       });
     this.agentLLMRuntime = runtime.agentLLMRuntime || new AgentLLMRuntime();
     this.approvalCoordinator = new ApprovalCoordinator(this);
+    this.trustedOperator = runtime.trustedOperator || null;
     this.hydrateRuns();
     this.hydrateWorkflowJobs();
   }
@@ -838,10 +850,51 @@ export class ZavorthAgentGateway {
         options,
       });
       this.ensureWorkflowJobForWaitingApproval(result.run, input);
+      await this.applyTrustedOperatorAutoApprovals(result.run);
       await this.broadcastPendingApprovalPrompts(result.run);
     }
     this.persistAll();
     return result;
+  }
+
+  /**
+   * Trusted Operator connection: green-lane read-only approvals resolve
+   * immediately through the standard approve path instead of prompting any
+   * surface. Yellow/red lanes and DiskMutationGate stay untouched; the
+   * declarative agent.autoApproveReadOnly flag gates the green lane inside
+   * the operator service itself.
+   */
+  private async applyTrustedOperatorAutoApprovals(run: UniversalAgentRun): Promise<void> {
+    if (!this.trustedOperator || !this.trustedOperator.isEnabled()) {
+      return;
+    }
+    for (const approval of run.approvals) {
+      if (approval.status !== 'pending') {
+        continue;
+      }
+      const decision = this.trustedOperator.decide({
+        description: `${approval.title} ${approval.reason || ''}`.trim(),
+        risk: mapApprovalRiskToOperatorRisk(approval.risk),
+        mutation: false,
+      });
+      if (!decision.autoApprove) {
+        continue;
+      }
+      try {
+        await this.approve(approval.id, {
+          choice: 'once',
+          surface: 'trusted-operator',
+          sessionId: run.sessionId,
+        });
+        logger.info('[ZavorthAgentGateway] Trusted Operator auto-approved a green-lane read-only approval.', {
+          runId: run.id,
+          approvalId: approval.id,
+        });
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        logger.warn('[ZavorthAgentGateway] Trusted Operator auto-approval failed; approval stays pending.', err);
+      }
+    }
   }
 
   public async approve(

@@ -22,6 +22,8 @@ import { LearningPromoteService } from './power/LearningPromoteService.js';
 import { ExternalHarnessRegistryService } from './power/ExternalHarnessRegistryService.js';
 import { ContextDisciplineService } from './power/ContextDisciplineService.js';
 import { ZavorthAdaptiveLearningOsService } from './ZavorthAdaptiveLearningOsService.js';
+import { getConfig } from '../core/config/ConfigLoader.js';
+import { logger } from '../logger.js';
 
 export type PowerFabricBuildInput = {
   projectRoot?: string;
@@ -66,6 +68,7 @@ export class UniversalPowerSubsystemService {
     this.trustedOperator = runtime.trustedOperator || new TrustedOperatorModeService({
       stateFile: path.join(this.projectRoot, '.zavorth', 'trusted-operator-mode.json'),
       now: this.now,
+      autoApproveReadOnly: readAgentAutoApproveReadOnlyConfig(),
     });
     this.learningPromote = runtime.learningPromote || new LearningPromoteService({
       storeDir: path.join(this.projectRoot, '.zavorth', 'learning-promote'),
@@ -371,6 +374,15 @@ function mapPosture(status: string): PowerBackendPosture {
     case 'needs-configuration': return 'needs-configuration';
     case 'planned': return 'planned';
     default: return 'needs-configuration';
+  }
+}
+
+function readAgentAutoApproveReadOnlyConfig(): boolean {
+  try {
+    return getConfig().agent.autoApproveReadOnly !== false;
+  } catch (error: unknown) {
+    logger.warn('[UniversalPowerSubsystemService] agent config unavailable; defaulting autoApproveReadOnly to true', error);
+    return true;
   }
 }
 
