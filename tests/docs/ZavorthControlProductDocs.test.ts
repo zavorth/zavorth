@@ -45,9 +45,9 @@ describe('ZavorthControl product docs', () => {
   });
 
   it('keeps identity docs as versioned direction rather than mutable runtime config', () => {
-    const identity = readWorkspaceFile('IDENTITY.md');
-    const soul = readWorkspaceFile('SOUL.md');
-    const bootstrap = readWorkspaceFile('BOOTSTRAP.md');
+    const identity = readWorkspaceFile('IDENTITY.md.example');
+    const soul = readWorkspaceFile('SOUL.md.example');
+    const bootstrap = readWorkspaceFile('BOOTSTRAP.md.example');
 
     expect(identity).toContain('Mascot');
     expect(identity).toContain('fox');

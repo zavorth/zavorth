@@ -224,6 +224,20 @@ skill-library/native/auto_*/
 clone-*/
 fork-*/
 ses_*/
+
+# === Runtime persona & memory workspace state (generated per installation) ===
+/USER.md
+/SOUL.md
+/IDENTITY.md
+/MEMORY.md
+/TEAM-CONTEXT.md
+/KNOWLEDGE.md
+/BOOTSTRAP.md
+/DOMAIN.md
+/LEARNING-STYLE.md
+/ERROR-HANDLING.md
+/OUTPUT-FORMAT.md
+/TIME-AUTOMATION.md
 /*.py
 /test_voyage*.ts
 /test_promise_race.js
