@@ -2,6 +2,11 @@ import type { IMessageBroker, MessageAttachment } from '../../../../contracts/IM
 import type { DiscordGatewayReplyOptions } from './DiscordGatewayReplyService.js';
 import type { ZavorthAgentGateway } from '../../../../runtime/agent/index.js';
 import type { DiscordSurfacePolicyService } from '../../../../services/DiscordSurfacePolicyService.js';
+import type {
+  SurfaceApprovalDecisionBroker,
+  SurfaceApprovalDecisionScope,
+} from '../../../../contracts/core/SurfaceApprovalDecisionContract.js';
+import { supportsSurfaceApprovalDecisions } from '../../../../contracts/core/SurfaceApprovalDecisionContract.js';
 import {
   evaluateSharedSurfaceCommandCallback,
   isSharedSurfaceOperationalCallbackCommand,
@@ -141,42 +146,41 @@ export class DiscordGatewayInboundService {
 
     // Numbered / slash approval for pending Discord surface cards (short number or approve/reject).
     if (this.looksLikeSurfacePermissionText(rawText)) {
-      const permissionText = tryConsumeMessagingPermissionText({
+      const permission = tryConsumeMessagingPermissionText({
         channel: 'discord',
         chatId,
         userId: authorId,
         rawText,
       });
-      if (permissionText) {
-        const commandText =
-          permissionText.choice === 'deny'
-            ? `/reject ${permissionText.taskId}`
-            : `/approve ${permissionText.taskId} ${permissionText.choice}`;
-        await this.broker.processMessage({
+      if (permission) {
+        const decisionBroker = this.resolveSurfaceApprovalDecisionBroker();
+        if (!decisionBroker) {
+          const reason = 'Discord native gateway broker cannot resolve surface approval decisions.';
+          this.persistence.markRejected(reason);
+          await this.replyService.replyToMessage(
+            message,
+            'Approval routing is unavailable on this runtime right now.',
+          );
+          return;
+        }
+
+        await decisionBroker.resolveSurfaceApprovalDecision({
           platform: 'discord',
-          userId: authorId,
           chatId,
+          userId: authorId,
+          ref: permission.taskId,
+          action: permission.choice === 'deny' ? 'deny' : 'approve',
+          scope: resolveSurfaceDecisionScope(permission.choice),
           isGroup: Boolean(guildId),
-          rawText: commandText,
-          messageId: String(message.id || '').trim() || null,
           channelId,
           threadId,
+          messageId: String(message.id || '').trim() || null,
           transport: 'text',
-          attachments,
-          composerPayload: {
-            attachments,
-            discord: {
-              source: 'message',
-              channelId,
-              threadId,
-              guildId,
-            },
+          reply: async (text: string) => {
+            await this.replyService.replyToMessage(message, text);
           },
-          reply: async (text: string, options?: DiscordGatewayReplyOptions) => {
-            await this.replyService.replyToMessage(message, text, options);
-          },
-          editMessage: async (messageId: string, text: string) => {
-            await this.replyService.editChannelMessage(message, messageId, text);
+          editMessage: async (editMessageId: string, text: string) => {
+            await this.replyService.editChannelMessage(message, editMessageId, text);
           },
         });
         return;
@@ -399,17 +403,12 @@ export class DiscordGatewayInboundService {
         permission = { taskId: pending.approvalId, choice: event.choice };
       }
       if (permission) {
-        const commandText =
-          permission.choice === 'deny'
-            ? `/reject ${permission.taskId}`
-            : `/approve ${permission.taskId} ${permission.choice}`;
-
         const validation = this.validateInboundMessage({
           userId: authorId,
           guildId,
           channelId,
           parentChannelId: interaction.channel?.parentId,
-          rawText: commandText,
+          rawText: describeSurfaceApprovalDecision(permission),
           attachmentsCount: 0,
         });
         if (!validation.valid) {
@@ -430,40 +429,33 @@ export class DiscordGatewayInboundService {
           permission.choice === 'deny' ? 'Rejecting…' : `Allow ${permission.choice}…`,
         );
 
-        await broker.processMessage({
+        const decisionBroker = this.resolveSurfaceApprovalDecisionBroker();
+        if (!decisionBroker) {
+          const reason = 'Discord native gateway broker cannot resolve surface approval decisions.';
+          this.persistence.markRejected(reason);
+          await this.replyService.replyToInteraction(
+            interaction,
+            'Approval routing is unavailable on this runtime right now.',
+          );
+          return;
+        }
+
+        await decisionBroker.resolveSurfaceApprovalDecision({
           platform: 'discord',
-          userId: authorId,
           chatId,
+          userId: authorId,
+          ref: permission.taskId,
+          action: permission.choice === 'deny' ? 'deny' : 'approve',
+          scope: resolveSurfaceDecisionScope(permission.choice),
           isGroup: Boolean(guildId),
-          rawText: commandText,
-          messageId,
           channelId,
           threadId,
+          messageId,
           transport: 'interaction',
-          attachments: [],
-          nativeCommand: {
-            name: 'surface-permission',
-            args: commandText,
-            options: {
-              customId: rawCallback,
-              choice: permission.choice,
-              taskId: permission.taskId,
-            },
+          reply: async (text: string) => {
+            await this.replyService.replyToInteraction(interaction, text);
           },
-          composerPayload: {
-            attachments: [],
-            discord: {
-              source: 'component',
-              customId: rawCallback,
-              channelId,
-              threadId,
-              guildId,
-            },
-          },
-          reply: async (text: string, options?: DiscordGatewayReplyOptions) => {
-            await this.replyService.replyToInteraction(interaction, text, options);
-          },
-          editMessage: async (_messageId: string, text: string) => {
+          editMessage: async (_editMessageId: string, text: string) => {
             await this.replyService.editInteractionReply(interaction, text);
           },
         });
@@ -695,4 +687,16 @@ export class DiscordGatewayInboundService {
     }
     return true;
   }
+
+  private resolveSurfaceApprovalDecisionBroker(): SurfaceApprovalDecisionBroker | null {
+    return supportsSurfaceApprovalDecisions(this.broker) ? this.broker : null;
+  }
+}
+
+function resolveSurfaceDecisionScope(choice: 'once' | 'session' | 'always' | 'deny'): SurfaceApprovalDecisionScope | null {
+  return choice === 'deny' ? null : choice;
+}
+
+function describeSurfaceApprovalDecision(permission: { taskId: string; choice: string }): string {
+  return `surface-approval:${permission.choice}:${permission.taskId}`;
 }

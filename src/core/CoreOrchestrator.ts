@@ -22,6 +22,12 @@ import { ContextEngine } from '../context-engine/ContextEngine.js';
 import type { LegacyUnifiedGatewayAdapter } from '../context-engine/LegacyUnifiedGatewayAdapter.js';
 import { NaturalLanguageRouter } from '../cognitive-firewall/NaturalLanguageRouter.js';
 import type {
+  SurfaceApprovalDecisionAction,
+  SurfaceApprovalDecisionOutcome,
+  SurfaceApprovalDecisionRequest,
+  SurfaceApprovalDecisionScope,
+} from '../contracts/core/SurfaceApprovalDecisionContract.js';
+import type {
   UniversalAgentChannel,
   UniversalAgentExecutor,
   UniversalAgentRunResult,
@@ -228,6 +234,97 @@ export class CoreOrchestrator implements IMessageBroker {
             }
           : null,
     });
+  }
+
+  /**
+   * First-class typed ingress for surface approval decisions (Discord taps and
+   * numbered/slash consumption). Runs the same broker-side gate sequence a
+   * typed `/approve <ref> <scope>` / `/reject <ref>` message would experience —
+   * shared-surface command boundary first, then public-server and unsupported
+   * slash fallbacks — and delegates to the same approval spine, so receipts and
+   * error semantics stay identical to the text path.
+   */
+  public async resolveSurfaceApprovalDecision(
+    request: SurfaceApprovalDecisionRequest,
+  ): Promise<SurfaceApprovalDecisionOutcome> {
+    const action: SurfaceApprovalDecisionAction =
+      request.action === 'deny' ? 'deny' : 'approve';
+    const ref = String(request.ref || '').trim();
+    const scope = resolveSurfaceApprovalDecisionScope(request.scope, action);
+    const parsedCommand = this.commandParser.parse(buildSurfaceApprovalDecisionCommandText(action, ref, scope));
+    const commandText = `${parsedCommand.command_type}${parsedCommand.command_args ? ` ${parsedCommand.command_args}` : ''}`;
+    const context = this.buildSurfaceApprovalDecisionContext(request, commandText);
+
+    const replies: string[] = [];
+    const state: CoreOrchestratorPipelineState = {
+      ctx: captureRepliesOnContext(context, replies),
+      rawText: commandText,
+      parsed: parsedCommand,
+      shouldUseLegacyUnifiedGatewayIngress: false,
+    };
+
+    const handledBySharedBoundary = await this.handleSharedSurfaceCommandApi(state);
+    if (handledBySharedBoundary) {
+      return {
+        status: 'executed',
+        action,
+        ref,
+        scope,
+        replies,
+        reason: null,
+      };
+    }
+
+    if (this.appliesDiscordPublicServerGate(state)) {
+      const reason = 'On public Discord, use Zavorth slash commands in allowed channels.';
+      await state.ctx.reply(reason);
+      replies.push(reason);
+      return { status: 'blocked', action, ref, scope, replies, reason };
+    }
+
+    const reason = formatSharedSurfaceUnavailableReply(context.platform);
+    await state.ctx.reply(reason);
+    replies.push(reason);
+    return { status: 'boundary-unavailable', action, ref, scope, replies, reason };
+  }
+
+  private appliesDiscordPublicServerGate(state: CoreOrchestratorPipelineState): boolean {
+    return (
+      state.ctx.platform === 'discord' &&
+      Boolean(state.ctx.isGroup) &&
+      state.ctx.transport === 'text' &&
+      this.discordSurfacePolicyService.isPublicServerMode()
+    );
+  }
+
+  private buildSurfaceApprovalDecisionContext(
+    request: SurfaceApprovalDecisionRequest,
+    commandText: string,
+  ): IMessageContext {
+    return {
+      platform: request.platform,
+      userId: String(request.userId || '').trim(),
+      chatId: String(request.chatId || '').trim(),
+      isGroup: Boolean(request.isGroup),
+      rawText: commandText,
+      messageId: request.messageId ?? null,
+      channelId: request.channelId ?? null,
+      threadId: request.threadId ?? null,
+      transport: request.transport || 'interaction',
+      attachments: [],
+      composerPayload: null,
+      nativeCommand: null,
+      reply: async (text: string) => {
+        await request.reply(text);
+      },
+      editMessage: async (messageId: string, text: string) => {
+        if (request.editMessage) {
+          await request.editMessage(messageId, text);
+          return;
+        }
+        await request.reply(text);
+      },
+    };
   }
 
   public async broadcast(message: string, roles: string[] = ['admin']): Promise<void> {
@@ -693,4 +790,38 @@ export class CoreOrchestrator implements IMessageBroker {
       },
     });
   }
+}
+
+function resolveSurfaceApprovalDecisionScope(
+  scope: SurfaceApprovalDecisionScope | null | undefined,
+  action: SurfaceApprovalDecisionAction,
+): SurfaceApprovalDecisionScope | null {
+  if (action === 'deny') {
+    return null;
+  }
+  if (scope === 'session' || scope === 'always' || scope === 'once') {
+    return scope;
+  }
+  return 'once';
+}
+
+function buildSurfaceApprovalDecisionCommandText(
+  action: SurfaceApprovalDecisionAction,
+  ref: string,
+  scope: SurfaceApprovalDecisionScope | null,
+): string {
+  return action === 'deny' ? `/reject ${ref}` : `/approve ${ref} ${scope || 'once'}`;
+}
+
+function captureRepliesOnContext(
+  context: IMessageContext,
+  replies: string[],
+): IMessageContext {
+  return {
+    ...context,
+    reply: async (text: string, options?: Record<string, unknown>) => {
+      replies.push(String(text || ''));
+      await context.reply(text, options);
+    },
+  };
 }

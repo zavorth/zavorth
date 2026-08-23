@@ -14,10 +14,18 @@ import { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import type { ChannelAdapterStatus, ChannelFeatureSet } from '../contracts/ChannelMeshContract.js';
 import type {
+  MessageChannel,
   PlatformTransport,
   PlatformKey,
 } from '../contracts/PlatformContract.js';
 import type { IMessageContext } from '../contracts/core/IMessageBroker.js';
+import type {
+  SurfaceApprovalDecisionBroker,
+  SurfaceApprovalDecisionRequest,
+} from '../contracts/core/SurfaceApprovalDecisionContract.js';
+import { supportsSurfaceApprovalDecisions } from '../contracts/core/SurfaceApprovalDecisionContract.js';
+import { tryConsumeMessagingPermissionText } from '../domain/surface/application/surface-projection/MessagingSurfaceResponseSender.js';
+import { withMiddleware } from './ZavorthGatewayMiddlewareIntegration.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
 import { ChannelLiveTransportRegistry } from './ChannelLiveTransportRegistry.js';
@@ -61,6 +69,9 @@ interface WebhookBroker {
   processMessage(
     ctx: Pick<IMessageContext, 'platform' | 'userId' | 'chatId' | 'messageId' | 'isGroup' | 'rawText' | 'reply'>,
   ): Promise<void>;
+  resolveSurfaceApprovalDecision?(
+    request: SurfaceApprovalDecisionRequest,
+  ): Promise<unknown>;
 }
 
 interface OutboundPayload {
@@ -258,9 +269,6 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
 
     // Numbered / slash approval for pending surface cards (WhatsApp/Signal/Slack/etc.)
     try {
-      const { tryConsumeMessagingPermissionText } = await import(
-        '../domain/surface/application/surface-projection/MessagingSurfaceResponseSender.js'
-      );
       const permission = tryConsumeMessagingPermissionText({
         channel: this.id,
         chatId,
@@ -268,18 +276,22 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
         rawText,
       });
       if (permission) {
-        const commandText =
-          permission.choice === 'deny'
-            ? `/reject ${permission.taskId}`
-            : `/approve ${permission.taskId} ${permission.choice}`;
-        if (this.broker) {
-          await this.broker.processMessage({
-            platform: this.id as CanonicalChannelPlatform,
+        const decisionBroker: SurfaceApprovalDecisionBroker | null = supportsSurfaceApprovalDecisions(
+          this.broker,
+        )
+          ? this.broker
+          : null;
+        if (decisionBroker) {
+          await decisionBroker.resolveSurfaceApprovalDecision({
+            platform: this.id as MessageChannel,
             userId,
             chatId,
             messageId: extracted.messageId || null,
             isGroup: Boolean(extracted.isGroup),
-            rawText: commandText,
+            ref: permission.taskId,
+            action: permission.choice === 'deny' ? 'deny' : 'approve',
+            scope: permission.choice === 'deny' ? null : permission.choice,
+            transport: 'text',
             reply: async (text: string) => {
               await this.sendMessage({ chatId, text });
             },
@@ -287,7 +299,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
         } else {
           await this.sendMessage({
             chatId,
-            text: `Recorded decision: ${permission.choice} for ${permission.taskId.slice(0, 8)}.`,
+            text: 'Approval routing is unavailable on this runtime right now.',
             recipients: [chatId],
           });
         }
@@ -298,7 +310,6 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     }
 
     if (this.broker) {
-      const { withMiddleware } = await import('./ZavorthGatewayMiddlewareIntegration.js');
       await withMiddleware(
         async () => {
           await this.broker!.processMessage({
