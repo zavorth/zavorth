@@ -11,16 +11,6 @@ const root = path.resolve(__dirname, '../../');
 const SCRIPT_REFERENCE_PATTERN = /\b(?:npm|pnpm|yarn|bun)\s+run\s+([a-zA-Z0-9][a-zA-Z0-9:_-]*)/g;
 const CANONICAL_GATES = ['check', 'typecheck', 'build', 'dev', 'test', 'lint'];
 
-/**
- * Invocations that predate this contract and never had a matching package.json
- * script. Each entry documents its source so the debt stays visible; removing
- * the entry requires fixing the calling workflow first.
- */
-const PRE_EXISTING_UNRESOLVED_INVOCATIONS: Record<string, string> = {
-  'publish:check': '.github/workflows/publish-plugin-sdk.yml calls a script that never existed',
-  harness: '.github/workflows/publish-plugin-sdk.yml calls a script that never existed',
-};
-
 const AUTOMATION_TARGETS = [
   '.github',
   '.githooks',
@@ -28,6 +18,26 @@ const AUTOMATION_TARGETS = [
   'Dockerfile',
   'zavorth.yml',
 ].map((target) => path.join(root, target));
+
+/**
+ * Workflow steps may resolve scripts against a workspace package instead of the
+ * repository root (working-directory), so an invocation counts as resolved when
+ * any package manifest in the monorepo exposes it.
+ */
+function collectWorkspaceScriptNames(): Set<string> {
+  const names = new Set<string>();
+  const manifests = [
+    path.join(root, 'package.json'),
+    ...collectFilesRecursively(path.join(root, 'packages')).filter((file) => file.endsWith('package.json')),
+  ];
+  for (const manifestPath of manifests) {
+    const parsed = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as { scripts?: Record<string, string> };
+    for (const scriptName of Object.keys(parsed.scripts ?? {})) {
+      names.add(scriptName);
+    }
+  }
+  return names;
+}
 
 function collectFilesRecursively(absolutePath: string): string[] {
   if (!fs.existsSync(absolutePath)) return [];
@@ -89,9 +99,10 @@ describe('PackageScriptsContractHygiene', () => {
   });
 
   it('resolves every script invoked by automation surfaces', () => {
+    const workspaceScripts = collectWorkspaceScriptNames();
     const missing: string[] = [];
     for (const [scriptName, filePaths] of extractScriptReferences(AUTOMATION_TARGETS)) {
-      if (pkg.scripts[scriptName] === undefined && PRE_EXISTING_UNRESOLVED_INVOCATIONS[scriptName] === undefined) {
+      if (pkg.scripts[scriptName] === undefined && !workspaceScripts.has(scriptName)) {
         missing.push(`${scriptName} <- ${[...new Set(filePaths)].slice(0, 3).join(', ')}`);
       }
     }
@@ -125,9 +136,10 @@ describe('PackageScriptsContractHygiene', () => {
       const escapedNames = Object.keys(manifest.scripts).map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
       const anyNameLiteral = new RegExp(`['"](${escapedNames.join('|')})['"]`);
       const offenders: string[] = [];
-      for (const directory of ['src', 'tests']) {
+      for (const directory of ['src', 'tests', 'scripts']) {
         for (const filePath of collectFilesRecursively(path.join(root, directory))) {
-          if (!/\.(ts|tsx)$/.test(filePath)) continue;
+          if (!/\.(ts|tsx|mjs)$/.test(filePath)) continue;
+          if (filePath.includes(`${path.sep}legacy${path.sep}`)) continue;
           const content = fs.readFileSync(filePath, 'utf8');
           const found = content.match(anyNameLiteral);
           if (found) offenders.push(`${found[1]} <- ${path.relative(root, filePath)}`);
