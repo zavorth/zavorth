@@ -7,6 +7,10 @@ import {
   renderApprovalDecisionReceiptForSurface,
   resolveSurfaceCapabilityPresentation,
 } from '../../channels/capabilities/SurfaceCapabilityGate.js';
+import {
+  formatChannelApprovalString,
+  resolveChannelApprovalLocale,
+} from '../../channels/approval-strings/ChannelApprovalLocaleCatalog.js';
 
 /**
  * Pending approval menus expire after this window. Expiry is fail-closed:
@@ -156,8 +160,10 @@ export class ApprovalCoordinator {
    * Acknowledgement shown when the operator picks the "other" escape on a
    * pending menu. Ordinals stay universal; only this wording localizes.
    */
-  public buildOtherModePrompt(refCount: number): string {
-    return `Describe your answer for ${refCount} pending approval(s); your next message is captured as the decision context.`;
+  public buildOtherModePrompt(refCount: number, preferredLanguageCode?: string | null): string {
+    return formatChannelApprovalString(resolveChannelApprovalLocale(preferredLanguageCode), 'other.armed', {
+      count: refCount,
+    });
   }
 
   /**
@@ -173,19 +179,25 @@ export class ApprovalCoordinator {
     command: ChannelMeshApprovalCommand;
     surface: string;
     sessionId: string;
+    locale?: string | null;
   }): Promise<string | null> {
     const { command } = input;
     if (command.ref.trim().toLowerCase() === BULK_APPROVAL_REF) {
       return this.executeBulkDecision(input);
     }
     const presentation = resolveSurfaceCapabilityPresentation({ platform: input.surface });
+    const locale = input.locale ?? null;
     if (command.action === 'deny') {
       const rejected = await this.gatewayPort.reject(command.ref).catch(() => null);
-      return renderApprovalDecisionReceiptForSurface(presentation, {
-        action: 'deny',
-        ref: command.ref,
-        found: Boolean(rejected),
-      });
+      return renderApprovalDecisionReceiptForSurface(
+        presentation,
+        {
+          action: 'deny',
+          ref: command.ref,
+          found: Boolean(rejected),
+        },
+        locale,
+      );
     }
     const approved = await this.gatewayPort
       .approve(command.ref, {
@@ -194,12 +206,16 @@ export class ApprovalCoordinator {
         sessionId: input.sessionId,
       })
       .catch(() => null);
-    return renderApprovalDecisionReceiptForSurface(presentation, {
-      action: 'approve',
-      ref: command.ref,
-      choice: command.choice,
-      found: Boolean(approved),
-    });
+    return renderApprovalDecisionReceiptForSurface(
+      presentation,
+      {
+        action: 'approve',
+        ref: command.ref,
+        choice: command.choice,
+        found: Boolean(approved),
+      },
+      locale,
+    );
   }
 
   /**
@@ -212,6 +228,7 @@ export class ApprovalCoordinator {
     reason: string;
     surface: string;
     sessionId: string;
+    locale?: string | null;
   }): Promise<string | null> {
     const presentation = resolveSurfaceCapabilityPresentation({ platform: input.surface });
     let denied = 0;
@@ -227,9 +244,11 @@ export class ApprovalCoordinator {
       return null;
     }
     if (input.refList.length === 0 || denied === 0) {
-      return 'No pending approval found for the referenced approvals.';
+      return formatChannelApprovalString(resolveChannelApprovalLocale(input.locale), 'other.referencedNotFound', {});
     }
-    return `Denied ${denied} approval(s). Your answer was relayed to the agent.`;
+    return formatChannelApprovalString(resolveChannelApprovalLocale(input.locale), 'other.deniedWithReason', {
+      count: denied,
+    });
   }
 
   private listVisiblePendingRefs(sessionId: string): Array<{ runId: string; approvalId: string }> {
@@ -252,13 +271,15 @@ export class ApprovalCoordinator {
     command: ChannelMeshApprovalCommand;
     surface: string;
     sessionId: string;
+    locale?: string | null;
   }): Promise<string | null> {
     const presentation = resolveSurfaceCapabilityPresentation({ platform: input.surface });
+    const locale = resolveChannelApprovalLocale(input.locale);
     const targets = this.listVisiblePendingRefs(input.sessionId);
     if (targets.length === 0) {
       return presentation.mode === 'none'
         ? null
-        : `No pending approval found for ${BULK_APPROVAL_REF}.`;
+        : formatChannelApprovalString(locale, 'bulk.notFound', {});
     }
 
     let resolved = 0;
@@ -281,15 +302,21 @@ export class ApprovalCoordinator {
     if (presentation.mode === 'none') {
       return null;
     }
-    const scopeNote =
-      input.command.action === 'deny' ? '' : ` (${input.command.choice})`;
     if (resolved === targets.length) {
       return input.command.action === 'deny'
-        ? `Denied ${targets.length} approval(s).`
-        : `Approved all ${targets.length} approval(s)${scopeNote}.`;
+        ? formatChannelApprovalString(locale, 'bulk.deniedAll', { count: targets.length })
+        : formatChannelApprovalString(locale, 'bulk.approvedAll', {
+          count: targets.length,
+          choice: input.command.choice,
+        });
     }
-    const verb = input.command.action === 'deny' ? 'Denied' : 'Approved';
-    return `${verb} ${resolved} of ${targets.length} approval(s)${scopeNote}.`;
+    return input.command.action === 'deny'
+      ? formatChannelApprovalString(locale, 'bulk.deniedPartial', { resolved, total: targets.length })
+      : formatChannelApprovalString(locale, 'bulk.approvedPartial', {
+        resolved,
+        total: targets.length,
+        choice: input.command.choice,
+      });
   }
 
   private resolveFastPathDecision(menuKey: string, text: string): ChannelMeshApprovalCommand | null {

@@ -286,12 +286,14 @@ export class ZavorthAgentGateway {
       if (!target) return;
 
       const menuKey = `${target.platform}:${target.chatId}`;
+      const preferredLocale = this.extractChannelMeshPreferredLocale(request);
       const interaction = this.approvalCoordinator.resolveApprovalInteraction(menuKey, request.text);
       if (interaction.kind === 'explicit-command' || interaction.kind === 'fast-path-command') {
         const receipt = await this.approvalCoordinator.executeApprovalDecision({
           command: interaction.command,
           surface: target.platform,
           sessionId: menuKey,
+          locale: preferredLocale,
         });
         this.emitChannelMeshReplies(eventBus, target, [receipt || ''].filter((text) => text.trim().length > 0), bridgeOptions);
         return;
@@ -300,13 +302,13 @@ export class ZavorthAgentGateway {
         this.emitChannelMeshReplies(
           eventBus,
           target,
-          [this.approvalCoordinator.buildOtherModePrompt(interaction.refList.length)],
+          [this.approvalCoordinator.buildOtherModePrompt(interaction.refList.length, preferredLocale)],
           bridgeOptions,
         );
         return;
       }
       if (interaction.kind === 'other-context') {
-        await this.routeChannelMeshOtherContext(eventBus, target, interaction, bridgeOptions);
+        await this.routeChannelMeshOtherContext(eventBus, target, interaction, bridgeOptions, preferredLocale);
         return;
       }
 
@@ -341,7 +343,13 @@ export class ZavorthAgentGateway {
           .filter((text) => text.trim().length > 0);
         const fallbackTexts =
           replyTexts.length > 0 ? replyTexts : [result.run.summary].filter((text) => text.trim());
-        const finalTexts = this.appendPendingApprovalGuidance(result.run, fallbackTexts, target.platform, menuKey);
+        const finalTexts = this.appendPendingApprovalGuidance(
+          result.run,
+          fallbackTexts,
+          target.platform,
+          menuKey,
+          preferredLocale,
+        );
         this.emitChannelMeshReplies(eventBus, target, finalTexts, bridgeOptions);
       } finally {
         typingHeartbeat.stop();
@@ -368,6 +376,7 @@ export class ZavorthAgentGateway {
     texts: string[],
     surface?: string,
     menuKey?: string,
+    preferredLanguageCode?: string | null,
   ): string[] {
     if (run.status !== 'waiting_approval') {
       return texts;
@@ -392,6 +401,7 @@ export class ZavorthAgentGateway {
         risk: approval.risk,
         ref: approval.id,
       })),
+      preferredLanguageCode,
     );
     if (!prompt) {
       // Capability enforcement: this surface declared approvals disabled (or
@@ -412,6 +422,7 @@ export class ZavorthAgentGateway {
     target: ChannelMeshReplyTarget,
     packet: { userText: string; refList: string[] },
     bridgeOptions: ChannelMeshBridgeOptions,
+    preferredLocale?: string | null,
   ): Promise<void> {
     const sessionId = `${target.platform}:${target.chatId}`;
     let receipts: Array<string | null> = [];
@@ -434,6 +445,7 @@ export class ZavorthAgentGateway {
                 : { action: 'deny', ref, choice: 'once' },
             surface: target.platform,
             sessionId,
+            locale: preferredLocale,
           }),
         ];
       } else {
@@ -443,6 +455,7 @@ export class ZavorthAgentGateway {
             reason: packet.userText,
             surface: target.platform,
             sessionId,
+            locale: preferredLocale,
           }),
         ];
       }
@@ -453,6 +466,12 @@ export class ZavorthAgentGateway {
       receipts.filter((text): text is string => Boolean(text && text.trim().length > 0)),
       bridgeOptions,
     );
+  }
+
+  private extractChannelMeshPreferredLocale(request: UniversalAgentRequest): string | undefined {
+    const metadata = toSerializableRecord(request.metadata);
+    const preferred = normalizeText(metadata.preferredLanguageCode);
+    return preferred || undefined;
   }
 
   private extractChannelMeshReplyTarget(request: UniversalAgentRequest): ChannelMeshReplyTarget | null {

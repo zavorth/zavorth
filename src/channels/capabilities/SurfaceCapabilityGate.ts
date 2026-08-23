@@ -4,6 +4,10 @@ import {
   isAffordanceEnabled,
   resolveSurfaceProfileForChannel,
 } from '../../domain/surface/application/surface-affordance/index.js';
+import {
+  formatChannelApprovalString,
+  resolveChannelApprovalLocale,
+} from '../approval-strings/ChannelApprovalLocaleCatalog.js';
 
 /**
  * Presentation contract enforced from declared capabilities: surfaces either
@@ -40,8 +44,7 @@ export type ApprovalDecisionReceiptParts = {
   found: boolean;
 };
 
-const NUMBERED_TEXT_HINT =
-  'Reply 1 (or the ref) to allow once, approve / approve session / approve always, or reject to deny.';
+const NUMBERED_TEXT_HINT_KEY = 'prompt.hint' as const;
 
 function disabledPresentation(platform: string): SurfaceApprovalPresentation {
   return {
@@ -95,31 +98,43 @@ export function resolveSurfaceCapabilityPresentation(input: SurfaceCapabilityInp
 export function renderApprovalPromptForSurface(
   presentation: SurfaceApprovalPresentation | null,
   entries: ApprovalMenuEntry[],
+  preferredLanguageCode?: string | null,
 ): string | null {
   if (!presentation || presentation.mode === 'none' || entries.length === 0) {
     return null;
   }
+  const locale = resolveChannelApprovalLocale(preferredLanguageCode);
   const multiple = entries.length > 1;
   const lines = entries.map((entry, index) => {
     const ordinalPrefix = multiple ? `${index + 1}. ` : '';
-    return `${ordinalPrefix}[${entry.risk}] ${entry.label} — ref ${entry.ref}`;
+    return formatChannelApprovalString(locale, 'prompt.entry', {
+      ordinal: ordinalPrefix,
+      risk: entry.risk,
+      label: entry.label,
+      ref: entry.ref,
+    });
   });
-  return [...lines, NUMBERED_TEXT_HINT].join('\n');
+  lines.push(formatChannelApprovalString(locale, NUMBERED_TEXT_HINT_KEY, {}));
+  return lines.join('\n');
 }
 
 export function renderApprovalDecisionReceiptForSurface(
   presentation: SurfaceApprovalPresentation | null,
   parts: ApprovalDecisionReceiptParts,
+  preferredLanguageCode?: string | null,
 ): string | null {
   if (!presentation || presentation.mode === 'none') {
     return null;
   }
+  const locale = resolveChannelApprovalLocale(preferredLanguageCode);
   if (!parts.found) {
-    return `No pending approval found for ${parts.ref}.`;
+    return formatChannelApprovalString(locale, 'receipt.notFound', { ref: parts.ref });
   }
   if (parts.action === 'deny') {
-    return `Denied approval ${parts.ref}.`;
+    return formatChannelApprovalString(locale, 'receipt.denied', { ref: parts.ref });
   }
-  const choice = String(parts.choice || 'once');
-  return `Approved ${parts.ref} (${choice}).`;
+  return formatChannelApprovalString(locale, 'receipt.approved', {
+    ref: parts.ref,
+    choice: String(parts.choice || 'once'),
+  });
 }

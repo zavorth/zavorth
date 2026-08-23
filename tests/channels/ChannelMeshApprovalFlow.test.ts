@@ -58,12 +58,17 @@ describe('Channel Mesh approval flow', () => {
     return texts;
   }
 
-  async function emitInbound(eventBus: GatewayEventBus, rawText: string, messageId: string): Promise<void> {
+  async function emitInbound(
+    eventBus: GatewayEventBus,
+    rawText: string,
+    messageId: string,
+    chatId = 'C-bulk',
+  ): Promise<void> {
     await eventBus.emit(
       buildInboundChannelEvent({
         platform: 'slack',
         userId: 'U123',
-        chatId: 'C-ops',
+        chatId,
         rawText,
         messageId,
         now: new Date('2026-04-27T16:00:00.000Z'),
@@ -89,14 +94,14 @@ describe('Channel Mesh approval flow', () => {
     await gateway.handle({
       userId: 'U123',
       channel: 'api',
-      sessionId: 'slack:C-ops',
+      sessionId: 'slack:C-bulk',
       text: 'run npm test',
       requestedTools: ['shell.exec'],
     });
     await gateway.handle({
       userId: 'U123',
       channel: 'api',
-      sessionId: 'slack:C-ops',
+      sessionId: 'slack:C-bulk',
       text: 'deploy the service',
       requestedTools: ['shell.exec'],
     });
@@ -107,6 +112,87 @@ describe('Channel Mesh approval flow', () => {
     expect(executor).toHaveBeenCalledTimes(2);
     expect(outboundTexts).toContain('Approved all 2 approval(s) (once).');
     expect(gateway.listRuns().filter((run) => run.status === 'waiting_approval')).toHaveLength(0);
+  });
+
+  it('renders approval receipts in the chat preferred language carried on ingress metadata', async () => {
+    const eventBus = await createOpenSlackBus();
+    const outboundTexts = collectOutboundTexts(eventBus, 'slack');
+    const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
+      status: 'completed',
+      summary: 'Executed after approval.',
+      replyText: 'done',
+    }));
+    const gateway = new ZavorthAgentGateway({
+      now: () => new Date('2026-04-27T16:20:00.000Z'),
+      idFactory: createIdFactory(),
+      executor,
+    });
+    gateway.attachChannelMeshEventBus(eventBus, {}, { onboardingGate: null });
+
+    await gateway.handle({
+      userId: 'U123',
+      channel: 'api',
+      sessionId: 'slack:C-ptbr',
+      text: 'run npm test',
+      requestedTools: ['shell.exec'],
+    });
+    expect(gateway.listRuns().filter((run) => run.status === 'waiting_approval')).toHaveLength(1);
+
+    // Telegram ingress attaches metadata.preferredLanguageCode; the mesh
+    // handler threads it into every approval string it renders.
+    await eventBus.emit({
+      type: 'public_ws',
+      payload: {
+        id: 'slack-ptbr-0300',
+        type: 'event',
+        payload: {
+          topic: 'im_message',
+          data: {
+            platform: 'slack',
+            userId: 'U123',
+            chatId: 'C-ptbr',
+            rawText: '/approve all once',
+            messageId: '171234.0300',
+            receivedAt: '2026-04-27T16:20:00.000Z',
+            normalizedInboundMessage: {
+              requestId: 'slack:171234.0300',
+              traceId: null,
+              userId: 'U123',
+              sessionId: 'slack:C-ptbr',
+              channel: 'api',
+              text: '/approve all once',
+              workspace: null,
+              requestedTools: [],
+              replyPort: {
+                id: 'slack:C-ptbr:channel-mesh',
+                label: 'slack Channel Mesh',
+                kind: 'api',
+                status: 'available',
+                primary: true,
+                description: 'Normalized non-Telegram channel for the Zavorth Agent Gateway.',
+              },
+              metadata: {
+                source: 'channel-mesh',
+                platform: 'slack',
+                surface: 'slack',
+                channelPlatform: 'slack',
+                channelUserId: 'U123',
+                chatId: 'C-ptbr',
+                messageId: '171234.0300',
+                receivedAt: '2026-04-27T16:20:00.000Z',
+                normalizedInboundMessage: true,
+                canonicalChannelInboundMessage: true,
+                channelFields: {},
+                preferredLanguageCode: 'pt-BR',
+              },
+            },
+          },
+        },
+      },
+    });
+
+    expect(executor).toHaveBeenCalledTimes(1);
+    expect(outboundTexts).toContain('Todas as 1 aprovações foram aprovadas (once).');
   });
 
   it('captures free-text answers behind the "other" escape and denies fail-closed with the reason relayed', async () => {
@@ -126,7 +212,7 @@ describe('Channel Mesh approval flow', () => {
     await gateway.handle({
       userId: 'U123',
       channel: 'api',
-      sessionId: 'slack:C-ops',
+      sessionId: 'slack:C-other',
       text: 'wipe the production database table now',
       requestedTools: ['shell.exec'],
     });
@@ -134,14 +220,14 @@ describe('Channel Mesh approval flow', () => {
     expect(pendingRun).toBeDefined();
     const pendingApproval = pendingRun?.approvals.find((approval) => approval.status === 'pending');
     expect(pendingApproval).toBeDefined();
-    gateway.registerChannelMeshApprovalMenu('slack', 'C-ops', [pendingApproval?.id || '']);
+    gateway.registerChannelMeshApprovalMenu('slack', 'C-other', [pendingApproval?.id || '']);
     executor.mockClear();
 
-    await emitInbound(eventBus, 'other', '171234.0202');
+    await emitInbound(eventBus, 'other', '171234.0202', 'C-other');
 
     expect(outboundTexts.some((text) => text.startsWith('Describe your answer for'))).toBe(true);
 
-    await emitInbound(eventBus, 'not now, production is frozen', '171234.0203');
+    await emitInbound(eventBus, 'not now, production is frozen', '171234.0203', 'C-other');
 
     expect(executor).not.toHaveBeenCalled();
     expect(outboundTexts).toContain('Denied 1 approval(s). Your answer was relayed to the agent.');
