@@ -217,7 +217,7 @@ export function resolveSettingsDeepLink(value: string | null | undefined): Setti
   }
 
   const withoutHash = raw.startsWith('#') ? raw.slice(1) : raw;
-  const hashMatch = withoutHash.match(/^settings[/:=]([^/...#]+)/i);
+  const hashMatch = withoutHash.match(/^settings[/:=]([^/?#]+)/i);
   if (hashMatch) {
     return moduleFromCandidate(hashMatch[1]);
   }

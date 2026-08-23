@@ -120,10 +120,14 @@ export class ZavorthLocalizationService {
 
   public detectSystemLocale(): SupportedLocale {
     try {
-      if (typeof process !== 'undefined' && process.env) {
-        const envLocale = process.env.LC_ALL || process.env.LC_MESSAGES || process.env.LANG || process.env.LANGUAGE;
-        if (envLocale) {
-          const matched = this.normalizeLocaleTag(envLocale);
+      const runtimeGlobal = globalThis as unknown as {
+        process?: { env?: Record<string, string | undefined> };
+      };
+      const envLocale = runtimeGlobal.process?.env;
+      const candidates = [envLocale?.LC_ALL, envLocale?.LC_MESSAGES, envLocale?.LANG, envLocale?.LANGUAGE];
+      for (const candidate of candidates) {
+        if (candidate) {
+          const matched = this.normalizeLocaleTag(candidate);
           if (matched) return matched;
         }
       }

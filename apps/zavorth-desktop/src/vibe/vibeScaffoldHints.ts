@@ -81,7 +81,7 @@ export function normalizePreviewUrl(value: string, fallback = DEFAULT_PREVIEW_UR
   const trimmed = String(value || '').trim();
   if (!trimmed) return fallback;
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  if (/^(localhost|127\.0\.0\.1|\[::1\])(:\d+)...(\/.*)...$/i.test(trimmed)) {
+  if (/^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?(\/.*)?$/i.test(trimmed)) {
     return `http://${trimmed}`;
   }
   return fallback;

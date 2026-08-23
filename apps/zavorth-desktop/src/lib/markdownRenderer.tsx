@@ -16,8 +16,8 @@ interface MarkdownContentProps {
  * rendered HTML to replace those placeholders with KaTeX output.
  */
 
-const BLOCK_MATH_RE = /\$\$([\s\S]+...)\$\$/g;
-const INLINE_MATH_RE = /(...<!\$)\$(...!\$)(.+...)(...<!\$)\$(...!\$)/g;
+const BLOCK_MATH_RE = /\$\$([\s\S]+?)\$\$/g;
+const INLINE_MATH_RE = /(?<!\$)\$(?!\$)([^$\n]+?)(?<!\\)\$(?!\$)/g;
 
 interface MathPlaceholder {
   id: string;

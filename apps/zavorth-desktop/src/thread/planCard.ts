@@ -23,7 +23,7 @@ export type PlanCardModel = {
 const RISK_VALUES = new Set(['low', 'medium', 'high', 'critical']);
 
 const PLAN_HEADING_RE =
-  /^(#{1,6})\s*(?:proposed\s+)...plan(?:\s*[:\-–—]\s*(.+))...$/i;
+  /^(#{1,6})\s*(?:proposed\s+)?plan(?:\s*[:\-–—]\s*(.+))?$/i;
 const PLAN_LINE_RE = /^plan\s*:\s*(.*)$/i;
 const NUMBERED_STEP_RE = /^\s*(?:\d+[\.\)]\s+|[-*+]\s+)(.+)$/;
 const RISK_INLINE_RE = /\brisk\s*:\s*(low|medium|high|critical)\b/i;
@@ -41,7 +41,7 @@ function makeStepId(index: number): string {
 function parseStepTitle(raw: string): { title: string; detail?: string } {
   const text = raw.trim();
   // "Title — detail" or "Title: detail"
-  const split = text.match(/^(.+...)\s*[—–\-:]\s+(.+)$/);
+  const split = text.match(/^(.+?)\s*[—–\-:]\s+(.+)$/);
   if (split && split[1].trim().length > 0 && split[2].trim().length > 0) {
     const title = split[1].trim();
     const detail = split[2].trim();

@@ -45,9 +45,9 @@ Risk: medium
 
   it('parses ### Proposed plan with dash steps', () => {
     const text = `### Proposed plan
-? Scaffold module
-? Add vitest coverage
-? Wire into ThreadView`;
+- Scaffold module
+- Add vitest coverage
+- Wire into ThreadView`;
     const plan = parsePlanFromText(text);
     expect(plan).not.toBeNull();
     expect(plan!.steps.map((s) => s.title)).toEqual([
@@ -60,8 +60,8 @@ Risk: medium
 
   it('parses Plan: line with following bullets', () => {
     const text = `Plan: implement open targets
-? extract paths
-? prefer file over folder`;
+- extract paths
+- prefer file over folder`;
     const plan = parsePlanFromText(text, 'open-plan');
     expect(plan).not.toBeNull();
     expect(plan!.id).toBe('open-plan');

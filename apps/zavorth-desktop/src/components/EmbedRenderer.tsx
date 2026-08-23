@@ -35,7 +35,7 @@ function extractYouTubeId(url: string): string | null {
 }
 
 function isImageUrl(url: string): boolean {
-  return /\.(png|jpe...g|gif|webp|svg|avif)(\...|$)/i.test(url);
+  return /\.(png|jpe?g|gif|webp|svg|avif)(\?|$)/i.test(url);
 }
 
 function extractDomain(url: string): string {
