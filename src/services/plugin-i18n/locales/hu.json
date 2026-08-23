@@ -1,5 +1,0 @@
-{
-  "tip.export_register": "Exportálja a `register` vagy `createZavorthModule` függvényt az index.js-ből (CommonJS: module.exports = { register }).",
-  "tip.bind_capability": "Hívja a ctx.bindCapability(...) metódust a manifest.json minden capability-jére.",
-  "tip.enable_plugin": "Futtassa: zavorth plugins enable {{pluginId}} --yes vagy hagyja jóvá / trusted."
-}

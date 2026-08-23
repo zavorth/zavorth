@@ -1,5 +1,0 @@
-{
-  "tip.export_register": "Xuất `register` hoặc `createZavorthModule` từ index.js (CommonJS: module.exports = { register }).",
-  "tip.bind_capability": "Gọi ctx.bindCapability(...) cho mỗi capability khai báo trong manifest.json.",
-  "tip.enable_plugin": "Chạy: zavorth plugins enable {{pluginId}} --yes hoặc phê duyệt / tin cậy plugin."
-}

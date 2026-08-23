@@ -15,7 +15,7 @@ export type ZavorthSimpleCommandPlan =
  * English-only short aliases + typos.
  * CLI command tokens are EN-only (no multi-language synonym packs).
  * Free-text natural language is agent-owned (Zavorth-style).
- * UI copy still uses src/i18n/locales/* for many languages.
+ * UI copy resolves through the unified localization system (src/services/localization).
  */
 const SIMPLE_COMMAND_ALIASES: Record<string, string[]> = {
   // Talk (EN)

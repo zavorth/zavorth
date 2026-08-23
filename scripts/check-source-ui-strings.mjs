@@ -21,7 +21,7 @@ const SRC = path.join(ROOT, 'src');
 
 const ALLOW_DIR_PARTS = [
   `${path.sep}i18n${path.sep}`,
-  `${path.sep}plugin-i18n${path.sep}`,
+  `${path.sep}localization${path.sep}`,
   `${path.sep}locales${path.sep}`,
   `${path.sep}locale${path.sep}`,
   `${path.sep}public${path.sep}`,
@@ -31,7 +31,6 @@ const ALLOW_DIR_PARTS = [
 const ALLOW_BASENAMES = new Set([
   'i18n.ts',
   'I18nService.ts',
-  'PluginLoadTipsI18n.ts',
 ]);
 
 function isI18nCatalogPath(filePath) {

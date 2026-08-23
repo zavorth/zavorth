@@ -689,106 +689,44 @@ describe('FeatureIntegration — Cross-module integration tests', () => {
   // 7. i18n + CLI Commands
   // ──────────────────────────────────────────────────────────────
   describe('i18n + CLI Commands', () => {
-    const createdFiles: string[] = [];
-    const projectLocalesDir = path.resolve(__dirname, '../../src/i18n/locales');
-
-    function writeLocaleFile(locale: string, namespace: string, data: Record<string, string>) {
-      const localeDir = path.join(projectLocalesDir, locale);
-      fs.mkdirSync(localeDir, { recursive: true });
-
-      const lines: string[] = [];
-      for (const [key, value] of Object.entries(data)) {
-        if (key.includes('.')) {
-          const parts = key.split('.');
-          let indent = '';
-          for (let i = 0; i < parts.length - 1; i++) {
-            lines.push(`${indent}${parts[i]}:`);
-            indent += '  ';
-          }
-          lines.push(`${indent}${parts[parts.length - 1]}: "${value}"`);
-        } else {
-          lines.push(`${key}: "${value}"`);
-        }
-      }
-
-      const filePath = path.join(localeDir, `${namespace}.yaml`);
-      fs.writeFileSync(filePath, lines.join('\n'));
-      createdFiles.push(filePath);
-    }
-
-    afterEach(() => {
-      for (const file of createdFiles) {
-        try { fs.unlinkSync(file); } catch { /* cleanup */ }
-      }
-      createdFiles.length = 0;
-    });
-
     it('should resolve CLI output translations for different locales', () => {
-      writeLocaleFile('en-US', '_feat_integ_cli', {
-        'greeting': 'Hello from EN',
-      });
-      writeLocaleFile('pt-BR', '_feat_integ_cli', {
-        'greeting': 'Ola do PT',
-      });
-
       const enService = new ZavorthI18nService({ locale: 'en-US' });
       const ptService = new ZavorthI18nService({ locale: 'pt-BR' });
 
-      expect(enService.t('_feat_integ_cli.greeting')).toBe('Hello from EN');
-      expect(ptService.t('_feat_integ_cli.greeting')).toBe('Ola do PT');
+      expect(enService.t('cli.help.title')).toBe('Zavorth CLI Help');
+      expect(ptService.t('cli.help.title')).toBe('Ajuda do CLI Zavorth');
     });
 
     it('should fall back to English when a locale key is missing', () => {
-      writeLocaleFile('en-US', '_feat_integ_fb', {
-        'found': 'Found in English',
-        'only_en': 'English only string',
-      });
-      writeLocaleFile('pt-BR', '_feat_integ_fb', {
-        'found': 'Encontrado em PT',
-      });
-
       const ptService = new ZavorthI18nService({ locale: 'pt-BR' });
 
-      expect(ptService.t('_feat_integ_fb.found')).toBe('Encontrado em PT');
-      expect(ptService.t('_feat_integ_fb.only_en')).toBe('English only string');
+      expect(ptService.t('services.desktop.current_mode')).toBe('Modo atual');
+      // dashboard.* ships in English only; pt-BR resolves through the en layer.
+      expect(ptService.t('dashboard.home.subtitle')).toBe('Your personal command center.');
     });
 
     it('should interpolate variables into CLI output strings', () => {
-      writeLocaleFile('en-US', '_feat_integ_interp', {
-        'deploy': 'Deploying {service} to {env}',
-        'tool_done': 'Tool {name} completed in {ms}ms',
-      });
-
       const service = new ZavorthI18nService({ locale: 'en-US' });
 
-      const deployMsg = service.t('_feat_integ_interp.deploy', {
-        vars: { service: 'zavorth-api', env: 'production' },
-      });
-      expect(deployMsg).toBe('Deploying zavorth-api to production');
+      expect(
+        service.t('errors.generic.not_found', { vars: { resource: 'zavorth-api' } }),
+      ).toBe('Resource not found: zavorth-api');
 
-      const toolMsg = service.t('_feat_integ_interp.tool_done', {
-        vars: { name: 'read_file', ms: 45 },
-      });
-      expect(toolMsg).toBe('Tool read_file completed in 45ms');
+      expect(
+        service.t('telegram.scheduler.create_failed', { vars: { error: 'timeout' } }),
+      ).toBe('Failed to create schedule: timeout');
     });
 
     it('should return the raw key as fallback when no translation exists', () => {
-      writeLocaleFile('en-US', '_feat_integ_fallback', {});
-
       const service = new ZavorthI18nService({ locale: 'en-US' });
 
-      const result = service.t('_feat_integ_fallback.nonexistent');
-      expect(result).toBe('_feat_integ_fallback.nonexistent');
+      expect(service.t('_feat_integ_fallback.nonexistent')).toBe('_feat_integ_fallback.nonexistent');
     });
 
     it('should check translation key existence with has()', () => {
-      writeLocaleFile('en-US', '_feat_integ_has', {
-        'exists': 'yes',
-      });
-
       const service = new ZavorthI18nService({ locale: 'en-US' });
 
-      expect(service.has('_feat_integ_has.exists')).toBe(true);
+      expect(service.has('common.app.name')).toBe(true);
       expect(service.has('_feat_integ_has.missing')).toBe(false);
     });
   });

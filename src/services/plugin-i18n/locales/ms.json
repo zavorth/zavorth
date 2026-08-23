@@ -1,5 +1,0 @@
-{
-  "tip.export_register": "Eksport `register` atau `createZavorthModule` dari index.js (CommonJS: module.exports = { register }).",
-  "tip.bind_capability": "Panggil ctx.bindCapability(...) untuk setiap capability dalam manifest.json.",
-  "tip.enable_plugin": "Jalankan: zavorth plugins enable {{pluginId}} --yes atau luluskan / trusted."
-}

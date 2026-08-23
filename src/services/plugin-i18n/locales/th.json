@@ -1,5 +1,0 @@
-{
-  "tip.export_register": "ส่งออก `register` หรือ `createZavorthModule` จาก index.js (CommonJS: module.exports = { register })",
-  "tip.bind_capability": "เรียก ctx.bindCapability(...) สำหรับทุก capability ใน manifest.json",
-  "tip.enable_plugin": "รัน: zavorth plugins enable {{pluginId}} --yes หรืออนุมัติ / ตั้ง trusted"
-}

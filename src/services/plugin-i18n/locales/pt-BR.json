@@ -1,3 +1,0 @@
-{
-  "tip.enable_plugin": "run: zavorth plugins enable {{pluginId}} --yes or approve/trust the plugin."
-}

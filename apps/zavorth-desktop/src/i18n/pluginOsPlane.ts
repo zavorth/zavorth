@@ -3,7 +3,7 @@
  *
  * Delegates label resolution to the universal ZavorthLocalizationService in
  * src/services/localization/, with the desktop plane catalogs and a static
- * alias seed covering every locale accepted by PluginLoadTipsI18n.
+ * alias seed covering every locale accepted by the unified plugin-tip catalogs.
  */
 
 import { ZavorthLocalizationService } from '../../../../src/services/localization/ZavorthLocalizationService.js';
@@ -11,7 +11,7 @@ import { lookupDesktopPlaneString } from './desktopPlane';
 
 const localizationService = new ZavorthLocalizationService();
 
-/** Locale set mirrored from PluginLoadTipsI18n so both planes stay aligned. */
+/** Locale set aligned with the unified plugin-tip catalog locales. */
 const PLUGIN_OS_ALIAS_LOCALES = [
   'en', 'pt', 'pt-BR', 'pt-PT', 'es', 'fr', 'de', 'it', 'already', 'ja', 'zh',
   'zh-CN', 'zh-Hans', 'zh-Hant', 'zh-TW', 'ko', 'ru', 'uk', 'ar', 'hi', 'nl',
@@ -19,7 +19,7 @@ const PLUGIN_OS_ALIAS_LOCALES = [
   'ms',
 ] as const;
 
-/** Alias mapping shared with PluginLoadTipsI18n for exotic tags. */
+/** Alias mapping shared with the plugin-tip resolver for exotic tags. */
 const SEED_ALIASES: Record<string, string> = {
   'pt-PT': 'pt',
   'zh-CN': 'zh',

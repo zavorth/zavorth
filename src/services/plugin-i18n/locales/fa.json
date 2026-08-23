@@ -1,5 +1,0 @@
-{
-  "tip.export_register": "از index.js تابع `register` یا `createZavorthModule` را صادر کنید (CommonJS: module.exports = { register }).",
-  "tip.bind_capability": "برای هر capability در manifest.json تابع ctx.bindCapability(...) را فراخوانی کنید.",
-  "tip.enable_plugin": "اجرا کنید: zavorth plugins enable {{pluginId}} --yes یا تأیید / trusted."
-}

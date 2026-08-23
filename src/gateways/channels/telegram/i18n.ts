@@ -2,8 +2,9 @@
  * Lightweight i18n for Telegram bot strings.
  * Default language is English. Override with ZAVORTH_LANG / ZAVORTH_LOCALE.
  *
- * Prefers centralized YAML catalogs under src/i18n/locales/<locale>/telegram.yaml,
- * then falls back to the inline dictionaries below for backward compatibility.
+ * Strings resolve through the unified localization system (migrated telegram
+ * catalogs behind src/i18n/ZavorthI18nService); the inline dictionary below is
+ * a typed hermetic fallback for sandboxes where catalogs are unavailable.
  *
  * Usage:
  *   import { t } from '../../../gateways/channels/telegram/i18n.js';

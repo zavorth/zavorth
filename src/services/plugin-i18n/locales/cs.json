@@ -1,5 +1,0 @@
-{
-  "tip.export_register": "Exportujte `register` nebo `createZavorthModule` z index.js (CommonJS: module.exports = { register }).",
-  "tip.bind_capability": "Zavolejte ctx.bindCapability(...) pro každou capability v manifest.json.",
-  "tip.enable_plugin": "Spusťte: zavorth plugins enable {{pluginId}} --yes nebo schvalte / trusted."
-}

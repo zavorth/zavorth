@@ -7,7 +7,7 @@ import {
   tPluginOs,
 } from '../src/i18n/pluginOsPlane';
 
-/** Locale keys mirrored from PluginLoadTipsI18n. */
+/** Locale keys mirrored from the unified plugin-tip catalog locales. */
 const EXPECTED_LOCALES = [
   'en', 'pt', 'pt-BR', 'pt-PT', 'es', 'fr', 'de', 'it', 'already', 'zh', 'zh-CN',
   'zh-Hans', 'zh-Hant', 'zh-TW', 'ko', 'ru', 'uk', 'ar', 'hi', 'nl', 'pl',
@@ -15,7 +15,7 @@ const EXPECTED_LOCALES = [
 ];
 
 describe('pluginOsPlane i18n', () => {
-  it('covers the same locale set as PluginLoadTipsI18n (30+)', () => {
+  it('covers the same locale set as the unified plugin-tip catalogs (30+)', () => {
     expect(Object.keys(PLUGIN_OS_PLANE_I18N).length).toBeGreaterThanOrEqual(30);
     for (const locale of EXPECTED_LOCALES) {
       expect(PLUGIN_OS_PLANE_I18N[locale]).toBeDefined();

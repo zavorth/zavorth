@@ -2,7 +2,7 @@ import { EN_COMMAND_ALIASES } from './en.js';
 
 /**
  * CLI first-token command aliases are English-only (Zavorth style).
- * UI copy still uses the full i18n stack (src/i18n/locales/*) for many languages.
+ * UI copy resolves through the unified localization system (src/services/localization).
  * Free-text natural language goes to the agent, not CLI synonym packs.
  */
 
