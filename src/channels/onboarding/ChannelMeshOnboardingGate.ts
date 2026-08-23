@@ -2,6 +2,7 @@ import { createHash } from 'crypto';
 import fs from 'fs';
 import path from 'path';
 
+import { FirstRunPersonalizationService } from '../../services/FirstRunPersonalizationService.js';
 import { ZavorthFirstRunHumanOnboardingService } from '../../services/ZavorthFirstRunHumanOnboardingService.js';
 
 export type ChannelMeshPersonaPlatform = string;
@@ -25,6 +26,8 @@ type OnboardingServiceFactory = (input: {
 type ChannelMeshOnboardingGateDeps = {
   projectRoot?: string;
   onboardingFactory?: OnboardingServiceFactory;
+  /** When the installation-wide profile is already complete, chats skip the interview. */
+  isGlobalProfileComplete?: () => boolean;
   now?: () => Date;
 };
 
@@ -38,6 +41,7 @@ export class ChannelMeshOnboardingGate {
   private readonly projectRoot: string;
   private readonly now: () => Date;
   private readonly onboardingFactory: OnboardingServiceFactory;
+  private readonly isGlobalProfileComplete: () => boolean;
 
   constructor(deps: ChannelMeshOnboardingGateDeps = {}) {
     this.projectRoot = path.resolve(deps.projectRoot || process.env.ZAVORTH_PROJECT_ROOT || process.cwd());
@@ -51,9 +55,15 @@ export class ChannelMeshOnboardingGate {
           stateFilePath: input.stateFilePath,
           now: this.now,
         }));
+    this.isGlobalProfileComplete =
+      deps.isGlobalProfileComplete ||
+      (() => !new FirstRunPersonalizationService({ projectRoot: this.projectRoot }).getStatus().pending);
   }
 
   public async intercept(target: ChannelMeshOnboardingTarget, text: string): Promise<ChannelMeshOnboardingInterception> {
+    if (this.isGlobalProfileComplete()) {
+      return { handled: false };
+    }
     const service = this.onboardingFactory({
       platform: target.platform,
       scopedUserId: this.buildScopedUserId(target),

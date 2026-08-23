@@ -70,4 +70,16 @@ describe('ChannelMeshOnboardingGate', () => {
     const completedChat = await gate.intercept(TARGET, 'regular message');
     expect(completedChat).toEqual({ handled: false });
   });
+
+  it('skips the interview when the installation-wide profile is already complete', async () => {
+    const projectRoot = makeTempRoot();
+    const gate = new ChannelMeshOnboardingGate({
+      projectRoot,
+      isGlobalProfileComplete: () => true,
+    });
+
+    const result = await gate.intercept(TARGET, 'hello there');
+    expect(result).toEqual({ handled: false });
+    expect(fs.existsSync(path.join(projectRoot, 'data', 'channel-mesh', 'onboarding'))).toBe(false);
+  });
 });
