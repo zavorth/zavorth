@@ -4,6 +4,7 @@ import {
   renderTelegramSurfaceResponse,
   type SurfaceResponse,
 } from '../../../../domain/surface/application/surface-response/index.js';
+import { clearPendingSurfaceApprovalsByApprovalId } from '../../../../domain/surface/application/surface-projection/index.js';
 import {
   TelegramEchoSurfaceClient,
   type TelegramEchoPermission,
@@ -31,6 +32,19 @@ export type TelegramEchoApprovalControllerDeps = {
 const ECHO_APPROVAL_PREFIX = 'echo:';
 const MAX_LISTED_APPROVALS = 5;
 
+/**
+ * Echo (external executor) approval presenter.
+ *
+ * Spine alignment: prompting renders through the shared SurfaceResponse
+ * projection stack and resolution retires rendered presenters across surfaces
+ * via the same primitive the approval spine uses
+ * (clearPendingSurfaceApprovalsByApprovalId). What deliberately stays outside
+ * the spine is the DECISION itself: Echo permissions live in the external Echo
+ * runtime's own permission store and are resolved through its HTTP client, so
+ * the coordinator's universal-run gateway port can never see or decide them —
+ * bridging those ids into ApprovalCoordinator would let chat tokens resolve
+ * decisions owned by another runtime.
+ */
 export class TelegramEchoApprovalController {
   constructor(private readonly deps: TelegramEchoApprovalControllerDeps = {}) {}
 
@@ -41,6 +55,9 @@ export class TelegramEchoApprovalController {
     if (parsed.action === 'approve' || parsed.action === 'reject') {
       const id = await this.resolvePermissionReference(client, parsed.reference);
       const result = await client.resolvePermission(id, parsed.action === 'approve');
+      // Spine-parity dismissal: a decided Echo permission retires every
+      // rendered presenter of it across surfaces, not just this chat's card.
+      clearPendingSurfaceApprovalsByApprovalId(id);
       await replyWithTelegramSurfaceResponse(
         ctx,
         this.buildResolutionSurfaceResponse(result.status || parsed.action, id, client.getSurfaceContext()),
@@ -61,6 +78,9 @@ export class TelegramEchoApprovalController {
     const client = this.createClient(ctx);
     const id = await this.resolvePermissionReference(client, parsed.reference);
     const result = await client.resolvePermission(id, parsed.approved);
+    // Spine-parity dismissal: a decided Echo permission retires every
+    // rendered presenter of it across surfaces, not just this chat's card.
+    clearPendingSurfaceApprovalsByApprovalId(id);
     const response = this.buildResolutionSurfaceResponse(
       result.status || (parsed.approved ? 'approved' : 'denied'),
       id,

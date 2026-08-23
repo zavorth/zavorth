@@ -25,6 +25,18 @@ export interface WorkspaceTaskMandate {
   createdAt: string;
 }
 
+/**
+ * Workspace-plane task mandate store.
+ *
+ * Governance contract — deliberately OUTSIDE the channel approval spine
+ * (ApprovalCoordinator / SurfaceCapabilityGate): mandates are propose →
+ * activate → expire grants scoped to a workspace, a task id, explicit target
+ * directories and binary allowlists, with every transition audit-logged and
+ * path-hashed. Their lifecycle is driven by tools and dashboard routes, not by
+ * chat prompts, so there is no prompt/dismiss machinery to migrate; folding
+ * them into chat approval menus would let an ephemeral chat token stand in for
+ * a directory-and-binary-scoped security grant. Decision logic stays here.
+ */
 export class WorkspaceTaskMandateService {
   private static instance: WorkspaceTaskMandateService | null = null;
   private readonly proposedByWorkspace: Map<string, WorkspaceTaskMandate> = new Map();

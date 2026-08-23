@@ -12,7 +12,7 @@ import {
   isSharedSurfaceOperationalCallbackCommand,
 } from '../../../../domain/surface/presentation/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
 import {
-  clearPendingSurfaceApproval,
+  clearPendingSurfaceApprovalsByApprovalId,
   parseSurfaceInteraction,
   resolvePendingSurfaceApproval,
   toPermissionApprovalArgs,
@@ -460,12 +460,9 @@ export class DiscordGatewayInboundService {
           },
         });
 
-        clearPendingSurfaceApproval({
-          surface: 'discord',
-          chatId,
-          messageId,
-          approvalId: permission.taskId,
-        });
+        // Spine-parity dismissal: a decided permission retires every rendered
+        // presenter of it across surfaces, not only this channel's card.
+        clearPendingSurfaceApprovalsByApprovalId(permission.taskId);
         return;
       }
     }

@@ -30,7 +30,7 @@ import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/
 import {
   applySurfaceLifecycleOp,
   buildPostDecisionLifecycle,
-  clearPendingSurfaceApproval,
+  clearPendingSurfaceApprovalsByApprovalId,
   isPermissionDecisionEvent,
   isUndoEvent,
   parseReactionConfirmation,
@@ -270,12 +270,7 @@ export class TelegramPermissionController {
     } else {
       await this.taskApproval.handleApproval(ctx, `${permission.taskId} ${permission.choice}`);
     }
-    clearPendingSurfaceApproval({
-      surface: 'telegram',
-      chatId,
-      messageId,
-      approvalId: permission.taskId,
-    });
+    clearPendingSurfaceApprovalsByApprovalId(permission.taskId);
   }
 
   /**
@@ -303,11 +298,7 @@ export class TelegramPermissionController {
           this.assertUserIsAdmin(ctx);
           this.assertHostWritable();
           await this.taskApproval.handleApproval(ctx, `${pending.approvalId} once`);
-          clearPendingSurfaceApproval({
-            surface: 'telegram',
-            chatId,
-            approvalId: pending.approvalId,
-          });
+          clearPendingSurfaceApprovalsByApprovalId(pending.approvalId);
           return true;
         } catch {
           return false;
@@ -351,11 +342,7 @@ export class TelegramPermissionController {
       } else {
         await this.taskApproval.handleApproval(ctx, `${permission.taskId} ${permission.choice}`);
       }
-      clearPendingSurfaceApproval({
-        surface: 'telegram',
-        chatId,
-        approvalId: permission.taskId,
-      });
+      clearPendingSurfaceApprovalsByApprovalId(permission.taskId);
       return true;
     } catch {
       return false;

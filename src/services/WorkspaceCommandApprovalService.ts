@@ -3,6 +3,19 @@ import { Database } from '../storage/Database.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 
+/**
+ * Workspace-plane command approval store.
+ *
+ * Governance contract — deliberately OUTSIDE the channel approval spine
+ * (ApprovalCoordinator / SurfaceCapabilityGate): approvals here are hash-bound,
+ * single-use, workspace-scoped database rows consumed atomically against an
+ * args hash and expiry. They have no chat prompt or dismissal machinery to
+ * unify — their only presentation plane is the authenticated ZavorthControl
+ * dashboard, and routing them through chat menus would replace args-hash
+ * binding with replayable chat tokens. Domain decision logic stays here;
+ * cross-surface card retirement for these rows is meaningless because no
+ * surface ever renders them as actionable cards.
+ */
 export class WorkspaceCommandApprovalService {
   private readonly db: Database | null;
   private readonly auditLogger: SecurityAuditLogger;
