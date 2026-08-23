@@ -139,4 +139,33 @@ export const pt: LocalizationCatalog = {
     logLevel: 'Nível de Log',
     resetDefaults: 'Restaurar Padrões',
   },
+  approval: {
+    prompt: {
+      entry: '{ordinal}[{risk}] {label} — ref {ref}',
+      hint:
+        'Responda 1 (ou a referência) para permitir uma vez; use /approve <referência> com once/session/always, /reject <referência> (ou /deny) para negar, ou responda other para digitar sua resposta.',
+    },
+    receipt: {
+      approved: 'Aprovado {ref} ({choice}).',
+      denied: 'Aprovação {ref} negada.',
+      notFound: 'Nenhuma aprovação pendente encontrada para {ref}.',
+      resolvedApprovedElsewhere:
+        'Resolvida em outra superfície: a aprovação {ref} foi aprovada em outra superfície. Nenhuma ação é necessária aqui.',
+      resolvedDeniedElsewhere:
+        'Resolvida em outra superfície: a aprovação {ref} foi negada em outra superfície. Nenhuma ação é necessária aqui.',
+    },
+    bulk: {
+      approvedAll: 'Todas as {count} aprovações foram aprovadas ({choice}).',
+      deniedAll: '{count} aprovações foram negadas.',
+      approvedPartial: '{resolved} de {total} aprovações aprovadas ({choice}).',
+      deniedPartial: '{resolved} de {total} aprovações negadas.',
+      notFound: 'Nenhuma aprovação pendente encontrada para all.',
+    },
+    other: {
+      armed:
+        'Descreva sua resposta para {count} aprovação(ões) pendente(s); sua próxima mensagem será capturada como o contexto da decisão.',
+      deniedWithReason: '{count} aprovações negadas. Sua resposta foi repassada ao agente.',
+      referencedNotFound: 'Nenhuma aprovação pendente encontrada para as referências informadas.',
+    },
+  },
 };

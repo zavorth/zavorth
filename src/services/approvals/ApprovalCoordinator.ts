@@ -10,8 +10,7 @@ import {
 } from '../../channels/capabilities/SurfaceCapabilityGate.js';
 import {
   formatChannelApprovalString,
-  resolveChannelApprovalLocale,
-} from '../../channels/approval-strings/ChannelApprovalLocaleCatalog.js';
+} from '../../services/localization/channelApprovalStrings.js';
 
 /**
  * Pending approval menus expire after this window. Expiry is fail-closed:
@@ -409,9 +408,7 @@ export class ApprovalCoordinator {
    * pending menu. Ordinals stay universal; only this wording localizes.
    */
   public buildOtherModePrompt(refCount: number, preferredLanguageCode?: string | null): string {
-    return formatChannelApprovalString(resolveChannelApprovalLocale(preferredLanguageCode), 'other.armed', {
-      count: refCount,
-    });
+    return formatChannelApprovalString('other.armed', { count: refCount }, preferredLanguageCode);
   }
 
   /**
@@ -624,11 +621,9 @@ export class ApprovalCoordinator {
       return null;
     }
     if (input.refList.length === 0 || denied === 0) {
-      return formatChannelApprovalString(resolveChannelApprovalLocale(input.locale), 'other.referencedNotFound', {});
+      return formatChannelApprovalString('other.referencedNotFound', {}, input.locale);
     }
-    return formatChannelApprovalString(resolveChannelApprovalLocale(input.locale), 'other.deniedWithReason', {
-      count: denied,
-    });
+    return formatChannelApprovalString('other.deniedWithReason', { count: denied }, input.locale);
   }
 
   private listVisiblePendingRefs(sessionId: string): Array<{ runId: string; approvalId: string }> {
@@ -654,12 +649,9 @@ export class ApprovalCoordinator {
     locale?: string | null;
   }): Promise<string | null> {
     const presentation = resolveSurfaceCapabilityPresentation({ platform: input.surface });
-    const locale = resolveChannelApprovalLocale(input.locale);
     const targets = this.listVisiblePendingRefs(input.sessionId);
     if (targets.length === 0) {
-      return presentation.mode === 'none'
-        ? null
-        : formatChannelApprovalString(locale, 'bulk.notFound', {});
+      return presentation.mode === 'none' ? null : formatChannelApprovalString('bulk.notFound', {}, input.locale);
     }
 
     let resolved = 0;
@@ -684,19 +676,27 @@ export class ApprovalCoordinator {
     }
     if (resolved === targets.length) {
       return input.command.action === 'deny'
-        ? formatChannelApprovalString(locale, 'bulk.deniedAll', { count: targets.length })
-        : formatChannelApprovalString(locale, 'bulk.approvedAll', {
-          count: targets.length,
-          choice: input.command.choice,
-        });
+        ? formatChannelApprovalString('bulk.deniedAll', { count: targets.length }, input.locale)
+        : formatChannelApprovalString(
+          'bulk.approvedAll',
+          {
+            count: targets.length,
+            choice: input.command.choice,
+          },
+          input.locale,
+        );
     }
     return input.command.action === 'deny'
-      ? formatChannelApprovalString(locale, 'bulk.deniedPartial', { resolved, total: targets.length })
-      : formatChannelApprovalString(locale, 'bulk.approvedPartial', {
-        resolved,
-        total: targets.length,
-        choice: input.command.choice,
-      });
+      ? formatChannelApprovalString('bulk.deniedPartial', { resolved, total: targets.length }, input.locale)
+      : formatChannelApprovalString(
+        'bulk.approvedPartial',
+        {
+          resolved,
+          total: targets.length,
+          choice: input.command.choice,
+        },
+        input.locale,
+      );
   }
 
   private resolveFastPathDecision(menuKey: string, text: string): ChannelMeshApprovalCommand | null {

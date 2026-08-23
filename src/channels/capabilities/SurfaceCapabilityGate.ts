@@ -6,8 +6,8 @@ import {
 } from '../../domain/surface/application/surface-affordance/index.js';
 import {
   formatChannelApprovalString,
-  resolveChannelApprovalLocale,
-} from '../approval-strings/ChannelApprovalLocaleCatalog.js';
+  type ChannelApprovalMessageKey,
+} from '../../services/localization/channelApprovalStrings.js';
 
 /**
  * Presentation contract enforced from declared capabilities: surfaces either
@@ -44,7 +44,7 @@ export type ApprovalDecisionReceiptParts = {
   found: boolean;
 };
 
-const NUMBERED_TEXT_HINT_KEY = 'prompt.hint' as const;
+const NUMBERED_TEXT_HINT_KEY: ChannelApprovalMessageKey = 'prompt.hint';
 
 function disabledPresentation(platform: string): SurfaceApprovalPresentation {
   return {
@@ -103,18 +103,21 @@ export function renderApprovalPromptForSurface(
   if (!presentation || presentation.mode === 'none' || entries.length === 0) {
     return null;
   }
-  const locale = resolveChannelApprovalLocale(preferredLanguageCode);
   const multiple = entries.length > 1;
   const lines = entries.map((entry, index) => {
     const ordinalPrefix = multiple ? `${index + 1}. ` : '';
-    return formatChannelApprovalString(locale, 'prompt.entry', {
-      ordinal: ordinalPrefix,
-      risk: entry.risk,
-      label: entry.label,
-      ref: entry.ref,
-    });
+    return formatChannelApprovalString(
+      'prompt.entry',
+      {
+        ordinal: ordinalPrefix,
+        risk: entry.risk,
+        label: entry.label,
+        ref: entry.ref,
+      },
+      preferredLanguageCode,
+    );
   });
-  lines.push(formatChannelApprovalString(locale, NUMBERED_TEXT_HINT_KEY, {}));
+  lines.push(formatChannelApprovalString(NUMBERED_TEXT_HINT_KEY, {}, preferredLanguageCode));
   return lines.join('\n');
 }
 
@@ -135,15 +138,18 @@ export function renderApprovalDecisionReceiptForSurface(
   if (!presentation || presentation.mode === 'none') {
     return null;
   }
-  const locale = resolveChannelApprovalLocale(preferredLanguageCode);
   if (!parts.found) {
-    return formatChannelApprovalString(locale, 'receipt.notFound', { ref: parts.ref });
+    return formatChannelApprovalString('receipt.notFound', { ref: parts.ref }, preferredLanguageCode);
   }
   if (parts.action === 'deny') {
-    return formatChannelApprovalString(locale, 'receipt.denied', { ref: parts.ref });
+    return formatChannelApprovalString('receipt.denied', { ref: parts.ref }, preferredLanguageCode);
   }
-  return formatChannelApprovalString(locale, 'receipt.approved', {
-    ref: parts.ref,
-    choice: String(parts.choice || 'once'),
-  });
+  return formatChannelApprovalString(
+    'receipt.approved',
+    {
+      ref: parts.ref,
+      choice: String(parts.choice || 'once'),
+    },
+    preferredLanguageCode,
+  );
 }

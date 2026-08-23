@@ -139,4 +139,33 @@ export const en: LocalizationCatalog = {
     logLevel: 'Log Level',
     resetDefaults: 'Reset to Defaults',
   },
+  approval: {
+    prompt: {
+      entry: '{ordinal}[{risk}] {label} — ref {ref}',
+      hint:
+        'Reply 1 (or the ref) to allow once, approve / approve session / approve always, reject (or deny) to refuse, or reply other to type your answer.',
+    },
+    receipt: {
+      approved: 'Approved {ref} ({choice}).',
+      denied: 'Denied approval {ref}.',
+      notFound: 'No pending approval found for {ref}.',
+      resolvedApprovedElsewhere:
+        'Resolved elsewhere: approval {ref} was approved on another surface. No action is needed here.',
+      resolvedDeniedElsewhere:
+        'Resolved elsewhere: approval {ref} was denied on another surface. No action is needed here.',
+    },
+    bulk: {
+      approvedAll: 'Approved all {count} approval(s) ({choice}).',
+      deniedAll: 'Denied {count} approval(s).',
+      approvedPartial: 'Approved {resolved} of {total} approval(s) ({choice}).',
+      deniedPartial: 'Denied {resolved} of {total} approval(s).',
+      notFound: 'No pending approval found for all.',
+    },
+    other: {
+      armed:
+        'Describe your answer for {count} pending approval(s); your next message is captured as the decision context.',
+      deniedWithReason: 'Denied {count} approval(s). Your answer was relayed to the agent.',
+      referencedNotFound: 'No pending approval found for the referenced approvals.',
+    },
+  },
 };

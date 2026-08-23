@@ -199,6 +199,40 @@ export interface SettingsTranslations {
   resetDefaults: string;
 }
 
+export interface ChannelApprovalPromptTranslations {
+  entry: string;
+  hint: string;
+}
+
+export interface ChannelApprovalReceiptTranslations {
+  approved: string;
+  denied: string;
+  notFound: string;
+  resolvedApprovedElsewhere: string;
+  resolvedDeniedElsewhere: string;
+}
+
+export interface ChannelApprovalBulkTranslations {
+  approvedAll: string;
+  deniedAll: string;
+  approvedPartial: string;
+  deniedPartial: string;
+  notFound: string;
+}
+
+export interface ChannelApprovalOtherTranslations {
+  armed: string;
+  deniedWithReason: string;
+  referencedNotFound: string;
+}
+
+export interface ChannelApprovalTranslations {
+  prompt: ChannelApprovalPromptTranslations;
+  receipt: ChannelApprovalReceiptTranslations;
+  bulk: ChannelApprovalBulkTranslations;
+  other: ChannelApprovalOtherTranslations;
+}
+
 export interface LocalizationCatalog {
   common: CommonTranslations;
   app: AppTranslations;
@@ -216,6 +250,8 @@ export interface LocalizationCatalog {
   legacy?: LegacyCatalogSection;
   /** Migrated plugin load tips served previously by src/services/plugin-i18n. */
   pluginTips?: PluginTipsSection;
+  /** Channel approval prompt/receipt copy resolved through the localization facade. */
+  approval?: ChannelApprovalSection;
 }
 
 // ==== Migrated legacy catalog contracts (generated once by scripts/merge-legacy-i18n-catalogs.mjs) ====
@@ -1582,3 +1618,4 @@ export type DeepPartialTranslations<T> = {
 
 export type LegacyCatalogSection = DeepPartialTranslations<LocalizationCatalogLegacy>;
 export type PluginTipsSection = DeepPartialTranslations<PluginTipTranslations>;
+export type ChannelApprovalSection = DeepPartialTranslations<ChannelApprovalTranslations>;

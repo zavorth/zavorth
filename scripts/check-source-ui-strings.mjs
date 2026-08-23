@@ -36,8 +36,6 @@ const ALLOW_BASENAMES = new Set([
 function isI18nCatalogPath(filePath) {
   const base = path.basename(filePath).toLowerCase();
   if (base.includes('i18n') && (base.endsWith('.ts') || base.endsWith('.js'))) return true;
-  // Typed catalogs like ChannelApprovalLocaleCatalog.ts hold per-locale translations by contract; they are catalog paths.
-  if (base.includes('localecatalog')) return true;
   if (filePath.toLowerCase().includes(`${path.sep}locales${path.sep}`)) return true;
   if (filePath.toLowerCase().includes('locale-pack')) return true;
   return false;

@@ -34,10 +34,7 @@ import {
   resolveSurfaceCapabilityPresentation,
   supportsSurfacePromptCardEdits,
 } from '../../channels/capabilities/SurfaceCapabilityGate.js';
-import {
-  formatChannelApprovalString,
-  resolveChannelApprovalLocale,
-} from '../../channels/approval-strings/ChannelApprovalLocaleCatalog.js';
+import { formatChannelApprovalString } from '../../services/localization/channelApprovalStrings.js';
 import {
   buildOutboundReplyEditEvent,
   buildOutboundReplyEvent,
@@ -450,9 +447,8 @@ export class ZavorthAgentGateway {
       if (presentation.mode === 'none') {
         continue;
       }
-      const locale = resolveChannelApprovalLocale(target.preferredLocale);
       const resolutionTexts = dismissal.resolvedRefs.map((ref) =>
-        formatChannelApprovalString(locale, receiptKey, { ref }),
+        formatChannelApprovalString(receiptKey, { ref }, target.preferredLocale),
       );
       if (dismissal.promptMessageId && supportsSurfacePromptCardEdits({ platform: target.platform })) {
         // Edit-in-place: one consolidated update per presenter card. Security

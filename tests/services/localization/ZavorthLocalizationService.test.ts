@@ -1,16 +1,21 @@
 import { ZavorthLocalizationService } from '../../../src/services/localization/ZavorthLocalizationService.js';
 import {
   SUPPORTED_LOCALES,
-  type SupportedLocale,
   type LocalizationCatalog,
 } from '../../../src/services/localization/localeContracts.js';
 import { BUILTIN_CATALOGS } from '../../../src/services/localization/catalogs/index.js';
 
 describe('ZavorthLocalizationService', () => {
+  // Progressive-coverage namespaces ship English canonical copy plus selected
+  // translations and cascade to English for the remaining locales.
+  const PROGRESSIVE_CATALOG_SECTIONS = new Set(['legacy', 'pluginTips', 'approval']);
+
   it('should support all 18 built-in locale catalogs without missing keys', () => {
     const service = new ZavorthLocalizationService({ locale: 'en' });
     const enCatalog = service.getCatalog('en');
-    const catalogKeys = Object.keys(enCatalog) as Array<keyof LocalizationCatalog>;
+    const catalogKeys = Object.keys(enCatalog).filter(
+      (section) => !PROGRESSIVE_CATALOG_SECTIONS.has(section),
+    ) as Array<keyof LocalizationCatalog>;
 
     expect(SUPPORTED_LOCALES.length).toBe(17); // 17 comprehensive world languages + variants
 
@@ -28,6 +33,13 @@ describe('ZavorthLocalizationService', () => {
         }
       }
     }
+  });
+
+  it('serves English approval copy from every locale and Portuguese where translated', () => {
+    const service = new ZavorthLocalizationService({ locale: 'en' });
+    expect(service.t('approval.receipt.approved')).toBe('Approved {ref} ({choice}).');
+    expect(service.t('approval.receipt.approved', {}, 'de')).toBe('Approved {ref} ({choice}).');
+    expect(service.t('approval.receipt.denied', {}, 'pt')).toBe('Aprovação {ref} negada.');
   });
 
   it('should resolve translations via dotted keyPath and interpolate parameters', () => {
