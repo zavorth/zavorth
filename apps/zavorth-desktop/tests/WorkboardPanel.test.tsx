@@ -1,71 +1,46 @@
-/**
- * @jest-environment jsdom
- */
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import '@testing-library/jest-dom';
-import React, { useState, useEffect } from 'react';
-import { render, screen, fireEvent, within, cleanup } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import WorkboardPanel, {
-  WorkboardBoard,
-  WorkboardCard,
-} from '../src/views/panels/WorkboardPanel';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type { ComponentType } from 'react';
+import {
+  renderUI,
+  cleanupUI,
+  click,
+  pressKey,
+  typeText,
+  chooseOption,
+  queryAllByText,
+  queryByText,
+  getByText,
+  getByPlaceholderText,
+  queryByTitle,
+  queryAllByTitle,
+  getByTitle,
+  getTab,
+} from './helpers/uiHarness';
+import type { WorkboardBoard, WorkboardCard, WorkboardPanelProps } from '../src/views/panels/WorkboardPanel';
+import type { RuntimeWorkboardProjection } from '../src/workboard/runtimeWorkboardProjection';
 
-jest.mock('nanostores', () => {
-  if (!(globalThis as Record<string, unknown>).__testAtoms) {
-    (globalThis as Record<string, unknown>).__testAtoms = [];
-  }
-  return {
-    atom: (initial: unknown) => {
-      let value = initial;
-      const listeners: Array<(v: unknown) => void> = [];
-      const store = {
-        get: () => value,
-        set: (v: unknown) => {
-          value = v;
-          listeners.forEach(fn => fn(v));
-        },
-        subscribe: (fn: (v: unknown) => void) => {
-          listeners.push(fn);
-          return () => {
-            const idx = listeners.indexOf(fn);
-            if (idx >= 0) listeners.splice(idx, 1);
-          };
-        },
-      };
-      (globalThis.__testAtoms as Array<unknown>).push(store);
-      return store;
-    },
-  };
-});
-
-jest.mock('@nanostores/react', () => ({
-  useStore: (store: { get: () => unknown; subscribe: (fn: (v: unknown) => void) => () => void }) => {
-    const [value, setValue] = useState(store.get());
-    useEffect(() => {
-      const unsub = store.subscribe((v) => setValue(v));
-      return unsub;
-    }, [store]);
-    return value;
-  },
-}));
-
-jest.mock('@tabler/icons-react', () => {
-  const createIcon = (name: string) => {
-    const Icon = (props: Record<string, unknown>) => null;
-    Icon.displayName = name;
+vi.mock('@tabler/icons-react', () => {
+  const createIconStub = () => {
+    const Icon = () => null;
     return Icon;
   };
-  return new Proxy(
-    {},
-    {
-      get: (_target, prop: string) => {
-        if (typeof prop === 'string' && prop.startsWith('Icon')) {
-          return createIcon(prop);
-        }
-        return null;
-      },
-    }
+  return Object.fromEntries(
+    [
+      'IconPlus',
+      'IconTrash',
+      'IconLayoutColumns',
+      'IconFilter',
+      'IconX',
+      'IconCheck',
+      'IconChevronLeft',
+      'IconChevronRight',
+      'IconTag',
+      'IconUser',
+      'IconAlertCircle',
+      'IconChartBar',
+      'IconClipboard',
+      'IconLayoutKanban',
+    ].map(name => [name, createIconStub()]),
   );
 });
 
@@ -129,428 +104,428 @@ const EMPTY_BOARD: WorkboardBoard = {
   cards: [],
 };
 
-const ATOM_DEFAULTS = ['boards', 'cards', 'stats', '', 'all', false, true, null];
+// Runtime tasks reach the panel exclusively through mapRuntimeWorkboardToBoard,
+// which projects them onto a read-only board with id "runtime-workboard".
+const RUNTIME_PROJECTION: RuntimeWorkboardProjection = {
+  selectedTaskId: 'task-1',
+  selectedTask: null,
+  sessions: [
+    {
+      sessionId: 'session-1',
+      objective: 'Shared dispatcher',
+      status: 'running',
+      maxDepth: 2,
+      maxChildren: 4,
+    },
+  ],
+  tasks: [
+    {
+      taskId: 'task-1',
+      sessionId: 'session-1',
+      parentTaskId: null,
+      title: 'Render shared runtime task',
+      status: 'claimed',
+      claimedBy: 'desktop-worker',
+      claimedAt: '2026-05-10T14:00:00.000Z',
+      heartbeatAt: '2026-05-10T14:00:01.000Z',
+      heartbeatDeadlineAt: '2026-05-10T14:01:00.000Z',
+      blockedReason: null,
+      summary: 'Visible from runtime.',
+      attempts: 1,
+      maxRetries: 2,
+      failureCount: 0,
+      artifactRefs: ['artifact:task-1'],
+      comments: [
+        {
+          id: 'comment-1',
+          author: 'desktop-worker',
+          body: 'Claimed by desktop worker.',
+          createdAt: '2026-05-10T14:00:01.000Z',
+        },
+      ],
+      risk: 'read-only',
+      createdAt: '2026-05-10T14:00:00.000Z',
+      updatedAt: '2026-05-10T14:00:01.000Z',
+    },
+  ],
+  workers: [],
+  receipts: [],
+  summary: {
+    sessions: 1,
+    queued: 0,
+    running: 1,
+    completed: 0,
+    blocked: 0,
+  },
+  safety: {
+    sqliteDurable: true,
+    mutationRequiresApproval: true,
+    retryBounded: true,
+    spawnDepthBounded: true,
+  },
+};
 
-function resetAtoms() {
-  const atoms = (globalThis.__testAtoms as Array<{ get: () => unknown; set: (v: unknown) => void }>);
-  if (!atoms) return;
-  atoms.forEach((a, i) => {
-    a.set(ATOM_DEFAULTS[i % ATOM_DEFAULTS.length]);
-  });
+type WorkboardPanelComponent = ComponentType<WorkboardPanelProps>;
+
+async function loadPanelModule(): Promise<WorkboardPanelComponent> {
+  // The panel keeps its UI state in module-level nanostores atoms; resetting the
+  // module registry gives every test a pristine store without mocking nanostores.
+  vi.resetModules();
+  const { default: WorkboardPanel } = await import('../src/views/panels/WorkboardPanel');
+  return WorkboardPanel;
 }
 
-function renderPanel(overrides: Record<string, unknown> = {}) {
-  const onBoardSelect = jest.fn();
-  const onCardCreate = jest.fn();
-  const onCardUpdate = jest.fn();
-  const onCardDelete = jest.fn();
-  const onColumnCreate = jest.fn();
-  const onColumnUpdate = jest.fn();
-  const onColumnDelete = jest.fn();
-
+function makeHandlers(): Pick<
+  WorkboardPanelProps,
+  | 'onBoardSelect'
+  | 'onCardCreate'
+  | 'onCardUpdate'
+  | 'onCardDelete'
+  | 'onColumnCreate'
+  | 'onColumnUpdate'
+  | 'onColumnDelete'
+> {
   return {
-    onBoardSelect,
-    onCardCreate,
-    onCardUpdate,
-    onCardDelete,
-    onColumnCreate,
-    onColumnUpdate,
-    onColumnDelete,
-    ...render(
-      <WorkboardPanel
-        boards={[MOCK_BOARD]}
-        onBoardSelect={onBoardSelect}
-        onCardCreate={onCardCreate}
-        onCardUpdate={onCardUpdate}
-        onCardDelete={onCardDelete}
-        onColumnCreate={onColumnCreate}
-        onColumnUpdate={onColumnUpdate}
-        onColumnDelete={onColumnDelete}
-        {...overrides}
-      />
-    ),
+    onBoardSelect: vi.fn(),
+    onCardCreate: vi.fn(),
+    onCardUpdate: vi.fn(),
+    onCardDelete: vi.fn(),
+    onColumnCreate: vi.fn(),
+    onColumnUpdate: vi.fn(),
+    onColumnDelete: vi.fn(),
   };
 }
 
-async function switchToCardsTab() {
-  const user = userEvent.setup();
-  const cardsTab = screen.getByRole('tab', { name: /cards/i });
-  await user.click(cardsTab);
+async function renderWorkboard(overrides: Partial<WorkboardPanelProps> = {}) {
+  const WorkboardPanel = await loadPanelModule();
+  const handlers = makeHandlers();
+  const container = renderUI(
+    <WorkboardPanel boards={[MOCK_BOARD]} {...handlers} {...overrides} />,
+  );
+  return { handlers, container };
 }
 
-async function switchToStatsTab() {
-  const user = userEvent.setup();
-  const statsTab = screen.getByRole('tab', { name: /stats/i });
-  await user.click(statsTab);
+async function switchTab(container: HTMLElement, namePattern: RegExp): Promise<void> {
+  click(getTab(container, namePattern));
 }
 
 beforeEach(() => {
-  resetAtoms();
-  cleanup();
+  cleanupUI();
 });
 
 afterEach(() => {
-  cleanup();
+  cleanupUI();
 });
 
 describe('WorkboardPanel', () => {
   describe('Runtime dispatcher projection', () => {
-    it('renders runtime board tasks when no local boards are provided', async () => {
-      renderPanel({
-        boards: [],
-        runtimeWorkboard: {
-          selectedTaskId: 'task-1',
-          selectedTask: null,
-          sessions: [
-            {
-              sessionId: 'session-1',
-              objective: 'Shared dispatcher',
-              status: 'running',
-              maxDepth: 2,
-              maxChildren: 4,
-            },
-          ],
-          tasks: [
-            {
-              taskId: 'task-1',
-              sessionId: 'session-1',
-              parentTaskId: null,
-              title: 'Render shared runtime task',
-              status: 'claimed',
-              claimedBy: 'desktop-worker',
-              claimedAt: '2026-05-10T14:00:00.000Z',
-              heartbeatAt: '2026-05-10T14:00:01.000Z',
-              heartbeatDeadlineAt: '2026-05-10T14:01:00.000Z',
-              blockedReason: null,
-              summary: 'Visible from runtime.',
-              attempts: 1,
-              maxRetries: 2,
-              failureCount: 0,
-              artifactRefs: ['artifact:task-1'],
-              comments: [
-                {
-                  id: 'comment-1',
-                  author: 'desktop-worker',
-                  body: 'Claimed by desktop worker.',
-                  createdAt: '2026-05-10T14:00:01.000Z',
-                },
-              ],
-              risk: 'read-only',
-              createdAt: '2026-05-10T14:00:00.000Z',
-              updatedAt: '2026-05-10T14:00:01.000Z',
-            },
-          ],
-          workers: [],
-          receipts: [],
-          summary: {
-            sessions: 1,
-            queued: 0,
-            running: 1,
-            completed: 0,
-            blocked: 0,
-          },
-          safety: {
-            sqliteDurable: true,
-            mutationRequiresApproval: true,
-            retryBounded: true,
-            spawnDepthBounded: true,
-          },
-        },
-      });
-      await switchToCardsTab();
+    // Replaces the retired inline-runtimeWorkboard rendering coverage: the panel
+    // no longer consumes a raw RuntimeWorkboardProjection prop; runtime state is
+    // mapped to a read-only board by mapRuntimeWorkboardToBoard instead.
+    it('renders projected runtime tasks inside their status columns', async () => {
+      const { mapRuntimeWorkboardToBoard } = await import('../src/workboard/runtimeWorkboardProjection');
+      const { container } = await renderWorkboard({ boards: [mapRuntimeWorkboardToBoard(RUNTIME_PROJECTION)] });
+      await switchTab(container, /cards/i);
 
-      expect(screen.getByText('Claimed')).toBeInTheDocument();
-      expect(screen.getByText('Render shared runtime task')).toBeInTheDocument();
-      expect(screen.getByText('Visible from runtime.')).toBeInTheDocument();
-      expect(screen.getByText('retry 1/2')).toBeInTheDocument();
-      expect(screen.getByText('1 artifact')).toBeInTheDocument();
-      expect(screen.getByText('1 comment')).toBeInTheDocument();
+      expect(getByText(container, 'Claimed')).toBeTruthy();
+      expect(getByText(container, 'Render shared runtime task')).toBeTruthy();
+      expect(queryByText(container, /Visible from runtime\./)).not.toBeNull();
+      expect(getByText(container, 'retry 1/2')).toBeTruthy();
+      expect(getByText(container, '1 artifact')).toBeTruthy();
+      expect(getByText(container, '1 comment')).toBeTruthy();
+      expect(getByText(container, 'worker desktop-worker')).toBeTruthy();
+    });
+
+    it('blocks editing affordances while viewing the read-only runtime projection', async () => {
+      const { mapRuntimeWorkboardToBoard } = await import('../src/workboard/runtimeWorkboardProjection');
+      const { container } = await renderWorkboard({ boards: [mapRuntimeWorkboardToBoard(RUNTIME_PROJECTION)] });
+
+      expect(queryByText(container, /This is the runtime projection/)).not.toBeNull();
+
+      await switchTab(container, /cards/i);
+      expect(queryAllByTitle(container, 'Add card')).toHaveLength(0);
+      expect(queryByText(container, 'Add Column')).toBeNull();
+      expect(container.querySelector('[placeholder="Column name"]')).toBeNull();
+
+      const card = queryAllByText(container, 'Render shared runtime task')[0].closest('.zvd-kanban-card');
+      if (!card) throw new Error('Runtime card not rendered');
+      click(card);
+
+      expect(getByText(container, 'Runtime card')).toBeTruthy();
+      expect(getByText(container, 'Read-only projection')).toBeTruthy();
+      const buttons = Array.from(container.querySelectorAll<HTMLButtonElement>('.zvd-modal button'));
+      expect(buttons.some(button => button.textContent === 'Save')).toBe(false);
+      expect(buttons.some(button => button.textContent === 'Delete')).toBe(false);
+      const titleInput = container.querySelector<HTMLInputElement>('.zvd-modal input');
+      expect(titleInput?.disabled).toBe(true);
     });
   });
 
   describe('Renders board columns', () => {
     it('renders the kanban board with all columns after switching to Cards tab', async () => {
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      expect(screen.getByText('To Do')).toBeInTheDocument();
-      expect(screen.getByText('In Progress')).toBeInTheDocument();
-      expect(screen.getByText('Done')).toBeInTheDocument();
+      expect(getByText(container, 'To Do')).toBeTruthy();
+      expect(getByText(container, 'In Progress')).toBeTruthy();
+      expect(getByText(container, 'Done')).toBeTruthy();
     });
 
     it('displays column card counts', async () => {
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      const todoHeader = screen.getByText('To Do').closest('.zvd-kanban-column-header');
-      expect(todoHeader).toBeInTheDocument();
-      expect(within(todoHeader as HTMLElement).getByText('2')).toBeInTheDocument();
+      const todoHeader = getByText(container, 'To Do').closest('.zvd-kanban-column-header');
+      if (!todoHeader) throw new Error('To Do header not rendered');
+      expect(queryAllByText(todoHeader, '2').length).toBeGreaterThanOrEqual(1);
     });
   });
 
   describe('Renders cards in columns', () => {
     it('displays card titles in their columns', async () => {
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      expect(screen.getByText('Fix login bug')).toBeInTheDocument();
-      expect(screen.getByText('Add dark mode')).toBeInTheDocument();
-      expect(screen.getByText('Update docs')).toBeInTheDocument();
+      expect(getByText(container, 'Fix login bug')).toBeTruthy();
+      expect(getByText(container, 'Add dark mode')).toBeTruthy();
+      expect(getByText(container, 'Update docs')).toBeTruthy();
     });
 
     it('displays card descriptions', async () => {
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      expect(screen.getByText('Users cannot login with SSO')).toBeInTheDocument();
-      expect(screen.getByText('Implement dark theme support')).toBeInTheDocument();
+      expect(getByText(container, 'Users cannot login with SSO')).toBeTruthy();
+      expect(getByText(container, 'Implement dark theme support')).toBeTruthy();
     });
 
     it('displays card labels', async () => {
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      expect(screen.getByText('bug')).toBeInTheDocument();
-      expect(screen.getByText('feature')).toBeInTheDocument();
-      expect(screen.getByText('docs')).toBeInTheDocument();
+      expect(getByText(container, 'bug')).toBeTruthy();
+      expect(getByText(container, 'feature')).toBeTruthy();
+      expect(getByText(container, 'docs')).toBeTruthy();
     });
 
     it('displays card priority badges', async () => {
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      expect(screen.getByText('High')).toBeInTheDocument();
-      expect(screen.getByText('Medium')).toBeInTheDocument();
-      expect(screen.getByText('Low')).toBeInTheDocument();
-      expect(screen.getByText('Critical')).toBeInTheDocument();
+      expect(getByText(container, 'High')).toBeTruthy();
+      expect(getByText(container, 'Medium')).toBeTruthy();
+      expect(getByText(container, 'Low')).toBeTruthy();
+      expect(getByText(container, 'Critical')).toBeTruthy();
     });
 
     it('displays card dates', async () => {
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      expect(screen.getByText('Jan 10')).toBeInTheDocument();
-      expect(screen.getByText('Jan 11')).toBeInTheDocument();
+      expect(getByText(container, 'Jan 10')).toBeTruthy();
+      expect(getByText(container, 'Jan 11')).toBeTruthy();
     });
   });
 
   describe('Creates new card', () => {
     it('opens create card modal when clicking add button', async () => {
-      const user = userEvent.setup();
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      const addButtons = screen.getAllByTitle('Add card');
-      await user.click(addButtons[0]);
+      click(getByTitle(container, 'Add card'));
 
-      expect(screen.getByText('Create Card')).toBeInTheDocument();
+      expect(getByText(container, 'Create Card')).toBeTruthy();
     });
 
     it('calls onCardCreate with correct data', async () => {
-      const user = userEvent.setup();
-      const { onCardCreate } = renderPanel();
-      await switchToCardsTab();
+      const { handlers, container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      const addButtons = screen.getAllByTitle('Add card');
-      await user.click(addButtons[0]);
+      click(getByTitle(container, 'Add card'));
+      typeText(getByPlaceholderText(container, 'Card title...'), 'New task');
+      click(getByText(container, 'Create'));
 
-      const titleInput = screen.getByPlaceholderText('Card title...');
-      await user.type(titleInput, 'New task');
-
-      const createButton = screen.getByText('Create');
-      await user.click(createButton);
-
-      expect(onCardCreate).toHaveBeenCalledTimes(1);
+      expect(handlers.onCardCreate).toHaveBeenCalledTimes(1);
+      expect(handlers.onCardCreate).toHaveBeenCalledWith(
+        'board-1',
+        expect.objectContaining({ title: 'New task' }),
+      );
     });
   });
 
   describe('Moves card between columns', () => {
     it('shows move right button for cards in non-last columns', async () => {
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      const moveButtons = screen.getAllByTitle('Move right');
-      expect(moveButtons.length).toBeGreaterThanOrEqual(1);
+      expect(queryAllByTitle(container, 'Move right').length).toBeGreaterThanOrEqual(1);
     });
 
     it('calls onCardUpdate when moving card right', async () => {
-      const user = userEvent.setup();
-      const { onCardUpdate } = renderPanel();
-      await switchToCardsTab();
+      const { handlers, container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      const moveRightButtons = screen.getAllByTitle('Move right');
-      await user.click(moveRightButtons[0]);
+      click(queryAllByTitle(container, 'Move right')[0]);
 
-      expect(onCardUpdate).toHaveBeenCalledTimes(1);
+      expect(handlers.onCardUpdate).toHaveBeenCalledTimes(1);
+      expect(handlers.onCardUpdate).toHaveBeenCalledWith(
+        'board-1',
+        expect.objectContaining({ id: 'card-1', columnId: 'col-2' }),
+      );
     });
   });
 
   describe('Filters cards', () => {
     it('renders filter toggle button', async () => {
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      expect(screen.getByTitle('Toggle filters')).toBeInTheDocument();
+      expect(queryByTitle(container, 'Toggle filters')).not.toBeNull();
     });
 
     it('shows filter bar when toggled', async () => {
-      const user = userEvent.setup();
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
+      click(getByTitle(container, 'Toggle filters'));
 
-      const filterButton = screen.getByTitle('Toggle filters');
-      await user.click(filterButton);
-
-      expect(screen.getByText('All Priorities')).toBeInTheDocument();
+      expect(getByText(container, 'All Priorities')).toBeTruthy();
     });
 
     it('filters by priority when a priority is selected', async () => {
-      const user = userEvent.setup();
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
+      click(getByTitle(container, 'Toggle filters'));
 
-      const filterButton = screen.getByTitle('Toggle filters');
-      await user.click(filterButton);
+      const prioritySelect = container.querySelector<HTMLSelectElement>('.zvd-filter-select');
+      if (!prioritySelect) throw new Error('Priority filter not rendered');
+      chooseOption(prioritySelect, 'high');
 
-      const prioritySelect = screen.getByDisplayValue('All Priorities');
-      await user.selectOptions(prioritySelect, 'high');
-
-      expect(screen.getByText('Fix login bug')).toBeInTheDocument();
-      expect(screen.queryByText('Add dark mode')).not.toBeInTheDocument();
-      expect(screen.queryByText('Update docs')).not.toBeInTheDocument();
+      expect(getByText(container, 'Fix login bug')).toBeTruthy();
+      expect(queryByText(container, 'Add dark mode')).toBeNull();
+      expect(queryByText(container, 'Update docs')).toBeNull();
     });
 
     it('shows assignee filter when cards have assignees', async () => {
-      const user = userEvent.setup();
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
+      click(getByTitle(container, 'Toggle filters'));
 
-      const filterButton = screen.getByTitle('Toggle filters');
-      await user.click(filterButton);
-
-      expect(screen.getByText('All Assignees')).toBeInTheDocument();
+      expect(getByText(container, 'All Assignees')).toBeTruthy();
     });
 
     it('filters by assignee', async () => {
-      const user = userEvent.setup();
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
+      click(getByTitle(container, 'Toggle filters'));
 
-      const filterButton = screen.getByTitle('Toggle filters');
-      await user.click(filterButton);
+      const selects = container.querySelectorAll<HTMLSelectElement>('.zvd-filter-select');
+      const assigneeSelect = selects[1];
+      if (!assigneeSelect) throw new Error('Assignee filter not rendered');
+      chooseOption(assigneeSelect, 'Alice');
 
-      const assigneeSelect = screen.getByDisplayValue('All Assignees');
-      await user.selectOptions(assigneeSelect, 'Alice');
-
-      expect(screen.getByText('Fix login bug')).toBeInTheDocument();
-      expect(screen.getByText('Update docs')).toBeInTheDocument();
-      expect(screen.queryByText('Add dark mode')).not.toBeInTheDocument();
+      expect(getByText(container, 'Fix login bug')).toBeTruthy();
+      expect(getByText(container, 'Update docs')).toBeTruthy();
+      expect(queryByText(container, 'Add dark mode')).toBeNull();
     });
   });
 
   describe('Shows board statistics', () => {
     it('switches to stats tab and shows stat labels', async () => {
-      renderPanel();
-      await switchToStatsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /stats/i);
 
-      expect(screen.getByText('Total Cards')).toBeInTheDocument();
-      expect(screen.getByText('Completion Rate')).toBeInTheDocument();
-      expect(screen.getByText('Assignees')).toBeInTheDocument();
-      expect(screen.getByText('Columns')).toBeInTheDocument();
+      expect(getByText(container, 'Total Cards')).toBeTruthy();
+      expect(getByText(container, 'Completion Rate')).toBeTruthy();
+      expect(getByText(container, 'Assignees')).toBeTruthy();
+      expect(getByText(container, 'Columns')).toBeTruthy();
     });
 
     it('displays total card count in stats', async () => {
-      renderPanel();
-      await switchToStatsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /stats/i);
 
-      const statValues = screen.getAllByText('4');
-      expect(statValues.length).toBeGreaterThanOrEqual(1);
+      expect(queryAllByText(container, '4').length).toBeGreaterThanOrEqual(1);
     });
 
     it('displays priority distribution section', async () => {
-      renderPanel();
-      await switchToStatsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /stats/i);
 
-      expect(screen.getByText('Priority Distribution')).toBeInTheDocument();
+      expect(getByText(container, 'Priority Distribution')).toBeTruthy();
     });
 
     it('displays cards per column section', async () => {
-      renderPanel();
-      await switchToStatsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /stats/i);
 
-      expect(screen.getByText('Cards per Column')).toBeInTheDocument();
+      expect(getByText(container, 'Cards per Column')).toBeTruthy();
     });
   });
 
   describe('Handles empty board', () => {
-    it('shows empty state when no boards provided', () => {
-      renderPanel({ boards: [] });
+    it('shows empty state when no boards provided', async () => {
+      const { container } = await renderWorkboard({ boards: [] });
 
-      expect(screen.getByText(/No boards available/)).toBeInTheDocument();
+      expect(queryByText(container, /No boards available/)).not.toBeNull();
     });
 
     it('shows "No cards" in empty columns', async () => {
-      renderPanel({ boards: [EMPTY_BOARD] });
-      await switchToCardsTab();
+      const { container } = await renderWorkboard({ boards: [EMPTY_BOARD] });
+      await switchTab(container, /cards/i);
 
-      const emptyTexts = screen.getAllByText('No cards');
-      expect(emptyTexts.length).toBeGreaterThanOrEqual(1);
+      expect(queryAllByText(container, 'No cards').length).toBeGreaterThanOrEqual(1);
     });
 
     it('shows empty state for cards tab with no board selected', async () => {
-      renderPanel({ boards: [] });
-      await switchToCardsTab();
+      const { container } = await renderWorkboard({ boards: [] });
+      await switchTab(container, /cards/i);
 
-      expect(screen.getByText(/Select a board/)).toBeInTheDocument();
+      expect(queryByText(container, /Select a board/)).not.toBeNull();
     });
 
     it('shows empty state for stats tab with no board selected', async () => {
-      renderPanel({ boards: [] });
-      await switchToStatsTab();
+      const { container } = await renderWorkboard({ boards: [] });
+      await switchTab(container, /stats/i);
 
-      expect(screen.getByText(/Select a board/)).toBeInTheDocument();
+      expect(queryByText(container, /Select a board/)).not.toBeNull();
     });
   });
 
   describe('Column management', () => {
     it('renders add column input in cards view', async () => {
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      expect(screen.getByPlaceholderText('Column name')).toBeInTheDocument();
+      expect(container.querySelector('[placeholder="Column name"]')).not.toBeNull();
     });
 
     it('calls onColumnCreate when adding a column', async () => {
-      const user = userEvent.setup();
-      const { onColumnCreate } = renderPanel();
-      await switchToCardsTab();
+      const { handlers, container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      const columnInput = screen.getByPlaceholderText('Column name');
-      await user.type(columnInput, 'Testing');
+      typeText(getByPlaceholderText(container, 'Column name'), 'Testing');
+      click(getByTitle(container, 'Add column'));
 
-      const addButton = screen.getByTitle('Add column');
-      await user.click(addButton);
-
-      expect(onColumnCreate).toHaveBeenCalledWith('board-1', 'Testing');
+      expect(handlers.onColumnCreate).toHaveBeenCalledWith('board-1', 'Testing');
     });
 
     it('adds column on Enter key', async () => {
-      const user = userEvent.setup();
-      const { onColumnCreate } = renderPanel();
-      await switchToCardsTab();
+      const { handlers, container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      const columnInput = screen.getByPlaceholderText('Column name');
-      await user.type(columnInput, 'Review{Enter}');
+      const columnInput = getByPlaceholderText(container, 'Column name');
+      typeText(columnInput, 'Review');
+      pressKey(columnInput, 'Enter');
 
-      expect(onColumnCreate).toHaveBeenCalledWith('board-1', 'Review');
+      expect(handlers.onColumnCreate).toHaveBeenCalledWith('board-1', 'Review');
     });
 
     it('disables add button when column name is empty', async () => {
-      renderPanel();
-      await switchToCardsTab();
+      const { container } = await renderWorkboard();
+      await switchTab(container, /cards/i);
 
-      const addButton = screen.getByTitle('Add column');
-      expect(addButton).toBeDisabled();
+      const addButton = getByTitle(container, 'Add column') as HTMLButtonElement;
+      expect(addButton.disabled).toBe(true);
     });
   });
 });
