@@ -200,7 +200,7 @@ export class SmartOutputService {
       const summary = this.generateSummary(text);
 
       await target.sendDocument!(filepath, filename, {
-        caption: `Documento completo (${text.length} caracteres)\n\n${summary}`.slice(0, 1024),
+        caption: `Full document (${text.length} chars)\n\n${summary}`.slice(0, 1024),
         reply_markup: options?.reply_markup,
       });
     } finally {
@@ -224,7 +224,7 @@ export class SmartOutputService {
     const chunks = this.splitMessage(text, 3600);
 
     for (const [index, chunk] of chunks.entries()) {
-      const prefix = chunks.length > 1 ? `Parte ${index + 1}/${chunks.length}\n` : '';
+      const prefix = chunks.length > 1 ? `Part ${index + 1}/${chunks.length}\n` : '';
       await target.sendText(`${prefix}${chunk}`, {
         reply_markup: index === 0 ? options?.reply_markup : undefined,
       });
