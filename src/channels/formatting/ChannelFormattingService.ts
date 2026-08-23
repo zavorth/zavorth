@@ -39,8 +39,13 @@ export class ChannelFormattingService {
     return PLATFORM_MESSAGE_CHAR_LIMITS[platform] ?? FALLBACK_MESSAGE_CHAR_LIMIT;
   }
 
-  public static chunkMessageForPlatform(platform: ChannelMessagePlatform, text: string): string[] {
-    return this.chunkMessage(text, this.resolveMessageCharLimit(platform));
+  public static chunkMessageForPlatform(
+    platform: ChannelMessagePlatform,
+    text: string,
+    options: { charLimitOverride?: number } = {},
+  ): string[] {
+    const limit = options.charLimitOverride ?? this.resolveMessageCharLimit(platform);
+    return this.chunkMessage(text, limit);
   }
 
   public static chunkMessage(text: string, charLimit: number): string[] {

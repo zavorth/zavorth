@@ -7,6 +7,7 @@ import {
   buildInboundChannelEvent,
   buildOutboundChannelEnvelope,
   extractChannelMeshReplyEvent,
+  extractChannelMeshTypingEvent,
   persistChannelOutboxEnvelope,
 } from '../../../channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
@@ -26,8 +27,14 @@ export class SignalChannelAdapter implements GatewayChannelAdapter {
   private readonly now: () => Date;
   private readonly outboundReplyHandler = (event: unknown): void => {
     const reply = extractChannelMeshReplyEvent(event, this.id);
-    if (!reply) return;
-    void this.sendMessage({ recipients: [reply.userId], text: reply.text });
+    if (reply) {
+      void this.sendMessage({ recipients: [reply.userId], text: reply.text });
+      return;
+    }
+    const typing = extractChannelMeshTypingEvent(event, this.id);
+    if (typing) {
+      void (this as GatewayChannelAdapter).renewTyping?.(typing.chatId);
+    }
   };
 
   constructor(

@@ -1,4 +1,5 @@
 import { Context } from 'grammy';
+import { TypingHeartbeat } from '../../../../channels/presence/TypingHeartbeat.js';
 import { ParsedCommand } from '../../../../gateways/channels/telegram/CommandParser.js';
 import { Task } from '@zavorth/contracts/TaskContract.js';
 import { RouteIntent } from '../../../../orchestrator/IntentRouter.js';
@@ -203,9 +204,13 @@ export class TelegramTaskAutoRouteService {
     }
 
     if (this.deps.videoHandler.containsSupportedVideoUrl(messageText)) {
-      if (ctx.chat?.id) {
-        await ctx.api.sendChatAction(ctx.chat.id, 'typing');
-      }
+      const chatIdForTyping = ctx.chat?.id;
+      const typingHeartbeat = chatIdForTyping
+        ? new TypingHeartbeat({
+            sendAction: () => ctx.api.sendChatAction(chatIdForTyping, 'typing'),
+          })
+        : null;
+      typingHeartbeat?.start();
       try {
         const prepared = await this.deps.videoHandler.prepareFromText(messageText);
         if (prepared) {
@@ -222,6 +227,8 @@ export class TelegramTaskAutoRouteService {
         const message = error instanceof Error ? err.message : String(error || 'unknown error');
         await ctx.reply(`Could not prepare this video link right now.\n\nReason: ${message}`);
         return;
+      } finally {
+        typingHeartbeat?.stop();
       }
     }
 

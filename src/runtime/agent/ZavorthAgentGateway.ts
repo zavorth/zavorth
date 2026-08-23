@@ -26,9 +26,12 @@ import { resolveAgentGatewayTraceId, withAgentGatewayTraceMetadata } from './Age
 import { ChannelFormattingService, type ChannelMessagePlatform } from '../../channels/formatting/ChannelFormattingService.js';
 import {
   buildOutboundReplyEvent,
+  buildOutboundTypingEvent,
   type CanonicalChannelPlatform,
 } from '../../channels/contracts/ChannelMessageContract.js';
 import { ChannelMeshOnboardingGate } from '../../channels/onboarding/ChannelMeshOnboardingGate.js';
+import { parseChannelMeshApprovalCommand } from '../../channels/commands/ChannelMeshCommandParser.js';
+import { TypingHeartbeat } from '../../channels/presence/TypingHeartbeat.js';
 import { config } from '../../config/index.js';
 
 import type { StrongCapabilityLoopSnapshot } from './CapabilityLoopGovernanceService.js';
@@ -270,6 +273,12 @@ export class ZavorthAgentGateway {
       const target = this.extractChannelMeshReplyTarget(request);
       if (!target) return;
 
+      const approvalCommand = parseChannelMeshApprovalCommand(request.text);
+      if (approvalCommand) {
+        await this.executeChannelMeshApprovalCommand(eventBus, target, approvalCommand);
+        return;
+      }
+
       if (onboardingGate) {
         const interception = await onboardingGate.intercept(
           { platform: target.platform, userId: target.userId, chatId: target.chatId },
@@ -281,18 +290,77 @@ export class ZavorthAgentGateway {
         }
       }
 
-      const result = await this.handle(this.decorateChannelMeshRequest(request), options);
-      const replyTexts = (result.replies ?? [])
-        .map((reply) => reply.text)
-        .filter((text) => text.trim().length > 0);
-      const fallbackTexts = replyTexts.length > 0 ? replyTexts : [result.run.summary].filter((text) => text.trim());
-      this.emitChannelMeshReplies(eventBus, target, fallbackTexts);
+      const typingHeartbeat = new TypingHeartbeat({
+        sendAction: () =>
+          Promise.resolve(
+            eventBus.emit?.(
+              buildOutboundTypingEvent({
+                platform: target.platform,
+                chatId: target.chatId,
+                userId: target.userId,
+              }),
+            ),
+          ),
+      });
+      typingHeartbeat.start();
+      try {
+        const result = await this.handle(this.decorateChannelMeshRequest(request), options);
+        const replyTexts = (result.replies ?? [])
+          .map((reply) => reply.text)
+          .filter((text) => text.trim().length > 0);
+        const fallbackTexts =
+          replyTexts.length > 0 ? replyTexts : [result.run.summary].filter((text) => text.trim());
+        const finalTexts = this.appendPendingApprovalGuidance(result.run, fallbackTexts);
+        this.emitChannelMeshReplies(eventBus, target, finalTexts);
+      } finally {
+        typingHeartbeat.stop();
+      }
     };
 
     eventBus.subscribe('public_ws', handler);
     return {
       detach: () => eventBus.unsubscribe?.('public_ws', handler),
     };
+  }
+
+  private appendPendingApprovalGuidance(run: UniversalAgentRun, texts: string[]): string[] {
+    if (run.status !== 'waiting_approval') {
+      return texts;
+    }
+    const pending = run.approvals.find((approval) => approval.status === 'pending');
+    if (!pending) {
+      return texts;
+    }
+    const guidance = [
+      `Approval required (${pending.risk}): ${pending.title || pending.reason || 'action'}`,
+      `Ref: ${pending.id}`,
+      '/approve <ref> [once|session|always] or /deny <ref>',
+    ].join('\n');
+    return [...texts, guidance];
+  }
+
+  private async executeChannelMeshApprovalCommand(
+    eventBus: ChannelMeshEventBusLike,
+    target: ChannelMeshReplyTarget,
+    command: NonNullable<ReturnType<typeof parseChannelMeshApprovalCommand>>,
+  ): Promise<void> {
+    let outcomeText: string;
+    if (command.action === 'deny') {
+      const rejected = await this.reject(command.ref).catch(() => null);
+      outcomeText = rejected
+        ? `Denied approval ${command.ref}.`
+        : `No pending approval found for ${command.ref}.`;
+    } else {
+      const approved = await this.approve(command.ref, {
+        choice: command.choice,
+        surface: target.platform,
+        sessionId: `${target.platform}:${target.chatId}`,
+      }).catch(() => null);
+      outcomeText = approved
+        ? `Approved ${command.ref} (${command.choice}).`
+        : `No pending approval found for ${command.ref}.`;
+    }
+    this.emitChannelMeshReplies(eventBus, target, [outcomeText]);
   }
 
   private extractChannelMeshReplyTarget(request: UniversalAgentRequest): ChannelMeshReplyTarget | null {

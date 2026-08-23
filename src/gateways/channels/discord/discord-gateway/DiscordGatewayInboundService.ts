@@ -26,6 +26,7 @@ import {
 } from '../DiscordVoiceAttachmentIngest.js';
 import { DiscordGatewayPersistence } from './DiscordGatewayPersistence.js';
 
+import { TypingHeartbeat } from '../../../../channels/presence/TypingHeartbeat.js';
 import type { DiscordGatewayInteractionLike, DiscordGatewayMessageLike } from '../DiscordGatewayTypes.js';
 
 import { DiscordGatewayReplyService } from './DiscordGatewayReplyService.js';
@@ -192,6 +193,9 @@ export class DiscordGatewayInboundService {
         guildId,
         messageId: String(message.id || '').trim() || null,
         attachments,
+        startTyping: async () => {
+          await (message.channel as { sendTyping?: () => Promise<unknown> } | undefined)?.sendTyping?.();
+        },
         composerPayload: {
           attachments,
           discord: {
@@ -640,6 +644,7 @@ export class DiscordGatewayInboundService {
     attachments: MessageAttachment[];
     composerPayload: DiscordComposerPayload;
     reply: (text: string) => Promise<void>;
+    startTyping?: () => Promise<unknown>;
   }): Promise<boolean> {
     const text = String(input.rawText || '').trim();
     if (!this.agentGateway || !text || text.startsWith('/')) {
@@ -649,7 +654,16 @@ export class DiscordGatewayInboundService {
       return false;
     }
 
-    const result = await this.agentGateway.handle({
+    const typingHeartbeat = new TypingHeartbeat({
+      sendAction: async () => {
+        await input.startTyping?.();
+      },
+      intervalMs: 9000,
+    });
+    typingHeartbeat.start();
+    let result;
+    try {
+      result = await this.agentGateway.handle({
       userId: input.userId,
       channel: 'discord',
       sessionId: input.threadId || input.chatId,
@@ -671,6 +685,9 @@ export class DiscordGatewayInboundService {
         }),
       },
     });
+    } finally {
+      typingHeartbeat.stop();
+    }
 
     const replyText = String(result.replies[0]?.text || result.run.summary || '').trim();
     if (replyText) {

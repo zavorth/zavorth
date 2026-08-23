@@ -7,7 +7,9 @@ import {
   buildInboundChannelEvent,
   buildOutboundChannelEnvelope,
   persistChannelOutboxEnvelope,
-  extractChannelMeshReplyEvent,} from '../../../channels/contracts/ChannelMessageContract.js';
+  extractChannelMeshReplyEvent,
+  extractChannelMeshTypingEvent,
+} from '../../../channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
 
 import { logger } from '../../../logger.js';
@@ -37,8 +39,14 @@ export class TeamsChannelAdapter implements GatewayChannelAdapter {
 
   private readonly outboundReplyHandler = (event: unknown): void => {
     const reply = extractChannelMeshReplyEvent(event, this.id);
-    if (!reply) return;
-    void this.sendMessage({ recipients: [reply.userId], text: reply.text });
+    if (reply) {
+      void this.sendMessage({ recipients: [reply.userId], text: reply.text });
+      return;
+    }
+    const typing = extractChannelMeshTypingEvent(event, this.id);
+    if (typing) {
+      void (this as GatewayChannelAdapter).renewTyping?.(typing.chatId);
+    }
   };
 
   async initialize(): Promise<void> {

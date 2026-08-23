@@ -125,24 +125,71 @@ export function extractChannelMeshReplyEvent(
   event: unknown,
   platform: CanonicalChannelPlatform | string,
 ): CanonicalChannelOutboundReply | null {
-  if (!event || typeof event !== 'object') return null;
-  const gatewayEvent = event as { type?: unknown; payload?: { payload?: { topic?: unknown; data?: unknown } } };
-  if (gatewayEvent.type !== 'public_ws') return null;
-  const inner = gatewayEvent.payload?.payload;
-  if (!inner || inner.topic !== 'im_reply') return null;
-  const data = inner.data as Partial<CanonicalChannelOutboundReply> | undefined;
-  if (!data) return null;
-  const expectedPlatform = normalizePlatform(platform as CanonicalChannelPlatform);
-  const actualPlatform = normalizePlatform(data.platform as CanonicalChannelPlatform);
-  if (actualPlatform !== expectedPlatform) return null;
-  if (typeof data.text !== 'string') return null;
+  const data = extractChannelMeshOutboundEventData(event, platform, 'im_reply');
+  if (!data || typeof data.text !== 'string') return null;
   return {
-    platform: actualPlatform,
+    platform: normalizePlatform(data.platform as CanonicalChannelPlatform),
     chatId: String(data.chatId || ''),
     userId: String(data.userId || ''),
     text: data.text,
     createdAt: String(data.createdAt || ''),
   };
+}
+
+export type BuildOutboundTypingEventInput = {
+  platform: CanonicalChannelPlatform;
+  chatId: string;
+  userId: string;
+};
+
+export function buildOutboundTypingEvent(input: BuildOutboundTypingEventInput) {
+  const data = {
+    platform: normalizePlatform(input.platform),
+    chatId: normalizeRequired(input.chatId, 'chatId'),
+    userId: normalizeRequired(input.userId, 'userId'),
+  };
+  return {
+    type: 'public_ws' as const,
+    payload: {
+      id: `${data.platform}-typing-${randomUUID()}`,
+      type: 'event' as const,
+      payload: {
+        topic: 'im_typing',
+        data,
+      },
+    },
+  };
+}
+
+export function extractChannelMeshTypingEvent(
+  event: unknown,
+  platform: CanonicalChannelPlatform | string,
+): { chatId: string; userId: string } | null {
+  const data = extractChannelMeshOutboundEventData(event, platform, 'im_typing');
+  if (!data) return null;
+  return {
+    chatId: String(data.chatId || ''),
+    userId: String(data.userId || ''),
+  };
+}
+
+function extractChannelMeshOutboundEventData(
+  event: unknown,
+  platform: CanonicalChannelPlatform | string,
+  topic: string,
+): Record<string, unknown> | null {
+  if (!event || typeof event !== 'object') return null;
+  const gatewayEvent = event as { type?: unknown; payload?: { payload?: { topic?: unknown; data?: unknown } } };
+  if (gatewayEvent.type !== 'public_ws') return null;
+  const inner = gatewayEvent.payload?.payload;
+  if (!inner || inner.topic !== topic) return null;
+  const data = inner.data;
+  if (!data || typeof data !== 'object') return null;
+  const record = data as Record<string, unknown>;
+  const expectedPlatform = normalizePlatform(platform as CanonicalChannelPlatform);
+  const actualPlatform = normalizePlatform(record.platform as CanonicalChannelPlatform);
+  if (actualPlatform !== expectedPlatform) return null;
+  return record;
 }
 
 export function buildNormalizedInboundMessageFromChannelMessage(

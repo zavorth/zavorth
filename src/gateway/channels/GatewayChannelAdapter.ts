@@ -11,4 +11,11 @@ export interface GatewayChannelAdapter {
 
   // Channels may receive generic payloads outward
   sendMessage?(payload: unknown): Promise<unknown>;
+
+  /**
+   * Renews a chat presence indicator (for example a "typing" action) for
+   * transports that support live presence. Optional: outbox-based transports
+   * without a presence API simply do not implement it.
+   */
+  renewTyping?(chatId: string): Promise<void>;
 }

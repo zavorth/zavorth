@@ -1,4 +1,5 @@
 import { logger } from '../../../../logger.js';
+import { TypingHeartbeat } from '../../../../channels/presence/TypingHeartbeat.js';
 import { Context, InputFile } from 'grammy';
 import { randomUUID } from 'crypto';
 import fs from 'fs';
@@ -77,7 +78,12 @@ export class TelegramMediaController {
     const caption = ctx.message?.caption || '';
     const userId = ctx.from!.id.toString();
 
-    await ctx.api.sendChatAction(ctx.chat!.id, 'typing');
+    const chatIdForTyping1 = ctx.chat?.id;
+        const typingHeartbeat1 =
+          chatIdForTyping1
+            ? new TypingHeartbeat({ sendAction: () => ctx.api.sendChatAction(chatIdForTyping1, 'typing') })
+            : null;
+    typingHeartbeat1?.start();
 
     try {
       const fileInfo = await ctx.api.getFile(photo.file_id);
@@ -103,6 +109,8 @@ export class TelegramMediaController {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       await ctx.reply(t('media.photo_analysis_failed', { error: getErrorMessage(err) }));
+    } finally {
+      typingHeartbeat1?.stop();
     }
   }
 
@@ -353,7 +361,12 @@ export class TelegramMediaController {
     const target = video || videoNote;
     if (!target) return;
 
-    await ctx.api.sendChatAction(ctx.chat!.id, 'typing');
+    const chatIdForTyping2 = ctx.chat?.id;
+        const typingHeartbeat2 =
+          chatIdForTyping2
+            ? new TypingHeartbeat({ sendAction: () => ctx.api.sendChatAction(chatIdForTyping2, 'typing') })
+            : null;
+    typingHeartbeat2?.start();
 
     try {
       const descriptor = {
@@ -382,6 +395,8 @@ export class TelegramMediaController {
         return;
       }
       await ctx.reply(t('media.video_processing_failed', { error: getErrorMessage(err) }));
+    } finally {
+      typingHeartbeat2?.stop();
     }
   }
 
@@ -422,7 +437,12 @@ export class TelegramMediaController {
       return;
     }
 
-    await ctx.api.sendChatAction(ctx.chat!.id, 'typing');
+    const chatIdForTyping3 = ctx.chat?.id;
+        const typingHeartbeat3 =
+          chatIdForTyping3
+            ? new TypingHeartbeat({ sendAction: () => ctx.api.sendChatAction(chatIdForTyping3, 'typing') })
+            : null;
+    typingHeartbeat3?.start();
     let filePath = '';
 
     try {
@@ -490,6 +510,7 @@ export class TelegramMediaController {
       }
       await ctx.reply(t('media.document_reading_failed', { error: getErrorMessage(err) }));
     } finally {
+      typingHeartbeat3?.stop();
       if (filePath && fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
