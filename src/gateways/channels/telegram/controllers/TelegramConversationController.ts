@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Context } from 'grammy';
+import { TypingHeartbeat } from '../../../../channels/presence/TypingHeartbeat.js';
 import { Task } from '@zavorth/contracts/TaskContract.js';
 import { BridgeManager } from '../../../../orchestrator/BridgeManager.js';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
@@ -133,9 +134,13 @@ export class TelegramConversationController {
     messageText: string,
     inlineData?: InlineData,
   ): Promise<void> {
-    if (ctx.chat?.id) {
-      await ctx.api.sendChatAction(ctx.chat.id, 'typing');
-    }
+    const typingHeartbeat =
+      ctx.chat?.id
+        ? new TypingHeartbeat({
+            sendAction: () => ctx.api.sendChatAction(ctx.chat.id, 'typing'),
+          })
+        : null;
+    typingHeartbeat?.start();
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const ConversationalModule = require('../../../../agents/ConversationalAgent.js').ConversationalAgent;
@@ -305,6 +310,8 @@ export class TelegramConversationController {
         kind: 'error',
         surface: 'telegram',
       });
+    } finally {
+      typingHeartbeat?.stop();
     }
   }
 
