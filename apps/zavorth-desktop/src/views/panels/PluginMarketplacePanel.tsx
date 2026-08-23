@@ -430,7 +430,6 @@ export default function PluginMarketplacePanel(props: PluginMarketplacePanelProp
   const filteredPlugins = useMemo(() => {
     const q = search.trim().toLowerCase();
     return props.plugins.filter(p => {
-      if (tab === 'featured' && !p.featured) return false;
       if (tab === 'installed' && p.status !== 'installed' && p.status !== 'update_available') return false;
       if (category !== 'all' && p.category !== category) return false;
       if (q) {
@@ -440,6 +439,13 @@ export default function PluginMarketplacePanel(props: PluginMarketplacePanelProp
       return true;
     });
   }, [props.plugins, tab, category, search]);
+
+  // Under the Featured tab the rail above already shows featured plugins, so the
+  // All Plugins grid lists everything else exactly once.
+  const gridPlugins = useMemo(
+    () => (tab === 'featured' ? filteredPlugins.filter(p => !p.featured) : filteredPlugins),
+    [filteredPlugins, tab],
+  );
 
   const tabItems = useMemo(() => [
     { value: 'featured' as const, label: 'Featured', count: featuredPlugins.length },
@@ -1159,7 +1165,7 @@ export default function PluginMarketplacePanel(props: PluginMarketplacePanelProp
         </div>
       )}
 
-      {filteredPlugins.length === 0 ? (
+      {gridPlugins.length === 0 ? (
         <div className="zvd-pm-empty">
           <div className="zvd-pm-empty-icon"><IconPlug size={32} /></div>
           <div className="zvd-pm-empty-text">No plugins found</div>
@@ -1169,7 +1175,7 @@ export default function PluginMarketplacePanel(props: PluginMarketplacePanelProp
         </div>
       ) : (
         <div className={`zvd-pm-grid ${viewMode === 'list' ? 'is-list' : ''}`}>
-          {(tab === 'featured' ? filteredPlugins.filter(p => !p.featured) : filteredPlugins).map(plugin => (
+          {gridPlugins.map(plugin => (
             <PluginCard
               key={plugin.id}
               plugin={plugin}

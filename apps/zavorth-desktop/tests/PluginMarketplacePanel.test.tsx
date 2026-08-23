@@ -163,14 +163,16 @@ describe('PluginMarketplacePanel', () => {
   });
 
   describe('Renders plugin list', () => {
-    it('renders only the featured pair on the default tab', async () => {
-      // Current contract: the featured rail lists featured plugins and the
-      // grid below it excludes them, leaving the default view to just the rail.
+    it('renders the featured rail plus every non-featured plugin on the default tab', async () => {
+      // Featured plugins appear once in the rail; the All Plugins grid below
+      // lists everything else, so all four mock plugins are visible here.
       const { container } = await renderMarketplace();
       expect(getByText(container, 'AI Safety Researcher')).toBeTruthy();
       expect(getByText(container, 'Vision Service')).toBeTruthy();
-      expect(queryByText(container, 'Usage Analytics')).toBeNull();
-      expect(queryByText(container, 'Edge Computing Specialist')).toBeNull();
+      expect(getByText(container, 'Usage Analytics')).toBeTruthy();
+      expect(getByText(container, 'Edge Computing Specialist')).toBeTruthy();
+      expect(queryAllByText(container, 'Usage Analytics')).toHaveLength(1);
+      expect(queryAllByText(container, 'Edge Computing Specialist')).toHaveLength(1);
     });
 
     it('displays plugin descriptions', async () => {
@@ -346,9 +348,9 @@ describe('PluginMarketplacePanel', () => {
   describe('Handles install/uninstall', () => {
     it('shows install buttons only for uninstalled plugins', async () => {
       const { container } = await renderMarketplace();
-      // Available plugins surface outside the featured rail, so the default
-      // view renders no install actions until the All Plugins tab is active.
-      expect(queryAllByText(container, 'Install')).toHaveLength(0);
+      // The two available plugins surface in the All Plugins grid on the
+      // default (Featured) tab and stay there on the All Plugins tab.
+      expect(queryAllByText(container, 'Install')).toHaveLength(2);
 
       await switchTab(container, /all plugins/i);
       expect(queryAllByText(container, 'Install')).toHaveLength(2);
@@ -446,6 +448,39 @@ describe('PluginMarketplacePanel', () => {
       expect(getTab(container, /All Plugins/)).toBeTruthy();
       expect(getTab(container, /Categories/)).toBeTruthy();
       expect(getTab(container, /Installed/)).toBeTruthy();
+    });
+
+    it('shows each featured plugin exactly once on the Featured tab', async () => {
+      const { container } = await renderMarketplace();
+      for (const featured of MOCK_PLUGINS.filter(p => p.featured)) {
+        expect(queryAllByText(container, featured.name)).toHaveLength(1);
+      }
+    });
+
+    it('shows each featured plugin exactly once on the All Plugins tab', async () => {
+      const { container } = await renderMarketplace();
+      await switchTab(container, /all plugins/i);
+
+      expect(container.querySelector('.zvd-pm-featured')).toBeNull();
+      for (const plugin of MOCK_PLUGINS) {
+        expect(queryAllByText(container, plugin.name)).toHaveLength(1);
+      }
+    });
+
+    it('keeps every plugin visible exactly once across the Featured and All Plugins tabs', async () => {
+      const { container } = await renderMarketplace();
+      const allNames = MOCK_PLUGINS.map(p => p.name);
+
+      await switchTab(container, /^Featured/);
+      const seenOnFeatured = allNames
+        .map(name => queryAllByText(container, name).length)
+        .reduce((sum, count) => sum + Math.min(count, 1), 0);
+      expect(seenOnFeatured).toBe(allNames.length);
+
+      await switchTab(container, /all plugins/i);
+      for (const name of allNames) {
+        expect(queryAllByText(container, name)).toHaveLength(1);
+      }
     });
 
     it('shows featured plugins by default', async () => {
