@@ -342,11 +342,11 @@ export class UserModelDialecticReasoningService {
     for (const pattern of patterns) {
       if (pattern.includes('inquiry-heavy')) {
         traits.communication_style = traits.communication_style || [];
-        traits.communication_style.push('提问型 - 偏好提问和讨论');
+        traits.communication_style.push('Question-oriented - prefers asking questions and discussing');
       }
       if (pattern.includes('command-heavy')) {
         traits.communication_style = traits.communication_style || [];
-        traits.communication_style.push('指令型 - 偏好直接命令');
+        traits.communication_style.push('Command-oriented - prefers issuing direct commands');
       }
     }
 
