@@ -232,8 +232,9 @@ describe('cross-surface approval conformance', () => {
         });
 
         expect(receipt).toBe(
-          'Approved approval-a (once).\n[high] run npm test — ref approval-b\nReply 1 (or the ref) to allow once, approve / approve session / approve always, or reject (or deny) to refuse.',
+          'Approved approval-a (once).\n[high] run npm test — ref approval-b\nReply 1 (or the ref) to allow once, approve / approve session / approve always, reject (or deny) to refuse, or reply other to type your answer.',
         );
+        expect(gateway.recordedApprovals.map((entry) => entry.ref)).toEqual(['approval-a']);
         expect(gateway.recordedApprovals.map((entry) => entry.ref)).toEqual(['approval-a']);
       });
     },

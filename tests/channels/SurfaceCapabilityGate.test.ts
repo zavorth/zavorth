@@ -86,7 +86,7 @@ describe('SurfaceCapabilityGate', () => {
       expect(prompt).toBe(
         [
           '[danger] Run shell command — ref approval-1',
-          'Reply 1 (or the ref) to allow once, approve / approve session / approve always, or reject (or deny) to refuse.',
+          'Reply 1 (or the ref) to allow once, approve / approve session / approve always, reject (or deny) to refuse, or reply other to type your answer.',
         ].join('\n'),
       );
     });
