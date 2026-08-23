@@ -12,6 +12,7 @@ import {
 } from './RunObservatory.js';
 import {
   UniversalApprovalIntentResolver,
+  type UniversalApprovalIntentChannel,
   type UniversalApprovalIntentDecisionResult,
   type UniversalApprovalIntentResolveInput,
 } from './UniversalApprovalIntentResolver.js';
@@ -286,13 +287,26 @@ export class ZavorthAgentGateway {
 
       const menuKey = `${target.platform}:${target.chatId}`;
       const interaction = this.approvalCoordinator.resolveApprovalInteraction(menuKey, request.text);
-      if (interaction.kind !== 'free-prose') {
+      if (interaction.kind === 'explicit-command' || interaction.kind === 'fast-path-command') {
         const receipt = await this.approvalCoordinator.executeApprovalDecision({
           command: interaction.command,
           surface: target.platform,
           sessionId: menuKey,
         });
         this.emitChannelMeshReplies(eventBus, target, [receipt || ''].filter((text) => text.trim().length > 0), bridgeOptions);
+        return;
+      }
+      if (interaction.kind === 'other-armed') {
+        this.emitChannelMeshReplies(
+          eventBus,
+          target,
+          [this.approvalCoordinator.buildOtherModePrompt(interaction.refList.length)],
+          bridgeOptions,
+        );
+        return;
+      }
+      if (interaction.kind === 'other-context') {
+        await this.routeChannelMeshOtherContext(eventBus, target, interaction, bridgeOptions);
         return;
       }
 
@@ -340,6 +354,15 @@ export class ZavorthAgentGateway {
     };
   }
 
+  /**
+   * Presenter-facing registration entry point of the approval spine: thin
+   * presenters publish the pending-approval listing they rendered for a chat
+   * so fast-path tokens and the "other" escape resolve against that state.
+   */
+  public registerChannelMeshApprovalMenu(platform: string, chatId: string, approvalRefs: string[]): void {
+    this.approvalCoordinator.registerPendingMenu(`${platform}:${chatId}`, approvalRefs);
+  }
+
   private appendPendingApprovalGuidance(
     run: UniversalAgentRun,
     texts: string[],
@@ -376,6 +399,60 @@ export class ZavorthAgentGateway {
       return texts;
     }
     return [...texts, prompt];
+  }
+
+  /**
+   * Routes the captured free-text answer of the "other" escape option: the
+   * universal intent resolver decides when the text is a structured decision;
+   * everything else is denied fail-closed with the operator's answer relayed
+   * back to the agent as rejection context.
+   */
+  private async routeChannelMeshOtherContext(
+    eventBus: ChannelMeshEventBusLike,
+    target: ChannelMeshReplyTarget,
+    packet: { userText: string; refList: string[] },
+    bridgeOptions: ChannelMeshBridgeOptions,
+  ): Promise<void> {
+    const sessionId = `${target.platform}:${target.chatId}`;
+    let receipts: Array<string | null> = [];
+    if (packet.userText.length > 0) {
+      const resolution = new UniversalApprovalIntentResolver().resolve({
+        text: packet.userText,
+        source: 'text',
+        userId: target.userId,
+        sessionId,
+        channel: target.platform as UniversalApprovalIntentChannel,
+        runs: this.listRuns(200),
+      });
+      if (resolution.status === 'resolved' && resolution.decision && resolution.target) {
+        const ref = resolution.ref || resolution.target.approval.id;
+        receipts = [
+          await this.approvalCoordinator.executeApprovalDecision({
+            command:
+              resolution.decision === 'approved'
+                ? { action: 'approve', ref, choice: 'once' }
+                : { action: 'deny', ref, choice: 'once' },
+            surface: target.platform,
+            sessionId,
+          }),
+        ];
+      } else {
+        receipts = [
+          await this.approvalCoordinator.executeDenyWithReason({
+            refList: packet.refList,
+            reason: packet.userText,
+            surface: target.platform,
+            sessionId,
+          }),
+        ];
+      }
+    }
+    this.emitChannelMeshReplies(
+      eventBus,
+      target,
+      receipts.filter((text): text is string => Boolean(text && text.trim().length > 0)),
+      bridgeOptions,
+    );
   }
 
   private extractChannelMeshReplyTarget(request: UniversalAgentRequest): ChannelMeshReplyTarget | null {
@@ -575,7 +652,10 @@ export class ZavorthAgentGateway {
     };
   }
 
-  public async reject(ref: string): Promise<UniversalAgentApprovalDecisionResult | null> {
+  public async reject(
+    ref: string,
+    options: { reason?: string | null } = {},
+  ): Promise<UniversalAgentApprovalDecisionResult | null> {
     const target = this.findPendingApproval(ref);
     if (!target) {
       return null;
@@ -583,6 +663,7 @@ export class ZavorthAgentGateway {
 
     const { run, approval } = target;
     const now = this.nowIso();
+    const operatorReason = normalizeText(options.reason);
     approval.status = 'rejected';
     run.status = 'cancelled';
     run.summary = 'Execution canceled by the operator before touching sensitive tools.';
@@ -597,6 +678,7 @@ export class ZavorthAgentGateway {
       createdAt: now,
       metadata: {
         approvalId: approval.id,
+        ...(operatorReason ? { operatorReason } : {}),
       },
     });
     this.runService.recordLifecycleDefenseReview(run, 'cancelled', now);
@@ -613,6 +695,7 @@ export class ZavorthAgentGateway {
       job.metadata = {
         ...(job.metadata || {}),
         rejectedAt: now,
+        ...(operatorReason ? { operatorReason } : {}),
       };
       this.workflowJobs.set(job.id, job);
     }

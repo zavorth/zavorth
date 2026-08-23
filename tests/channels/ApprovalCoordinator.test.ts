@@ -2,6 +2,7 @@ import {
   ApprovalCoordinator,
   APPROVAL_MENU_TIMEOUT_MS,
   type ApprovalCoordinatorGatewayPort,
+  type ApprovalCoordinatorRunView,
 } from '../../src/services/approvals/ApprovalCoordinator.js';
 import {
   registerSurfaceProfile,
@@ -13,17 +14,24 @@ type RecordedApproval = {
   options?: { choice?: string | null; surface?: string | null; sessionId?: string | null };
 };
 
+type RecordedRejection = {
+  ref: string;
+  options?: { reason?: string | null };
+};
+
 type FakeGatewayPort = ApprovalCoordinatorGatewayPort & {
   recordedApprovals: RecordedApproval[];
-  recordedRejections: string[];
+  recordedRejections: RecordedRejection[];
+  runs: ApprovalCoordinatorRunView[];
 };
 
 function createFakeGateway(
-  overrides: Partial<Pick<FakeGatewayPort, 'approve' | 'reject' | 'findPendingApproval'>> = {},
+  overrides: Partial<Pick<FakeGatewayPort, 'approve' | 'reject' | 'findPendingApproval' | 'listRuns'>> = {},
 ): FakeGatewayPort {
   const port: FakeGatewayPort = {
     recordedApprovals: [],
     recordedRejections: [],
+    runs: [],
     findPendingApproval(ref) {
       return ref ? { run: { id: 'run-1' }, approval: { id: ref } } : null;
     },
@@ -31,13 +39,24 @@ function createFakeGateway(
       port.recordedApprovals.push({ ref, options });
       return { ok: true };
     },
-    async reject(ref) {
-      port.recordedRejections.push(ref);
+    async reject(ref, options) {
+      port.recordedRejections.push({ ref, options });
       return { ok: true };
+    },
+    listRuns(limit = 20) {
+      return port.runs.slice(0, limit);
     },
     ...overrides,
   };
   return port;
+}
+
+function pendingRun(id: string, sessionId: string, approvalIds: string[]): ApprovalCoordinatorRunView {
+  return {
+    id,
+    sessionId,
+    approvals: approvalIds.map((approvalId) => ({ id: approvalId, status: 'pending' as const })),
+  };
 }
 
 describe('ApprovalCoordinator', () => {
@@ -155,7 +174,7 @@ describe('ApprovalCoordinator', () => {
       });
 
       expect(receipt).toBe('Denied approval approval-a.');
-      expect(gateway.recordedRejections).toEqual(['approval-a']);
+      expect(gateway.recordedRejections).toEqual([{ ref: 'approval-a', options: undefined }]);
       expect(gateway.recordedApprovals).toEqual([]);
     });
 
@@ -227,6 +246,234 @@ describe('ApprovalCoordinator', () => {
       } finally {
         resetSurfaceProfileRegistryForTests();
       }
+    });
+  });
+
+  describe('bulk decisions ("all" reference)', () => {
+    it('approves every pending approval visible to the chat session', async () => {
+      const gateway = createFakeGateway();
+      gateway.runs = [
+        pendingRun('run-1', 'slack:C-ops', ['approval-a']),
+        pendingRun('run-2', 'slack:C-ops', ['approval-b', 'approval-c']),
+        pendingRun('run-3', 'signal:other-chat', ['approval-d']),
+      ];
+      const coordinator = new ApprovalCoordinator(gateway);
+
+      const receipt = await coordinator.executeApprovalDecision({
+        command: { action: 'approve', ref: 'all', choice: 'once' },
+        surface: 'slack',
+        sessionId: 'slack:C-ops',
+      });
+
+      expect(receipt).toBe('Approved all 3 approval(s) (once).');
+      expect(gateway.recordedApprovals.map((entry) => entry.ref)).toEqual([
+        'approval-a',
+        'approval-b',
+        'approval-c',
+      ]);
+      expect(gateway.recordedApprovals.every((entry) => entry.options?.sessionId === 'slack:C-ops')).toBe(true);
+      expect(gateway.recordedApprovals.every((entry) => entry.options?.surface === 'slack')).toBe(true);
+    });
+
+    it('applies the requested scope choice to every bulk approval', async () => {
+      const gateway = createFakeGateway();
+      gateway.runs = [pendingRun('run-1', 'slack:C-ops', ['approval-a'])];
+      const coordinator = new ApprovalCoordinator(gateway);
+
+      const receipt = await coordinator.executeApprovalDecision({
+        command: { action: 'approve', ref: 'ALL', choice: 'session' },
+        surface: 'slack',
+        sessionId: 'slack:C-ops',
+      });
+
+      expect(receipt).toBe('Approved all 1 approval(s) (session).');
+      expect(gateway.recordedApprovals[0]?.options?.choice).toBe('session');
+    });
+
+    it('denies every pending approval visible to the chat session', async () => {
+      const gateway = createFakeGateway();
+      gateway.runs = [
+        pendingRun('run-1', 'slack:C-ops', ['approval-a']),
+        pendingRun('run-2', 'slack:C-ops', ['approval-b']),
+      ];
+      const coordinator = new ApprovalCoordinator(gateway);
+
+      const receipt = await coordinator.executeApprovalDecision({
+        command: { action: 'deny', ref: 'all', choice: 'once' },
+        surface: 'slack',
+        sessionId: 'slack:C-ops',
+      });
+
+      expect(receipt).toBe('Denied 2 approval(s).');
+      expect(gateway.recordedRejections.map((entry) => entry.ref)).toEqual(['approval-a', 'approval-b']);
+    });
+
+    it('reports partial bulk outcomes when some refs are no longer pending', async () => {
+      const gateway = createFakeGateway({
+        async approve(ref) {
+          return ref === 'approval-a' ? { ok: true } : null;
+        },
+      });
+      gateway.runs = [pendingRun('run-1', 'slack:C-ops', ['approval-a', 'approval-b'])];
+      const coordinator = new ApprovalCoordinator(gateway);
+
+      const receipt = await coordinator.executeApprovalDecision({
+        command: { action: 'approve', ref: 'all', choice: 'once' },
+        surface: 'slack',
+        sessionId: 'slack:C-ops',
+      });
+
+      expect(receipt).toBe('Approved 1 of 2 approval(s) (once).');
+    });
+
+    it('reports the not-found receipt when the chat has no visible pending approvals', async () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+
+      const receipt = await coordinator.executeApprovalDecision({
+        command: { action: 'approve', ref: 'all', choice: 'once' },
+        surface: 'slack',
+        sessionId: 'slack:C-empty',
+      });
+
+      expect(receipt).toBe('No pending approval found for all.');
+      expect(gateway.recordedApprovals).toEqual([]);
+    });
+  });
+
+  describe('"other" escape option and free-text capture', () => {
+    it('arms the capture mode through the ordinal 0 escape on a live menu', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      coordinator.registerPendingMenu('slack:C-ops', ['approval-a']);
+
+      const interaction = coordinator.resolveApprovalInteraction('slack:C-ops', '0');
+
+      expect(interaction).toEqual({ kind: 'other-armed', refList: ['approval-a'] });
+      expect(coordinator.hasLivePendingMenu('slack:C-ops')).toBe(false);
+    });
+
+    it('arms the capture mode through the "other" keyword on a live menu', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      coordinator.registerPendingMenu('slack:C-ops', ['approval-a', 'approval-b']);
+
+      const interaction = coordinator.resolveApprovalInteraction('slack:C-ops', 'OTHER');
+
+      expect(interaction).toEqual({ kind: 'other-armed', refList: ['approval-a', 'approval-b'] });
+    });
+
+    it('keeps the keyword as agent-owned prose while no menu exists', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+
+      expect(coordinator.resolveApprovalInteraction('slack:C-ops', 'other')).toEqual({ kind: 'free-prose' });
+    });
+
+    it('captures the next free-text message as a decision-context packet', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      coordinator.registerPendingMenu('slack:C-ops', ['approval-a']);
+      coordinator.resolveApprovalInteraction('slack:C-ops', 'other');
+
+      const interaction = coordinator.resolveApprovalInteraction('slack:C-ops', 'not now, change the target first');
+
+      expect(interaction).toEqual({
+        kind: 'other-context',
+        userText: 'not now, change the target first',
+        refList: ['approval-a'],
+      });
+      // The capture is single-shot: the following message returns to prose.
+      expect(coordinator.resolveApprovalInteraction('slack:C-ops', 'regular chat text')).toEqual({
+        kind: 'free-prose',
+      });
+    });
+
+    it('re-arms instead of capturing when the operator repeats the escape keyword', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      coordinator.registerPendingMenu('slack:C-ops', ['approval-a']);
+      coordinator.resolveApprovalInteraction('slack:C-ops', 'other');
+
+      expect(coordinator.resolveApprovalInteraction('slack:C-ops', 'other')).toEqual({
+        kind: 'other-armed',
+        refList: ['approval-a'],
+      });
+    });
+
+    it('lets an explicit command win over an armed capture and clears it fail-closed', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+      coordinator.registerPendingMenu('slack:C-ops', ['approval-a']);
+      coordinator.resolveApprovalInteraction('slack:C-ops', 'other');
+
+      expect(coordinator.resolveApprovalInteraction('slack:C-ops', '/reject approval-a')).toEqual({
+        kind: 'explicit-command',
+        command: { action: 'deny', ref: 'approval-a', choice: 'always' },
+      });
+      expect(
+        coordinator.resolveApprovalInteraction('slack:C-ops', 'free text after explicit command'),
+      ).toEqual({ kind: 'free-prose' });
+    });
+
+    it('expires an armed capture after the timeout so stale context never decides later messages', () => {
+      let nowMs = 5_000_000;
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway, () => nowMs);
+      coordinator.registerPendingMenu('slack:C-ops', ['approval-a']);
+      coordinator.resolveApprovalInteraction('slack:C-ops', 'other');
+      nowMs += APPROVAL_MENU_TIMEOUT_MS;
+
+      expect(coordinator.resolveApprovalInteraction('slack:C-ops', 'late answer')).toEqual({
+        kind: 'free-prose',
+      });
+    });
+
+    it('describes the capture mode with the referenced approval count', () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+
+      expect(coordinator.buildOtherModePrompt(2)).toBe(
+        'Describe your answer for 2 pending approval(s); your next message is captured as the decision context.',
+      );
+    });
+  });
+
+  describe('deny-with-reason relay', () => {
+    it('denies every referenced approval and forwards the operator reason', async () => {
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+
+      const receipt = await coordinator.executeDenyWithReason({
+        refList: ['approval-a', 'approval-b'],
+        reason: 'not while production is frozen',
+        surface: 'slack',
+        sessionId: 'slack:C-ops',
+      });
+
+      expect(receipt).toBe('Denied 2 approval(s). Your answer was relayed to the agent.');
+      expect(gateway.recordedRejections).toEqual([
+        { ref: 'approval-a', options: { reason: 'not while production is frozen' } },
+        { ref: 'approval-b', options: { reason: 'not while production is frozen' } },
+      ]);
+    });
+
+    it('reports the not-found receipt when nothing referenced is still pending', async () => {
+      const gateway = createFakeGateway({
+        async reject() {
+          return null;
+        },
+      });
+      const coordinator = new ApprovalCoordinator(gateway);
+
+      const receipt = await coordinator.executeDenyWithReason({
+        refList: ['stale-ref'],
+        reason: 'changed my mind',
+        surface: 'slack',
+        sessionId: 'slack:C-ops',
+      });
+
+      expect(receipt).toBe('No pending approval found for the referenced approvals.');
     });
   });
 });

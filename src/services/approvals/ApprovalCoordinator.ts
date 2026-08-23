@@ -12,8 +12,18 @@ import {
  * Pending approval menus expire after this window. Expiry is fail-closed:
  * an expired menu resolves no decision at all, and the chat must request a
  * fresh pending-approval listing before any fast-path token works again.
+ * The same window applies to the armed free-text capture of the "other"
+ * escape option, so stale captures never decide later messages.
  */
 export const APPROVAL_MENU_TIMEOUT_MS = 15 * 60 * 1000;
+
+export const BULK_APPROVAL_REF = 'all';
+
+export type ApprovalCoordinatorRunView = {
+  id: string;
+  sessionId: string;
+  approvals: Array<{ id: string; status: 'pending' | 'approved' | 'rejected' }>;
+};
 
 export type ApprovalCoordinatorGatewayPort = {
   findPendingApproval(ref: string): {
@@ -28,17 +38,15 @@ export type ApprovalCoordinatorGatewayPort = {
       sessionId?: string | null;
     },
   ): Promise<unknown>;
-  reject(ref: string): Promise<unknown>;
-};
-
-export type ChannelMeshReplyTargetContext = {
-  platform: string;
-  chatId: string;
+  reject(ref: string, options?: { reason?: string | null }): Promise<unknown>;
+  listRuns(limit?: number): ApprovalCoordinatorRunView[];
 };
 
 export type ApprovalInteractionResolution =
   | { kind: 'explicit-command'; command: ChannelMeshApprovalCommand }
   | { kind: 'fast-path-command'; command: ChannelMeshApprovalCommand }
+  | { kind: 'other-armed'; refList: string[] }
+  | { kind: 'other-context'; userText: string; refList: string[] }
   | { kind: 'free-prose' };
 
 type RegisteredApprovalMenu = {
@@ -46,12 +54,24 @@ type RegisteredApprovalMenu = {
   registeredAtMs: number;
 };
 
+type ArmedOtherCapture = {
+  refList: string[];
+  armedAtMs: number;
+};
+
+const OTHER_KEYWORDS = new Set(['0', 'other']);
+
 function normalizeMenuKey(value: string): string {
   return String(value || '').trim();
 }
 
+function isOtherKeyword(text: string): boolean {
+  return OTHER_KEYWORDS.has(String(text || '').trim().toLowerCase());
+}
+
 export class ApprovalCoordinator {
   private readonly menus = new Map<string, RegisteredApprovalMenu>();
+  private readonly armedOtherCaptures = new Map<string, ArmedOtherCapture>();
   private readonly nowMs: () => number;
 
   constructor(
@@ -79,15 +99,43 @@ export class ApprovalCoordinator {
 
   /**
    * Single entry point used by channel bridges to classify an inbound text as
-   * an approval decision or as free prose belonging to the agent conversation.
-   * Explicit slash commands win over menu tokens; menus only resolve while a
-   * live (non-expired) menu exists for the chat.
+   * an approval decision, as the "other" escape option, or as free prose
+   * belonging to the agent conversation. Explicit slash commands win over
+   * menu tokens; menus only resolve while a live (non-expired) menu exists.
    */
   public resolveApprovalInteraction(menuKey: string, text: string): ApprovalInteractionResolution {
     const explicitCommand = parseChannelMeshApprovalCommand(text);
     if (explicitCommand) {
       this.clearPendingMenu(menuKey);
+      this.armedOtherCaptures.delete(normalizeMenuKey(menuKey));
       return { kind: 'explicit-command', command: explicitCommand };
+    }
+
+    const key = normalizeMenuKey(menuKey);
+    const armed = this.armedOtherCaptures.get(key) ?? null;
+    const liveArmed = armed && this.nowMs() - armed.armedAtMs < APPROVAL_MENU_TIMEOUT_MS ? armed : null;
+    if (armed && !liveArmed) {
+      this.armedOtherCaptures.delete(key);
+    }
+
+    if (liveArmed) {
+      if (isOtherKeyword(text)) {
+        liveArmed.armedAtMs = this.nowMs();
+        return { kind: 'other-armed', refList: [...liveArmed.refList] };
+      }
+      this.armedOtherCaptures.delete(key);
+      return { kind: 'other-context', userText: String(text || '').trim(), refList: [...liveArmed.refList] };
+    }
+
+    if (isOtherKeyword(text)) {
+      const menuRefs = this.resolveLiveMenuRefs(menuKey);
+      if (menuRefs.length > 0) {
+        // The "other" escape replaces the menu: the next chat message is
+        // captured verbatim as decision context instead of being parsed.
+        this.menus.delete(key);
+        this.armedOtherCaptures.set(key, { refList: [...menuRefs], armedAtMs: this.nowMs() });
+        return { kind: 'other-armed', refList: [...menuRefs] };
+      }
     }
 
     const fastPathCommand = this.resolveFastPathDecision(menuKey, text);
@@ -105,10 +153,19 @@ export class ApprovalCoordinator {
   }
 
   /**
+   * Acknowledgement shown when the operator picks the "other" escape on a
+   * pending menu. Ordinals stay universal; only this wording localizes.
+   */
+  public buildOtherModePrompt(refCount: number): string {
+    return `Describe your answer for ${refCount} pending approval(s); your next message is captured as the decision context.`;
+  }
+
+  /**
    * Executes an already-parsed decision against the gateway and builds the
-   * operator-facing receipt through the surface capability gate. The gateway
-   * call is best-effort: an unexpected failure is converted into the
-   * not-found receipt so the channel always receives exactly one reply
+   * operator-facing receipt through the surface capability gate. The bulk
+   * reference ("all") resolves every pending approval visible to the chat.
+   * The gateway call is best-effort: an unexpected failure is converted into
+   * the not-found receipt so the channel always receives exactly one reply
    * instead of a swallowed error. Surfaces whose resolved presentation is
    * 'none' receive no receipt text at all.
    */
@@ -118,6 +175,9 @@ export class ApprovalCoordinator {
     sessionId: string;
   }): Promise<string | null> {
     const { command } = input;
+    if (command.ref.trim().toLowerCase() === BULK_APPROVAL_REF) {
+      return this.executeBulkDecision(input);
+    }
     const presentation = resolveSurfaceCapabilityPresentation({ platform: input.surface });
     if (command.action === 'deny') {
       const rejected = await this.gatewayPort.reject(command.ref).catch(() => null);
@@ -140,6 +200,96 @@ export class ApprovalCoordinator {
       choice: command.choice,
       found: Boolean(approved),
     });
+  }
+
+  /**
+   * Denies every referenced approval and records the operator's free-text
+   * answer as the rejection context relayed back to the agent. Fail-closed:
+   * prose never approves anything, it only denies with context attached.
+   */
+  public async executeDenyWithReason(input: {
+    refList: string[];
+    reason: string;
+    surface: string;
+    sessionId: string;
+  }): Promise<string | null> {
+    const presentation = resolveSurfaceCapabilityPresentation({ platform: input.surface });
+    let denied = 0;
+    for (const ref of input.refList) {
+      const rejected = await this.gatewayPort
+        .reject(ref, { reason: input.reason })
+        .catch(() => null);
+      if (rejected) {
+        denied += 1;
+      }
+    }
+    if (presentation.mode === 'none') {
+      return null;
+    }
+    if (input.refList.length === 0 || denied === 0) {
+      return 'No pending approval found for the referenced approvals.';
+    }
+    return `Denied ${denied} approval(s). Your answer was relayed to the agent.`;
+  }
+
+  private listVisiblePendingRefs(sessionId: string): Array<{ runId: string; approvalId: string }> {
+    const normalizedSession = String(sessionId || '').trim();
+    const visible: Array<{ runId: string; approvalId: string }> = [];
+    for (const run of this.gatewayPort.listRuns(200)) {
+      if (normalizedSession && run.sessionId !== normalizedSession) {
+        continue;
+      }
+      for (const approval of run.approvals) {
+        if (approval.status === 'pending') {
+          visible.push({ runId: run.id, approvalId: approval.id });
+        }
+      }
+    }
+    return visible;
+  }
+
+  private async executeBulkDecision(input: {
+    command: ChannelMeshApprovalCommand;
+    surface: string;
+    sessionId: string;
+  }): Promise<string | null> {
+    const presentation = resolveSurfaceCapabilityPresentation({ platform: input.surface });
+    const targets = this.listVisiblePendingRefs(input.sessionId);
+    if (targets.length === 0) {
+      return presentation.mode === 'none'
+        ? null
+        : `No pending approval found for ${BULK_APPROVAL_REF}.`;
+    }
+
+    let resolved = 0;
+    for (const target of targets) {
+      const outcome =
+        input.command.action === 'deny'
+          ? await this.gatewayPort.reject(target.approvalId).catch(() => null)
+          : await this.gatewayPort
+            .approve(target.approvalId, {
+              choice: input.command.choice,
+              surface: input.surface,
+              sessionId: input.sessionId,
+            })
+            .catch(() => null);
+      if (outcome) {
+        resolved += 1;
+      }
+    }
+
+    if (presentation.mode === 'none') {
+      return null;
+    }
+    const scopeNote =
+      input.command.action === 'deny' ? '' : ` (${input.command.choice})`;
+    if (resolved === targets.length) {
+      return input.command.action === 'deny'
+        ? `Denied ${targets.length} approval(s).`
+        : `Approved all ${targets.length} approval(s)${scopeNote}.`;
+    }
+    const verb = input.command.action === 'deny' ? 'Denied' : 'Approved';
+    return `${verb} ${resolved} of ${targets.length} approval(s)${scopeNote}.`;
   }
 
   private resolveFastPathDecision(menuKey: string, text: string): ChannelMeshApprovalCommand | null {
