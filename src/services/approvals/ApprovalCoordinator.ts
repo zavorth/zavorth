@@ -3,6 +3,10 @@ import {
   parseChannelMeshApprovalToken,
   type ChannelMeshApprovalCommand,
 } from '../../channels/commands/ChannelMeshCommandParser.js';
+import {
+  renderApprovalDecisionReceiptForSurface,
+  resolveSurfaceCapabilityPresentation,
+} from '../../channels/capabilities/SurfaceCapabilityGate.js';
 
 /**
  * Pending approval menus expire after this window. Expiry is fail-closed:
@@ -102,19 +106,26 @@ export class ApprovalCoordinator {
 
   /**
    * Executes an already-parsed decision against the gateway and builds the
-   * operator-facing receipt. The gateway call is best-effort: an unexpected
-   * failure is converted into the not-found receipt so the channel always
-   * receives exactly one reply instead of a swallowed error.
+   * operator-facing receipt through the surface capability gate. The gateway
+   * call is best-effort: an unexpected failure is converted into the
+   * not-found receipt so the channel always receives exactly one reply
+   * instead of a swallowed error. Surfaces whose resolved presentation is
+   * 'none' receive no receipt text at all.
    */
   public async executeApprovalDecision(input: {
     command: ChannelMeshApprovalCommand;
     surface: string;
     sessionId: string;
-  }): Promise<string> {
+  }): Promise<string | null> {
     const { command } = input;
+    const presentation = resolveSurfaceCapabilityPresentation({ platform: input.surface });
     if (command.action === 'deny') {
       const rejected = await this.gatewayPort.reject(command.ref).catch(() => null);
-      return rejected ? `Denied approval ${command.ref}.` : `No pending approval found for ${command.ref}.`;
+      return renderApprovalDecisionReceiptForSurface(presentation, {
+        action: 'deny',
+        ref: command.ref,
+        found: Boolean(rejected),
+      });
     }
     const approved = await this.gatewayPort
       .approve(command.ref, {
@@ -123,9 +134,12 @@ export class ApprovalCoordinator {
         sessionId: input.sessionId,
       })
       .catch(() => null);
-    return approved
-      ? `Approved ${command.ref} (${command.choice}).`
-      : `No pending approval found for ${command.ref}.`;
+    return renderApprovalDecisionReceiptForSurface(presentation, {
+      action: 'approve',
+      ref: command.ref,
+      choice: command.choice,
+      found: Boolean(approved),
+    });
   }
 
   private resolveFastPathDecision(menuKey: string, text: string): ChannelMeshApprovalCommand | null {

@@ -31,6 +31,10 @@ import {
 } from '../../channels/contracts/ChannelMessageContract.js';
 import { ChannelMeshOnboardingGate } from '../../channels/onboarding/ChannelMeshOnboardingGate.js';
 import { TypingHeartbeat } from '../../channels/presence/TypingHeartbeat.js';
+import {
+  renderApprovalPromptForSurface,
+  resolveSurfaceCapabilityPresentation,
+} from '../../channels/capabilities/SurfaceCapabilityGate.js';
 import { config } from '../../config/index.js';
 
 import type { StrongCapabilityLoopSnapshot } from './CapabilityLoopGovernanceService.js';
@@ -283,7 +287,7 @@ export class ZavorthAgentGateway {
           surface: target.platform,
           sessionId: menuKey,
         });
-        this.emitChannelMeshReplies(eventBus, target, [receipt]);
+        this.emitChannelMeshReplies(eventBus, target, [receipt || ''].filter((text) => text.trim().length > 0));
         return;
       }
 
@@ -318,7 +322,7 @@ export class ZavorthAgentGateway {
           .filter((text) => text.trim().length > 0);
         const fallbackTexts =
           replyTexts.length > 0 ? replyTexts : [result.run.summary].filter((text) => text.trim());
-        const finalTexts = this.appendPendingApprovalGuidance(result.run, fallbackTexts, menuKey);
+        const finalTexts = this.appendPendingApprovalGuidance(result.run, fallbackTexts, target.platform, menuKey);
         this.emitChannelMeshReplies(eventBus, target, finalTexts);
       } finally {
         typingHeartbeat.stop();
@@ -331,7 +335,12 @@ export class ZavorthAgentGateway {
     };
   }
 
-  private appendPendingApprovalGuidance(run: UniversalAgentRun, texts: string[], menuKey?: string): string[] {
+  private appendPendingApprovalGuidance(
+    run: UniversalAgentRun,
+    texts: string[],
+    surface?: string,
+    menuKey?: string,
+  ): string[] {
     if (run.status !== 'waiting_approval') {
       return texts;
     }
@@ -345,16 +354,23 @@ export class ZavorthAgentGateway {
         pendingApprovals.map((approval) => approval.id),
       );
     }
-    const lines = pendingApprovals.map((approval, index) => {
-      const label = approval.title || approval.reason || 'action';
-      const ordinalPrefix = pendingApprovals.length > 1 ? `${index + 1}. ` : '';
-      return `${ordinalPrefix}[${approval.risk}] ${label} — ref ${approval.id}`;
-    });
-    const guidance = [
-      ...lines,
-      'Reply 1 (or the ref) to allow once, approve / approve session / approve always, or reject to deny.',
-    ];
-    return [...texts, guidance.join('\n')];
+    const presentation = surface
+      ? resolveSurfaceCapabilityPresentation({ platform: surface })
+      : null;
+    const prompt = renderApprovalPromptForSurface(
+      presentation,
+      pendingApprovals.map((approval) => ({
+        label: approval.title || approval.reason || 'action',
+        risk: approval.risk,
+        ref: approval.id,
+      })),
+    );
+    if (!prompt) {
+      // Capability enforcement: this surface declared approvals disabled (or
+      // has no text fallback), so it never receives approval prompts.
+      return texts;
+    }
+    return [...texts, prompt];
   }
 
   private extractChannelMeshReplyTarget(request: UniversalAgentRequest): ChannelMeshReplyTarget | null {

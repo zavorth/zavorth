@@ -3,6 +3,10 @@ import {
   APPROVAL_MENU_TIMEOUT_MS,
   type ApprovalCoordinatorGatewayPort,
 } from '../../src/services/approvals/ApprovalCoordinator.js';
+import {
+  registerSurfaceProfile,
+  resetSurfaceProfileRegistryForTests,
+} from '../../src/domain/surface/application/surface-affordance/index.js';
 
 type RecordedApproval = {
   ref: string;
@@ -196,6 +200,33 @@ describe('ApprovalCoordinator', () => {
       });
 
       expect(receipt).toBe('No pending approval found for approval-a.');
+    });
+
+    it('suppresses receipts for surfaces whose capability presentation resolves to none', async () => {
+      registerSurfaceProfile({
+        id: 'silent-relay',
+        channel: 'plain',
+        label: 'Silent relay',
+        preset: 'chat-basic',
+        overrides: {
+          affordances: { text: false, slash_commands: false },
+        },
+      });
+      const gateway = createFakeGateway();
+      const coordinator = new ApprovalCoordinator(gateway);
+
+      try {
+        const receipt = await coordinator.executeApprovalDecision({
+          command: { action: 'approve', ref: 'approval-a', choice: 'once' },
+          surface: 'silent-relay',
+          sessionId: 'silent-relay:chat-1',
+        });
+
+        expect(receipt).toBeNull();
+        expect(gateway.recordedApprovals).toHaveLength(1);
+      } finally {
+        resetSurfaceProfileRegistryForTests();
+      }
     });
   });
 });
