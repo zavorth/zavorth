@@ -551,7 +551,8 @@ export class ExperienceCoreService {
         let gateError: string | null = null;
         try {
           if (command.approval.decision === 'reject' || choice === 'deny') {
-            result = (await this.agentGateway?.reject(command.approval.id)) ?? null;
+            const operatorReason = String(meta.operatorReason || meta.reason || '').trim();
+            result = (await this.agentGateway?.reject(command.approval.id, { reason: operatorReason || null })) ?? null;
           } else {
             result =
               (await this.agentGateway?.approve(command.approval.id, {

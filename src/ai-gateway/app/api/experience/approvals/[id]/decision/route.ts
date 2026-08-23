@@ -15,6 +15,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const decision = rawDecision === "reject" || rawDecision === "rejected" ? "reject" : "approve";
   const service = getExperienceCoreService();
   const choice = String(body.choice || body.permissionChoice || decision || "once").trim().toLowerCase();
+  const operatorReason = typeof body.reason === "string" ? body.reason.trim() : "";
   return Response.json(await service.executeCommand({
     ...buildExperienceCommand({
       ...body,
@@ -24,6 +25,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         ...(typeof body.metadata === "object" && body.metadata ? body.metadata : {}),
         choice: choice === "reject" ? "deny" : choice === "approve" ? "once" : choice,
         source: "experience-approvals-api",
+        ...(operatorReason ? { operatorReason } : {}),
       },
     }),
     approval: {

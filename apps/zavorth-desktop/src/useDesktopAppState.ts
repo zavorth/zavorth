@@ -607,10 +607,11 @@ export function useDesktopAppState() {
   async function resolveApproval(
     approvalId: string,
     decision: 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject',
+    options?: { reason?: string | null },
   ) {
     setBusy(true);
     try {
-      await resolveApprovalRequest(approvalId, decision);
+      await resolveApprovalRequest(approvalId, decision, options);
       await refreshPanels();
       const label =
         decision === 'deny' || decision === 'reject'

@@ -42,6 +42,7 @@ export function InlineActivityStrip(props: {
     id: string,
     decision: 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject',
   ): void | Promise<void>;
+  onDecisionWithAnswer?(id: string, answer: string): void | Promise<void>;
   onOpenReview(): void;
   onOpenReceipt?(approvalId: string): void;
 }) {
@@ -76,6 +77,7 @@ export function InlineActivityStrip(props: {
           busy={props.busy}
           surfaceProjection={surfaceProjection}
           onDecide={(approvalId, choice) => void props.onDecision(approvalId, choice)}
+          onDecideOther={props.onDecisionWithAnswer ? (approvalId, answer) => void props.onDecisionWithAnswer?.(approvalId, answer) : undefined}
           onOpenReview={props.onOpenReview}
           onOpenReceipt={props.onOpenReceipt}
         />

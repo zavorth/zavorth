@@ -156,6 +156,7 @@ export function DesktopShell(props: {
   onReviewDecision(
     id: string,
     decision: 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject',
+    options?: { reason?: string | null },
   ): void | Promise<void>;
   onRuntimeStart(): void | Promise<void>;
   onRuntimeStateAction(input: {
@@ -870,6 +871,7 @@ export function DesktopShell(props: {
                 busy={props.busy}
                 messages={props.messages}
                 onDecision={props.onReviewDecision}
+                onDecisionWithAnswer={(id, answer) => props.onReviewDecision(id, 'deny', { reason: answer })}
                 onOpenReview={() => props.onPanel('approvals')}
                 onOpenProof={() => props.onPanel('receipts')}
                 recentReceiptCount={props.receipts?.length ?? 0}

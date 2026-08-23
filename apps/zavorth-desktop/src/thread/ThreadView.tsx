@@ -42,6 +42,8 @@ export function ThreadView(props: {
     id: string,
     decision: 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject',
   ): void | Promise<void>;
+  /** Free-text "other" escape; parity with the channel-mesh approval spine. */
+  onDecisionWithAnswer?(id: string, answer: string): void | Promise<void>;
   onOpenReview(): void;
   onSuggestion(value: string): void;
   /** Open receipts / proof panel */
@@ -332,6 +334,7 @@ export function ThreadView(props: {
         approvals={props.approvals}
         busy={props.busy}
         onDecision={props.onDecision}
+        onDecisionWithAnswer={props.onDecisionWithAnswer}
         onOpenReview={props.onOpenReview}
       />
       <ScrollToBottomButton

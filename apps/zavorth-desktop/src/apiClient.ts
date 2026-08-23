@@ -813,8 +813,18 @@ export async function playVoiceAudioBase64(mimeType: string, audioBase64: string
   }
 }
 
-export async function resolveApproval(approvalId: string, decision: ApprovalChoice): Promise<unknown> {
+export type ApprovalDecisionOptions = {
+  /** Free-text "other" answer; denies fail-closed and relays context to the agent. */
+  reason?: string | null;
+};
+
+export async function resolveApproval(
+  approvalId: string,
+  decision: ApprovalChoice,
+  options: ApprovalDecisionOptions = {},
+): Promise<unknown> {
   const choice = decision === 'approve' ? 'once' : decision === 'reject' ? 'deny' : decision;
+  const reason = String(options.reason || '').trim();
   const result = await apiRequest({
     method: 'POST',
     path: `/api/experience/approvals/${encodeURIComponent(approvalId)}/decision`,
@@ -823,7 +833,8 @@ export async function resolveApproval(approvalId: string, decision: ApprovalChoi
       choice,
       surface: 'desktop',
       userId: 'desktop-user',
-      metadata: { choice, source: 'zavorth-desktop' },
+      ...(reason ? { reason } : {}),
+      metadata: { choice, source: 'zavorth-desktop', ...(reason ? { operatorReason: reason } : {}) },
     },
   });
   return requireOk(result, 'Could not resolve approval.');

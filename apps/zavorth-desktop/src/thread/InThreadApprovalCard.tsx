@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useCallback } from 'react';
+import { useEffect, useMemo, useCallback, useState } from 'react';
 import { Badge, Button } from '../primitives/ui';
 import { t } from '../i18n';
 import type { ApprovalSurfaceProjection } from '../apiClient';
@@ -33,6 +33,11 @@ export type InThreadApprovalCardProps = {
   /** Rich surface projection (shortcuts, copy targets, open receipt). */
   surfaceProjection?: ApprovalSurfaceProjection | null;
   onDecide(id: string, choice: ApprovalChoice): void | Promise<void>;
+  /**
+   * Free-text "other" escape, parity with the channel-mesh spine: the answer
+   * denies fail-closed and is relayed to the agent as decision context.
+   */
+  onDecideOther?(id: string, answer: string): void | Promise<void>;
   onOpenReview(): void;
   /** Called when openReceipt has no href but has approvalId. */
   onOpenReceipt?(approvalId: string): void;
@@ -87,6 +92,8 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
   const busy = Boolean(props.busy);
   const title = props.title || t('thread.approvalTitle');
   const projection = props.surfaceProjection ?? null;
+  const [otherOpen, setOtherOpen] = useState(false);
+  const [otherAnswer, setOtherAnswer] = useState('');
 
   const choiceButtons = useMemo(() => {
     const shortcuts = projection?.shortcuts || [];
@@ -123,6 +130,14 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
     },
     [busy, props.id, props.onDecide],
   );
+
+  const handleDecideOther = useCallback(() => {
+    const answer = otherAnswer.trim();
+    if (busy || !answer || !props.onDecideOther) return;
+    setOtherOpen(false);
+    setOtherAnswer('');
+    void props.onDecideOther(props.id, answer);
+  }, [busy, otherAnswer, props.id, props.onDecideOther]);
 
   useEffect(() => {
     if (!shortcutsEnabled) return;
@@ -224,6 +239,17 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
         <Button variant="ghost" size="sm" onClick={handleCopyId} title={copyTarget.label}>
           {copyTarget.label || 'Copy approval id'}
         </Button>
+        {props.onDecideOther ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={busy}
+            onClick={() => setOtherOpen((open) => !open)}
+            title="Type your answer; Zavorth denies the action and relays it to the agent"
+          >
+            Other…
+          </Button>
+        ) : null}
         {openReceipt ? (
           <Button
             variant="ghost"
@@ -238,6 +264,30 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
           {t('thread.details')}
         </Button>
       </div>
+
+      {props.onDecideOther && otherOpen ? (
+        <form
+          className="zvd-approval-card__other"
+          role="search"
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleDecideOther();
+          }}
+        >
+          <input
+            type="text"
+            value={otherAnswer}
+            disabled={busy}
+            autoFocus
+            onChange={(event) => setOtherAnswer(event.target.value)}
+            placeholder="Type your answer; Zavorth denies and relays it to the agent."
+            aria-label="Free-text approval answer"
+          />
+          <Button type="submit" variant="secondary" size="sm" disabled={busy || !otherAnswer.trim()}>
+            Send answer
+          </Button>
+        </form>
+      ) : null}
     </div>
   );
 }
