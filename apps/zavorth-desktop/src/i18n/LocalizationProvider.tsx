@@ -7,6 +7,8 @@ import {
   LOCALE_ENDONYMS,
 } from '../../../../src/services/localization/localeContracts.js';
 import { ZavorthLocalizationService } from '../../../../src/services/localization/ZavorthLocalizationService.js';
+import { hydrateDesktopStrings } from './hydration';
+import { t as resolveDesktopString } from '../i18n';
 
 export interface LocalizationContextValue {
   locale: SupportedLocale;
@@ -14,6 +16,8 @@ export interface LocalizationContextValue {
   t: (keyPath: string, params?: Record<string, string | number>) => string;
   catalog: LocalizationCatalog;
   isRtl: boolean;
+  /** Bumps when on-demand translations land so consumers re-render live. */
+  hydrationTick: number;
   availableLocales: Array<{ code: string; name: string; isRtl: boolean }>;
 }
 
@@ -27,6 +31,7 @@ const LocalizationContext = createContext<LocalizationContextValue>({
   t: (keyPath: string) => keyPath,
   catalog: defaultLocalizationService.getCatalog('en'),
   isRtl: false,
+  hydrationTick: 0,
   availableLocales: defaultLocalizationService.getAvailableLocales(),
 });
 
@@ -52,7 +57,20 @@ export interface LocalizationProviderProps {
 
 export function LocalizationProvider({ children, initialLocale }: LocalizationProviderProps) {
   const [locale, setLocaleState] = useState<SupportedLocale>(() => initialLocale || getInitialLocale());
+  const [hydrationTick, setHydrationTick] = useState(0);
   const localizationService = useMemo(() => new ZavorthLocalizationService({ locale }), [locale]);
+
+  useEffect(() => {
+    let alive = true;
+    void hydrateDesktopStrings(locale).then((hydrated) => {
+      if (alive && hydrated) setHydrationTick(tick => tick + 1);
+    }).catch(() => {
+      // Hydration stays best-effort; en fallback remains in place.
+    });
+    return () => {
+      alive = false;
+    };
+  }, [locale]);
 
   const setLocale = useCallback((newLocale: SupportedLocale) => {
     setLocaleState(newLocale);
@@ -70,16 +88,16 @@ export function LocalizationProvider({ children, initialLocale }: LocalizationPr
   const availableLocales = useMemo(() => localizationService.getAvailableLocales(), [localizationService]);
 
   const t = useCallback(
-    (keyPath: string, params: Record<string, string | number> = {}) => {
-      return localizationService.t(keyPath, params, locale);
-    },
-    [localizationService, locale],
+    (keyPath: string) => resolveDesktopString(keyPath, locale),
+    // hydrationTick re-runs resolution after translated strings land.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [locale, hydrationTick],
   );
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
       document.documentElement.lang = locale;
-      document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+      document.documentElement.dir = isRtl ? 'ltr' : 'rtl';
     }
   }, [locale, isRtl]);
 
@@ -90,9 +108,10 @@ export function LocalizationProvider({ children, initialLocale }: LocalizationPr
       t,
       catalog,
       isRtl,
+      hydrationTick,
       availableLocales,
     }),
-    [locale, setLocale, t, catalog, isRtl, availableLocales],
+    [locale, setLocale, t, catalog, isRtl, hydrationTick, availableLocales],
   );
 
   return (

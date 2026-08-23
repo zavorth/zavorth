@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import type { RuntimeCapabilitiesSnapshot } from '../../apiClient';
 import type { BootEvent, RuntimeStatus } from '../../global';
+import { useLocalization } from '../../i18n';
+import { t } from '../../i18n';
+import type { SupportedLocale } from '../../../../src/services/localization/localeContracts.js';
 import { DetailRows, PageFrame, TextTabs, type DetailRow } from './panelPrimitives';
 
 type RuntimeMode = 'overview' | 'permissions' | 'providers' | 'workspace' | 'mcp' | 'skills' | 'personal';
@@ -49,6 +52,7 @@ export function SettingsPanel(props: {
   status: RuntimeStatus;
 }) {
   const [runtimeMode, setRuntimeMode] = useState<RuntimeMode>('overview');
+  const { locale, setLocale, availableLocales } = useLocalization();
   const capabilities = props.runtimeCapabilities;
   const providers = capabilities?.providers;
   const providerConnections = [
@@ -271,6 +275,17 @@ export function SettingsPanel(props: {
       title="Configurations"
     >
       <div className="zavorth-settings-panel">
+        <label className="zvd-language-picker">
+          <span>{t('settings.language')}</span>
+          <select
+            value={locale}
+            onChange={(event) => setLocale(event.target.value as SupportedLocale)}
+          >
+            {availableLocales.map((item) => (
+              <option key={item.code} value={item.code}>{item.name}</option>
+            ))}
+          </select>
+        </label>
         <TextTabs<RuntimeMode>
           value={runtimeMode}
           onChange={setRuntimeMode}

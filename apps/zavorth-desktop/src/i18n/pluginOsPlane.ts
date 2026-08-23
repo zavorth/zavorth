@@ -1,14 +1,65 @@
 /**
  * Plugin OS Plane Localization Facade.
  *
- * Delegates 100% of labels and string resolutions to the universal
- * ZavorthLocalizationService in src/services/localization/.
+ * Delegates label resolution to the universal ZavorthLocalizationService in
+ * src/services/localization/, with the desktop plane catalogs and a static
+ * alias seed covering every locale accepted by PluginLoadTipsI18n.
  */
 
 import { ZavorthLocalizationService } from '../../../../src/services/localization/ZavorthLocalizationService.js';
-import { type SupportedLocale } from '../../../../src/services/localization/localeContracts.js';
+import { lookupDesktopPlaneString } from './desktopPlane';
 
 const localizationService = new ZavorthLocalizationService();
+
+/** Locale set mirrored from PluginLoadTipsI18n so both planes stay aligned. */
+const PLUGIN_OS_ALIAS_LOCALES = [
+  'en', 'pt', 'pt-BR', 'pt-PT', 'es', 'fr', 'de', 'it', 'already', 'ja', 'zh',
+  'zh-CN', 'zh-Hans', 'zh-Hant', 'zh-TW', 'ko', 'ru', 'uk', 'ar', 'hi', 'nl',
+  'pl', 'tr', 'vi', 'id', 'th', 'sv', 'cs', 'ro', 'hu', 'el', 'he', 'fa', 'bn',
+  'ms',
+] as const;
+
+/** Alias mapping shared with PluginLoadTipsI18n for exotic tags. */
+const SEED_ALIASES: Record<string, string> = {
+  'pt-PT': 'pt',
+  'zh-CN': 'zh',
+  'zh-Hans': 'zh',
+  'zh-TW': 'zh-Hant',
+  already: 'ja',
+};
+
+/** Localized Plugin OS titles used before any runtime hydration lands. */
+const SEED_TITLE: Record<string, string> = {
+  en: 'Plugin OS',
+  pt: 'Plugin OS',
+  es: 'SO de Plugins',
+  fr: 'OS de Plugins',
+  de: 'Plugin-OS',
+  it: 'SO dei Plugin',
+  zh: '插件系统',
+  'zh-Hant': '外掛系統',
+  ko: '플러그인 OS',
+  ru: 'ОС плагинов',
+  uk: 'ОС плагінів',
+  ar: 'نظام الإضافات',
+  hi: 'प्लगइन ओएस',
+  nl: 'Plug-in OS',
+  pl: 'System wtyczek',
+  tr: 'Eklenti OS',
+  vi: 'Hệ thống Plugin',
+  id: 'OS Plugin',
+  th: 'ระบบปลั๊กอิน',
+  sv: 'Plugin-OS',
+  cs: 'Systém pluginů',
+  ro: 'OS de Plugin-uri',
+  hu: 'Plugin OS',
+  el: 'Λειτουργικό Πρόσθετων',
+  he: 'מערכת תוספים',
+  fa: 'سیستم افزونه‌ها',
+  bn: 'প্লাগইন ওএস',
+  ms: 'OS Plugin',
+  ja: 'プラグイン OS',
+};
 
 export function resolveDesktopLocale(language?: string | null): string {
   if (language && String(language).trim()) {
@@ -17,10 +68,31 @@ export function resolveDesktopLocale(language?: string | null): string {
   return localizationService.getLocale();
 }
 
+function seedTitleFor(locale: string): string | undefined {
+  if (SEED_TITLE[locale]) return SEED_TITLE[locale];
+  const aliasTarget = SEED_ALIASES[locale];
+  if (aliasTarget && SEED_TITLE[aliasTarget]) return SEED_TITLE[aliasTarget];
+  const base = locale.split('-')[0];
+  return SEED_TITLE[base];
+}
+
 export function tPluginOs(key: string, language?: string | null): string {
-  const targetLocale = (language ? localizationService.normalizeLocaleTag(language) : localizationService.getLocale()) as SupportedLocale;
-  const val = localizationService.t(key, {}, targetLocale);
-  return val && val !== key ? val : key;
+  const requested = language == null ? '' : String(language).trim();
+  if (requested) {
+    const normalized = localizationService.normalizeLocaleTag(
+      requested.replace(/_/g, '-'),
+    );
+    if (normalized) {
+      const fromCatalog = localizationService.t(key, {}, normalized);
+      if (fromCatalog && fromCatalog !== key) return fromCatalog;
+    }
+  }
+
+  const planeLocale = requested || localizationService.getLocale();
+  const fromPlane =
+    lookupDesktopPlaneString(planeLocale.toLowerCase(), key) ??
+    lookupDesktopPlaneString('en', key);
+  return fromPlane ?? key;
 }
 
 export function getPluginOsPlaneLabels(locale: string): Record<string, string> {
@@ -30,6 +102,7 @@ export function getPluginOsPlaneLabels(locale: string): Record<string, string> {
 export function pluginOsPlaneLabels(language?: string | null): Record<string, string> {
   return {
     title: tPluginOs('pluginOs.title', language),
+    'pluginOs.title': tPluginOs('pluginOs.title', language),
     eyebrow: tPluginOs('pluginOs.eyebrow', language),
     description: tPluginOs('pluginOs.description', language),
     search: tPluginOs('pluginOs.search', language),
@@ -121,4 +194,17 @@ export function pluginOsPlaneLabels(language?: string | null): Record<string, st
   };
 }
 
-export const PLUGIN_OS_PLANE_I18N: Record<string, Record<string, string>> = {};
+/**
+ * Static pre-hydration view over the alias locales. Each entry carries the
+ * localized Plugin OS title so panels render meaningful chrome before any
+ * runtime translation arrives.
+ */
+export const PLUGIN_OS_PLANE_I18N: Record<string, Record<string, string>> = Object.fromEntries(
+  PLUGIN_OS_ALIAS_LOCALES.map((locale) => {
+    const title =
+      SEED_TITLE[locale] ||
+      seedTitleFor(locale) ||
+      SEED_TITLE.en;
+    return [locale, { 'pluginOs.title': title }];
+  }),
+);

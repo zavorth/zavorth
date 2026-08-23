@@ -75,6 +75,79 @@ export async function handleControlPlatformRoutes(
     return true;
   }
 
+  if (pathname === '/api/v2/localization/catalog' && req.method === 'GET') {
+    if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+      deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+      return true;
+    }
+    try {
+      const locale = String(url.searchParams.get('locale') || '').trim();
+      if (!locale) {
+        deps.writeJson(res, { ok: false, error: 'locale required' }, 400);
+        return true;
+      }
+      const { ZavorthLocalizationService } = await import('./localization/ZavorthLocalizationService.js');
+      const { ZavorthOnDemandTranslationService } = await import('./localization/ZavorthOnDemandTranslationService.js');
+      const { ZavorthLlmTranslationBridge } = await import('./localization/ZavorthLlmTranslationBridge.js');
+      const localization = new ZavorthLocalizationService();
+      const normalized = localization.normalizeLocaleTag(locale) || locale;
+      const builtin = localization.isSupportedLocale(normalized)
+        ? localization.getCatalog(normalized)
+        : null;
+      if (builtin) {
+        deps.writeJson(res, { ok: true, data: { locale: normalized, source: 'builtin', catalog: builtin } });
+        return true;
+      }
+      const onDemand = new ZavorthOnDemandTranslationService({
+        providerBridge: new ZavorthLlmTranslationBridge(),
+      });
+      const catalog = await onDemand.getOrSynthesizeCatalog(locale);
+      const source = catalog === (await import('./localization/catalogs/en.js')).en
+        ? 'fallback'
+        : 'synthesized';
+      deps.writeJson(res, { ok: true, data: { locale, source, catalog } });
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
+    }
+    return true;
+  }
+
+  if (pathname === '/api/v2/localization/strings' && req.method === 'POST') {
+    if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+      deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+      return true;
+    }
+    try {
+      const body = await deps.readJsonBody(req) as { locale?: unknown; entries?: unknown };
+      const locale = String(body.locale || '').trim();
+      const rawEntries = body.entries;
+      if (!locale || !rawEntries || typeof rawEntries !== 'object' || Array.isArray(rawEntries)) {
+        deps.writeJson(res, { ok: false, error: 'locale and entries object required' }, 400);
+        return true;
+      }
+      const entries: Record<string, string> = {};
+      for (const [key, value] of Object.entries(rawEntries as Record<string, unknown>)) {
+        if (typeof value === 'string' && value.trim()) entries[key] = value;
+      }
+      if (Object.keys(entries).length === 0) {
+        deps.writeJson(res, { ok: false, error: 'entries must contain non-empty strings' }, 400);
+        return true;
+      }
+      const { ZavorthOnDemandTranslationService } = await import('./localization/ZavorthOnDemandTranslationService.js');
+      const { ZavorthLlmTranslationBridge } = await import('./localization/ZavorthLlmTranslationBridge.js');
+      const onDemand = new ZavorthOnDemandTranslationService({
+        providerBridge: new ZavorthLlmTranslationBridge(),
+      });
+      const translations = await onDemand.getOrTranslateStrings(locale, entries);
+      deps.writeJson(res, { ok: true, data: { locale, translations, persisted: true } });
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
+    }
+    return true;
+  }
+
   if (pathname.startsWith('/api/v2/local-access')) {
     return context.localAccessRoutes.handleRequest(req, res, pathname, deps);
   }
