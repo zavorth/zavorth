@@ -1,8 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
-import yaml from 'js-yaml';
+import { describe, it, expect, afterEach } from '@jest/globals';
 import { normalizeLocale, resolveFromEnv, resolveLocale } from '../../src/i18n/localeDetector.js';
 import { DEFAULT_LOCALE, KNOWN_LOCALES, NAMESPACE_LIST } from '../../src/i18n/types.js';
 
@@ -17,16 +13,6 @@ import type {
   SupportedLocale,
   LocaleNamespace,
 } from '../../src/i18n/types.js';
-
-function makeTmpDir(): string {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'i18n-manager-test-'));
-}
-
-function writeLocaleFile(dir: string, locale: string, ns: string, data: Record<string, unknown>): void {
-  const localeDir = path.join(dir, locale);
-  fs.mkdirSync(localeDir, { recursive: true });
-  fs.writeFileSync(path.join(localeDir, `${ns}.yaml`), yaml.dump(data), 'utf-8');
-}
 
 describe('I18nManager', () => {
   afterEach(() => {
@@ -432,40 +418,10 @@ describe('I18nManager', () => {
       expect(catalog['actions.save']).toBe('Salvar');
     });
 
-    it('should load translations from custom tmp dir', () => {
-      const tmpDir = makeTmpDir();
-      try {
-        writeLocaleFile(tmpDir, 'en-US', 'common', { test: { key: 'hello' } });
-        writeLocaleFile(tmpDir, 'pt-BR', 'common', { test: { key: 'olá' } });
-
-        const svc = new ZavorthI18nService();
-        (svc as unknown as { localesDir: string }).localesDir = tmpDir;
-        (svc as unknown as { cache: Map<string, unknown> }).cache.clear();
-
-        expect(svc.t('common.test.key')).toBe('hello');
-        svc.setLocale('pt-BR');
-        expect(svc.t('common.test.key')).toBe('olá');
-      } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true });
-      }
-    });
-
-    it('should not crash when loading invalid yaml', () => {
-      const tmpDir = makeTmpDir();
-      try {
-        const localeDir = path.join(tmpDir, 'en-US');
-        fs.mkdirSync(localeDir, { recursive: true });
-        fs.writeFileSync(path.join(localeDir, 'common.yaml'), ':::invalid yaml{{', 'utf-8');
-
-        const svc = new ZavorthI18nService();
-        (svc as unknown as { localesDir: string }).localesDir = tmpDir;
-        (svc as unknown as { cache: Map<string, unknown> }).cache.clear();
-
-        const result = svc.t('common.any.key');
-        expect(result).toBe('common.any.key');
-      } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true });
-      }
+    it('resolves unknown keys to themselves without touching the filesystem', () => {
+      const svc = new ZavorthI18nService();
+      expect(svc.t('common.any.missing.key')).toBe('common.any.missing.key');
+      expect(svc.t('common.any.missing.key', { fallback: 'fallback text' })).toBe('fallback text');
     });
   });
 

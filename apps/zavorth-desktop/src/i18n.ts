@@ -5,21 +5,23 @@
  *
  * Relationship between the localization systems present in this repository:
  *
- * 1. `src/services/localization/` (INTELLIGENT SYSTEM — consumed by desktop):
+ * 1. `src/services/localization/` (INTELLIGENT SYSTEM — single source of truth):
  *    `ZavorthLocalizationService` serves typed builtin catalogs for 17 locales
  *    plus dynamically registered catalogs; `ZavorthOnDemandTranslationService`
  *    synthesizes missing translations once through an LLM provider bridge and
  *    persists them under `~/.zavorth/locales/`, so they resolve offline
  *    thereafter. Exposed to the runtime over `GET/POST /api/v2/localization/*`.
+ *    The migrated CLI/Telegram/surface/plugin-tip catalogs also live here
+ *    (`legacy` and `pluginTips` sections) behind the src/i18n compat facade.
  *
- * 2. `src/i18n/` (I18nManager + YAML locale catalogs): CLI, Telegram, surface
- *    command packs, and services consumers. Not used by the desktop renderer.
+ * 2. `src/i18n/` (compatibility facade over system 1): CLI, Telegram, surface
+ *    command packs, and services consumers resolve their historical
+ *    `<namespace>.<dotted.path>` keys through ZavorthLocalizationService.
+ *    Not used by the desktop renderer.
  *
  * 3. `src/ai-gateway/i18n/messages/*.json`: static gateway API response
- *    messages. Not used by the desktop renderer.
- *
- * 4. `src/services/plugin-i18n/`: JSON catalogs for plugin load tips shared by
- *    CLI and agent tooling. The desktop Plugin OS plane mirrors its alias set.
+ *    messages owned by next-intl at the HTTP boundary. Not used by the
+ *    desktop renderer.
  *
  * Resolution chain for `t(key)` on desktop: hydrated per-locale strings, then
  * the builtin desktop plane for the requested locale (aliased, then en), then

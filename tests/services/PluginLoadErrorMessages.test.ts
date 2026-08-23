@@ -5,7 +5,7 @@ import {
 import {
   formatPluginLoadTip,
   resolvePluginLoadLocale,
-} from '../../src/services/plugin-i18n/PluginLoadTipsI18n.js';
+} from '../../src/services/localization/pluginTips.js';
 
 describe('PluginLoadErrorMessages', () => {
   it('maps technical findings to actionable tips', () => {

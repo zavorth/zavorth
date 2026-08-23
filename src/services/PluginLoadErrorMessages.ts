@@ -2,7 +2,7 @@ import {
   formatPluginLoadTip,
   resolvePluginLoadLocale,
   type PluginLoadTipId,
-} from './plugin-i18n/PluginLoadTipsI18n.js';
+} from './localization/pluginTips.js';
 
 export type PluginLoadErrorContext = {
   pluginId?: string | null;

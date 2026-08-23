@@ -1,3 +1,19 @@
+/**
+ * Gateway API request-scoped locale negotiation (next-intl).
+ *
+ * KEPT AS BUILD-TIME STATIC JSON — deliberately NOT routed through
+ * src/services/localization/:
+ * 1. next-intl requires statically analyzable `./messages/<locale>.json`
+ *     imports at this server boundary; delegating lookups to a Node-side
+ *     singleton service would break the framework contract for zero gain.
+ * 2. It serves 31 HTTP locales (bg, cs, da, fi, he, id, ms, nl, no, phi, ro,
+ *     sk, sv, th, vi, …), most of which have no localization-system catalog;
+ *     unifying would drop coverage or force synthesizing 20+ new catalogs.
+ * 3. Negotiation is per-request (cookie → x-locale → accept-language); the
+ *     localization system resolves process-wide locales, so coupling them
+ *     risks cross-request state bleed.
+ */
+
 import { getRequestConfig } from "next-intl/server";
 import { cookies, headers } from "next/headers";
 import { LOCALES, DEFAULT_LOCALE, LOCALE_COOKIE, SYSTEM_LOCALE } from "./config";
