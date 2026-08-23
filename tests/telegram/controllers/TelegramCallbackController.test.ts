@@ -15,6 +15,7 @@ describe('TelegramCallbackController', () => {
     const controller = new TelegramCallbackController({
       handleHubCallback: jest.fn(),
       handlePermissionCallback: jest.fn(),
+      handleExperienceActionCardCallback: jest.fn(),
       handleStatusAction,
       handleHelpAction: jest.fn(),
       handleAuditAction: jest.fn(),
@@ -35,6 +36,7 @@ describe('TelegramCallbackController', () => {
     const controller = new TelegramCallbackController({
       handleHubCallback,
       handlePermissionCallback,
+      handleExperienceActionCardCallback: jest.fn(),
       handleStatusAction: jest.fn(),
       handleHelpAction: jest.fn(),
       handleAuditAction: jest.fn(),

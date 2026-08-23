@@ -7,6 +7,7 @@ describe('GatewayCallbackRouter', () => {
       handlePermissionCallback: jest.fn().mockResolvedValue(undefined),
       handleEchoApprovalCallback: jest.fn().mockResolvedValue(undefined),
       handleMnemosCallback: jest.fn().mockResolvedValue(undefined),
+      handleExperienceActionCardCallback: jest.fn().mockResolvedValue(undefined),
       handleStatusAction: jest.fn().mockResolvedValue(undefined),
       handleHelpAction: jest.fn().mockResolvedValue(undefined),
       handleAuditAction: jest.fn().mockResolvedValue(undefined),

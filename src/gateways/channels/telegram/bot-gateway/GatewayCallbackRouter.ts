@@ -9,7 +9,7 @@ export type GatewayCallbackRouterDeps = {
   handlePermissionCallback: (ctx: Context, data: string) => Promise<void>;
   handleEchoApprovalCallback?: (ctx: Context, data: string) => Promise<void>;
   handleMnemosCallback?: (ctx: Context, data: string) => Promise<void>;
-  handleExperienceActionCardCallback?: (ctx: Context, data: string) => Promise<void>;
+  handleExperienceActionCardCallback: (ctx: Context, data: string) => Promise<void>;
   handleTaskCallback?: (ctx: Context, data: string) => Promise<void>;
   handleStatusAction: (ctx: Context) => Promise<void>;
   handleHelpAction: (ctx: Context) => Promise<void>;
@@ -88,13 +88,7 @@ export class GatewayCallbackRouter {
           await ctx.answerCallbackQuery({ text: 'Invalid action card.' });
           return;
         }
-        if (this.deps.handleExperienceActionCardCallback) {
-          await this.deps.handleExperienceActionCardCallback(ctx, data);
-          return;
-        }
-        await ctx.answerCallbackQuery({
-          text: 'Action card received. Open /zavorthControl or use the CLI to decide.',
-        });
+        await this.deps.handleExperienceActionCardCallback(ctx, data);
         return;
       }
 

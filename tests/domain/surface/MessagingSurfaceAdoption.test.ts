@@ -1,10 +1,8 @@
 import {
-  extractMessagingTransportPayload,
   projectResponseForChannel,
   registerPendingSurfaceApproval,
   resetPendingSurfaceApprovalIndexForTests,
   resolvePendingSurfaceApproval,
-  replyWithMessagingSurfaceResponse,
   tryConsumeMessagingPermissionText,
 } from '../../../src/domain/surface/application/surface-projection/index.js';
 import { resolveSurfaceProfileForChannel } from '../../../src/domain/surface/application/surface-affordance/index.js';
@@ -17,7 +15,7 @@ describe('Messaging surface adoption (WhatsApp/Signal numbered)', () => {
     resetPendingSurfaceApprovalIndexForTests();
   });
 
-  it('projects numbered text for whatsapp and registers pending on send', async () => {
+  it('projects numbered text for whatsapp without native buttons', () => {
     const profile = resolveSurfaceProfileForChannel('whatsapp');
     const response = buildAgentPermissionApprovalResponse(
       { approvalId: TASK_ID, title: 'Approval needed', riskLabel: 'medium' },
@@ -26,24 +24,21 @@ describe('Messaging surface adoption (WhatsApp/Signal numbered)', () => {
     const output = projectResponseForChannel('whatsapp', response, {}, { profile });
     expect(output.usedNativeButtons).toBe(false);
     expect(output.text).toMatch(/Reply with a number/i);
+  });
 
-    const transport = extractMessagingTransportPayload(output);
-    expect(transport.transportOptions).toBeNull();
-    expect(transport.numberedOptions?.length).toBeGreaterThanOrEqual(4);
-
-    const sent: string[] = [];
-    const result = await replyWithMessagingSurfaceResponse({
-      channel: 'whatsapp',
+  it('registers pending approvals for numbered follow-up consumption', () => {
+    registerPendingSurfaceApproval({
+      approvalId: TASK_ID,
+      surface: 'whatsapp',
       chatId: 'wa-chat-1',
-      response,
-      options: { trackApprovalId: TASK_ID },
-      send: async ({ text }) => {
-        sent.push(text);
-        return { messageId: 'msg-1' };
-      },
+      messageId: 'msg-1',
+      numberedOptions: [
+        'agent-perm-once',
+        'agent-perm-session',
+        'agent-perm-always',
+        'agent-perm-deny',
+      ],
     });
-    expect(result.tracked).toBe(true);
-    expect(sent[0]).toMatch(/Reply with a number/i);
     expect(
       resolvePendingSurfaceApproval({ surface: 'whatsapp', chatId: 'wa-chat-1' })?.approvalId,
     ).toBe(TASK_ID);

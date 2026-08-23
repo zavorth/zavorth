@@ -7,6 +7,7 @@ describe('TelegramCallbackController Echo callbacks', () => {
       handleHubCallback: jest.fn(),
       handlePermissionCallback: jest.fn(),
       handleEchoApprovalCallback,
+      handleExperienceActionCardCallback: jest.fn(),
       handleStatusAction: jest.fn(),
       handleHelpAction: jest.fn(),
       handleAuditAction: jest.fn(),
