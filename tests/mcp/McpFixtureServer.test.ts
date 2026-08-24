@@ -1,4 +1,4 @@
-import { McpRuntimeService } from '../../src/mcp/McpRuntimeService.js';
+﻿import { McpRuntimeService } from '../../src/mcp/McpRuntimeService.js';
 import { ToolRegistry } from '../../src/tools/ToolRegistry.js';
 import { McpManifestLoader } from '../../src/mcp/McpManifest.js';
 import { McpToolPolicyFileService } from '../../src/services/McpToolPolicyFileService.js';
@@ -18,7 +18,9 @@ describe('MCP Fixture Server E2E Lifecycle & Sandboxing', () => {
   let activeManagers: McpClientManager[];
 
   beforeEach(() => {
-    jest.setTimeout(30000);
+    // Each E2E test boots real node fixture servers and drives approvals
+    // through them; the budget covers parallel-worker contention on the host.
+    jest.setTimeout(120000);
     originalEnv = { ...process.env };
     activeManagers = [];
 
@@ -115,6 +117,7 @@ describe('MCP Fixture Server E2E Lifecycle & Sandboxing', () => {
     return manager;
   };
 
+  // Spawns real node fixture servers; budget sized for parallel-worker contention.
   it('completes discovery, pending approval, CLI approval, and runtime execution', async () => {
     // 1. Initial boot: Discovery
     const registry = new ToolRegistry();
@@ -219,7 +222,7 @@ describe('MCP Fixture Server E2E Lifecycle & Sandboxing', () => {
     expect(absWriteResult).toContain('Path traversal detected or path outside sandbox');
 
     await runtime2.stop();
-  }, 30000);
+  }, 120000);
 
   it('detects schema drift and demotes tool back to pending_approval', async () => {
     // 1. Initial boot and approval
@@ -251,7 +254,7 @@ describe('MCP Fixture Server E2E Lifecycle & Sandboxing', () => {
     expect(registry2.getTool('fixture:fixture.echo')).toBeUndefined();
 
     await runtime2.stop();
-  }, 30000);
+  }, 120000);
 
   it('detects description drift and requires renewed approval before registration', async () => {
     // 1. Initial boot and approval
@@ -284,5 +287,5 @@ describe('MCP Fixture Server E2E Lifecycle & Sandboxing', () => {
     expect(registry2.getTool('fixture:fixture.echo')).toBeUndefined();
 
     await runtime2.stop();
-  }, 30000);
+  }, 120000);
 });

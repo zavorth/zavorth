@@ -1,9 +1,11 @@
-import * as fs from 'node:fs';
+﻿import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { GitWorktreeManager } from '../../../src/agents/worktree/GitWorktreeManager.js';
 
 describe('GitWorktreeManager', () => {
+  // Real git worktree create/diff/cleanup chains; budget covers parallel-worker contention.
+  jest.setTimeout(120000);
   const testRepoDir = path.join(process.cwd(), '.zavorth', 'test_git_repo');
   let manager: GitWorktreeManager;
 

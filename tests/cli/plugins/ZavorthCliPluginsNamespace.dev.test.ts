@@ -9,6 +9,10 @@ function createTempRoot(): string {
 }
 
 describe('ZavorthCliPluginsNamespace plugins dev', () => {
+  // Scaffold/dev flows spawn node child processes; the budget covers
+  // parallel-worker contention on the host.
+  jest.setTimeout(60000);
+
   const tempRoots: string[] = [];
 
   afterEach(() => {

@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -10,6 +10,10 @@ function createTempRoot(): string {
 }
 
 describe('ZavorthCliPluginsNamespace new + recommend', () => {
+  // Scaffold flows spawn node/npm child processes; the budget covers
+  // parallel-worker contention on the host.
+  jest.setTimeout(60000);
+
   const tempRoots: string[] = [];
 
   afterEach(() => {

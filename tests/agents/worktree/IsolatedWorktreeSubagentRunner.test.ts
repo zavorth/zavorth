@@ -1,10 +1,12 @@
-import * as fs from 'node:fs';
+﻿import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { GitWorktreeManager } from '../../../src/agents/worktree/GitWorktreeManager.js';
 import { IsolatedWorktreeSubagentRunner } from '../../../src/agents/worktree/IsolatedWorktreeSubagentRunner.js';
 
 describe('IsolatedWorktreeSubagentRunner', () => {
+  // Real git init/commit/worktree chains; budget covers parallel-worker contention.
+  jest.setTimeout(120000);
   const testRepoDir = path.join(process.cwd(), '.zavorth', 'test_runner_git_repo');
   let runner: IsolatedWorktreeSubagentRunner;
 

@@ -441,7 +441,7 @@ describe('McpRuntimeService — drift protection', () => {
       'new_tool',
       'search tool',
     );
-    const collisionWarns = (logRepo.log as jest.Mock).mock.calls.filter((c) => c[2]?.includes('Colisao'));
+    const collisionWarns = (logRepo.log as jest.Mock).mock.calls.filter((c) => c[2]?.includes('Collision detected'));
     expect(collisionWarns.length).toBeGreaterThanOrEqual(2);
   });
 

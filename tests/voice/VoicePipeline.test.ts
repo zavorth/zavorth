@@ -89,7 +89,7 @@ describe('Voice Pipeline E2E', () => {
       const child = createFakeChild();
       process.nextTick(() => {
         const outputBase = String(args[args.indexOf('-of') + 1] || '').trim();
-        fs.writeFileSync(`${outputBase}.txt`, 'hello zavorth\n`, 'utf8');
+        fs.writeFileSync(`${outputBase}.txt`, 'hello zavorth\n', 'utf8');
         child.emit('close', 0);
       });
       return child;

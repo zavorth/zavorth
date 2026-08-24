@@ -3,8 +3,9 @@ import { MultiBackendTerminalTool } from '../../src/tools/MultiBackendTerminalTo
 
 describe('MultiBackendTerminalTool', () => {
   let tool: MultiBackendTerminalTool;
-  // Shell probes on Windows can exceed the default 5s under load.
-  jest.setTimeout(30_000);
+  // Shell probes spawn cmd/powershell child processes; on Windows cold starts
+  // can exceed 30s when parallel workers saturate the host.
+  jest.setTimeout(90_000);
 
   beforeEach(() => {
     tool = new MultiBackendTerminalTool();

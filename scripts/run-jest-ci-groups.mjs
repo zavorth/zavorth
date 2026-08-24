@@ -67,8 +67,11 @@ const GROUPS = [
     id: 'runtime-agent',
     label: 'Agent runtime contracts',
     paths: ['tests/runtime/agent'],
-    // Large suite under load; 40m wall clock (was timing out at 20m on slow hosts).
-    timeoutMs: 2_400_000,
+    // Large suite (~130 files) that spawns many in-process runtimes; observed
+    // wall clock ranges from ~26m idle to >40m when the host is contending
+    // with parallel workloads. 50m covers the contended case without masking
+    // hangs (every test keeps its own timeout).
+    timeoutMs: 3_000_000,
   },
   {
     id: 'runtime-sessions',

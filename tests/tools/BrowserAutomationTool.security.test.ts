@@ -1,4 +1,4 @@
-import { ZavorthBrowserAutomationTool } from '../../src/tools/ZavorthBrowserAutomationTool.js';
+﻿import { ZavorthBrowserAutomationTool } from '../../src/tools/ZavorthBrowserAutomationTool.js';
 
 describe('ZavorthBrowserAutomationTool security boundaries', () => {
   const privateBrowserSetting = process.env.ALLOW_PRIVATE_BROWSER_AUTOMATION_TARGETS;
@@ -18,7 +18,7 @@ describe('ZavorthBrowserAutomationTool security boundaries', () => {
 
   // Each test spawns real Playwright-driven browser child processes; cold
   // starts exceed Jest's 5s default when the full platform group loads the
-  // machine, so these carry an explicit process-spawn budget.
+  // machine, so these carry an explicit process-spawn budget sized for full-group parallel workers.
   it('blocks loopback and cloud metadata targets before launching a browser', async () => {
     const tool = new ZavorthBrowserAutomationTool();
     // The tool attempts navigation via Playwright (which may not be available in test env).
@@ -29,7 +29,7 @@ describe('ZavorthBrowserAutomationTool security boundaries', () => {
 
     const result2 = await tool.execute({ action: 'get_html', url: 'http://169.254.169.254/latest/meta-data/' });
     expect(typeof result2).toBe('string');
-  }, 60_000);
+  }, 120_000);
 
   it('never evaluates JavaScript directly in the host process', async () => {
     const tool = new ZavorthBrowserAutomationTool();
@@ -45,7 +45,7 @@ describe('ZavorthBrowserAutomationTool security boundaries', () => {
       script: 'document.title',
     });
     expect(typeof result2).toBe('string');
-  }, 60_000);
+  }, 120_000);
 
   it('confines generated files and downloads to the workspace output directory', async () => {
     const tool = new ZavorthBrowserAutomationTool();
@@ -74,7 +74,7 @@ describe('ZavorthBrowserAutomationTool security boundaries', () => {
       output_path: escapedPath,
     });
     expect(typeof downloadResult).toBe('string');
-  }, 60_000);
+  }, 120_000);
 
   it('executes click, text entry, selector waits, and DOM link extraction', async () => {
     const tool = new ZavorthBrowserAutomationTool();
@@ -98,6 +98,6 @@ describe('ZavorthBrowserAutomationTool security boundaries', () => {
     // links action attempts to extract links via HTTP
     const linksResult = await tool.execute({ action: 'links', url: 'https://example.com', selector: 'a[href]' });
     expect(typeof linksResult).toBe('string');
-  }, 60_000);
+  }, 120_000);
 });
 
