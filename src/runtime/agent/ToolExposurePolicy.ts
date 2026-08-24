@@ -9,6 +9,7 @@ import { resolveToolGroupCatalogEntry } from './tools/ToolGroupCatalog.js';
 
 import { SecurityAuditLogger } from '../../services/SecurityAuditLogger.js';
 import { LogRepository } from '../../storage/LogRepository.js';
+import { capabilityTierFromExposureMode } from '../../contracts/runtime/CapabilityTierPresentation.js';
 
 export type ToolExposurePolicyInput = {
   requestedTools?: string[];
@@ -446,6 +447,7 @@ export class ToolExposurePolicy {
 
     return {
       mode,
+      tier: capabilityTierFromExposureMode(mode),
       summary: `${exposureSummary}${quarantineSummary}`,
       tools,
       ...(blockedTools.length > 0 ? {

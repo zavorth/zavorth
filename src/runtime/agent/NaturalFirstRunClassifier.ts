@@ -1,4 +1,5 @@
 import type { UniversalAgentChannel } from './UniversalAgentRuntimeTypes.js';
+import { capabilityTierFromRisk, type CapabilityTier } from '../../contracts/runtime/CapabilityTierPresentation.js';
 
 export type NaturalFirstRoute =
   | 'slash-command'
@@ -59,6 +60,8 @@ export type NaturalFirstRunRisk = {
   requiresApproval: boolean;
   previewRequired: boolean;
   reasons: string[];
+  /** Unified presentation tier aligned with exposure modes and operator lanes. */
+  tier: CapabilityTier;
 };
 
 export type NaturalFirstRunCost = {
@@ -640,6 +643,7 @@ export class NaturalFirstRunClassifier {
       requiresApproval,
       previewRequired: input.route === 'tool-preview' || requiresApproval,
       reasons: reasons.length > 0 ? reasons : ['no-mutable-risk-detected'],
+      tier: capabilityTierFromRisk(input.highestRisk),
     };
   }
 

@@ -160,6 +160,7 @@ export async function runPowerSubsystemCli(rawArgs: string[] = []): Promise<numb
       return decision.autoApprove ? 0 : 1;
     }
     console.log(`Lane: ${decision.lane}`);
+    console.log(`Tier: ${decision.tier}`);
     console.log(`Auto-approve: ${decision.autoApprove}`);
     console.log(`Reason: ${decision.reason}`);
     return decision.autoApprove ? 0 : 1;

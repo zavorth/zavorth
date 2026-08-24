@@ -7,11 +7,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import type { TrustedOperatorModeState } from '../../contracts/UniversalPowerFabricContract.js';
+import { capabilityTierFromLane, type CapabilityTier } from '../../contracts/runtime/CapabilityTierPresentation.js';
 
 export type TrustedOperatorDecision = {
   autoApprove: boolean;
   reason: string;
   lane: 'green' | 'yellow' | 'red';
+  /** Unified presentation tier aligned with tool-exposure modes and classifier risk. */
+  tier: CapabilityTier;
   receiptsRequired: true;
 };
 
@@ -102,6 +105,7 @@ export class TrustedOperatorModeService {
         autoApprove: false,
         reason: 'Red-lane / high-risk action never auto-approves under Trusted Operator Mode.',
         lane: 'red',
+        tier: capabilityTierFromLane('red'),
         receiptsRequired: true,
       };
     }
@@ -111,6 +115,7 @@ export class TrustedOperatorModeService {
         autoApprove: false,
         reason: 'Trusted Operator Mode is disabled.',
         lane: mutation ? 'yellow' : 'green',
+        tier: capabilityTierFromLane(mutation ? 'yellow' : 'green'),
         receiptsRequired: true,
       };
     }
@@ -120,6 +125,7 @@ export class TrustedOperatorModeService {
         autoApprove: false,
         reason: 'Mutations outside trusted folders still require explicit approval.',
         lane: 'yellow',
+        tier: capabilityTierFromLane('yellow'),
         receiptsRequired: true,
       };
     }
@@ -129,6 +135,7 @@ export class TrustedOperatorModeService {
         autoApprove: false,
         reason: 'Read-only auto-approval is disabled by configuration (agent.autoApproveReadOnly=false).',
         lane: 'green',
+        tier: capabilityTierFromLane('green'),
         receiptsRequired: true,
       };
     }
@@ -138,6 +145,7 @@ export class TrustedOperatorModeService {
         autoApprove: true,
         reason: 'Green/read-only action auto-approved with receipts while Trusted Operator Mode is on.',
         lane: 'green',
+        tier: capabilityTierFromLane('green'),
         receiptsRequired: true,
       };
     }
@@ -147,6 +155,7 @@ export class TrustedOperatorModeService {
       autoApprove: false,
       reason: 'Yellow/medium action requires explicit approval even in Trusted Operator Mode.',
       lane: 'yellow',
+      tier: capabilityTierFromLane('yellow'),
       receiptsRequired: true,
     };
   }

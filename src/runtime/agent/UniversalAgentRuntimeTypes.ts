@@ -114,6 +114,8 @@ export type UniversalBlockedToolExposure = {
 
 export type UniversalToolExposureProfile = {
   mode: UniversalToolExposureMode;
+  /** Unified presentation tier aligned with Trusted Operator lanes and classifier risk. */
+  tier?: import('../../contracts/runtime/CapabilityTierPresentation.js').CapabilityTier;
   summary: string;
   tools: UniversalToolExposure[];
   blockedTools?: UniversalBlockedToolExposure[];
