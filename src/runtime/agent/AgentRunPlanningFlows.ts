@@ -507,7 +507,9 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     if (this.llmRuntimeExecutor.isAvailable()) {
       return true;
     }
-    return request ? this.echoHandsExecutor.canExecute(request, options.toolRuntime ?? this.toolRuntime) : false;
+    return request
+      ? this.toolRuntimeHandsExecutor.canExecute(request, options.toolRuntime ?? this.toolRuntime)
+      : false;
   };
 
   proto.shouldBypassCapabilityNegotiationForSpecializedFlow = function (
