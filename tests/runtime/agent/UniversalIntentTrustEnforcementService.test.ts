@@ -94,6 +94,6 @@ describe('UniversalIntentTrustEnforcementService Channel mesh4', () => {
         permissionBoundary: 'container-first',
       }),
     }));
-    expect(snapshot.nextSafeAction).toContain('protected');
+    expect(snapshot.nextSafeAction).toContain('Protected mode blocks the entire host');
   });
 });

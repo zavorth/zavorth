@@ -6,7 +6,7 @@ import {
   type UniversalAgentLlmRuntime,
   type UniversalAgentExecutor,
 } from '../../../src/runtime/agent/index';
-import { ZavorthIntelligenceFabricService } from '../../../src/services/ZavorthIntelligenceFabricService';
+import { ZavorthIntelligenceFabricService } from '../../../src/services/ZavorthIntelligencePipelineService';
 
 function createIdFactory() {
   let index = 0;

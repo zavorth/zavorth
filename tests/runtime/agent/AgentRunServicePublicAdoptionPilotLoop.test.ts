@@ -174,7 +174,7 @@ function publicMetadata() {
       artifacts: {
         feedbackPreviewPath: '.qa/pilot-loop/feedback-preview-redacted.json',
         pilotLedgerPath: '.qa/pilot-loop/pilot-ledger.json',
-        dashboardPath: '.qa/pilot-loop/support-dashboard.json',
+        zavorthControlPath: '.qa/pilot-loop/support-zavorthControl.json',
       },
       templates: [{ id: 'bug' }, { id: 'docs' }, { id: 'install' }, { id: 'feature' }],
       triageRules: [
@@ -190,7 +190,7 @@ function publicMetadata() {
         { id: 'pilot-feedback-loop', status: 'planned', dataPolicy: 'redacted-only' },
       ],
       supportPolicy: [{ id: 'privacy-first' }, { id: 'install-runtime' }, { id: 'feature-planning' }],
-      dashboardMetrics: [
+      zavorthControlMetrics: [
         { id: 'feedback-count-by-area', aggregateOnly: true, excludesPayload: true },
         { id: 'severity-mix', aggregateOnly: true, excludesPayload: true },
         { id: 'pilot-status', aggregateOnly: true, excludesPayload: true },
@@ -199,7 +199,7 @@ function publicMetadata() {
       checks: [
         { id: 'pilot-loop:feedback-preview', status: 'pass' },
         { id: 'pilot-loop:pilot-ledger', status: 'pass' },
-        { id: 'pilot-loop:dashboard', status: 'pass' },
+        { id: 'pilot-loop:zavorthControl', status: 'pass' },
       ],
       nextRecommendedGate: {
         stage: '58',
@@ -251,7 +251,7 @@ describe('AgentRunService Public Adoption Pilot Loop Public Adoption Pilot', () 
         noTelemetryEnabled: true,
         noExternalSubmission: true,
         noWorkspacePayloadStored: true,
-        dashboardAggregatedOnly: true,
+        zavorthControlAggregatedOnly: true,
         pilotRequiresExplicitOwner: true,
       }),
     }));

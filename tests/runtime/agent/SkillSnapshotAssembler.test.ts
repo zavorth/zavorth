@@ -117,7 +117,7 @@ describe('SkillSnapshotAssembler', () => {
     ]);
     expect(snapshot.cold.skillPrompt).toContain('official_build');
     expect(snapshot.cold.skillPrompt).toContain('zavorth_action');
-    expect(snapshot.cold.skillPrompt).toContain('imported-draft [quarantined]: tools ocultas ate review');
+    expect(snapshot.cold.skillPrompt).toContain('imported-draft [quarantined]: tools hidden until review');
     expect(snapshot.cold.skillPrompt).not.toContain('unsafe_imported_tool');
     expect(snapshot.metadata.trustSummary).toEqual(snapshot.trustSummary);
     expect(snapshot.metadata.riskReports).toEqual(expect.arrayContaining([

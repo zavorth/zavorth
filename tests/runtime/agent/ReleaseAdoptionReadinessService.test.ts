@@ -45,12 +45,12 @@ function pilotReady(overrides: Record<string, unknown> = {}) {
     },
     adoptionLoop: {
       plannedPilotCount: 3,
-      dashboardAggregationOnly: true,
+      zavorthControlAggregationOnly: true,
       noPayloadPolicy: true,
     },
     policy: {
       noWorkspacePayloadStored: true,
-      dashboardAggregatedOnly: true,
+      zavorthControlAggregatedOnly: true,
     },
     ...overrides,
   };
@@ -142,7 +142,7 @@ describe('ReleaseAdoptionReadinessService Release Adoption Readiness', () => {
       supportLoop: expect.objectContaining({
         feedbackLoopReady: true,
         pilotLoopReady: true,
-        dashboardAggregatedOnly: true,
+        zavorthControlAggregatedOnly: true,
         metricsReady: true,
       }),
       readiness: expect.objectContaining({
@@ -185,12 +185,12 @@ describe('ReleaseAdoptionReadinessService Release Adoption Readiness', () => {
       publicAdoptionPilotLoop: pilotReady({
         adoptionLoop: {
           plannedPilotCount: 3,
-          dashboardAggregationOnly: false,
+          zavorthControlAggregationOnly: false,
           noPayloadPolicy: true,
         },
         policy: {
           noWorkspacePayloadStored: true,
-          dashboardAggregatedOnly: false,
+          zavorthControlAggregatedOnly: false,
         },
       }),
     }));
@@ -200,12 +200,12 @@ describe('ReleaseAdoptionReadinessService Release Adoption Readiness', () => {
         publicAdoptionPilotLoop: pilotReady({
           adoptionLoop: {
             plannedPilotCount: 3,
-            dashboardAggregationOnly: false,
+            zavorthControlAggregationOnly: false,
             noPayloadPolicy: true,
           },
           policy: {
             noWorkspacePayloadStored: true,
-            dashboardAggregatedOnly: false,
+            zavorthControlAggregatedOnly: false,
           },
         }),
       }),

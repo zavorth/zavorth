@@ -28,13 +28,13 @@ describe('AgentRunService swarm escalation', () => {
     expect(result.ok).toBe(true);
     expect(result.run).toEqual(expect.objectContaining({
       status: 'waiting_approval',
-      summary: 'Proposta de swarm estruturado aguardando aprovacao.',
+      summary: 'Structured swarm proposal waiting for approval.',
     }));
     expect(result.run.approvals).toEqual([
       expect.objectContaining({
         status: 'pending',
         risk: 'attention',
-        title: 'Aprovar swarm estruturado',
+        title: 'Approve structured swarm',
       }),
     ]);
     expect(result.run.metadata).toEqual(expect.objectContaining({
@@ -56,14 +56,14 @@ describe('AgentRunService swarm escalation', () => {
       }),
     }));
     expect(result.replies[0]).toEqual(expect.objectContaining({
-      text: expect.stringContaining('Proposta de swarm estruturado preparada.'),
+      text: expect.stringContaining('Structured swarm proposal prepared.'),
       port: expect.objectContaining({
         kind: 'telegram',
       }),
     }));
   });
 
-  it('routes discovered swarm intent before generic capability negotiation', async () => {
+  it('routes structured swarm intent before generic capability negotiation', async () => {
     const executor = jest.fn();
     const service = new AgentRunService({
       now: () => new Date('2026-04-27T10:05:00.000Z'),
@@ -76,7 +76,7 @@ describe('AgentRunService swarm escalation', () => {
       channel: 'telegram',
       sessionId: 'telegram:42',
       text: 'monte uma equipe de agentes para revisar esta arquitetura',
-      requestedTools: [],
+      requestedTools: ['swarm.run'],
     });
 
     expect(executor).not.toHaveBeenCalled();
@@ -89,7 +89,7 @@ describe('AgentRunService swarm escalation', () => {
       target: 'swarm',
       launchServiceCalled: false,
     }));
-    expect(result.replies[0].text).toContain('Proposta de swarm estruturado preparada.');
+    expect(result.replies[0].text).toContain('Structured swarm proposal prepared.');
   });
 
   it('executes an approved swarm proposal through DynamicHierarchySwarmService and returns via ReplyPipeline', async () => {
@@ -157,7 +157,7 @@ describe('AgentRunService swarm escalation', () => {
     }));
     expect(result.run).toEqual(expect.objectContaining({
       status: 'completed',
-      summary: 'Swarm aprovado e concluido pelo runtime existente.',
+      summary: 'Swarm approved and completed by the existing runtime.',
     }));
     expect(result.run.metadata).toEqual(expect.objectContaining({
       swarmEscalationProposal: expect.objectContaining({
@@ -171,7 +171,7 @@ describe('AgentRunService swarm escalation', () => {
       }),
     }));
     expect(result.replies[0]).toEqual(expect.objectContaining({
-      text: expect.stringContaining('Swarm aprovado e concluido pelo runtime existente.'),
+      text: expect.stringContaining('Swarm approved and completed by the existing runtime.'),
       port: expect.objectContaining({ kind: 'telegram' }),
     }));
     expect(result.replies[0].text).toContain('Swarm revisou a arquitetura.');
@@ -266,14 +266,17 @@ describe('AgentRunService swarm escalation', () => {
       userId: 'operator',
       channel: 'telegram',
       sessionId: 'telegram:42',
-      text: 'rode uma auditoria paralela com 4000 subagentes para auditar tudo',
+      text: 'rode uma auditoria paralela para auditar tudo',
       requestedTools: ['swarm.run'],
+      metadata: {
+        desiredAgents: 4000,
+      },
     });
 
     expect(executor).not.toHaveBeenCalled();
     expect(result.run.status).toBe('waiting_approval');
     expect(result.run.approvals[0]).toEqual(expect.objectContaining({
-      title: 'Aprovar Swarm Scale Plane',
+      title: 'Approve Swarm Scale Plane',
       risk: 'attention',
     }));
     expect(result.run.metadata.swarmEscalationProposal).toEqual(expect.objectContaining({
@@ -285,11 +288,11 @@ describe('AgentRunService swarm escalation', () => {
         maxConcurrency: 30,
       }),
     }));
-    expect(result.replies[0].text).toContain('Proposta de Swarm Scale Plane preparada.');
+    expect(result.replies[0].text).toContain('Swarm Scale Plane proposal prepared.');
     expect(result.replies[0].text).toContain('Agentes planejados: 4000.');
   });
 
-  it('proposes a Swarm Scale Plane from workload complexity without magic words', async () => {
+  it('proposes a Swarm Scale Plane from structured workload size without explicit swarm tools', async () => {
     const executor = jest.fn();
     const service = new AgentRunService({
       now: () => new Date('2026-06-01T10:00:00.000Z'),
@@ -301,8 +304,11 @@ describe('AgentRunService swarm escalation', () => {
       userId: 'operator',
       channel: 'telegram',
       sessionId: 'telegram:42',
-      text: 'Analise todo o Zavorth, todos os modulos do dashboard, CLI, runtime, providers e canais; faca auditoria profunda de arquitetura, seguranca, DDD, testes e riscos com validacao completa.',
+      text: 'audite este workspace com profundidade total',
       requestedTools: [],
+      metadata: {
+        desiredAgents: 40,
+      },
     });
 
     expect(executor).not.toHaveBeenCalled();
@@ -315,12 +321,12 @@ describe('AgentRunService swarm escalation', () => {
           shouldUseScalePlane: true,
           band: expect.stringMatching(/large|massive/),
           reasons: expect.arrayContaining([
-            expect.stringContaining('escopo'),
+            expect.stringContaining('agent count'),
           ]),
         }),
       }),
     }));
-    expect(result.replies[0].text).toContain('Proposta de Swarm Scale Plane preparada.');
+    expect(result.replies[0].text).toContain('Swarm Scale Plane proposal prepared.');
   });
 
   it('executes an approved Swarm Scale Plane through the AgentRun approval path', async () => {
@@ -400,6 +406,9 @@ describe('AgentRunService swarm escalation', () => {
       sessionId: 'telegram:42',
       text: 'rode uma auditoria paralela com 300 subagentes',
       requestedTools: ['swarm.run'],
+      metadata: {
+        desiredAgents: 300,
+      },
     };
 
     const pending = await service.run(request);
@@ -415,7 +424,7 @@ describe('AgentRunService swarm escalation', () => {
       persistState: true,
     }));
     expect(result.run.status).toBe('completed');
-    expect(result.run.summary).toContain('Swarm Scale Plane aprovado e concluido');
+    expect(result.run.summary).toContain('Swarm Scale Plane approved and completed with 300/300 agent(s).');
     expect(result.run.metadata.swarmScaleExecutionResult).toEqual(expect.objectContaining({
       source: 'SwarmScalePlaneService',
       status: 'completed',

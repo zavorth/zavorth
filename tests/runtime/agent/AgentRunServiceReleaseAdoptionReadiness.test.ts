@@ -23,8 +23,8 @@ function pilotReady() {
   return {
     status: 'pilot-ready',
     pilot: { supportPolicyCount: 3, triageRuleCount: 5, ledgerEntryCount: 3 },
-    adoptionLoop: { plannedPilotCount: 3, dashboardAggregationOnly: true, noPayloadPolicy: true },
-    policy: { noWorkspacePayloadStored: true, dashboardAggregatedOnly: true },
+    adoptionLoop: { plannedPilotCount: 3, zavorthControlAggregationOnly: true, noPayloadPolicy: true },
+    policy: { noWorkspacePayloadStored: true, zavorthControlAggregatedOnly: true },
   };
 }
 

@@ -167,10 +167,10 @@ describe('Run Observatory Run Observatory', () => {
     expect(snapshot.diffPreviews).toEqual([
       expect.objectContaining({
         planId: 'plan-diff-preview-1',
-        title: 'Previa de alteracao',
+        title: 'Previa de change',
         applied: true,
         actions: expect.objectContaining({
-          approveApplyLabel: 'Aplicado',
+          approveApplyLabel: 'Applied',
           rollbackArtifactPath: 'data/runtime/intelligence-fabric-rollbacks/plan-diff-preview-1/rollback.json',
         }),
         files: [
@@ -193,6 +193,6 @@ describe('Run Observatory Run Observatory', () => {
         matchedBy: ['status'],
       }),
     ]);
-    expect(failedOnly.surface.dashboardPath).toContain('status=failed');
+    expect(failedOnly.surface.zavorthControlPath).toContain('status=failed');
   });
 });

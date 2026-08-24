@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { buildInboundChannelEvent } from '../../../src/channels/contracts/ChannelMessageContract.js';
+import { ChannelMeshOnboardingGate } from '../../../src/channels/onboarding/ChannelMeshOnboardingGate.js';
 import { GatewayEventBus } from '../../../src/gateway/events/GatewayEventBus.js';
 import {
   ZavorthAgentGateway,
@@ -18,6 +19,10 @@ function createIdFactory() {
     index += 1;
     return `${prefix}-${index}`;
   };
+}
+
+function createPassThroughOnboardingGate(): ChannelMeshOnboardingGate {
+  return new ChannelMeshOnboardingGate({ isGlobalProfileComplete: () => true });
 }
 
 describe('ZavorthAgentGateway', () => {
@@ -131,7 +136,9 @@ describe('ZavorthAgentGateway', () => {
       executor,
     });
 
-    const subscription = gateway.attachChannelMeshEventBus(eventBus);
+    const subscription = gateway.attachChannelMeshEventBus(eventBus, {}, {
+      onboardingGate: createPassThroughOnboardingGate(),
+    });
 
     await eventBus.emit(
       buildInboundChannelEvent({
@@ -239,7 +246,7 @@ describe('ZavorthAgentGateway', () => {
         }),
       }),
     );
-    expect(result.replies[0].text).toContain('Apply nao foi executado.');
+    expect(result.replies[0].text).toContain('Apply was not executed.');
   });
 
   it('keeps run, trace and session identity on gateway replies delivered by MemoryReplyPort', async () => {
@@ -533,7 +540,7 @@ describe('ZavorthAgentGateway', () => {
     expect(result.run.status).toBe('waiting_approval');
     expect(result.run.approvals).toEqual([
       expect.objectContaining({
-        title: 'Aprovar escopo de capabilities',
+        title: 'Approve capability scope',
         risk: 'danger',
         status: 'pending',
       }),
@@ -555,7 +562,7 @@ describe('ZavorthAgentGateway', () => {
         }),
       }),
     );
-    expect(result.replies[0].text).toContain('Approval requerido: true');
+    expect(result.replies[0].text).toContain('Approval required: true');
   });
 
   it('approves a pending universal run and resumes the original executor', async () => {

@@ -210,6 +210,6 @@ describe('PublicSiteDocsDemoSyncService Channel mesh9', () => {
     expect(snapshot.status).toBe('stable-claim-blocked');
     expect(snapshot.readiness.canAnnounceStable).toBe(false);
     expect(snapshot.policy.noStableClaimPublished).toBe(true);
-    expect(snapshot.nextSafeAction).toContain('Remover claim de stable');
+    expect(snapshot.nextSafeAction).toContain('Remove the stable claim');
   });
 });

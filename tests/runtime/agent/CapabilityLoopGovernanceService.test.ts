@@ -118,7 +118,7 @@ describe('CapabilityLoopGovernanceService', () => {
         honest: true,
       }),
       controlSurface: expect.objectContaining({
-        statusPath: '/dashboard/runs/agent-run-c5#tools',
+        statusPath: '/zavorthControl/runs/agent-run-c5#tools',
       }),
     }));
     expect(echo?.receipts).toEqual(expect.arrayContaining([
@@ -169,7 +169,7 @@ describe('CapabilityLoopGovernanceService', () => {
       .toEqual(expect.objectContaining({
         status: 'degraded',
         fallback: expect.objectContaining({
-          summary: expect.stringContaining('quarentena'),
+          summary: expect.stringContaining('quarantined'),
         }),
       }));
     expect(snapshot.capabilities.find((entry) => entry.capabilityId === 'mcp.snapshot')?.receipts)

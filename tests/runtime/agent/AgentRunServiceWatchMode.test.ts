@@ -90,7 +90,7 @@ describe('AgentRunService Watch Mode escalation', () => {
 
     expect(executor).not.toHaveBeenCalled();
     expect(result.run.status).toBe('failed');
-    expect(result.run.summary).toBe('Watch Mode visual bloqueado: policy/allowlist explicita ausente.');
+    expect(result.run.summary).toBe('Visual Watch Mode blocked: explicit policy/allowlist is missing.');
     expect(result.run.approvals).toEqual([]);
     expect(result.run.toolExposure).toEqual(expect.objectContaining({
       mode: 'restricted',
@@ -142,10 +142,10 @@ describe('AgentRunService Watch Mode escalation', () => {
 
     expect(executor).not.toHaveBeenCalled();
     expect(result.run.status).toBe('waiting_approval');
-    expect(result.run.summary).toBe('Proposta de Watch Mode visual aguardando aprovacao.');
+    expect(result.run.summary).toBe('Visual Watch Mode proposal waiting for approval.');
     expect(result.run.approvals).toEqual([
       expect.objectContaining({
-        title: 'Aprovar Watch Mode visual supervisionado',
+        title: 'Approve supervised visual Watch Mode',
         risk: 'danger',
         status: 'pending',
       }),
@@ -162,11 +162,11 @@ describe('AgentRunService Watch Mode escalation', () => {
       computerUseAgentCalled: false,
       approvalCreated: true,
     }));
-    expect(result.replies[0].text).toContain('Proposta de Watch Mode visual preparada.');
-    expect(result.replies[0].text).toContain('Computer Use nao foi iniciado');
+    expect(result.replies[0].text).toContain('Visual Watch Mode proposal prepared.');
+    expect(result.replies[0].text).toContain('Computer Use was not started');
   });
 
-  it('routes discovered watchmode intent before generic capability negotiation', async () => {
+  it('routes structured watchmode intent before generic capability negotiation', async () => {
     const executor = jest.fn();
     const service = new AgentRunService({
       now: () => new Date('2026-04-27T12:37:00.000Z'),
@@ -179,7 +179,7 @@ describe('AgentRunService Watch Mode escalation', () => {
       channel: 'web',
       sessionId: 'web:watch-natural',
       text: 'use Watch Mode no Chrome para observar o dashboard',
-      requestedTools: [],
+      requestedTools: ['watchmode.control'],
       metadata: {
         watchModePolicyAllowlisted: true,
         watchMode: {
@@ -201,7 +201,7 @@ describe('AgentRunService Watch Mode escalation', () => {
       approvalCreated: true,
       startRunCalled: false,
     }));
-    expect(result.replies[0].text).toContain('Proposta de Watch Mode visual preparada.');
+    expect(result.replies[0].text).toContain('Visual Watch Mode proposal prepared.');
   });
 
   it('starts the existing Watch Mode service after approval for allowlisted proposals', async () => {
@@ -238,7 +238,7 @@ describe('AgentRunService Watch Mode escalation', () => {
       strictApproval: true,
     }));
     expect(approved?.run.status).toBe('completed');
-    expect(approved?.run.summary).toContain('Watch Mode aprovado e iniciado pelo servico existente');
+    expect(approved?.run.summary).toContain('Watch Mode approved and started by the existing service for Chrome.');
     expect(approved?.run.metadata.watchModeVisualProposal).toEqual(expect.objectContaining({
       target: 'watch-mode',
       targetWindow: 'Chrome',

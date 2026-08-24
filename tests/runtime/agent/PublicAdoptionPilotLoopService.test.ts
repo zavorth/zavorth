@@ -56,7 +56,7 @@ function pilotLoop(status = 'ready') {
     artifacts: {
       feedbackPreviewPath: '.qa/pilot-loop/feedback-preview-redacted.json',
       pilotLedgerPath: '.qa/pilot-loop/pilot-ledger.json',
-      dashboardPath: '.qa/pilot-loop/support-dashboard.json',
+      zavorthControlPath: '.qa/pilot-loop/support-zavorthControl.json',
     },
     templates: [{ id: 'bug' }, { id: 'docs' }, { id: 'install' }, { id: 'feature' }],
     triageRules: [
@@ -72,7 +72,7 @@ function pilotLoop(status = 'ready') {
       { id: 'pilot-feedback-loop', status: 'planned', dataPolicy: 'redacted-only' },
     ],
     supportPolicy: [{ id: 'privacy-first' }, { id: 'install-runtime' }, { id: 'feature-planning' }],
-    dashboardMetrics: [
+    zavorthControlMetrics: [
       { id: 'feedback-count-by-area', aggregateOnly: true, excludesPayload: true },
       { id: 'severity-mix', aggregateOnly: true, excludesPayload: true },
       { id: 'pilot-status', aggregateOnly: true, excludesPayload: true },
@@ -81,7 +81,7 @@ function pilotLoop(status = 'ready') {
     checks: [
       { id: 'pilot-loop:feedback-preview', status: 'pass' },
       { id: 'pilot-loop:pilot-ledger', status: 'pass' },
-      { id: 'pilot-loop:dashboard', status: 'pass' },
+      { id: 'pilot-loop:zavorthControl', status: 'pass' },
     ],
     nextRecommendedGate: {
       stage: '58',
@@ -119,7 +119,7 @@ describe('PublicAdoptionPilotLoopService Public Adoption Pilot', () => {
         triageReady: true,
         ledgerReady: true,
         supportReady: true,
-        dashboardReady: true,
+        zavorthControlReady: true,
         canStartControlledPilot: true,
         canCollectPublicFeedback: true,
         canPublishPilotMetrics: true,
@@ -130,13 +130,13 @@ describe('PublicAdoptionPilotLoopService Public Adoption Pilot', () => {
         noExternalSubmission: true,
         noWorkspacePayloadStored: true,
         noSecretsSerialized: true,
-        dashboardAggregatedOnly: true,
+        zavorthControlAggregatedOnly: true,
         pilotRequiresExplicitOwner: true,
       }),
     }));
     expect(snapshot.adoptionLoop).toEqual(expect.objectContaining({
       plannedPilotCount: 3,
-      dashboardAggregationOnly: true,
+      zavorthControlAggregationOnly: true,
       noPayloadPolicy: true,
     }));
   });
