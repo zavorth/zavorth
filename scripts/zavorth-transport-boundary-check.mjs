@@ -5,18 +5,19 @@ const root = process.cwd();
 const failures = [];
 
 const files = {
-  proxyPlane: 'src/zavorth-control/mitm/proxyPlane.cjs',
-  proxyCompat: 'src/zavorth-control/mitm/compat/legacyProxyCompat.cjs',
-  mitmServer: 'src/zavorth-control/mitm/server.cjs',
-  transportPlane: 'src/zavorth-control/sse/transportPlane.ts',
-  transportCompat: 'src/zavorth-control/sse/compat/legacyTransportCompat.ts',
-  openSseCompat: 'src/zavorth-control/sse/compat/openSseCompat.ts',
-  chatHandler: 'src/zavorth-control/sse/handlers/chat.ts',
-  chatHelpers: 'src/zavorth-control/sse/handlers/chatHelpers.ts',
-  authService: 'src/zavorth-control/sse/services/auth.ts',
-  semanticCache: 'src/zavorth-control/lib/semanticCache.ts',
-  cachePage: 'src/zavorth-control/app/(dashboard)/dashboard/cache/page.tsx',
-  deletedAuthOrig: 'src/zavorth-control/sse/services/auth.ts.orig',
+  proxyPlane: 'src/ai-gateway/mitm/proxyPlane.cjs',
+  proxyCompat: 'src/ai-gateway/mitm/compat/legacyProxyCompat.cjs',
+  mitmServer: 'src/ai-gateway/mitm/server.cjs',
+  transportPlane: 'src/ai-gateway/sse/transportPlane.ts',
+  transportCompat: 'src/ai-gateway/sse/compat/legacyTransportCompat.ts',
+  openSseCompat: 'src/ai-gateway/sse/compat/openSseCompat.ts',
+  chatHandler: 'src/ai-gateway/sse/handlers/chat.ts',
+  chatHelpers: 'src/ai-gateway/sse/handlers/chatHelpers.ts',
+  authService: 'src/ai-gateway/sse/services/auth.ts',
+  semanticCache: 'src/ai-gateway/lib/semanticCache.ts',
+  // The dashboard cache UI page was decommissioned with the zavorthControl
+  // migration; the no-cache header contract is enforced in semanticCache.
+  deletedAuthOrig: 'src/ai-gateway/sse/services/auth.ts.orig',
 };
 
 checkRequiredFiles();
@@ -119,19 +120,23 @@ function checkSseTransportPlane() {
 }
 
 function checkOpenSseCompatBoundary() {
-  const sseRoot = path.join(root, 'src', 'zavorth-control', 'sse');
+  const sseRoot = path.join(root, 'src', 'ai-gateway', 'sse');
   const compatPath = abs(files.openSseCompat);
 
   for (const filePath of walk(sseRoot)) {
     if (!/\.(ts|tsx)$/.test(filePath)) continue;
     const source = fs.readFileSync(filePath, 'utf8');
-    if (source.includes('@ZavorthGateway/open-sse') && path.resolve(filePath) !== path.resolve(compatPath)) {
-      failures.push(`${rel(filePath)} imports @ZavorthGateway/open-sse outside sse/compat/openSseCompat.ts`);
+    // Type-only imports are erased at runtime; the boundary governs runtime access.
+    const hasRuntimeOpenSseImport = source
+      .split(/\r?\n/)
+      .some((line) => line.includes('@zavorth/ai-gateway/open-sse') && !/^\s*import\s+type\b/.test(line));
+    if (hasRuntimeOpenSseImport && path.resolve(filePath) !== path.resolve(compatPath)) {
+      failures.push(`${rel(filePath)} imports @zavorth/ai-gateway/open-sse outside sse/compat/openSseCompat.ts`);
     }
   }
 
   expectIncludes(files.openSseCompat, read(files.openSseCompat), [
-    '@ZavorthGateway/open-sse',
+    '@zavorth/ai-gateway/open-sse',
     'handleChatCore',
     'errorResponse',
     'unavailableResponse',
@@ -141,7 +146,6 @@ function checkOpenSseCompatBoundary() {
 
 function checkHeaderConsumers() {
   const semanticCache = read(files.semanticCache);
-  const cachePage = read(files.cachePage);
   const chat = read(files.chatHandler);
   const helpers = read(files.chatHelpers);
   const auth = read(files.authService);
@@ -150,7 +154,6 @@ function checkHeaderConsumers() {
     'isZavorthCacheBypassRequested',
     'X-Zavorth-No-Cache: true',
   ]);
-  expectIncludes(files.cachePage, cachePage, ['X-Zavorth-No-Cache: true']);
   expectIncludes(files.chatHandler, chat, [
     '../compat/openSseCompat',
     '../transportPlane',
@@ -163,7 +166,6 @@ function checkHeaderConsumers() {
   ]);
   expectIncludes(files.authService, auth, ['../compat/openSseCompat']);
   forbid(files.semanticCache, semanticCache, ['X-ZavorthGateway-No-Cache']);
-  forbid(files.cachePage, cachePage, ['X-ZavorthGateway-No-Cache']);
 }
 
 function checkForbiddenResidues() {
@@ -179,8 +181,8 @@ function checkForbiddenResidues() {
     /@zavorthBridge/i,
   ];
   const roots = [
-    path.join(root, 'src', 'zavorth-control', 'mitm'),
-    path.join(root, 'src', 'zavorth-control', 'sse'),
+    path.join(root, 'src', 'ai-gateway', 'mitm'),
+    path.join(root, 'src', 'ai-gateway', 'sse'),
   ];
 
   for (const scanRoot of roots) {

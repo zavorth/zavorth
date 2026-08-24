@@ -757,10 +757,6 @@
       "script": "scripts/zavorth-cli-public-surface-check.mjs",
       "description": "QA verification for zavorth cli public surface"
     },
-    "zavorth-cli-surface": {
-      "script": "scripts/zavorth-cli-surface-check.mjs",
-      "description": "QA verification for zavorth cli surface"
-    },
     "zavorth-cli-surface-consolidation": {
       "script": "scripts/zavorth-cli-surface-consolidation-check.mjs",
       "description": "QA verification for zavorth cli surface consolidation"

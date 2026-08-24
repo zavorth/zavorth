@@ -5,7 +5,7 @@ const root = process.cwd();
 
 const requiredFiles = [
   {
-    path: 'src/zavorth-control/shared/components/ZavorthGatewayLogo.tsx',
+    path: 'src/ai-gateway/shared/components/ZavorthGatewayLogo.tsx',
     includes: [
       'Zavorth brand mark',
       'protective eye',
@@ -13,7 +13,7 @@ const requiredFiles = [
     ],
   },
   {
-    path: 'src/zavorth-control/app/layout.tsx',
+    path: 'src/ai-gateway/app/layout.tsx',
     includes: [
       'Zavorth',
       'Control Plane',
@@ -21,7 +21,7 @@ const requiredFiles = [
     ],
   },
   {
-    path: 'src/zavorth-control/app/loading.tsx',
+    path: 'src/ai-gateway/app/loading.tsx',
     includes: [
       'Zavorth Control Plane',
       'Rehydrating operator surfaces',
@@ -29,15 +29,15 @@ const requiredFiles = [
     ],
   },
   {
-    path: 'src/zavorth-control/app/(zavorthControl)/control/page.tsx',
+    path: 'src/ai-gateway/app/(zavorthControl)/control/page.tsx',
     includes: [
       'ControlPageClient',
-      'LegacyDashboardShell',
+      'LegacyZavorthControlShell',
       'ControlPageAssets',
     ],
   },
   {
-    path: 'src/zavorth-control/app/(zavorthControl)/control/ZavorthControlBridge.tsx',
+    path: 'src/ai-gateway/app/(zavorthControl)/control/ZavorthControlBridge.tsx',
     includes: [
       'Zavorth Home',
       'Zavorth',
@@ -46,7 +46,7 @@ const requiredFiles = [
     ],
   },
   {
-    path: 'src/zavorth-control/shared/constants/config.ts',
+    path: 'src/ai-gateway/shared/constants/config.ts',
     includes: [
       'name: "Zavorth"',
       'Operator control plane for multi-provider AI runtime management',
@@ -56,16 +56,16 @@ const requiredFiles = [
 
 const visibleIdentityFiles = [
   ...requiredFiles.map((entry) => entry.path),
-  'src/zavorth-control/app/login/page.tsx',
-  'src/zavorth-control/app/offline/page.tsx',
-  'src/zavorth-control/app/status/page.tsx',
-  'src/zavorth-control/app/privacy/page.tsx',
-  'src/zavorth-control/app/terms/page.tsx',
-  'src/zavorth-control/app/docs/page.tsx',
-  'src/zavorth-control/app/landing/page.tsx',
-  'src/zavorth-control/shared/components/Footer.tsx',
-  'src/zavorth-control/shared/components/ConsoleLogViewer.tsx',
-  'src/zavorth-control/shared/components/oauth-modal/OAuthModalProviderHint.tsx',
+  'src/ai-gateway/app/login/page.tsx',
+  'src/ai-gateway/app/offline/page.tsx',
+  'src/ai-gateway/app/status/page.tsx',
+  'src/ai-gateway/app/privacy/page.tsx',
+  'src/ai-gateway/app/terms/page.tsx',
+  'src/ai-gateway/app/docs/page.tsx',
+  'src/ai-gateway/app/landing/page.tsx',
+  'src/ai-gateway/shared/components/Footer.tsx',
+  'src/ai-gateway/shared/components/ConsoleLogViewer.tsx',
+  'src/ai-gateway/shared/components/oauth-modal/OAuthModalProviderHint.tsx',
 ];
 
 const englishIdentityValuePaths = [
@@ -167,9 +167,9 @@ function isAllowedTechnicalIdentityLine(line) {
 }
 
 function checkLocaleIdentityValues() {
-  const messagesRoot = path.join(root, 'src/zavorth-control/i18n/messages');
+  const messagesRoot = path.join(root, 'src/ai-gateway/i18n/messages');
   if (!fs.existsSync(messagesRoot)) {
-    failures.push('src/zavorth-control/i18n/messages: missing');
+    failures.push('src/ai-gateway/i18n/messages: missing');
     return;
   }
 
@@ -178,7 +178,7 @@ function checkLocaleIdentityValues() {
     .sort();
 
   for (const localeFile of localeFiles) {
-    const relativePath = `src/zavorth-control/i18n/messages/${localeFile}`;
+    const relativePath = `src/ai-gateway/i18n/messages/${localeFile}`;
     const messages = JSON.parse(fs.readFileSync(path.join(messagesRoot, localeFile), 'utf8'));
     for (const valuePath of englishIdentityValuePaths) {
       const value = readValuePath(messages, valuePath);

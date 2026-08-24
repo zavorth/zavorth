@@ -17,7 +17,24 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const SRC = path.join(ROOT, 'src');
+
+/**
+ * Repo-wide first-party source coverage. `packages/code` is excluded: it is a
+ * vendored sibling codebase synced from an upstream repository (see
+ * packages/code/SOURCE-OF-TRUTH.md) and does not follow this product's
+ * localization conventions.
+ */
+const SCAN_ROOTS = ['src', 'apps', 'packages', 'sdk', 'plugins', 'tools', 'agent', 'bin', 'config', 'scripts'].map(
+  (dir) => path.join(ROOT, dir),
+);
+const SKIP_DIR_NAMES = new Set(['node_modules', 'dist', 'out', '.next', 'release', 'build', 'coverage', 'vendor']);
+const EXCLUDED_DIR_PARTS = [
+  // Desktop thread/trust panels are mid-migration to catalog keys (tracked separately).
+  path.join('apps', 'zavorth-desktop', 'src', 'thread') + path.sep,
+  path.join('apps', 'zavorth-desktop', 'src', 'trust') + path.sep,
+  // Vendored sibling codebase; upstream owns its string conventions.
+  path.join('packages', 'code') + path.sep,
+];
 
 const ALLOW_DIR_PARTS = [
   `${path.sep}i18n${path.sep}`,
@@ -31,6 +48,8 @@ const ALLOW_DIR_PARTS = [
 const ALLOW_BASENAMES = new Set([
   'i18n.ts',
   'I18nService.ts',
+  // The scanner itself: its allowlist table must quote the literals it exempts.
+  'check-source-ui-strings.mjs',
 ]);
 
 function isI18nCatalogPath(filePath) {
@@ -57,6 +76,21 @@ const ALLOWED_NON_USER_FACING_LITERALS = [
     filePart: path.join('services', 'ZavorthNaturalInvocationRouter.ts'),
     literalIncludes: 'استورد مهارة الطقس',
   },
+  {
+    // Desktop i18n contract tests asserting localized catalog output for pt locale keys.
+    filePart: path.join('apps', 'zavorth-desktop', 'tests', 'pluginOsBridge.test.ts'),
+    literalIncludes: 'Precisa de revisão',
+  },
+  {
+    // Desktop i18n contract tests asserting localized catalog output for pt locale keys.
+    filePart: path.join('apps', 'zavorth-desktop', 'tests', 'pluginOsFeel.test.ts'),
+    literalIncludes: 'Precisa de revisão',
+  },
+  {
+    // Desktop i18n contract tests asserting localized catalog output for pt locale keys.
+    filePart: path.join('apps', 'zavorth-desktop', 'tests', 'pluginOsFeel.test.ts'),
+    literalIncludes: 'Próximo',
+  },
 ];
 
 function isAllowlistedNonUserFacingLiteral(filePath, line) {
@@ -73,7 +107,7 @@ function walk(dir, out = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (entry.name === 'node_modules' || entry.name === 'dist') continue;
+      if (SKIP_DIR_NAMES.has(entry.name)) continue;
       walk(full, out);
       continue;
     }
@@ -81,6 +115,10 @@ function walk(dir, out = []) {
     out.push(full);
   }
   return out;
+}
+
+function isExcludedDirScope(filePath) {
+  return EXCLUDED_DIR_PARTS.some((part) => filePath.includes(part));
 }
 
 function isAllowed(filePath) {
@@ -155,10 +193,11 @@ function scanFile(filePath) {
   return hits;
 }
 
-const files = walk(SRC);
+const files = SCAN_ROOTS.flatMap((root) => walk(root));
 const violations = [];
 for (const file of files) {
   if (isAllowed(file)) continue;
+  if (isExcludedDirScope(file)) continue;
   const hits = scanFile(file);
   if (hits.length) {
     violations.push({ file: path.relative(ROOT, file), hits: hits.slice(0, 6) });

@@ -6,10 +6,13 @@ const root = process.cwd();
 const checks = [
   ['Native boundary guard', 'scripts/zavorth-native-boundary-check.mjs'],
   ['Identity surface guard', 'scripts/zavorth-identity-surface-check.mjs'],
-  ['CLI surface guard', 'scripts/zavorth-cli-surface-check.mjs'],
+  // The CLI surface guard was retired: the dashboard cli-tools card UI it
+  // policed was decommissioned in the zavorthControl migration (the managed
+  // CLI tool API lives on under src/ai-gateway/app/api/cli-tools).
   ['Auth/storage guard', 'scripts/zavorth-auth-storage-check.mjs'],
   ['Transport boundary guard', 'scripts/zavorth-transport-boundary-check.mjs'],
   ['Native residue validation guard', 'scripts/zavorth-native-residue-check.mjs'],
+  ['Source UI string hygiene guard', 'scripts/check-source-ui-strings.mjs'],
 ];
 
 for (const [label, script] of checks) {
