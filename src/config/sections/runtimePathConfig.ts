@@ -46,7 +46,7 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
       path.join(homePaths.homeRoot, '.agents', 'tts-providers'),
     skillsGovernanceMode: process.env.ZAVORTH_SKILLS_GOVERNANCE_MODE || 'casual',
     skillsCurationEnabled: (process.env.ZAVORTH_SKILLS_CURATION_ENABLED || 'true').toLowerCase() !== 'false',
-    skillsCurationArchiveAfterDays: parseEnvInt(process.env.ZAVORTH_SKILLS_CURATION_ARCHIVE_AFTER_DAYS, 30),
+    skillsCurationArchiveAfterDays: parseEnvInt(process.env.ZAVORTH_SKILLS_CURATION_ARCHIVE_AFTER_DAYS, 14),
     skillsCurationBackup: (process.env.ZAVORTH_SKILLS_CURATION_BACKUP || 'true').toLowerCase() !== 'false',
     skillsCuratorStateFile:
       process.env.ZAVORTH_SKILLS_CURATOR_STATE_FILE ||
@@ -56,11 +56,11 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
       dataPath('skills', 'curator', 'reports'),
     skillsCuratorIntervalHours: parseFloat(process.env.ZAVORTH_SKILLS_CURATOR_INTERVAL_HOURS || `${24 * 7}`),
     skillsCuratorMinIdleHours: parseFloat(process.env.ZAVORTH_SKILLS_CURATOR_MIN_IDLE_HOURS || '2'),
-    skillsCuratorStaleAfterDays: parseEnvInt(process.env.ZAVORTH_SKILLS_CURATOR_STALE_AFTER_DAYS, 30),
+    skillsCuratorStaleAfterDays: parseEnvInt(process.env.ZAVORTH_SKILLS_CURATOR_STALE_AFTER_DAYS, 7),
     skillsCuratorArchiveAfterDays: parseEnvInt(
       process.env.ZAVORTH_SKILLS_CURATOR_ARCHIVE_AFTER_DAYS ||
         process.env.ZAVORTH_SKILLS_CURATION_ARCHIVE_AFTER_DAYS,
-      90,
+      14,
     ),
     skillsCuratorLlmReviewEnabled:
       (process.env.ZAVORTH_SKILLS_CURATOR_LLM_REVIEW_ENABLED || 'false').toLowerCase() === 'true',
