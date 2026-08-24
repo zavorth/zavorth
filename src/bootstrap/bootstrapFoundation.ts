@@ -85,7 +85,7 @@ export function runCapabilityPreflight(): BootstrapPreflight {
     bridgeConfigured: config.discordBridgeEnabled,
   });
 
-  logger.info('Preflight de channels configurados in this runtime:');
+      logger.info('Preflight of channels configured in this runtime:');
   for (const capability of capabilities) {
     logger.info(
       `- ${capability.platform}: ${capability.readiness}/${capability.implementationState} (${capability.transport})`,
@@ -169,11 +169,11 @@ export async function initializeBootstrapFoundation(
     runtimeMaintenanceTimer.unref?.();
   }
 
-  logRepo.log('info', 'Bootstrap', 'Repositorios iniciados.');
+    logRepo.log('info', 'Bootstrap', 'Repositories initialized.');
   logRepo.log(
     'info',
     'Bootstrap',
-    `Perfil de runtime active: ${runtimeProfileService.getProfile()} (policy=${config.zavorthCapabilityPolicy}).`,
+      `Runtime profile active: ${runtimeProfileService.getProfile()} (policy=${config.zavorthCapabilityPolicy}).`,
   );
   for (const cleanup of dormantCapabilityCleanup) {
     logRepo.log(
