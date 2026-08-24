@@ -66,13 +66,15 @@ describe('SafeProcessExec (S3 command injection)', () => {
     expect(src).not.toMatch(/shell\s*:\s*true\s*[,}]/);
   });
 
-  it('AgentChainBuilder and CLI live namespaces avoid shell:true for local spawn', () => {
+  it('AgentChainBuilder keeps safe argv spawning and CLI live namespaces do not spawn processes', () => {
     const chain = fs.readFileSync(resolve(__dirname, '../../src/agents/AgentChainBuilder.ts'), 'utf8');
     const live = fs.readFileSync(resolve(__dirname, '../../src/cli/ZavorthCliLiveNamespaces.ts'), 'utf8');
     expect(chain).toContain('spawnSyncCommandLine');
     expect(chain).not.toMatch(/spawnSync\(command,\s*\[\],\s*\{[^}]*shell:\s*true/s);
-    expect(live).toContain('spawnCommandLine');
-    // Remaining shell:true would be a regression in service/MCP spawn paths we fixed.
-    expect(live).not.toMatch(/spawn\(command,\s*\[\],\s*\{[^}]*shell:\s*true/s);
+    // The live namespaces route execution through governed services; any direct
+    // process spawn helper here would bypass that boundary.
+    expect(live).not.toMatch(/child_process/);
+    expect(live).not.toMatch(/spawn(CommandLine|Sync)?\(/);
+    expect(live).not.toMatch(/shell\s*:\s*true\s*[,}]/);
   });
 });
