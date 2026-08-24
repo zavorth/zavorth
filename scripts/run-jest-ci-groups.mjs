@@ -246,7 +246,13 @@ function runGroup(group, timeoutMs, passThroughArgs) {
   let timedOut = false;
   const timer = setTimeout(() => {
     timedOut = true;
-    child.kill('SIGTERM');
+    // Windows ignores SIGTERM for jest worker trees; taskkill /T /F is the
+    // only reliable way to stop an over-budget group before the next one.
+    if (process.platform === 'win32' && child.pid) {
+      spawn('taskkill', ['/pid', String(child.pid), '/T', '/F'], { windowsHide: true });
+    } else {
+      child.kill('SIGTERM');
+    }
   }, timeoutMs);
 
   return new Promise((resolve) => {
