@@ -43,6 +43,11 @@ import {
 } from '../services/GatewayRuntimeChannelAdapters.js';
 import type { RuntimeAwareChannelGateway } from '../services/GatewayRuntimeChannelAdapters.js';
 import { MemoryService } from '../services/MemoryService.js';
+import { LocalMemoryBackend } from '../services/memory/LocalMemoryBackend.js';
+import {
+  MemoryWriteWorker,
+  registerSharedMemoryWriteWorker,
+} from '../services/memory/MemoryWriteWorker.js';
 import { RuntimeDiagnosticsService } from '../services/RuntimeDiagnosticsService.js';
 import { SelfModificationCommandService } from '../services/SelfModificationCommandService.js';
 import { SharedSurfaceCommandService } from '../services/SharedSurfaceCommandService.js';
@@ -158,6 +163,9 @@ export function composeSurfaceRuntime(
   coreOrchestrator.attachEchoOutputStage(botGateway.getEchoOutputStage());
   if (foundation.episodicMemoryBridge) {
     foundation.episodicMemoryBridge.attach(sharedMemoryService);
+    const memoryWriteWorker = new MemoryWriteWorker(new LocalMemoryBackend(sharedMemoryService));
+    foundation.episodicMemoryBridge.attachBackgroundWriter(memoryWriteWorker);
+    registerSharedMemoryWriteWorker(memoryWriteWorker);
   }
 
   const discordGateway = config.discordBotToken

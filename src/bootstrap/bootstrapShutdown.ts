@@ -11,6 +11,7 @@ import {
   CronDrainService,
   formatCronDrainForLog,
 } from '../services/CronDrainService.js';
+import { drainAllMemoryWrites } from '../services/memory/MemoryWriteWorker.js';
 
 export function registerShutdownHandlers(
   foundation: BootstrapFoundation,
@@ -62,6 +63,27 @@ export function registerShutdownHandlers(
     foundation.stopRuntimeMaintenance();
     runtimeServices.sysMonitor.stopHeartbeat();
     foundation.maintenanceAutomation.stop();
+
+    // Background memory write pipeline: drain pending episode writes and
+    // report exactly how many were abandoned so nothing disappears silently.
+    try {
+      const memoryDrain = await drainAllMemoryWrites(
+        Math.max(0, Number(process.env.ZAVORTH_MEMORY_WRITE_DRAIN_TIMEOUT_MS || 5_000) || 5_000),
+      );
+      if (memoryDrain.workers > 0) {
+        foundation.logRepo.log(
+          memoryDrain.abandoned > 0 ? 'warn' : 'info',
+          'MemoryWritePipeline',
+          `Drained background memory writes: ${memoryDrain.completed} completed, ${memoryDrain.failed} failed, ${memoryDrain.timedOut} timed out, ${memoryDrain.abandoned} abandoned.`,
+        );
+      }
+    } catch (error: unknown) {
+      foundation.logRepo.log(
+        'warn',
+        'MemoryWritePipeline',
+        `Memory write drain skipped: ${describeError(error)}`,
+      );
+    }
 
     await runtimeServices.terminalSidecar.stop().catch((error) => {
       foundation.logRepo.log('warn', 'ZavorthTerminalSidecar', `Failed to shut down remote sidecar: ${error.message || error}`);

@@ -10,6 +10,7 @@
 import type { ContextEvent } from './ContextEngine.js';
 import { buildUntrustedContextBlock, sanitizeTrustPlaneText } from '../runtime/agent/security/index.js';
 import type { MemoryService } from '../services/MemoryService.js';
+import type { MemoryWriteDrainReport, MemoryWriteWorker } from '../services/memory/MemoryWriteWorker.js';
 import { logger } from '../logger.js';
 
 /** Bridge configuration. */
@@ -70,6 +71,7 @@ export interface RecallResult {
 export class EpisodicMemoryBridge {
   private readonly config: EpisodicMemoryBridgeConfig;
   private memoryService: MemoryService | null = null;
+  private backgroundWriter: MemoryWriteWorker | null = null;
   private persistedEpisodeCount = 0;
   private recallCount = 0;
 
@@ -87,6 +89,28 @@ export class EpisodicMemoryBridge {
   }
 
   /**
+   * Routes episode persistence through the serialized background write worker
+   * (bounded timeout + shutdown drain) instead of awaiting the store inline.
+   */
+  public attachBackgroundWriter(worker: MemoryWriteWorker): void {
+    this.backgroundWriter = worker;
+    logger.info('[EpisodicMemoryBridge] Background memory write pipeline connected.', {
+      backend: worker.backendName,
+    });
+  }
+
+  /**
+   * Shutdown primitive: drains the background write pipeline and reports
+   * abandoned writes. Resolves an empty report when no writer is attached.
+   */
+  public drainBackgroundWrites(drainWindowMs?: number): Promise<MemoryWriteDrainReport> {
+    if (!this.backgroundWriter) {
+      return Promise.resolve({ completed: 0, failed: 0, timedOut: 0, abandoned: 0 });
+    }
+    return this.backgroundWriter.drain(drainWindowMs);
+  }
+
+  /**
    * AUTO-PERSIST: Consolidates old ContextEvents into an episode and persists it in MemoryService.
    * Called by ContextEngine when the buffer exceeds its limit.
    *
@@ -94,13 +118,39 @@ export class EpisodicMemoryBridge {
    * @param userId - User ID.
    */
   public async persistEpisode(events: ContextEvent[], userId: string): Promise<void> {
-    if (!this.config.autoPersist || !this.memoryService || events.length === 0) {
+    if (!this.config.autoPersist || events.length === 0) {
       return;
     }
 
     try {
       const episode = this.consolidateEvents(events);
       const episodeKey = `episode_${episode.startedAt.replace(/[^0-9]/g, '').slice(0, 12)}`;
+
+      if (this.backgroundWriter) {
+        // Governed v2 write path, serialized and timeout-bounded; the caller is
+        // never delayed by a slow store.
+        await this.backgroundWriter.enqueue({
+          userId,
+          content: episode.summary,
+          options: {
+            key: episodeKey,
+            metadata: {
+              category: 'episode',
+              surface: episode.surface,
+              turnCount: episode.turnCount,
+              topics: episode.topics,
+              startedAt: episode.startedAt,
+              endedAt: episode.endedAt,
+            },
+          },
+        });
+        this.persistedEpisodeCount += 1;
+        return;
+      }
+
+      if (!this.memoryService) {
+        return;
+      }
 
       await this.memoryService.remember(
         userId,
