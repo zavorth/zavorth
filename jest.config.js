@@ -40,8 +40,6 @@ module.exports = {
     '/tests/capabilities/(CapabilityRegistry|BuiltinCapabilitiesIdentity)\\.test\\.ts$',
     '/tests/contracts/(ZavorthTransactionLiveCandidateContract|ZavorthTransactionCertificationContract|StructuredAgentRunContract)\\.test\\.ts$',
     '/tests/scripts/(ProviderMeshConvergenceCheck|ProductizationContractCheck|AIGatewayNativeConvergenceCheck)\\.test\\.ts$',
-    // Checkpoint prune ordering is flaky under parallel CI filesystem timing.
-    '/tests/runtime/sessions/CheckpointStorage\\.test\\.ts$',
   ],
   moduleNameMapper: {
     '^@/shared/(.*)\\.js$': '<rootDir>/src/ai-gateway/shared/$1',
