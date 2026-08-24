@@ -85,6 +85,10 @@ function releaseBundle() {
   };
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('AgentRunService Release Installer Rollback Path Channel mesh8', () => {
   it('publishes run.metadata.releaseInstallerRollbackPath after Product Entry Runtime', async () => {
     const service = new AgentRunService({

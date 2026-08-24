@@ -13,6 +13,10 @@ function createIdFactory() {
   };
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('Gateway normalized inbound conformance', () => {
   it('accepts web, Telegram, Discord, API, CLI and external fixture requests through ZavorthAgentGateway', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(({ request }) => ({

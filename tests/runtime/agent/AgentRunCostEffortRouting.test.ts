@@ -1,3 +1,4 @@
+import { resolveCheapUserStackHop } from '../../../src/services/llm/UserStackCostRoute.js';
 import {
   applyCostEffortRouteToLlmOptions,
   classifyAgentRunCostEffortRoute,
@@ -36,6 +37,10 @@ function makeRequest(overrides: Partial<UniversalAgentRequest> = {}): UniversalA
     ...overrides,
   };
 }
+
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
 
 describe('AgentRunCostEffortRouting', () => {
   const previousBackgroundModel = process.env.ZAVORTH_BACKGROUND_MODEL;
@@ -91,11 +96,9 @@ describe('AgentRunCostEffortRouting', () => {
     }
   });
 
-  it('picks secondary model from user stack for background when no env', async () => {
+  it('picks secondary model from user stack for background when no env', () => {
     delete process.env.ZAVORTH_BACKGROUND_MODEL;
     delete process.env.ZAVORTH_BACKGROUND_PROVIDER;
-    const mod = await import('../../../src/services/llm/UserStackCostRoute.js');
-    const { resolveCheapUserStackHop } = mod;
     const pick = resolveCheapUserStackHop({
       selection: {
         providerId: 'ollama',

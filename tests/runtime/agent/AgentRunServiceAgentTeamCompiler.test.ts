@@ -5,6 +5,10 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-agent-team-${++index}`;
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('AgentRunService Agent Team Compiler Channel mesh0', () => {
   it('publishes run.metadata.agentTeamCompiler during the agent run lifecycle', async () => {
     const service = new AgentRunService({

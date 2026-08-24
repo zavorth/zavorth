@@ -8,6 +8,10 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-agent-self-config-${++index}`;
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('AgentRunService Agent Self Config', () => {
   it('publishes run.metadata.agentSelfConfig during the agent run lifecycle', async () => {
     const service = new AgentRunService({

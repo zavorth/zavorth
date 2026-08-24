@@ -6,6 +6,10 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-discovery-${++index}`;
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('AgentRunService Natural Capability Discovery', () => {
   it('stores discovery metadata and gates inferred dangerous tools behind approval', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>();

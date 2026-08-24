@@ -68,6 +68,10 @@ function publicAdoption() {
   };
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('AgentRunService Release Adoption Readiness Release Adoption Readiness', () => {
   it('publishes run.metadata.releaseAdoptionReadiness after integrationShowcasePartnerSurface', async () => {
     const service = new AgentRunService({

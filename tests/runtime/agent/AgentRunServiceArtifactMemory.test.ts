@@ -8,6 +8,10 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-agent-artifact-memory-${++index}`;
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('AgentRunService Artifact Memory Artifact Memory', () => {
   it('publishes run.metadata.artifactMemory during the agent run lifecycle', async () => {
     const service = new AgentRunService({

@@ -1,6 +1,10 @@
 import { AgentRunLlmRequestBuilder } from '../../../src/runtime/agent/AgentRunLlmRequestBuilder.js';
 import { AgentRunService } from '../../../src/runtime/agent/AgentRunService.js';
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('AgentRunLlmRequestBuilder composer context', () => {
   it('builds system + user messages and forwards safe media as provider inline data', () => {
     const service = new AgentRunService({ idFactory: (prefix) => `${prefix}-composer-context` });

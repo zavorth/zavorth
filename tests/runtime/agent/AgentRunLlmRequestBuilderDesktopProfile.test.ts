@@ -1,6 +1,10 @@
 import { AgentRunLlmRequestBuilder } from '../../../src/runtime/agent/AgentRunLlmRequestBuilder.js';
 import { AgentRunService } from '../../../src/runtime/agent/AgentRunService.js';
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('AgentRunLlmRequestBuilder desktop profile binding', () => {
   it('applies the selected desktop system prompt as a governed preference', () => {
     const service = new AgentRunService({

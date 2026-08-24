@@ -9,6 +9,10 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-observatory-${++index}`;
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('Run Observatory Run Observatory', () => {
   it('projects runs into receipts, timeline, replay and health without creating a parallel pipeline', async () => {
     const executor: UniversalAgentExecutor = ({ request, run }) => ({

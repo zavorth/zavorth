@@ -9,6 +9,10 @@ function createIdFactory() {
   };
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('AgentRunService smoke', () => {
   it('produces a channel-neutral reply with observable run context and tool exposure', async () => {
     const service = new AgentRunService({

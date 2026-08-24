@@ -8,6 +8,10 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-agent-tool-rehearsal-${++index}`;
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('AgentRunService Tool Rehearsal Tool Rehearsal', () => {
   it('runs Tool Rehearsal after scope approval and before executor', async () => {
     const executor = jest.fn(() => ({

@@ -25,6 +25,10 @@ function createPassThroughOnboardingGate(): ChannelMeshOnboardingGate {
   return new ChannelMeshOnboardingGate({ isGlobalProfileComplete: () => true });
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('ZavorthAgentGateway', () => {
   it('runs a channel-neutral agent execution and replies through the origin port', async () => {
     const executor: UniversalAgentExecutor = ({ run }) => ({

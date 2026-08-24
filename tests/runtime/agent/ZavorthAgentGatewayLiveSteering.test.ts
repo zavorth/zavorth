@@ -2,6 +2,10 @@ import { ZavorthAgentGateway } from '../../../src/runtime/agent/ZavorthAgentGate
 import type { ChatMessage, ToolDefinition } from '../../../src/providers/ILlmProvider.js';
 import type { LlmRuntimeResult } from '../../../src/services/llm/LlmRuntimeService.js';
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('ZavorthAgentGateway live LLM steering', () => {
   it('aborts and reissues the active LLM call when /steer arrives mid-flight', async () => {
     const capturedMessages: ChatMessage[][] = [];

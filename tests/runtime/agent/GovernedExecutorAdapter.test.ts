@@ -12,6 +12,10 @@ function createIdFactory() {
   };
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('GovernedExecutorAdapter', () => {
   it('wraps legacy supervised execution behind AgentRunService and UniversalAgentExecutorResult', async () => {
     const legacyExecutor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({

@@ -34,6 +34,10 @@ function buildStubOperator(): {
   };
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('Trusted Operator read-only wiring', () => {
   it('auto-approves green-lane read-only actions while enabled with the default flag', () => {
     const tmp = mkdtempSync(path.join(os.tmpdir(), 'zavorth-to-ro-'));

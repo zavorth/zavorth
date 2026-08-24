@@ -4,6 +4,10 @@ import {
 } from '../../../src/runtime/agent/index.js';
 import { ReplyPipeline } from '../../../src/runtime/reply/index.js';
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('P0-002c CoreMessageTool reconciliation', () => {
   it('keeps normal outbound replies on replyText plus the existing ReplyPipeline', async () => {
     let sequence = 0;

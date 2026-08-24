@@ -6,6 +6,10 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-natural-approval-${++index}`;
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('AgentRunService Natural First Approval Safety Surface controls', () => {
   it('opens a fallback approval for sensitive Natural First intent with no mapped tool', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({

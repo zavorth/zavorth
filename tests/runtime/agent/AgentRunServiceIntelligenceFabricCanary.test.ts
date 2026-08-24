@@ -67,6 +67,10 @@ function createMutationPlaneMock() {
   };
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('AgentRunService Intelligence Fabric canary', () => {
   it('uses Intelligence Fabric as the default orchestrator while retaining current runtime fallback', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({

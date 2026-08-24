@@ -8,6 +8,10 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-${++index}`;
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('ZavorthAgentGateway runtime promotion governance', () => {
   it('exposes C6 promotion status without selling experimental components as ready', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({

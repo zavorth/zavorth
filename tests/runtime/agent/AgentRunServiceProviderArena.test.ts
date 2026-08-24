@@ -8,6 +8,10 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-provider-arena-${++index}`;
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('AgentRunService Provider Arena Provider Arena', () => {
   it('attaches providerArena after LLM route correlation and run budget', async () => {
     const service = new AgentRunService({

@@ -8,6 +8,10 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-uni-trust-${++index}`;
 }
 
+// Contention budget: agent-run pipeline tests exceed the 5s Jest default
+// when full-group parallel workers load the machine.
+jest.setTimeout(120000);
+
 describe('AgentRunService UNI / Trust enforcement Channel mesh4', () => {
   it('publishes universalIntentTrustEnforcement before the executor runs', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(({ run }) => ({
