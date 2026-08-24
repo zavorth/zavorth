@@ -12,6 +12,7 @@ import {
 } from '../SessionContinuumService.js';
 import type { ZavorthSessionRecallSnapshot } from '../ZavorthSessionRecallService.js';
 import { isContinuumCaptureEnabled } from './LearnedKnowledgeFlags.js';
+import { stripMemoryScaffolding } from '../memory/MemoryIngestionHygiene.js';
 import { logger } from '../../logger.js';
 
 const SECRET_RE = /\b(?:api[_-]?key|token|password|secret|authorization|bearer|client_secret)\s*[:=]\s*\S+/gi;
@@ -89,8 +90,8 @@ export function captureConversationTurn(
   input: CaptureConversationTurnInput,
 ): SessionContinuumAppendTurnResult | null {
   if (!isContinuumCaptureEnabled()) return null;
-  const userMessage = redactConversationText(String(input.userMessage || '')).slice(0, 8000);
-  const assistantMessage = redactConversationText(String(input.assistantMessage || '')).slice(0, 8000);
+  const userMessage = stripMemoryScaffolding(redactConversationText(String(input.userMessage || ''))).slice(0, 8000);
+  const assistantMessage = stripMemoryScaffolding(redactConversationText(String(input.assistantMessage || ''))).slice(0, 8000);
   if (!userMessage && !assistantMessage) return null;
   try {
     const continuum = getConversationContinuum({

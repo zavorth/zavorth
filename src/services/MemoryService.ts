@@ -4,6 +4,7 @@ import { SecureStorageService } from './SecureStorageService.js';
 import { VectorEmbeddingService } from './VectorEmbeddingService.js';
 import { MemoryDraftStoreService } from './MemoryDraftStoreService.js';
 import { writeGovernedMemoryProvenance } from './AgentProvenanceMemoryBridge.js';
+import { stripMemoryScaffolding } from './memory/MemoryIngestionHygiene.js';
 import { logger } from '../logger.js';
 const VECTOR_DIMENSIONS = 768;
 
@@ -146,7 +147,7 @@ export class MemoryService {
   ): Promise<void> {
     await this.init();
     const normalizedKey = key.trim().toLowerCase();
-    const normalizedValue = value.trim();
+    const normalizedValue = stripMemoryScaffolding(value);
     const normalizedCategory = category.trim().toLowerCase() || 'general';
 
     if (!normalizedKey || !normalizedValue) {
