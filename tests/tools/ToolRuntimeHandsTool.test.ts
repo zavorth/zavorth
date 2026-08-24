@@ -1,5 +1,5 @@
 
-import { EchoHandsTool } from '../../src/tools/EchoHandsTool';
+import { EchoHandsTool } from '../../src/tools/ToolRuntimeHandsTool';
 
 describe('EchoHandsTool', () => {
   it('exposes the echo_hands declarative action contract', async () => {
