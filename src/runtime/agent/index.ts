@@ -557,7 +557,7 @@ export type {
 } from './BlueprintCompletionGateService.js';
 export {
   PROVIDER_EVALUATION_CONTRACT_VERSION,
-  PROVIDER_EVALUATION_CONTRACT_VERSION as PROVIDER_ARENA_CONTRACT_VERSION,
+  PROVIDER_ARENA_CONTRACT_VERSION,
   ProviderEvaluationService,
   ProviderEvaluationService as ProviderArenaService,
 } from './ProviderEvaluationService.js';
