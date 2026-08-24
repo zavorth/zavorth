@@ -142,6 +142,8 @@ export class ContextEngine {
   private readonly lastAccessBySession: Map<string, number> = new Map();
   /** Last compaction timestamp per session (anti-thrash). */
   private readonly lastCompactAtBySession: Map<string, number> = new Map();
+  /** Most recent workspace scope per session, reused when persisting episodes. */
+  private readonly workspaceScopeBySession: Map<string, string> = new Map();
 
   constructor(options: ContextEngineOptions = {}) {
     this.now = options.now || (() => new Date());
@@ -473,7 +475,8 @@ export class ContextEngine {
     if (this.episodicBridge && toCompact.length > 0) {
       const userId = toCompact[0]?.userId;
       if (userId) {
-        void this.episodicBridge.persistEpisode(toCompact, userId).catch((err) => {
+        const workspaceScope = this.workspaceScopeBySession.get(key);
+        void this.episodicBridge.persistEpisode(toCompact, userId, workspaceScope).catch((err) => {
           log.error('[ContextEngine] Failed to persist episode:', err);
         });
       }
@@ -554,6 +557,7 @@ export class ContextEngine {
     this.summaries.delete(key);
     this.lastAccessBySession.delete(key);
     this.lastCompactAtBySession.delete(key);
+    this.workspaceScopeBySession.delete(key);
   }
 
   /**
@@ -571,6 +575,10 @@ export class ContextEngine {
     inlineData?: ContextEvent['inlineData'],
   ): Promise<ContextEngineDecision> {
     const key = this.sessionKey(chatId, userId);
+    const workspaceScope = deriveWorkspaceScope(workspaceContext);
+    if (workspaceScope) {
+      this.workspaceScopeBySession.set(key, workspaceScope);
+    }
     const firewallDecision = await this.firewall.evaluateAsync(userMessage, allTools, { sessionId: key });
 
     // Adaptive Persona Engine - Dynamic persona resolution based on intent
@@ -619,7 +627,7 @@ export class ContextEngine {
     // Auto-recall from long-term memory (injected before user message).
     let memoryRecall: ContextEngineDecision['memoryRecall'];
     if (this.episodicBridge) {
-      const recall = await this.episodicBridge.recall(userMessage, userId);
+      const recall = await this.episodicBridge.recall(userMessage, userId, workspaceScope ?? undefined);
       if (recall.contextBlock) {
         messages.push({
           role: 'system',
@@ -712,4 +720,20 @@ export class ContextEngine {
     }
     return merged;
   }
+}
+
+/**
+ * Derives a stable workspace memory scope from the workspace context hint
+ * (usually a path): the last meaningful path segment, lowercased. Returns null
+ * for empty hints so unscoped turns keep global recall behavior.
+ */
+export function deriveWorkspaceScope(workspaceContext?: string | null): string | null {
+  const raw = String(workspaceContext || '').trim();
+  if (!raw) {
+    return null;
+  }
+  const segments = raw.split(/[\\/]+/).filter(Boolean);
+  const base = (segments[segments.length - 1] || raw).toLowerCase();
+  const slug = base.replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
+  return slug || null;
 }

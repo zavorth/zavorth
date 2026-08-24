@@ -117,7 +117,7 @@ export class EpisodicMemoryBridge {
    * @param events - Compacted ContextEngine events.
    * @param userId - User ID.
    */
-  public async persistEpisode(events: ContextEvent[], userId: string): Promise<void> {
+  public async persistEpisode(events: ContextEvent[], userId: string, workspaceScope?: string | null): Promise<void> {
     if (!this.config.autoPersist || events.length === 0) {
       return;
     }
@@ -141,6 +141,7 @@ export class EpisodicMemoryBridge {
               topics: episode.topics,
               startedAt: episode.startedAt,
               endedAt: episode.endedAt,
+              ...(workspaceScope ? { workspace: workspaceScope } : {}),
             },
           },
         });
@@ -157,6 +158,7 @@ export class EpisodicMemoryBridge {
         episodeKey,
         episode.summary,
         'episode',
+        { workspace: workspaceScope },
       );
 
       this.persistedEpisodeCount++;
@@ -178,7 +180,7 @@ export class EpisodicMemoryBridge {
    * @param userId - User ID.
    * @returns RecallResult with memories and a context block.
    */
-  public async recall(userMessage: string, userId: string): Promise<RecallResult> {
+  public async recall(userMessage: string, userId: string, workspaceScope?: string | null): Promise<RecallResult> {
     const emptyResult: RecallResult = {
       memories: [],
       contextBlock: '',
@@ -197,6 +199,7 @@ export class EpisodicMemoryBridge {
         userId,
         userMessage,
         this.config.maxRecallPerTurn,
+        { workspaceScope },
       );
 
       const searchTimeMs = Date.now() - startTime;

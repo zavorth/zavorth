@@ -62,6 +62,7 @@ export class LocalMemoryBackend implements IMemoryBackend {
 
     await this.memoryService.remember(userId, key, text, category, {
       metadata,
+      workspace: typeof meta.workspace === 'string' ? meta.workspace : undefined,
     });
 
     const entry = await this.memoryService.getByKey(userId, key, { includeDeleted: true });

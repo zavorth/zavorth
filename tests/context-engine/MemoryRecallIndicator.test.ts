@@ -47,7 +47,7 @@ describe('ContextEngine memory recall indicator', () => {
       'system instruction',
     );
 
-    expect(bridge.recall).toHaveBeenCalledWith('what stack do I usually use?', 'user-1');
+    expect(bridge.recall).toHaveBeenCalledWith('what stack do I usually use?', 'user-1', undefined);
     expect(decision.memoryRecall).toBeDefined();
     expect(decision.memoryRecall?.informed).toBe(true);
     expect(decision.memoryRecall?.memoryCount).toBe(2);

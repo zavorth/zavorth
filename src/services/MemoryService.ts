@@ -23,16 +23,22 @@ export interface MemoryEntry {
   deleted_at?: string | null;
   /** JSON metadata blob. */
   metadata_json?: string | null;
+  /** Optional workspace scope; NULL = visible across all workspaces for the user. */
+  workspace?: string | null;
 }
 
 export type MemoryRememberOptions = {
   metadata?: Record<string, unknown> | null;
+  /** Optional workspace scope; omitted/empty keeps the row globally visible to the user. */
+  workspace?: string | null;
 };
 
 export type MemoryListOptions = {
   includeDeleted?: boolean;
   category?: string | string[] | null;
   limit?: number;
+  /** When provided, only rows persisted under this workspace scope are returned. */
+  workspaceScope?: string | null;
 };
 
 type MemoryCandidate = {
@@ -89,6 +95,7 @@ export class MemoryService {
     // soft delete + metadata for IMemoryBackend v2
     this.ensureColumn('user_memory', 'deleted_at', 'TEXT');
     this.ensureColumn('user_memory', 'metadata_json', 'TEXT');
+    this.ensureColumn('user_memory', 'workspace', 'TEXT');
     this.db.run('CREATE INDEX IF NOT EXISTS idx_user_memory_deleted_at ON user_memory(user_id, deleted_at)');
     this.db.run(`
       CREATE TABLE IF NOT EXISTS user_memory_history (
@@ -149,6 +156,7 @@ export class MemoryService {
     const normalizedKey = key.trim().toLowerCase();
     const normalizedValue = stripMemoryScaffolding(value);
     const normalizedCategory = category.trim().toLowerCase() || 'general';
+    const workspaceScope = normalizeWorkspaceScope(options.workspace);
 
     if (!normalizedKey || !normalizedValue) {
       throw new Error('Memory key and value must be filled in.');
@@ -176,13 +184,13 @@ export class MemoryService {
       }
       // Re-write clears soft-delete (undelete on remember)
       this.db.run(
-        'UPDATE user_memory SET value = ?, category = ?, embedding = ?, updated_at = ?, deleted_at = NULL, metadata_json = COALESCE(?, metadata_json) WHERE user_id = ? AND key = ?',
-        [encryptedValue, normalizedCategory, embedding, now, metadataJson, userId, normalizedKey],
+        'UPDATE user_memory SET value = ?, category = ?, embedding = ?, updated_at = ?, deleted_at = NULL, metadata_json = COALESCE(?, metadata_json), workspace = COALESCE(?, workspace) WHERE user_id = ? AND key = ?',
+        [encryptedValue, normalizedCategory, embedding, now, metadataJson, workspaceScope, userId, normalizedKey],
       );
     } else {
       this.db.run(
-        'INSERT INTO user_memory (user_id, key, value, category, embedding, created_at, updated_at, deleted_at, metadata_json) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?)',
-        [userId, normalizedKey, encryptedValue, normalizedCategory, embedding, now, now, metadataJson],
+        'INSERT INTO user_memory (user_id, key, value, category, embedding, created_at, updated_at, deleted_at, metadata_json, workspace) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)',
+        [userId, normalizedKey, encryptedValue, normalizedCategory, embedding, now, now, metadataJson, workspaceScope],
       );
     }
   }
@@ -201,11 +209,13 @@ export class MemoryService {
     await this.init();
     const limit = Math.max(1, Math.min(Number(options.limit) || 50, 200));
     const includeDeleted = options.includeDeleted === true;
+    const scopeFilter = workspaceScopeFilter(options.workspaceScope);
     const rows = this.db
       .all<MemoryEntry>(
-        includeDeleted ? 'SELECT * FROM user_memory WHERE user_id = ? ORDER BY updated_at DESC LIMIT ?'
-          : "SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT ?",
-        [userId, limit],
+        includeDeleted
+          ? `SELECT * FROM user_memory WHERE user_id = ?${scopeFilter.clause} ORDER BY updated_at DESC LIMIT ?`
+          : `SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '')${scopeFilter.clause} ORDER BY updated_at DESC LIMIT ?`,
+        [userId, ...scopeFilter.params, limit],
       )
       .map((entry) => this.mapEntry(entry));
     return this.filterEntriesByCategory(rows, options.category);
@@ -232,11 +242,13 @@ export class MemoryService {
 
     const queryEmbedding = await this.generateEmbedding(normalizedQuery);
     const includeDeleted = options.includeDeleted === true;
+    const scopeFilter = workspaceScopeFilter(options.workspaceScope);
     const entries = this.db
       .all<MemoryEntry>(
-        includeDeleted ? 'SELECT * FROM user_memory WHERE user_id = ? ORDER BY updated_at DESC LIMIT 80'
-          : "SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT 80",
-        [userId],
+        includeDeleted
+          ? `SELECT * FROM user_memory WHERE user_id = ?${scopeFilter.clause} ORDER BY updated_at DESC LIMIT 80`
+          : `SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '')${scopeFilter.clause} ORDER BY updated_at DESC LIMIT 80`,
+        [userId, ...scopeFilter.params],
       )
       .map((entry) => this.mapEntry(entry));
 
@@ -730,4 +742,18 @@ export class MemoryService {
 
     this.db.run(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
   }
+}
+
+/** Empty/whitespace scopes normalize to null (unscoped); values are stable lowercase slugs. */
+function normalizeWorkspaceScope(value: string | null | undefined): string | null {
+  const normalized = String(value || '').trim();
+  return normalized ? normalized.toLowerCase() : null;
+}
+
+function workspaceScopeFilter(scope: string | null | undefined): { clause: string; params: unknown[] } {
+  const normalized = String(scope ?? '').trim();
+  if (!normalized) {
+    return { clause: '', params: [] };
+  }
+  return { clause: ' AND workspace = ?', params: [normalized.toLowerCase()] };
 }
