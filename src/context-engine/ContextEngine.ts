@@ -76,6 +76,15 @@ export interface ContextEngineDecision {
   intentCategory: string;
   /** Session ID used for predictive loading and injection tracking. */
   sessionId: string;
+  /**
+   * Non-sensitive episodic-recall indicator (counts and timing only, never
+   * memory content) for user-facing "memory informed this reply" surfacing.
+   */
+  memoryRecall?: {
+    informed: boolean;
+    memoryCount: number;
+    searchTimeMs: number;
+  };
   /** Resolved persona type (executor, creative, analytical, conversational, researcher). */
   personaType?: string;
   /** Confidence score for the resolved persona. */
@@ -608,6 +617,7 @@ export class ContextEngine {
     }
 
     // Auto-recall from long-term memory (injected before user message).
+    let memoryRecall: ContextEngineDecision['memoryRecall'];
     if (this.episodicBridge) {
       const recall = await this.episodicBridge.recall(userMessage, userId);
       if (recall.contextBlock) {
@@ -616,6 +626,11 @@ export class ContextEngine {
           content: recall.contextBlock,
         });
       }
+      memoryRecall = {
+        informed: recall.memories.length > 0 && Boolean(recall.contextBlock),
+        memoryCount: recall.memories.length,
+        searchTimeMs: recall.searchTimeMs,
+      };
     }
 
     // Add recent conversation events (excluding the current user message to avoid duplication).
@@ -664,6 +679,7 @@ export class ContextEngine {
       firewallStats: firewallDecision.stats,
       intentCategory: firewallDecision.classification.category,
       sessionId: key,
+      ...(memoryRecall ? { memoryRecall } : {}),
       personaType: personaResolution.persona.type,
       personaConfidence: personaResolution.confidence,
       personaIsAmbiguous: personaResolution.isAmbiguous,

@@ -137,6 +137,11 @@ type ConversationalToolPolicyDecision = {
   toolHintProfile?: ToolGatekeeperHintProfile;
   recommendedToolNames?: string[];
   toolExposureGatedByCognitiveFirewall?: boolean;
+  memoryRecall?: {
+    informed: boolean;
+    memoryCount: number;
+    searchTimeMs: number;
+  };
 };
 type ConversationalToolPolicyInput = {
   tools: ToolDefinition[];
@@ -154,6 +159,18 @@ const MAX_TOOL_RESULT_CHARS_FOR_LLM = 12_000;
 const KEEP_RECENT_TOOL_MESSAGES = 4;
 /** After this many tool rounds, compact older tool I/O before the next LLM call. */
 const COMPACT_HISTORY_AFTER_ROUNDS = 2;
+
+/**
+ * Non-sensitive recall indicator for the reply footer: exposes only counts,
+ * never memory content, and renders nothing when memory did not inform the turn.
+ */
+function buildMemoryRecallIndicator(contextDecision?: ConversationalToolPolicyDecision | null): string | null {
+  const recall = contextDecision?.memoryRecall;
+  if (!recall || !recall.informed || recall.memoryCount <= 0) {
+    return null;
+  }
+  return `Recalled ${recall.memoryCount} relevant long-term memor${recall.memoryCount === 1 ? 'y' : 'ies'} while composing this reply.`;
+}
 
 export class ConversationalAgent {
   private readonly llmRuntime: LlmRuntimeService;
@@ -614,6 +631,12 @@ export class ConversationalAgent {
         options?.allowLearningWrite,
         options?.chatId,
       );
+    }
+
+    // User-facing, non-sensitive recall indicator: counts only, never memory content.
+    const recallIndicator = buildMemoryRecallIndicator(contextDecision);
+    if (recallIndicator) {
+      safeResponseText = `${safeResponseText}\n\n${recallIndicator}`.trim();
     }
 
     // Conversation continuum capture (Learned Knowledge · Conversation recall pillar).
