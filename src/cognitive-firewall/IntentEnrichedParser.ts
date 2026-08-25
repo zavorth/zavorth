@@ -1,7 +1,7 @@
 /**
  * IntentEnrichedParser - command parser with runtime intent enrichment.
  *
- * Wraps the original CommandParser and adds the NaturalLanguageRouter result
+ * Wraps the channel command parser and adds the NaturalLanguageRouter result
  * to ParsedCommand. When free text without "/" arrives, the original parser
  * assigns command_type = "/task" and ignores semantics. This wrapper adds:
  *
@@ -10,7 +10,7 @@
  * - firewallStats: filtering statistics
  */
 
-import { CommandParser, type ParsedCommand } from '../gateways/channels/telegram/CommandParser.js';
+import { ChannelCommandParser, type ParsedCommand } from '../channels/commands/ChannelCommandParser.js';
 import { NaturalLanguageRouter, type NaturalRouteDecision } from './NaturalLanguageRouter.js';
 
 export interface IntentEnrichedCommand extends ParsedCommand {
@@ -19,11 +19,11 @@ export interface IntentEnrichedCommand extends ParsedCommand {
 }
 
 export class IntentEnrichedParser {
-  private readonly commandParser = new CommandParser();
+  private readonly commandParser = new ChannelCommandParser();
   private readonly naturalRouter = new NaturalLanguageRouter();
 
   /**
-   * Parses like the original CommandParser, then enriches free text with
+   * Parses like the channel command parser, then enriches free text with
    * NaturalLanguageRouter output.
    */
   public parse(rawMessage: string): IntentEnrichedCommand {

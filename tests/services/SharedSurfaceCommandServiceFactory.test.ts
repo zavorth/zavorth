@@ -1,4 +1,4 @@
-import { CommandParser } from '../../src/telegram/CommandParser';
+import { ChannelCommandParser } from '../../src/channels/commands/ChannelCommandParser';
 import { ZavorthChannelActionService } from '../../src/services/ZavorthChannelActionService';
 import { ZavorthChannelMeshService } from '../../src/services/ZavorthChannelMeshService';
 import { buildSharedSurfaceCommandServiceComposition } from '../../src/domain/surface/presentation/shared-surface/factory/SharedSurfaceCommandServiceFactory.js';
@@ -12,7 +12,7 @@ describe('buildSharedSurfaceCommandServiceComposition', () => {
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
     });
 
-    expect(composition.parser).toBeInstanceOf(CommandParser);
+    expect(composition.parser).toBeInstanceOf(ChannelCommandParser);
     expect(composition.controlPlaneCommandPack).toBeInstanceOf(SharedSurfaceControlPlaneCommandPack);
     expect(composition.presentationCommandPack).toBeInstanceOf(SharedSurfacePresentationCommandPack);
     expect(composition.taskControlCommandPack).toBeInstanceOf(SharedSurfaceTaskControlCommandPack);
@@ -23,7 +23,7 @@ describe('buildSharedSurfaceCommandServiceComposition', () => {
   });
 
   it('preserves injected parser and channel services', () => {
-    const parser = new CommandParser();
+    const parser = new ChannelCommandParser();
     const channelMeshService = new ZavorthChannelMeshService();
     const channelActionService = new ZavorthChannelActionService({
       channelMeshService,

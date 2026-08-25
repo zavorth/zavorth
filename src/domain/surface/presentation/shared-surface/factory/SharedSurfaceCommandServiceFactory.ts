@@ -24,7 +24,7 @@ import { ZavorthTeamCatalogService } from "../../../../../services/ZavorthTeamCa
 import { ZavorthTenantGovernanceActionService } from "../../../../../services/ZavorthTenantGovernanceActionService.js";
 import { ZavorthTenantGovernanceService } from "../../../../../services/ZavorthTenantGovernanceService.js";
 import { IntegrationHubService } from "../../../../../services/IntegrationHubService.js";
-import { CommandParser } from "../../../../../gateways/channels/telegram/CommandParser.js";
+import { ChannelCommandParser } from "../../../../../channels/commands/ChannelCommandParser.js";
 import { DiscordSurfacePolicyService } from "../../../../../services/DiscordSurfacePolicyService.js";
 import { ZavorthNodeMeshService } from "../../../../../services/ZavorthNodeMeshService.js";
 import { NodeCapabilityService } from "../../../../../services/NodeCapabilityService.js";
@@ -93,7 +93,7 @@ export type { SharedSurfaceCommandServiceDeps };
 export function buildSharedSurfaceCommandServiceComposition(
   deps: SharedSurfaceCommandServiceDeps,
 ) {
-  const parser = deps.parser || new CommandParser();
+  const parser = deps.parser || new ChannelCommandParser();
   const supervisedRuntimeService =
     deps.supervisedRuntimeService || new SupervisedRuntimeService();
   const autoRepairService = deps.autoRepairService || new AutoRepairService();
@@ -551,7 +551,7 @@ export function buildSharedSurfaceCommandServiceComposition(
 export type SharedSurfaceCommandServiceComposition = ReturnType<
   typeof buildSharedSurfaceCommandServiceComposition
 > & {
-  parser: CommandParser;
+  parser: ChannelCommandParser;
   channelActionService: ZavorthChannelActionService;
   channelMeshService: ZavorthChannelMeshService;
   discordSurfacePolicyService: DiscordSurfacePolicyService;

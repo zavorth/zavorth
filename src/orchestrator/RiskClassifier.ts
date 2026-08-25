@@ -1,5 +1,5 @@
 import { RouteIntent } from './IntentRouter.js';
-import { ParsedCommand } from '../gateways/channels/telegram/CommandParser.js';
+import { ParsedCommand } from '../channels/commands/ChannelCommandParser.js';
 
 export interface RiskClassification {
   risk_level: number;

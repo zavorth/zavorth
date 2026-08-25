@@ -32,7 +32,7 @@ import type { ZavorthTeamCatalogService } from "../../../../../services/ZavorthT
 import type { ZavorthTenantGovernanceActionService } from "../../../../../services/ZavorthTenantGovernanceActionService.js";
 import type { ZavorthTenantGovernanceService } from "../../../../../services/ZavorthTenantGovernanceService.js";
 import type { IntegrationHubService } from "../../../../../services/IntegrationHubService.js";
-import type { CommandParser } from "../../../../../gateways/channels/telegram/CommandParser.js";
+import type { ChannelCommandParser } from "../../../../../channels/commands/ChannelCommandParser.js";
 import type { DiscordSurfacePolicyService } from "../../../../../services/DiscordSurfacePolicyService.js";
 import type { ZavorthNodeMeshService } from "../../../../../services/ZavorthNodeMeshService.js";
 import type { NodeCapabilityService } from "../../../../../services/NodeCapabilityService.js";
@@ -125,7 +125,7 @@ export type SharedSurfaceCommandServiceDeps = {
   nodeInvokeService?: NodeInvokeService;
   nodeCapabilityService?: NodeCapabilityService;
   nodeDeviceProfileService?: NodeDeviceProfileService;
-  parser?: CommandParser;
+  parser?: ChannelCommandParser;
   discordSurfacePolicyService?: DiscordSurfacePolicyService;
   providerControlPlaneService?: ProviderControlPlaneService;
   providerDoctorService?: ProviderDoctorService;

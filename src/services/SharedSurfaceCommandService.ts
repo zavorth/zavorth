@@ -3,7 +3,7 @@ import {
   ZavorthChannelActionService,
   type BroadcastCapableGateway,
 } from './ZavorthChannelActionService.js';
-import type { ParsedCommand } from '../gateways/channels/telegram/CommandParser.js';
+import type { ParsedCommand } from '../channels/commands/ChannelCommandParser.js';
 import { isSharedSurfaceServiceCommandType } from './SharedSurfaceCommandContract.js';
 import {
   dispatchSharedSurfaceBuiltinCommand,

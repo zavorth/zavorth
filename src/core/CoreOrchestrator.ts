@@ -3,7 +3,7 @@ import { PlatformGatewayContract, PlatformKey, TaskSource } from '../contracts/P
 import { LogRepository } from '../storage/LogRepository.js';
 import type { SurfaceTaskDispatcherLike, SurfaceControllerContext } from '../services/SurfaceRuntime.js';
 import type { EchoOutputStageService } from '../services/EchoOutputStageService.js';
-import { CommandParser } from '../gateways/channels/telegram/CommandParser.js';
+import { ChannelCommandParser } from '../channels/commands/ChannelCommandParser.js';
 import {
   createInternalSurfaceCommandApi,
   type SurfaceCommandBoundary,
@@ -36,7 +36,7 @@ import type {
 } from '../runtime/agent/index.js';
 import { canActorWriteLearning } from '../services/ZavorthLearningWriteAuth.js';
 import { asErrorLike, errorMessage } from '../utils/errorLike.js';
-type ParsedCoreCommand = ReturnType<CommandParser['parse']>;
+type ParsedCoreCommand = ReturnType<ChannelCommandParser['parse']>;
 
 type CoreOrchestratorPipelineState = {
   ctx: IMessageContext;
@@ -59,7 +59,7 @@ type CoreOrchestratorPipelineHandler = {
 export class CoreOrchestrator implements IMessageBroker {
   private gateways: Map<PlatformKey, PlatformGatewayContract> = new Map();
   private surfaceTaskDispatcher: SurfaceTaskDispatcherLike | null = null;
-  private readonly commandParser = new CommandParser();
+  private readonly commandParser = new ChannelCommandParser();
   private sharedSurfaceCommandService: SurfaceCommandBoundary | null = null;
   private readonly discordSurfacePolicyService: DiscordSurfacePolicyService;
   private contextEngine: ContextEngine | null = null;

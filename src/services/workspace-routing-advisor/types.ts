@@ -1,4 +1,4 @@
-import type { ParsedCommand } from '../../gateways/channels/telegram/CommandParser.js';
+import type { ParsedCommand } from '../../channels/commands/ChannelCommandParser.js';
 import type { RouteIntent } from '../../orchestrator/IntentRouter.js';
 import type { WorkspaceProfile } from '../WorkspaceProfileService.js';
 import type { WorkspaceOperationalMemory } from '../WorkspaceOperationalMemoryService.js';

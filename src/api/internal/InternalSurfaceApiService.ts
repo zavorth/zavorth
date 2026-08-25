@@ -7,7 +7,7 @@ import {
   type CommandResult,
 } from '../../contracts/InternalBoundaryContract.js';
 import type { SharedSurfaceCommandService } from '../../services/SharedSurfaceCommandService.js';
-import type { ParsedCommand } from '../../gateways/channels/telegram/CommandParser.js';export type InternalSurfaceApiDeps = {
+import type { ParsedCommand } from '../../channels/commands/ChannelCommandParser.js';export type InternalSurfaceApiDeps = {
   commandService: Pick<SharedSurfaceCommandService, 'maybeHandle'>;
 };
 

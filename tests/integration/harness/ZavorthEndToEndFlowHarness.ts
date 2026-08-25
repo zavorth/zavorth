@@ -1,4 +1,4 @@
-import { CommandParser, type ParsedCommand } from '../../../src/telegram/CommandParser';
+import { ChannelCommandParser, type ParsedCommand } from '../../../src/channels/commands/ChannelCommandParser';
 import { GatewayPermissionBroker } from '../../../src/telegram/bot-gateway/GatewayPermissionBroker';
 import {
   processTextMessage,
@@ -47,7 +47,7 @@ type WebSessionState = {
 };
 
 export class ZavorthEndToEndFlowHarness {
-  public readonly parser = new CommandParser();
+  public readonly parser = new ChannelCommandParser();
   public readonly replies: FlowReply[] = [];
   public readonly telemetryEvents: FlowTelemetryEvent[] = [];
   public readonly executorCalls: ExecutorCall[] = [];

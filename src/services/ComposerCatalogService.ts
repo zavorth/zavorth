@@ -7,11 +7,11 @@ import type {
 } from '../contracts/WebComposer.js';
 import type {
   CommandCatalogEntry,
-} from '../gateways/channels/telegram/commandCatalog.js';
+} from '../channels/commands/ChannelCommandCatalog.js';
 import {
   COMMAND_ALIASES,
-  TELEGRAM_COMMAND_CATALOG,
-} from '../gateways/channels/telegram/commandCatalog.js';
+  CHANNEL_COMMAND_CATALOG,
+} from '../channels/commands/ChannelCommandCatalog.js';
 import { SkillLoader, type SkillMetadata } from '../skills/SkillLoader.js';
 
 
@@ -54,7 +54,7 @@ export class ComposerCatalogService {
   constructor(options: ComposerCatalogServiceOptions = {}) {
     this.taskManager = options.taskManager || null;
     this.permissionService = options.permissionService || null;
-    this.commandCatalog = options.commandCatalog || TELEGRAM_COMMAND_CATALOG;
+    this.commandCatalog = options.commandCatalog || CHANNEL_COMMAND_CATALOG;
     this.commandAliases = options.commandAliases || COMMAND_ALIASES;
     this.loadSkills = options.loadSkills || (() => new SkillLoader().loadAll());
     this.workflowRunService = options.workflowRunService || new WorkflowRunService();

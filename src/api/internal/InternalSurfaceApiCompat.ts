@@ -1,7 +1,7 @@
 import type { IMessageContext } from '../../contracts/IMessageBroker.js';
 import type { CommandRequest, CommandResult } from '../../contracts/InternalBoundaryContract.js';
 import type { SharedSurfaceCommandService } from '../../services/SharedSurfaceCommandService.js';
-import type { ParsedCommand } from '../../gateways/channels/telegram/CommandParser.js';
+import type { ParsedCommand } from '../../channels/commands/ChannelCommandParser.js';
 import { InternalSurfaceApiService } from './InternalSurfaceApiService.js';
 
 export type LegacySurfaceCommandDelegate = Pick<SharedSurfaceCommandService, 'maybeHandle'>;
