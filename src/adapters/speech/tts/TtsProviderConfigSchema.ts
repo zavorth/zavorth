@@ -174,6 +174,16 @@ const mcpTtsProviderSchema = ttsProviderBaseSchema.extend({
 });
 
 /**
+ * Gemini voice service transport: the local GeminiVoiceService provider
+ * (generateContent TTS shape -> PCM16 wrapped into a WAV file). The service
+ * resolves its own config/env defaults; only an optional API base URL override.
+ */
+const geminiVoiceServiceTtsProviderSchema = ttsProviderBaseSchema.extend({
+  transport: z.literal('gemini-voice-service'),
+  apiBaseUrl: z.string().min(1).optional(),
+});
+
+/**
  * Discriminated union: the `transport` field selects the config variant,
  * guaranteeing every provider config is fully validated at load time.
  */
@@ -183,6 +193,7 @@ export const ttsProviderConfigSchema = z.discriminatedUnion('transport', [
   cliTtsProviderSchema,
   inProcessTtsProviderSchema,
   mcpTtsProviderSchema,
+  geminiVoiceServiceTtsProviderSchema,
 ]);
 
 export type TtsProviderConfig = z.infer<typeof ttsProviderConfigSchema>;
@@ -191,6 +202,7 @@ export type SdkTtsProviderConfig = z.infer<typeof sdkTtsProviderSchema>;
 export type CliTtsProviderConfig = z.infer<typeof cliTtsProviderSchema>;
 export type InProcessTtsProviderConfig = z.infer<typeof inProcessTtsProviderSchema>;
 export type McpTtsProviderConfig = z.infer<typeof mcpTtsProviderSchema>;
+export type GeminiVoiceServiceTtsProviderConfig = z.infer<typeof geminiVoiceServiceTtsProviderSchema>;
 
 /**
  * Resolves the API key for a provider config from the environment.
@@ -209,4 +221,5 @@ export const TTS_TRANSPORT_TYPES: readonly TtsTransportType[] = [
   'cli',
   'in-process',
   'mcp',
+  'gemini-voice-service',
 ] as const;

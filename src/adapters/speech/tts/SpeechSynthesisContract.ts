@@ -11,7 +11,8 @@ export type TtsTransportType =
   | 'sdk'
   | 'cli'
   | 'in-process'
-  | 'mcp';
+  | 'mcp'
+  | 'gemini-voice-service';
 
 /**
  * Normalized voice descriptor. Adapters expose their voices so the tool can

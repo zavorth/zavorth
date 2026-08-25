@@ -69,6 +69,6 @@ describe('TtsProviderConfigSchema', () => {
   });
 
   it('exposes all TTS transport types', () => {
-    expect(TTS_TRANSPORT_TYPES).toEqual(['http', 'sdk', 'cli', 'in-process', 'mcp']);
+    expect(TTS_TRANSPORT_TYPES).toEqual(['http', 'sdk', 'cli', 'in-process', 'mcp', 'gemini-voice-service']);
   });
 });

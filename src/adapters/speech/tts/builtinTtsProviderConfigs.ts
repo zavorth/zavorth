@@ -180,6 +180,25 @@ export function builtinTtsProviderConfigs(): TtsProviderConfig[] {
       languageCode: 'en-US',
       voices: [],
     },
+    {
+      providerId: 'gemini-voice-service',
+      label: 'Gemini Voice Service',
+      transport: 'gemini-voice-service',
+      apiKeyEnvVar: 'GEMINI_API_KEY',
+      modelId: 'gemini-2.5-flash',
+      defaultVoiceId: 'Kore',
+      languageCode: 'en-US',
+      voices: [
+        { id: 'Kore', name: 'Kore', language: 'en-US', gender: 'female' },
+        { id: 'Puck', name: 'Puck', language: 'en-US', gender: 'male' },
+        { id: 'Zephyr', name: 'Zephyr', language: 'en-US', gender: 'female' },
+        { id: 'Aoede', name: 'Aoede', language: 'en-US', gender: 'female' },
+        { id: 'Charon', name: 'Charon', language: 'en-US', gender: 'male' },
+        { id: 'Fenrir', name: 'Fenrir', language: 'en-US', gender: 'male' },
+        { id: 'Leda', name: 'Leda', language: 'en-US', gender: 'female' },
+        { id: 'Orus', name: 'Orus', language: 'en-US', gender: 'male' },
+      ],
+    },
   ];
   return raw.map((config) => ttsProviderConfigSchema.parse(config));
 }

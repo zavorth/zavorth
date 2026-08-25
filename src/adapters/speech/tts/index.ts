@@ -10,6 +10,7 @@ export type {
   CliTtsProviderConfig,
   InProcessTtsProviderConfig,
   McpTtsProviderConfig,
+  GeminiVoiceServiceTtsProviderConfig,
 } from './TtsProviderConfigSchema.js';
 export type {
   ISpeechSynthesisAdapter,
@@ -27,3 +28,4 @@ export { SdkSynthesisAdapter } from './transports/SdkSynthesisAdapter.js';
 export { CliSynthesisAdapter } from './transports/CliSynthesisAdapter.js';
 export { InProcessSynthesisAdapter } from './transports/InProcessSynthesisAdapter.js';
 export { McpSynthesisAdapter } from './transports/McpSynthesisAdapter.js';
+export { GeminiVoiceSynthesisAdapter } from './transports/GeminiVoiceSynthesisAdapter.js';

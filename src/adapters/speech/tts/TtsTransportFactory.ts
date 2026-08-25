@@ -5,6 +5,7 @@ import { SdkSynthesisAdapter } from './transports/SdkSynthesisAdapter.js';
 import { CliSynthesisAdapter } from './transports/CliSynthesisAdapter.js';
 import { InProcessSynthesisAdapter } from './transports/InProcessSynthesisAdapter.js';
 import { McpSynthesisAdapter } from './transports/McpSynthesisAdapter.js';
+import { GeminiVoiceSynthesisAdapter } from './transports/GeminiVoiceSynthesisAdapter.js';
 
 /**
  * Maps each transport type to the adapter factory that builds it.
@@ -22,6 +23,7 @@ export class TtsTransportFactory {
       case 'cli': return new CliSynthesisAdapter(config);
       case 'in-process': return new InProcessSynthesisAdapter(config);
       case 'mcp': return new McpSynthesisAdapter(config);
+      case 'gemini-voice-service': return new GeminiVoiceSynthesisAdapter(config);
       default: {
         const transport = (config as { transport?: string }).transport;
         throw new Error(`No TTS adapter factory registered for transport "${transport}".`);
