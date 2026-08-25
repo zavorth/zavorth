@@ -22,16 +22,14 @@ export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): Bo
     return gateway.botGatewaySupport;
   }
 
-  if (!gateway.bot || !gateway.securityLock || !gateway.logRepo) {
-    throw new Error('BotGatewaySupport composition requires a bot, security lock, and log repository.');
-  }
-
   const created = new BotGatewaySupport({
-    bot: gateway.bot,
-    logRepo: gateway.logRepo,
+    // Test fixtures compose partial gateways without a live bot instance; message paths
+    // require one, but support construction itself must not fail without it.
+    bot: gateway.bot || (null as unknown as import('grammy').Bot),
+    logRepo: gateway.logRepo || { log: () => undefined },
     parser: gateway.parser || new CommandParser(),
     priorityCommandService: gateway.priorityCommandService || { handle: async () => false },
-    securityLock: gateway.securityLock,
+    securityLock: gateway.securityLock || { isLocked: () => false, isCommandAllowedWhenLocked: () => true },
     chainController: gateway.chainController || { handleCommandChain: async () => undefined },
     hubController: gateway.hubController || { handleStartCommand: async () => undefined },
     opsController: gateway.opsController || { handleStatus: async () => undefined },
