@@ -1,5 +1,5 @@
-import { SchemaType, type FunctionDeclaration } from '@google/generative-ai';
-import type { ToolDefinition } from '../ILlmProvider.js';
+import { Content, SchemaType, type FunctionDeclaration } from '@google/generative-ai';
+import type { ChatMessage, ToolDefinition } from '../ILlmProvider.js';
 
 type GeminiSchemaNode = {
   type: SchemaType;
@@ -60,6 +60,79 @@ function convertSchema(schema: Record<string, unknown>): GeminiSchemaNode {
   }
 
   return converted;
+}
+
+export function convertGeminiMessages(messages: ChatMessage[]): Content[] {
+  const contents: Content[] = [];
+  const toolCallNames = new Map<string, string>();
+
+  for (const message of messages) {
+    if (message.role === 'tool') {
+      const toolName = message.toolName
+        || (message.toolCallId ? toolCallNames.get(message.toolCallId) : '')
+        || 'unknown_tool';
+      contents.push({
+        role: 'function',
+        parts: [
+          {
+            functionResponse: {
+              name: toolName,
+              response: { result: message.content },
+            },
+          },
+        ],
+      });
+      if (message.inlineData && message.inlineData.length > 0) {
+        const visionParts: Content['parts'] = [
+          { text: '[Image captured by the tool for visual analysis]' },
+        ];
+        for (const media of message.inlineData) {
+          visionParts.push({
+            inlineData: {
+              mimeType: media.mimeType,
+              data: media.data,
+            },
+          });
+        }
+        contents.push({ role: 'user', parts: visionParts });
+      }
+      continue;
+    }
+
+    const role = message.role === 'assistant' ? 'model' : 'user';
+    const parts: Content['parts'] = [];
+
+    if (message.content) {
+      parts.push({ text: message.content });
+    }
+
+    if (message.inlineData && message.inlineData.length > 0) {
+      for (const media of message.inlineData) {
+        parts.push({
+          inlineData: {
+            mimeType: media.mimeType,
+            data: media.data,
+          },
+        });
+      }
+    }
+
+    if (message.toolCalls && message.toolCalls.length > 0) {
+      for (const toolCall of message.toolCalls) {
+        toolCallNames.set(toolCall.id, toolCall.name);
+        parts.push({
+          functionCall: {
+            name: toolCall.name,
+            args: toolCall.arguments,
+          },
+        });
+      }
+    }
+
+    contents.push({ role, parts });
+  }
+
+  return contents;
 }
 
 function mapSchemaType(type: string): SchemaType {

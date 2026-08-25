@@ -3,6 +3,7 @@ import { OpenAITransport } from './transports/OpenAITransport.js';
 import { AnthropicTransport } from './transports/AnthropicTransport.js';
 import { BedrockTransport } from './transports/BedrockTransport.js';
 import { CodexTransport } from './transports/CodexTransport.js';
+import { GeminiTransport } from './transports/GeminiTransport.js';
 
 import type { CompatLayer } from './compat/types.js';
 import { registerCompat, getCompat } from './compat/Registry.js';
@@ -67,7 +68,8 @@ const DEFAULT_MODELS: Record<string, string> = {
 const PROVIDER_API_MODES: Record<string, string> = {
   openai: 'openai_completions',
   anthropic: 'anthropic_messages',
-  google: 'openai_completions',
+  google: 'gemini_generate_content',
+  gemini: 'gemini_generate_content',
   deepseek: 'openai_completions',
   groq: 'openai_completions',
   together: 'openai_completions',
@@ -166,6 +168,11 @@ export class ProviderBootstrap {
     registerTransport('codex_responses', () => {
       const keys = resolveEnvKeys('OPENAI_API_KEY');
       return new CodexTransport(keys, 'o3');
+    });
+    registerTransport('gemini_generate_content', () => {
+      const keys = resolveEnvKeys('GEMINI_API_KEY');
+      const googleFallback = process.env.GOOGLE_API_KEY || process.env.GOOGLE_AI_API_KEY || '';
+      return new GeminiTransport(keys.length > 0 ? keys : (googleFallback ? [googleFallback] : []), DEFAULT_MODELS.google);
     });
 
     ProviderBootstrap.initialized = true;

@@ -3,5 +3,6 @@ export { OpenAITransport } from './OpenAITransport.js';
 export { AnthropicTransport } from './AnthropicTransport.js';
 export { BedrockTransport } from './BedrockTransport.js';
 export { CodexTransport } from './CodexTransport.js';
+export { GeminiTransport } from './GeminiTransport.js';
 export { RotatingKeyClient } from './RotatingKeyClient.js';
 export type { KeyRotationHooks, StreamingKeyOperation } from './RotatingKeyClient.js';
