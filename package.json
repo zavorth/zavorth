@@ -303,6 +303,7 @@
     "zavorth:user-ready-surface:check": "npm run zavorth:zavorthControl-daily-flow-cards:check --silent && npm run zavorth:cli-happy-path:check --silent && npm run zavorth:daily-use-trail-docs:check --silent",
     "zavorth:zavorthControl-responsive-visual-qa:check": "node scripts/zavorth-control-responsive-visual-qa-check.mjs",
     "qa:zavorthControl-dashboard-visual": "npm run zavorth-control-vite:build --silent && node scripts/zavorth-control-responsive-visual-qa-check.mjs",
+    "i18n:sync-gateway-catalogs": "node scripts/sync-gateway-i18n-catalogs.mjs",
     "i18n:check": "node scripts/i18n-check.mjs",
     "qa:i18n": "npm run i18n:check",
     "zavorth:provider-readiness": "npx tsx scripts/zavorth-provider-readiness-matrix.ts",
