@@ -2,123 +2,12 @@ import { logger } from '../../../logger.js';
 import { Context, NextFunction } from 'grammy';
 import { config } from '../../../config/index.js';
 import { normalizeChannelCommandToken } from '../../../channels/commands/ChannelCommandParser.js';
+import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager.js';
 import { HostIdentityService } from '../../../services/HostIdentityService.js';
-import { getExplicitExecutorForCommand } from '../../../channels/commands/ChannelCommandCatalog.js';
-import {
-  EXTERNAL_EXECUTOR_COMMAND,
-  EXTERNAL_REVIEW_COMMAND,
-  EXTERNAL_REVIEW_DASH_COMMAND,
-  LEGACY_EXTERNAL_COMMAND,
-  LEGACY_EXTERNAL_REVIEW_COMMAND,
-  LEGACY_EXTERNAL_REVIEW_DASH_COMMAND,
-} from '../../../channels/commands/ExternalExecutorIdentity.js';
+
 export class AuthGuard {
-  private static readonly FUN_COMMANDS = ['/roll', '/coinflip', '/8ball', '/joke', '/roulette'];
-  private static readonly READ_ONLY_ALLOWED_COMMANDS = new Set([
-    '/start',
-    '/help',
-    '/menu',
-    '/zavorth',
-    '/settings',
-    '/status',
-    '/zavorthControl',
-    '/tasks',
-    '/logs',
-    '/files',
-    '/diff',
-    '/research',
-    '/deepresearch',
-    '/memory',
-    '/recall',
-    '/snippets',
-    '/snippet',
-    '/remember',
-    '/forget',
-    '/hostauth',
-    '/changes',
-    '/access',
-    '/bootstrap',
-    '/doctor',
-  ]);
-
-  private static readonly GROUP_ADMIN_COMMANDS = new Set([
-    '/ban',
-    '/kick',
-    '/mute',
-    '/unmute',
-    '/warn',
-    '/warns',
-    '/clearwarns',
-    '/rules',
-    '/stats',
-    '/setwelcome',
-    '/setbye',
-    '/antispam',
-    '/filter',
-  ]);
-
-  private static readonly BLOCKED_COMMANDS_FOR_VICE_OWNER = new Set([
-    '/codex',
-    EXTERNAL_EXECUTOR_COMMAND,
-    EXTERNAL_REVIEW_DASH_COMMAND,
-    EXTERNAL_REVIEW_COMMAND,
-    LEGACY_EXTERNAL_COMMAND,
-    LEGACY_EXTERNAL_REVIEW_DASH_COMMAND,
-    LEGACY_EXTERNAL_REVIEW_COMMAND,
-    '/selfmod',
-    '/selfupdate',
-    '/reload',
-    '/autorepair',
-    '/repair',
-    '/ag',
-    '/bridge',
-    '/run',
-    '/plan',
-    '/wsl',
-    '/companion',
-    '/cleanup',
-    '/mode',
-    '/model',
-    '/strong',
-    '/profile',
-    '/enable',
-    '/disable',
-    '/workspace',
-    '/remote',
-    '/remote',
-    '/schedule',
-    '/schedules',
-    '/unschedule',
-    '/automations',
-    '/perm',
-    '/permallow',
-    '/permrevoke',
-    '/lock',
-    '/unlock',
-    '/hostauth',
-    '/agfocus',
-    '/agaccept',
-    '/agnudge',
-    '/agbridge',
-    '/agclean',
-    '/agreset',
-    '/agmodel',
-    '/ag_open',
-    '/ag_status',
-    '/ag_restart',
-    '/ag_model',
-    '/ag_prompt',
-    '/approve',
-    '/reject',
-    '/deny',
-    '/undo',
-    '/tasks',
-    '/logs',
-    '/files',
-    '/diff',
-  ]);
-
-  static middleware(hostIdentityService?: HostIdentityService) {
+  static middleware(hostIdentityService?: HostIdentityService, policyManager?: ChannelPolicyManager) {
+    const policy = policyManager || new ChannelPolicyManager({ resolveUserRoles: () => config.telegramUserRoles });
     return async (ctx: Context, next: NextFunction) => {
       const chat_id = ctx.chat?.id.toString();
       const user_id = ctx.from?.id.toString();
@@ -145,7 +34,7 @@ export class AuthGuard {
       if (
         hostIdentityService &&
         !hostIdentityService.getStatus().authorized &&
-        AuthGuard.isMutableCommandWhileHostReadonly(normalizedCommand, text)
+        policy.isMutableCommandWhileHostReadonly(normalizedCommand, text)
       ) {
         await ctx.reply(
           'New host detected. Zavorth entered read-only mode until reauthorization.\nUse `/hostauth status` to inspect and `/hostauth trust` on the current host to allow execution.',
@@ -155,7 +44,7 @@ export class AuthGuard {
       }
 
       if (!config.allowedUserIds.includes(user_id)) {
-        const isFunCommand = AuthGuard.FUN_COMMANDS.includes(normalizedCommand);
+        const isFunCommand = policy.isFunCommand(normalizedCommand);
 
         if (isFunCommand) {
           await next();
@@ -170,7 +59,7 @@ export class AuthGuard {
         // Allow Telegram group administration commands for Telegram admins.
         if (isGroup && text.startsWith('/')) {
           const commandType = normalizedCommand;
-          if (AuthGuard.GROUP_ADMIN_COMMANDS.has(commandType)) {
+          if (policy.isGroupAdminCommand(commandType)) {
             try {
               const member = await ctx.api.getChatMember(ctx.chat!.id, Number(user_id));
               if (member.status === 'administrator' || member.status === 'creator') {
@@ -207,14 +96,13 @@ export class AuthGuard {
         return;
       }
 
-      const userRoles = config.telegramUserRoles[user_id] || ['admin'];
-      const isAdmin = userRoles.includes('admin');
+      const isAdmin = policy.isAdminUser(user_id);
 
       if (!isAdmin) {
         const text = ctx.message?.text || '';
         const commandType = normalizeChannelCommandToken(text.split(' ')[0] || '');
 
-        if (AuthGuard.BLOCKED_COMMANDS_FOR_VICE_OWNER.has(commandType) || AuthGuard.isHiddenPrivilegedInput(text)) {
+        if (policy.isCommandBlockedForNonAdmin(commandType) || policy.isHiddenPrivilegedInput(text)) {
           await ctx.reply(
             '**Restricted Access:**\n\nYour current role cannot use this system/computer command. You still have access to search, memory, conversations, and analysis.',
             { parse_mode: 'Markdown' },
@@ -263,53 +151,5 @@ export class AuthGuard {
         msg.general_forum_topic_unhidden !== undefined ||
         msg.write_access_allowed,
     );
-  }
-
-  /**
-   * Privileged slash tokens only (agent-first).
-   * Free-text NLU phrases no longer activate ops features, so they are not
-   * treated as hidden privileged shortcuts either — free text stays agent-owned.
-   */
-  private static isHiddenPrivilegedInput(rawText: string): boolean {
-    const normalized = rawText
-      .trim()
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/\s+/g, ' ');
-
-    if (!normalized || !normalized.startsWith('/')) {
-      return false;
-    }
-
-    const command = normalized.split(' ')[0] || '';
-    return [
-      '/ag_prompt',
-      '/ag_model',
-      '/ag_open',
-      '/ag_status',
-      '/ag_restart',
-      '/remote',
-      '/selfupdate',
-      '/reload',
-      '/autorepair',
-      '/repair',
-    ].includes(command);
-  }
-
-  private static isMutableCommandWhileHostReadonly(command: string, rawText: string): boolean {
-    if (!rawText.startsWith('/')) {
-      return this.isHiddenPrivilegedInput(rawText);
-    }
-
-    if (!command) {
-      return false;
-    }
-
-    if (this.READ_ONLY_ALLOWED_COMMANDS.has(command) || this.FUN_COMMANDS.includes(command)) {
-      return false;
-    }
-
-    return Boolean(getExplicitExecutorForCommand(command)) || this.BLOCKED_COMMANDS_FOR_VICE_OWNER.has(command);
   }
 }

@@ -7,6 +7,120 @@ import type {
   ChannelPolicyState,
   ChannelPolicySummary,
 } from '../../contracts/ChannelMeshContract.js';
+import { getExplicitExecutorForCommand } from '../commands/ChannelCommandCatalog.js';
+import {
+  EXTERNAL_EXECUTOR_COMMAND,
+  EXTERNAL_REVIEW_COMMAND,
+  EXTERNAL_REVIEW_DASH_COMMAND,
+  LEGACY_EXTERNAL_COMMAND,
+  LEGACY_EXTERNAL_REVIEW_COMMAND,
+  LEGACY_EXTERNAL_REVIEW_DASH_COMMAND,
+} from '../commands/ExternalExecutorIdentity.js';
+
+const FUN_COMMANDS = ['/roll', '/coinflip', '/8ball', '/joke', '/roulette'];
+
+const READ_ONLY_ALLOWED_COMMANDS = new Set([
+  '/start',
+  '/help',
+  '/menu',
+  '/zavorth',
+  '/settings',
+  '/status',
+  '/zavorthControl',
+  '/tasks',
+  '/logs',
+  '/files',
+  '/diff',
+  '/research',
+  '/deepresearch',
+  '/memory',
+  '/recall',
+  '/snippets',
+  '/snippet',
+  '/remember',
+  '/forget',
+  '/hostauth',
+  '/changes',
+  '/access',
+  '/bootstrap',
+  '/doctor',
+]);
+
+const GROUP_ADMIN_COMMANDS = new Set([
+  '/ban',
+  '/kick',
+  '/mute',
+  '/unmute',
+  '/warn',
+  '/warns',
+  '/clearwarns',
+  '/rules',
+  '/stats',
+  '/setwelcome',
+  '/setbye',
+  '/antispam',
+  '/filter',
+]);
+
+const NON_ADMIN_BLOCKED_COMMANDS = new Set([
+  '/codex',
+  EXTERNAL_EXECUTOR_COMMAND,
+  EXTERNAL_REVIEW_DASH_COMMAND,
+  EXTERNAL_REVIEW_COMMAND,
+  LEGACY_EXTERNAL_COMMAND,
+  LEGACY_EXTERNAL_REVIEW_DASH_COMMAND,
+  LEGACY_EXTERNAL_REVIEW_COMMAND,
+  '/selfmod',
+  '/selfupdate',
+  '/reload',
+  '/autorepair',
+  '/repair',
+  '/ag',
+  '/bridge',
+  '/run',
+  '/plan',
+  '/wsl',
+  '/companion',
+  '/cleanup',
+  '/mode',
+  '/model',
+  '/strong',
+  '/profile',
+  '/enable',
+  '/disable',
+  '/workspace',
+  '/remote',
+  '/schedule',
+  '/schedules',
+  '/unschedule',
+  '/automations',
+  '/perm',
+  '/permallow',
+  '/permrevoke',
+  '/lock',
+  '/unlock',
+  '/hostauth',
+  '/agfocus',
+  '/agaccept',
+  '/agnudge',
+  '/agbridge',
+  '/agclean',
+  '/agreset',
+  '/agmodel',
+  '/ag_open',
+  '/ag_status',
+  '/ag_restart',
+  '/ag_model',
+  '/ag_prompt',
+  '/approve',
+  '/reject',
+  '/deny',
+  '/undo',
+  '/tasks',
+  '/logs',
+  '/files',
+  '/diff',
+]);
 export interface GroupToolPolicy {
   untrustedUserMode: 'none' | 'safe-only' | 'allowlist-only' | 'safe-plus-allowlist';
   allowedToolsForUntrustedUsers: string[];
@@ -34,6 +148,7 @@ type ChannelPolicyManagerOptions = {
   env?: NodeJS.ProcessEnv;
   now?: () => Date;
   cacheWindowMs?: number;
+  resolveUserRoles?: () => Record<string, string[]>;
 };
 
 type ChannelPolicyInput = {
@@ -51,6 +166,7 @@ export class ChannelPolicyManager {
   private lastLoadedAtMs: number | null = null;
   private lastStoreUpdatedAt: string | null = null;
   private lastReloadReceipt: ChannelPolicyReloadReceipt | null = null;
+  private readonly resolveUserRoles: () => Record<string, string[]>;
 
   constructor(options: ChannelPolicyManagerOptions = {}) {
     this.policyFile = path.resolve(
@@ -59,6 +175,7 @@ export class ChannelPolicyManager {
     this.env = options.env || process.env;
     this.now = options.now || (() => new Date());
     this.cacheWindowMs = Math.max(0, Number(options.cacheWindowMs ?? 1_000) || 0);
+    this.resolveUserRoles = options.resolveUserRoles || (() => ({}));
   }
 
   public async loadPolicies(): Promise<ChannelAccessPolicy[]> {
@@ -218,6 +335,78 @@ export class ChannelPolicyManager {
       return true;
     }
     return (policy.allowedGroups || []).includes(normalizedChat);
+  }
+
+  public getUserRoles(userId: string): string[] {
+    return this.resolveUserRoles()[userId] || ['admin'];
+  }
+
+  public isAdminUser(userId: string): boolean {
+    return this.getUserRoles(userId).includes('admin');
+  }
+
+  public isFunCommand(command: string): boolean {
+    return FUN_COMMANDS.includes(command);
+  }
+
+  public isReadOnlyAllowedCommand(command: string): boolean {
+    return READ_ONLY_ALLOWED_COMMANDS.has(command);
+  }
+
+  public isGroupAdminCommand(command: string): boolean {
+    return GROUP_ADMIN_COMMANDS.has(command);
+  }
+
+  public isCommandBlockedForNonAdmin(command: string): boolean {
+    return NON_ADMIN_BLOCKED_COMMANDS.has(command);
+  }
+
+  /**
+   * Privileged slash tokens only (agent-first).
+   * Free-text NLU phrases no longer activate ops features, so they are not
+   * treated as hidden privileged shortcuts either — free text stays agent-owned.
+   */
+  public isHiddenPrivilegedInput(rawText: string): boolean {
+    const normalized = rawText
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ');
+
+    if (!normalized || !normalized.startsWith('/')) {
+      return false;
+    }
+
+    const command = normalized.split(' ')[0] || '';
+    return [
+      '/ag_prompt',
+      '/ag_model',
+      '/ag_open',
+      '/ag_status',
+      '/ag_restart',
+      '/remote',
+      '/selfupdate',
+      '/reload',
+      '/autorepair',
+      '/repair',
+    ].includes(command);
+  }
+
+  public isMutableCommandWhileHostReadonly(command: string, rawText: string): boolean {
+    if (!rawText.startsWith('/')) {
+      return this.isHiddenPrivilegedInput(rawText);
+    }
+
+    if (!command) {
+      return false;
+    }
+
+    if (READ_ONLY_ALLOWED_COMMANDS.has(command) || FUN_COMMANDS.includes(command)) {
+      return false;
+    }
+
+    return Boolean(getExplicitExecutorForCommand(command)) || NON_ADMIN_BLOCKED_COMMANDS.has(command);
   }
 
   private ensurePoliciesLoaded(persistIfMissing: boolean): void {

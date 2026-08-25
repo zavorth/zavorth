@@ -198,6 +198,71 @@ describe('ChannelPolicyManager', () => {
     expect(fs.existsSync(canonicalPolicyFile)).toBe(true);
     expect(await manager.verifyAccess('telegram', 'user:canonical')).toBe(true);
   });
+
+  it('defaults user roles to admin when no role resolver is configured', () => {
+    const manager = new ChannelPolicyManager();
+
+    expect(manager.getUserRoles('999')).toEqual(['admin']);
+    expect(manager.isAdminUser('999')).toBe(true);
+  });
+
+  it('resolves explicit configured roles live per query', () => {
+    const roles: Record<string, string[]> = {};
+    const manager = new ChannelPolicyManager({ resolveUserRoles: () => roles });
+
+    expect(manager.isAdminUser('42')).toBe(true);
+
+    roles['42'] = ['vice-owner'];
+
+    expect(manager.getUserRoles('42')).toEqual(['vice-owner']);
+    expect(manager.isAdminUser('42')).toBe(false);
+  });
+
+  it('classifies fun, read-only and group-admin command sets', () => {
+    const manager = new ChannelPolicyManager();
+
+    expect(manager.isFunCommand('/roll')).toBe(true);
+    expect(manager.isFunCommand('/coinflip')).toBe(true);
+    expect(manager.isFunCommand('/ban')).toBe(false);
+
+    expect(manager.isReadOnlyAllowedCommand('/access')).toBe(true);
+    expect(manager.isReadOnlyAllowedCommand('/bootstrap')).toBe(true);
+    expect(manager.isReadOnlyAllowedCommand('/run')).toBe(false);
+
+    expect(manager.isGroupAdminCommand('/ban')).toBe(true);
+    expect(manager.isGroupAdminCommand('/setwelcome')).toBe(true);
+    expect(manager.isGroupAdminCommand('/start')).toBe(false);
+  });
+
+  it('blocks privileged system commands for non-admin roles', () => {
+    const manager = new ChannelPolicyManager();
+
+    expect(manager.isCommandBlockedForNonAdmin('/codex')).toBe(true);
+    expect(manager.isCommandBlockedForNonAdmin('/approve')).toBe(true);
+    expect(manager.isCommandBlockedForNonAdmin('/external')).toBe(true);
+    expect(manager.isCommandBlockedForNonAdmin('/roll')).toBe(false);
+    expect(manager.isCommandBlockedForNonAdmin('/start')).toBe(false);
+  });
+
+  it('treats only slash-prefixed privileged tokens as hidden privileged input', () => {
+    const manager = new ChannelPolicyManager();
+
+    expect(manager.isHiddenPrivilegedInput('/ag_prompt x')).toBe(true);
+    expect(manager.isHiddenPrivilegedInput('abrir zavorthBridge')).toBe(false);
+    expect(manager.isHiddenPrivilegedInput('  /ÁG_PROMPT   x ')).toBe(true);
+    expect(manager.isHiddenPrivilegedInput('/autorepair force')).toBe(true);
+    expect(manager.isHiddenPrivilegedInput('')).toBe(false);
+  });
+
+  it('classifies mutable commands while the host is in read-only mode', () => {
+    const manager = new ChannelPolicyManager();
+
+    expect(manager.isMutableCommandWhileHostReadonly('/run', '/run npm test')).toBe(true);
+    expect(manager.isMutableCommandWhileHostReadonly('', 'plain message')).toBe(false);
+    expect(manager.isMutableCommandWhileHostReadonly('/access', '/access remote')).toBe(false);
+    expect(manager.isMutableCommandWhileHostReadonly('/roll', '/roll')).toBe(false);
+    expect(manager.isMutableCommandWhileHostReadonly('/hostauth', '/hostauth status')).toBe(false);
+  });
 });
 
 function writePolicyState(

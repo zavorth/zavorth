@@ -6,6 +6,7 @@ export * from '../gateways/channels/teams/TeamsChannelAdapter.js';
 export * from '../gateways/channels/email/EmailChannelAdapter.js';
 export * from './contracts/ChannelMessageContract.js';
 export * from './policies/ChannelPolicyManager.js';
+export * from './policies/AuthorizedChatRegistry.js';
 export * from './commands/ChannelCommandCatalog.js';
 export * from './commands/ChannelCommandParser.js';
 export * from './commands/ExternalExecutorIdentity.js';

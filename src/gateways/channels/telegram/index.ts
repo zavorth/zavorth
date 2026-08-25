@@ -11,7 +11,6 @@ export * from './TelegramOutputHandler.js';
 export * from './TelegramSurfaceResponseSender.js';
 export * from './TelegramTaskSupport.js';
 export * from './TelegramWorkflowSurfaceResponses.js';
-export * from './TelegramAuthorizedChatRegistry.js';
 export * from './TelegramChannelContractService.js';
 export * from './TelegramDailyAssistantService.js';
 export * from './TelegramEchoSurfaceClient.js';

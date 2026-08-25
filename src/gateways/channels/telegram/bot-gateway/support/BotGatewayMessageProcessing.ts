@@ -7,7 +7,7 @@ import { SurfaceOperationalIntentService } from '../../../../../services/Surface
 import { WorkspaceResolver } from '../../../../../security/WorkspaceResolver.js';
 import { parseTelegramCommand } from '../../../../../gateways/channels/telegram/BotGatewayHelpers.js';
 import { TelegramChannelContractService } from '../../../../../gateways/channels/telegram/TelegramChannelContractService.js';
-import { TelegramAuthorizedChatRegistry } from '../../../../../gateways/channels/telegram/TelegramAuthorizedChatRegistry.js';
+import { AuthorizedChatRegistry } from '../../../../../channels/policies/AuthorizedChatRegistry.js';
 import type { ParsedCommand } from '../../../../../channels/commands/ChannelCommandParser.js';
 import { EchoOutputStageService } from '../../../../../services/EchoOutputStageService.js';
 import type { BotGatewaySupportRuntime } from '../../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportTypes.js';
@@ -43,7 +43,7 @@ export async function processTextMessage(
   const telegramContract = channelContractService.buildContract(ctx);
   const chatId = telegramContract.chatId || ctx.chat?.id.toString() || '';
   const userId = ctx.from?.id.toString() || '';
-  new TelegramAuthorizedChatRegistry().recordAuthorizedContext(ctx);
+  new AuthorizedChatRegistry().recordAuthorizedContext(ctx);
 
   runtime.surfaceIdentityService.linkIdentity({
     source: 'telegram',
