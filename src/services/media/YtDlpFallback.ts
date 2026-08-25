@@ -1,8 +1,8 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { CapabilityUnavailableError, buildCapabilityProvisionHint } from '../../../services/OptionalCapabilityGuard.js';
-import { logger } from '../../../logger.js';
+import { CapabilityUnavailableError, buildCapabilityProvisionHint } from '../OptionalCapabilityGuard.js';
+import { logger } from '../../logger.js';
 const YTDLP_TMP_DIR = path.join(os.tmpdir(), 'zavorth-ytdlp');
 const LOCAL_FFMPEG_PATH = path.join(YTDLP_TMP_DIR, 'ffmpeg.exe');
 

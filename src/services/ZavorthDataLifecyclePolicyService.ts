@@ -55,7 +55,7 @@ const DATASETS: ZavorthDataLifecycleDataset[] = [
       delete: 'zavorth retention apply --class media-cache --confirm',
     },
     evidence: [
-      'src/telegram/StorageMaintenance.ts',
+      'src/services/media/StorageMaintenance.ts',
       'src/core/MinimalRuntimeArtifactRetentionCatalog.ts',
     ],
     residualRisk: 'Media files may include personal documents; they expire by time and size.',
@@ -79,7 +79,7 @@ const DATASETS: ZavorthDataLifecycleDataset[] = [
     },
     evidence: [
       'src/config/sections/runtimePathConfig.ts',
-      'src/telegram/StorageMaintenance.ts',
+      'src/services/media/StorageMaintenance.ts',
     ],
     residualRisk: 'Transcriptions may contain private speech; keep retention short and use redaction on export.',
   },

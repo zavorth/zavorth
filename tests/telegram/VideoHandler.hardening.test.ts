@@ -2,13 +2,13 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { config } from '../../src/config/index';
-import { VideoHandler } from '../../src/telegram/VideoHandler';
-import { VideoHandlerFetchSupport } from '../../src/telegram/video-handler/VideoHandlerFetchSupport';
-import { VideoHandlerHelpers } from '../../src/telegram/video-handler/VideoHandlerHelpers';
+import { VideoHandler } from '../../src/services/media/VideoHandler';
+import { VideoHandlerFetchSupport } from '../../src/services/media/video-handler/VideoHandlerFetchSupport';
+import { VideoHandlerHelpers } from '../../src/services/media/video-handler/VideoHandlerHelpers';
 import {
   MAX_REMOTE_DOWNLOAD_BYTES,
   MAX_TRANSCRIPT_EXCERPT_CHARS,
-} from '../../src/telegram/video-handler/VideoHandlerTypes';
+} from '../../src/services/media/video-handler/VideoHandlerTypes';
 
 jest.mock('../../src/security/SafeFetchService.js', () => ({
   safeFetch: jest.fn().mockImplementation(async (url: string, init?: any) => {

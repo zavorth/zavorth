@@ -1,13 +1,13 @@
-import path from "path";import { buildCapabilityProvisionHint } from "../../../../services/OptionalCapabilityGuard.js";
+import path from "path";
+import { buildCapabilityProvisionHint } from "../../../services/OptionalCapabilityGuard.js";
 import {
   DEFAULT_VIDEO_REQUEST,
   SUPPORTED_VIDEO_EXTENSIONS,
   type YouTubeOEmbedResponse,
-} from "../../../../gateways/channels/telegram/video-handler/VideoHandlerTypes.js";
-import { VideoHandlerFetchSupport } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerFetchSupport.js";
+} from "./VideoHandlerTypes.js";
+import { VideoHandlerFetchSupport } from "./VideoHandlerFetchSupport.js";
 
-import { logger } from '../../../../logger';
-
+import { logger } from '../../../logger';
 export class VideoHandlerUrlSupport {
   public static extractInstructionFromText(text: string, url: string): string {
     const stripped = text.replace(url, " ").replace(/\s+/g, " ").trim();

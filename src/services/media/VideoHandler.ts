@@ -1,28 +1,28 @@
-import { logger } from '../../../logger.js';
+import { logger } from '../../logger.js';
 import fs from 'fs';
 import path from 'path';
 import { Context } from 'grammy';
-import { config } from '../../../config/index.js';
-import { InlineData } from '../../../providers/ILlmProvider.js';
-import { AudioHandler } from '../../../gateways/channels/telegram/AudioHandler.js';
-import { AudioChunker } from '../../../gateways/channels/telegram/AudioChunker.js';
-import { GeminiVideoService } from '../../../providers/GeminiVideoService.js';
-import { StorageMaintenance } from '../../../gateways/channels/telegram/StorageMaintenance.js';
-import { YtDlpFallback } from '../../../gateways/channels/telegram/YtDlpFallback.js';
+import { config } from '../../config/index.js';
+import { InlineData } from '../../providers/ILlmProvider.js';
+import { AudioChunker } from './AudioChunker.js';
+import { GeminiVideoService } from '../../providers/GeminiVideoService.js';
+import { StorageMaintenance } from './StorageMaintenance.js';
+import { YtDlpFallback } from './YtDlpFallback.js';
 import {
   type ProcessedVideoContext,
   type TelegramVideoDescriptor,
   type VideoMetadata,
   type YouTubeCaptionTrack,
-} from '../../../gateways/channels/telegram/video-handler/VideoHandlerTypes.js';
+} from './video-handler/VideoHandlerTypes.js';
 import {
   MAX_TRANSCRIPTION_BYTES,
   VideoTranscriptionPipeline,
-} from '../../../gateways/channels/telegram/video-handler/VideoTranscriptionPipeline.js';
-import { VideoYtDlpTranscriptSupport } from '../../../gateways/channels/telegram/video-handler/VideoYtDlpTranscriptSupport.js';
+  type MediaTranscriber,
+} from './video-handler/VideoTranscriptionPipeline.js';
+import { VideoYtDlpTranscriptSupport } from './video-handler/VideoYtDlpTranscriptSupport.js';
 
-import { VideoHandlerHelpers } from '../../../gateways/channels/telegram/video-handler/VideoHandlerHelpers.js';
-import { asErrorLike } from '../../../utils/errorLike.js';
+import { VideoHandlerHelpers } from './video-handler/VideoHandlerHelpers.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 const SUPPORTED_VIDEO_EXTENSIONS = new Set(['.mp4', '.mov', '.webm', '.m4v', '.mkv']);
 const MAX_NATIVE_YOUTUBE_GEMINI_DURATION_SECONDS = 30 * 60;
 
@@ -46,22 +46,22 @@ export interface PreparedVideoInput {
 }
 
 export class VideoHandler {
-  private audioHandler: AudioHandler;
+  private audioHandler: MediaTranscriber;
   private audioChunker: AudioChunker;
   private videoContextDir: string;
-  private geminiVideoAnalyzer: GeminiVideoService;
-  private geminiTranscriptionFallbackAnalyzer: GeminiVideoService;
+  private geminiVideoService: GeminiVideoService;
+  private geminiTranscriptionFallbackService: GeminiVideoService;
   private storageMaintenance: StorageMaintenance;
   private ytDlpFallback: YtDlpFallback;
   private transcriptionPipeline: VideoTranscriptionPipeline;
   private ytDlpTranscriptSupport: VideoYtDlpTranscriptSupport;
 
-  constructor() {
-    this.audioHandler = new AudioHandler();
+  constructor(audioHandler: MediaTranscriber) {
+    this.audioHandler = audioHandler;
     this.audioChunker = new AudioChunker();
     this.videoContextDir = path.join(config.dataDir, 'video-contexts');
-    this.geminiVideoAnalyzer = new GeminiVideoService();
-    this.geminiTranscriptionFallbackAnalyzer = new GeminiVideoService({
+    this.geminiVideoService = new GeminiVideoService();
+    this.geminiTranscriptionFallbackService = new GeminiVideoService({
       apiKey: config.geminiTranscriptionApiKey,
       model: config.geminiTranscriptionModel,
     });
@@ -70,8 +70,8 @@ export class VideoHandler {
     this.transcriptionPipeline = new VideoTranscriptionPipeline({
       audioHandler: this.audioHandler,
       audioChunker: this.audioChunker,
-      geminiVideoAnalyzer: this.geminiVideoAnalyzer,
-      geminiTranscriptionFallbackAnalyzer: this.geminiTranscriptionFallbackAnalyzer,
+      geminiVideoService: this.geminiVideoService,
+      geminiTranscriptionFallbackService: this.geminiTranscriptionFallbackService,
     });
     this.ytDlpTranscriptSupport = new VideoYtDlpTranscriptSupport(
       this.ytDlpFallback,

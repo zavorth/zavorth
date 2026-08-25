@@ -22,10 +22,6 @@ export * from './TelegramExperienceActionCardRegistry.js';
 
 export * from './TelegramPriorityCommandService.js';
 export * from './TelegramSchedulerSupport.js';
-export * from './StorageMaintenance.js';
 export * from './ExternalExecutorIdentity.js';
 export * from './BotGatewayHelpers.js';
 export * from './AudioHandler.js';
-export * from './AudioChunker.js';
-export * from './VideoHandler.js';
-export * from './YtDlpFallback.js';

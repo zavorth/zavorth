@@ -1,16 +1,16 @@
-import { logger } from '../../../../logger.js';
+import { logger } from '../../../logger.js';
 import fs from 'fs';
 import path from 'path';
-import { isCapabilityUnavailableError } from '../../../../services/OptionalCapabilityGuard.js';
-import { YtDlpFallback } from '../../../../gateways/channels/telegram/YtDlpFallback.js';
-import { VideoHandlerUrlSupport } from '../../../../gateways/channels/telegram/video-handler/VideoHandlerUrlSupport.js';
-import { VideoHandlerFormatSupport } from '../../../../gateways/channels/telegram/video-handler/VideoHandlerFormatSupport.js';
+import { isCapabilityUnavailableError } from '../../../services/OptionalCapabilityGuard.js';
+import { YtDlpFallback } from '../YtDlpFallback.js';
+import { VideoHandlerUrlSupport } from './VideoHandlerUrlSupport.js';
+import { VideoHandlerFormatSupport } from './VideoHandlerFormatSupport.js';
 import {
   MAX_TRANSCRIPTION_BYTES,
   VideoTranscriptionPipeline,
   type VideoTranscriptResult,
-} from '../../../../gateways/channels/telegram/video-handler/VideoTranscriptionPipeline.js';
-import { asErrorLike } from '../../../../utils/errorLike.js';
+} from './VideoTranscriptionPipeline.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
 
 export class VideoYtDlpTranscriptSupport {
   public constructor(

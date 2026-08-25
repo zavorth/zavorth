@@ -16,7 +16,7 @@ import {
 import { AudioHandler, type AudioTranscriptionResult } from '../../../../gateways/channels/telegram/AudioHandler.js';
 
 import { logEchoTrace } from '../../../../gateways/channels/telegram/EchoTrace.js';
-import { VideoHandler } from '../../../../gateways/channels/telegram/VideoHandler.js';
+import { VideoHandler } from '../../../../services/media/VideoHandler.js';
 import { EchoOutputStageService } from '@zavorth/services/EchoOutputStageService.js';
 import { safeFetch } from '@zavorth/security/SafeFetchService.js';
 import { TelegramOpsInsightPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramOpsInsightPresentationService.js';

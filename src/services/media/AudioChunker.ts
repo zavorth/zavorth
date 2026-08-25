@@ -1,9 +1,9 @@
-import { logger } from '../../../logger.js';
+import { logger } from '../../logger.js';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { spawn } from 'child_process';
-import { CapabilityUnavailableError } from '../../../services/OptionalCapabilityGuard.js';
+import { CapabilityUnavailableError } from '../OptionalCapabilityGuard.js';
 const AUDIO_TMP_DIR = path.join(os.tmpdir(), 'zavorth-audio-chunks');
 
 export interface PreparedAudioChunk {

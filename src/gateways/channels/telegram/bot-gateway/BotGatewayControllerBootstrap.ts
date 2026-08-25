@@ -48,7 +48,7 @@ import type { BotGatewayRuntimeOptions } from '../../../../gateways/channels/tel
 import type { Bot, Context, InlineKeyboard } from 'grammy';
 import type { CommandParser } from '../../../../gateways/channels/telegram/CommandParser.js';
 import type { AudioHandler } from '../../../../gateways/channels/telegram/AudioHandler.js';
-import type { VideoHandler } from '../../../../gateways/channels/telegram/VideoHandler.js';
+import type { VideoHandler } from '../../../../services/media/VideoHandler.js';
 import type { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';
 import type { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import type { ZavorthBridgePreferenceStore } from '../../../../agents/ZavorthBridgePreferenceStore.js';

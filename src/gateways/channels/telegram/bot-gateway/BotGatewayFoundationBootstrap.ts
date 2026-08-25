@@ -2,7 +2,7 @@ import { logger } from '../../../../logger.js';
 import { Bot } from 'grammy';
 import { CommandParser } from '../../../../gateways/channels/telegram/CommandParser.js';
 import { AudioHandler } from '../../../../gateways/channels/telegram/AudioHandler.js';
-import { VideoHandler } from '../../../../gateways/channels/telegram/VideoHandler.js';
+import { VideoHandler } from '../../../../services/media/VideoHandler.js';
 import { EchoOutputStageService } from '../../../../services/EchoOutputStageService.js';
 import { LogRepository } from '../../../../storage/LogRepository.js';
 import { LocalExecutor } from '../../../../execution/LocalExecutor.js';
@@ -119,7 +119,7 @@ export function initializeBotGatewayFoundation(
   );
   gateway.parser = new CommandParser();
   gateway.audioHandler = new AudioHandler();
-  gateway.videoHandler = new VideoHandler();
+  gateway.videoHandler = new VideoHandler(gateway.audioHandler);
   gateway.zavorthBridgePreferenceStore = new ZavorthBridgePreferenceStore();
   gateway.echoOutputStage = new EchoOutputStageService({
     audioHandler: gateway.audioHandler,

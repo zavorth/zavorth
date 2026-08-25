@@ -1,11 +1,10 @@
-import { logger } from '../../../../logger.js';
-import { config } from '../../../../config/index.js';
-import { AudioHandler } from '../../../../gateways/channels/telegram/AudioHandler.js';
-import { AudioChunker, type PreparedAudioChunk } from '../../../../gateways/channels/telegram/AudioChunker.js';
-import { GeminiVideoService, type GeminiVideoAnalysis } from '../../../../providers/GeminiVideoService.js';
-import { VideoHandlerUrlSupport } from '../../../../gateways/channels/telegram/video-handler/VideoHandlerUrlSupport.js';
-import { VideoHandlerFormatSupport } from '../../../../gateways/channels/telegram/video-handler/VideoHandlerFormatSupport.js';
-import { asErrorLike } from '../../../../utils/errorLike.js';
+import { logger } from '../../../logger.js';
+import { config } from '../../../config/index.js';
+import { AudioChunker, type PreparedAudioChunk } from '../AudioChunker.js';
+import { GeminiVideoService, type GeminiVideoAnalysis } from '../../../providers/GeminiVideoService.js';
+import { VideoHandlerUrlSupport } from './VideoHandlerUrlSupport.js';
+import { VideoHandlerFormatSupport } from './VideoHandlerFormatSupport.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
 
 export const MAX_TRANSCRIPTION_BYTES = 25 * 1024 * 1024;
 const AUDIO_CHUNK_SECONDS = 20 * 60;
@@ -17,23 +16,27 @@ export type VideoTranscriptResult = {
   warnings: string[];
 };
 
+export type MediaTranscriber = {
+  transcribe(filePath: string, options?: { language?: string; prompt?: string }): Promise<string>;
+};
+
 export type VideoTranscriptionPipelineDeps = {
-  audioHandler: AudioHandler;
+  audioHandler: MediaTranscriber;
   audioChunker: AudioChunker;
-  geminiVideoAnalyzer: GeminiVideoService;
-  geminiTranscriptionFallbackAnalyzer: GeminiVideoService;
+  geminiVideoService: GeminiVideoService;
+  geminiTranscriptionFallbackService: GeminiVideoService;
 };
 
 export class VideoTranscriptionPipeline {
   public constructor(private readonly deps: VideoTranscriptionPipelineDeps) {}
 
   public async tryGeminiYouTube(videoUrl: string, title: string): Promise<GeminiVideoAnalysis | null> {
-    if (!this.deps.geminiVideoAnalyzer.isEnabled()) {
+    if (!this.deps.geminiVideoService.isEnabled()) {
       return null;
     }
 
     try {
-      return await this.deps.geminiVideoAnalyzer.analyzeYouTubeUrl(videoUrl, title);
+      return await this.deps.geminiVideoService.analyzeYouTubeUrl(videoUrl, title);
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const errorMessage = error instanceof Error ? err.message : String(error);
@@ -51,12 +54,12 @@ export class VideoTranscriptionPipeline {
     mimeType: string,
     titleHint?: string,
   ): Promise<GeminiVideoAnalysis | null> {
-    if (!this.deps.geminiVideoAnalyzer.isEnabled()) {
+    if (!this.deps.geminiVideoService.isEnabled()) {
       return null;
     }
 
     try {
-      return await this.deps.geminiVideoAnalyzer.analyzeLocalVideo(filePath, mimeType, titleHint);
+      return await this.deps.geminiVideoService.analyzeLocalVideo(filePath, mimeType, titleHint);
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const errorMessage = error instanceof Error ? err.message : String(error);
@@ -74,12 +77,12 @@ export class VideoTranscriptionPipeline {
     mimeType: string,
     titleHint?: string,
   ): Promise<GeminiVideoAnalysis | null> {
-    if (!this.deps.geminiVideoAnalyzer.isEnabled()) {
+    if (!this.deps.geminiVideoService.isEnabled()) {
       return null;
     }
 
     try {
-      return await this.deps.geminiVideoAnalyzer.analyzeLocalAudio(filePath, mimeType, titleHint);
+      return await this.deps.geminiVideoService.analyzeLocalAudio(filePath, mimeType, titleHint);
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const errorMessage = error instanceof Error ? err.message : String(error);
@@ -156,7 +159,7 @@ export class VideoTranscriptionPipeline {
     filePath: string,
     titleHint?: string,
   ): Promise<VideoTranscriptResult | null> {
-    if (!this.deps.geminiTranscriptionFallbackAnalyzer.isEnabled()) {
+    if (!this.deps.geminiTranscriptionFallbackService.isEnabled()) {
       return null;
     }
 
@@ -252,12 +255,12 @@ export class VideoTranscriptionPipeline {
     mimeType: string,
     titleHint?: string,
   ): Promise<GeminiVideoAnalysis | null> {
-    if (!this.deps.geminiTranscriptionFallbackAnalyzer.isEnabled()) {
+    if (!this.deps.geminiTranscriptionFallbackService.isEnabled()) {
       return null;
     }
 
     try {
-      return await this.deps.geminiTranscriptionFallbackAnalyzer.transcribeLocalAudio(filePath, mimeType, titleHint);
+      return await this.deps.geminiTranscriptionFallbackService.transcribeLocalAudio(filePath, mimeType, titleHint);
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const errorMessage = error instanceof Error ? err.message : String(error);
@@ -433,12 +436,12 @@ export class VideoTranscriptionPipeline {
     sections: Array<{ label: string; text: string }>,
     titleHint?: string,
   ): Promise<GeminiVideoAnalysis | null> {
-    if (!this.deps.geminiVideoAnalyzer.isEnabled() || sections.length === 0) {
+    if (!this.deps.geminiVideoService.isEnabled() || sections.length === 0) {
       return null;
     }
 
     try {
-      return await this.deps.geminiVideoAnalyzer.summarizeTextSections(sections, titleHint);
+      return await this.deps.geminiVideoService.summarizeTextSections(sections, titleHint);
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const errorMessage = error instanceof Error ? err.message : String(error);

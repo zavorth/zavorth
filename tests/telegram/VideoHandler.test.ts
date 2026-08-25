@@ -1,4 +1,4 @@
-import { VideoHandler } from '../../src/telegram/VideoHandler';
+import { VideoHandler } from '../../src/services/media/VideoHandler';
 
 describe('VideoHandler', () => {
   it('parses JSON payloads with XSSI prefixes safely', () => {

@@ -1,7 +1,7 @@
-import { logger } from '../../../../logger.js';
+import { logger } from '../../../logger.js';
 import fs from "fs";
 import path from "path";
-import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
+import { safeParseInt } from '../../../ai-gateway/shared/utils/safeParseInt.js';
 export class VideoHandlerFormatSupport {
   public static firstNonEmptyString(
     ...values: Array<string | null | undefined>

@@ -1,8 +1,8 @@
-import { logger } from '../../../logger.js';
+import { logger } from '../../logger.js';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { config } from '../../../config/index.js';
+import { config } from '../../config/index.js';
 interface CleanupSummary {
   deletedFiles: number;
   freedBytes: number;

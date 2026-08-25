@@ -1,10 +1,10 @@
 import fs from "fs";
 import path from "path";
 import type { Context } from "grammy";
-import { config } from "../../../../config/index.js";
-import type { InlineData } from "../../../../providers/ILlmProvider.js";
-import { safeFetch } from "../../../../security/SafeFetchService.js";
-import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
+import { config } from "../../../config/index.js";
+import type { InlineData } from "../../../providers/ILlmProvider.js";
+import { safeFetch } from "../../../security/SafeFetchService.js";
+import { safeParseInt } from '../../../ai-gateway/shared/utils/safeParseInt.js';
 import {
   DEFAULT_HEADERS,
   FETCH_TIMEOUT_MS,
@@ -12,11 +12,11 @@ import {
   MAX_REMOTE_DOWNLOAD_BYTES,
   SUPPORTED_VIDEO_EXTENSIONS,
   type DownloadedFile,
-} from "../../../../gateways/channels/telegram/video-handler/VideoHandlerTypes.js";
-import { VideoHandlerFormatSupport } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerFormatSupport.js";
+} from "./VideoHandlerTypes.js";
+import { VideoHandlerFormatSupport } from "./VideoHandlerFormatSupport.js";
 
-import { logger } from '../../../../logger';
-import { asErrorLike } from '../../../../utils/errorLike.js';
+import { logger } from '../../../logger';
+import { asErrorLike } from '../../../utils/errorLike.js';
 
 export class VideoHandlerFetchSupport {
   public static async fetchThumbnailInlineData(

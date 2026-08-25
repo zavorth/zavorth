@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import { TelegramMediaController } from '../../../src/gateways/channels/telegram/controllers/TelegramMediaController';
 import type { AudioHandler } from '../../../src/gateways/channels/telegram/AudioHandler';
-import type { VideoHandler } from '../../../src/gateways/channels/telegram/VideoHandler';
+import type { VideoHandler } from '../../../src/services/media/VideoHandler';
 import type { Context } from 'grammy';
 import { config } from '../../../src/config/index';
 

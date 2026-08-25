@@ -1,4 +1,4 @@
-import type { InlineData } from "../../../../providers/ILlmProvider.js";
+import type { InlineData } from "../../../providers/ILlmProvider.js";
 
 export const SUPPORTED_VIDEO_EXTENSIONS = new Set([
   ".mp4",

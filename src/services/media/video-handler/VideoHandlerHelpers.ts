@@ -1,5 +1,5 @@
 import type { Context } from 'grammy';
-import type { InlineData } from '../../../../providers/ILlmProvider.js';
+import type { InlineData } from '../../../providers/ILlmProvider.js';
 import { VideoHandlerContextSupport } from './VideoHandlerContextSupport.js';
 import { VideoHandlerFetchSupport } from './VideoHandlerFetchSupport.js';
 import { VideoHandlerFormatSupport } from './VideoHandlerFormatSupport.js';
