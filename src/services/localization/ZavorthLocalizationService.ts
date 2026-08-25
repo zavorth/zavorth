@@ -46,7 +46,7 @@ export class ZavorthLocalizationService {
       return this.dynamicCatalogs.get(normalized)!;
     }
     if (this.isSupportedLocale(normalized)) {
-      return BUILTIN_CATALOGS[normalized];
+      return BUILTIN_CATALOGS[normalized] ?? BUILTIN_CATALOGS[this.fallbackLocale];
     }
     return BUILTIN_CATALOGS[this.fallbackLocale];
   }

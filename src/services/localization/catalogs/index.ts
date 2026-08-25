@@ -17,7 +17,12 @@ import { af } from './af.js';
 import { ga } from './ga.js';
 import { hu } from './hu.js';
 
-export const BUILTIN_CATALOGS: Record<SupportedLocale, LocalizationCatalog> = {
+/**
+ * Builtin catalogs for the registry locales that ship hand-curated content.
+ * Intentionally partial: locales without a builtin catalog resolve through the
+ * English fallback until seeded or AI-translated once at runtime.
+ */
+export const BUILTIN_CATALOGS: Partial<Record<SupportedLocale, LocalizationCatalog>> = {
   en,
   pt,
   es,

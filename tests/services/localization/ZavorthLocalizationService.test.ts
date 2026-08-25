@@ -10,14 +10,14 @@ describe('ZavorthLocalizationService', () => {
   // translations and cascade to English for the remaining locales.
   const PROGRESSIVE_CATALOG_SECTIONS = new Set(['legacy', 'pluginTips', 'approval', 'gateway']);
 
-  it('should support all 18 built-in locale catalogs without missing keys', () => {
+  it('should support all built-in locale catalogs without missing keys', () => {
     const service = new ZavorthLocalizationService({ locale: 'en' });
     const enCatalog = service.getCatalog('en');
     const catalogKeys = Object.keys(enCatalog).filter(
       (section) => !PROGRESSIVE_CATALOG_SECTIONS.has(section),
     ) as Array<keyof LocalizationCatalog>;
 
-    expect(SUPPORTED_LOCALES.length).toBe(17); // 17 comprehensive world languages + variants
+    expect(SUPPORTED_LOCALES.length).toBe(37); // unified registry union across all surfaces
 
     for (const locale of SUPPORTED_LOCALES) {
       const catalog = service.getCatalog(locale);
@@ -65,6 +65,7 @@ describe('ZavorthLocalizationService', () => {
     const service = new ZavorthLocalizationService();
 
     expect(service.isRtl('ar')).toBe(true);
+    expect(service.isRtl('he')).toBe(true);
     expect(service.isRtl('en')).toBe(false);
     expect(service.isRtl('pt')).toBe(false);
     expect(service.isRtl('ja')).toBe(false);
@@ -85,7 +86,7 @@ describe('ZavorthLocalizationService', () => {
     const service = new ZavorthLocalizationService();
     const available = service.getAvailableLocales();
 
-    expect(available.length).toBeGreaterThanOrEqual(17);
+    expect(available.length).toBeGreaterThanOrEqual(37);
     const jaEntry = available.find((item) => item.code === 'ja');
     expect(jaEntry?.name).toBe('日本語');
 

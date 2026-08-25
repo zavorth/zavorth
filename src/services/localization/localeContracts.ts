@@ -5,6 +5,12 @@
  * engine, and administrative surfaces across the Zavorth runtime.
  */
 
+/**
+ * The single locale registry for every surface (CLI, channels, desktop,
+ * plugin OS, web control, AI gateway). Adding a language requires only a new
+ * entry here plus its metadata records below; catalog content arrives through
+ * build-time seeds or one-shot AI translation persisted at runtime.
+ */
 export const SUPPORTED_LOCALES = [
   'en',
   'pt',
@@ -23,11 +29,31 @@ export const SUPPORTED_LOCALES = [
   'af',
   'ga',
   'hu',
+  'bg',
+  'cs',
+  'da',
+  'fi',
+  'he',
+  'hi',
+  'id',
+  'ms',
+  'nl',
+  'no',
+  'phi',
+  'pl',
+  'ro',
+  'sk',
+  'sv',
+  'th',
+  'vi',
+  'pt-BR',
+  'uk-UA',
+  'zh-CN',
 ] as const;
 
 export type SupportedLocale = typeof SUPPORTED_LOCALES[number];
 
-export const RTL_LOCALES = new Set<SupportedLocale>(['ar']);
+export const RTL_LOCALES = new Set<SupportedLocale>(['ar', 'he']);
 
 export const LOCALE_ENDONYMS: Record<SupportedLocale, string> = {
   en: 'English',
@@ -47,6 +73,67 @@ export const LOCALE_ENDONYMS: Record<SupportedLocale, string> = {
   af: 'Afrikaans',
   ga: 'Gaeilge',
   hu: 'Magyar',
+  bg: 'Български',
+  cs: 'Čeština',
+  da: 'Dansk',
+  fi: 'Suomi',
+  he: 'עברית',
+  hi: 'हिन्दी',
+  id: 'Bahasa Indonesia',
+  ms: 'Bahasa Melayu',
+  nl: 'Nederlands',
+  no: 'Norsk',
+  phi: 'Filipino',
+  pl: 'Polski',
+  ro: 'Română',
+  sk: 'Slovenčina',
+  sv: 'Svenska',
+  th: 'ไทย',
+  vi: 'Tiếng Việt',
+  'pt-BR': 'Português (Brasil)',
+  'uk-UA': 'Українська',
+  'zh-CN': '简体中文',
+};
+
+/** Regional flag codes paired with each registry tag for display surfaces. */
+export const LOCALE_FLAGS: Record<SupportedLocale, string> = {
+  en: 'US',
+  pt: 'PT',
+  es: 'ES',
+  zh: 'CN',
+  'zh-hant': 'TW',
+  ja: 'JP',
+  de: 'DE',
+  fr: 'FR',
+  ru: 'RU',
+  ko: 'KR',
+  it: 'IT',
+  ar: 'AR',
+  tr: 'TR',
+  uk: 'UA',
+  af: 'ZA',
+  ga: 'IE',
+  hu: 'HU',
+  bg: 'BG',
+  cs: 'CZ',
+  da: 'DK',
+  fi: 'FI',
+  he: 'IL',
+  hi: 'IN',
+  id: 'ID',
+  ms: 'MY',
+  nl: 'NL',
+  no: 'NO',
+  phi: 'PH',
+  pl: 'PL',
+  ro: 'RO',
+  sk: 'SK',
+  sv: 'SE',
+  th: 'TH',
+  vi: 'VN',
+  'pt-BR': 'BR',
+  'uk-UA': 'UA',
+  'zh-CN': 'CN',
 };
 
 export interface CommonTranslations {
