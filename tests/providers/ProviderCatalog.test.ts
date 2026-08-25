@@ -32,6 +32,7 @@ const PROVIDER_FILES = [
   'GatewayProvider.ts',
   'GeminiInteractionsProviderAdapter.ts',
   'GeminiProvider.ts',
+  'GeminiVideoService.ts',
   'GeminiVoiceService.ts',
   'GroqProvider.ts',
   'ILlmProvider.ts',
