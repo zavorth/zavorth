@@ -1,7 +1,7 @@
 import { config } from '../../../config/index.js';
 import { Task } from '../../../contracts/TaskContract.js';
-import { getExplicitExecutorForCommand } from '../../../gateways/channels/telegram/commandCatalog.js';
-import { isExternalReviewCommand } from '../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
+import { getExplicitExecutorForCommand } from '../../../channels/commands/ChannelCommandCatalog.js';
+import { isExternalReviewCommand } from '../../../channels/commands/ExternalExecutorIdentity.js';
 
 export function persistTask(
   taskManager: { saveTask?: (task: Task) => void } | null | undefined, task: Task): void {

@@ -1,9 +1,9 @@
 import type { Context } from 'grammy';
 import {
-  CommandParser,
-  normalizeTelegramCommandToken,
+  ChannelCommandParser,
+  normalizeChannelCommandToken,
   type ParsedCommand,
-} from '../../../src/gateways/channels/telegram/CommandParser';
+} from '../../../src/channels/commands/ChannelCommandParser';
 import { GatewayPermissionBroker } from '../../../src/gateways/channels/telegram/bot-gateway/GatewayPermissionBroker';
 
 const USER_ID = 42;
@@ -29,7 +29,7 @@ function buildBroker(permissionController: PermissionControllerFake): GatewayPer
 }
 
 describe('GatewayPermissionBroker approval command flow', () => {
-  const parser = new CommandParser();
+  const parser = new ChannelCommandParser();
 
   describe('command parsing', () => {
     it('parses bare /approve with the approval_manager executor binding', () => {
@@ -41,7 +41,7 @@ describe('GatewayPermissionBroker approval command flow', () => {
     });
 
     it('normalizes bot-mention tokens to the slashed command token', () => {
-      expect(normalizeTelegramCommandToken('/Approve@SomeBot')).toBe('/approve');
+      expect(normalizeChannelCommandToken('/Approve@SomeBot')).toBe('/approve');
     });
 
     it('parses /Approve@SomeBot into /approve while keeping the args', () => {

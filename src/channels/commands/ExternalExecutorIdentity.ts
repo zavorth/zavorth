@@ -1,5 +1,5 @@
-import { config } from '../../../config/index.js';
-import type { IExecutor } from '../../../contracts/core/IExecutor.js';
+import { config } from '../../config/index.js';
+import type { IExecutor } from '../../contracts/core/IExecutor.js';
 
 const LEGACY_PREFIX = ['ope', 'nclaw'].join('');
 const LEGACY_LABEL = ['Open', 'Claw'].join('');

@@ -19,7 +19,7 @@ import { TelegramExecutionPlannedTaskService } from '../../../../gateways/channe
 import { TelegramExecutionPlanningService } from '../../../../gateways/channels/telegram/controllers/TelegramExecutionPlanningService.js';
 import { TelegramExecutionResearchService } from '../../../../gateways/channels/telegram/controllers/TelegramExecutionResearchService.js';
 import { TelegramExecutionResultService } from '../../../../gateways/channels/telegram/controllers/TelegramExecutionResultService.js';
-import { isExternalCommand } from '../../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
+import { isExternalCommand } from '../../../../channels/commands/ExternalExecutorIdentity.js';
 import { asErrorLike } from '../../../../utils/errorLike.js';
 
 type PersistedPolicyApplier = (task: Task, executor: string) => Promise<void>;

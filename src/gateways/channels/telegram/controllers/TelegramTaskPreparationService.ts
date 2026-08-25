@@ -1,4 +1,4 @@
-import { ParsedCommand } from '../../../../gateways/channels/telegram/CommandParser.js';
+import { ParsedCommand } from '../../../../channels/commands/ChannelCommandParser.js';
 import { Task } from '../../../../contracts/TaskContract.js';
 import type { TaskSource } from '../../../../contracts/PlatformContract.js';
 import { RouteIntent } from '../../../../orchestrator/IntentRouter.js';

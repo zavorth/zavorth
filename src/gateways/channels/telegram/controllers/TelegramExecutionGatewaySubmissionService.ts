@@ -17,7 +17,7 @@ import {
   isExternalExecutor,
   isExternalPathAccessRequiredError,
   isExternalWorkspaceMismatchError,
-} from '../../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
+} from '../../../../channels/commands/ExternalExecutorIdentity.js';
 
 type PersistTaskFn = (task: Task) => void;
 type PersistedPolicyApplier = (task: Task, executor: string) => Promise<void>;

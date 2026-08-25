@@ -1,6 +1,6 @@
 import { ZavorthAgentGateway } from '../../../src/runtime/agent';
 import { processTextMessage } from '../../../src/telegram/bot-gateway/support/BotGatewayMessageProcessing';
-import { CommandParser } from '../../../src/telegram/CommandParser';
+import { ChannelCommandParser } from '../../../src/channels/commands/ChannelCommandParser';
 
 function createTelegramContext(text = 'compare o que mudou nesta pasta') {
   return {
@@ -82,7 +82,7 @@ function createRuntime(
   return {
     runtime: {
       logRepo: { log: jest.fn() },
-      parser: new CommandParser(),
+      parser: new ChannelCommandParser(),
       priorityCommandService: { handle: jest.fn().mockResolvedValue(false) },
       securityLock: {
         isLocked: jest.fn().mockReturnValue(false),

@@ -1,6 +1,6 @@
 import type { Context } from 'grammy';
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
-import type { ParsedCommand } from '../../../../gateways/channels/telegram/CommandParser.js';
+import type { ParsedCommand } from '../../../../channels/commands/ChannelCommandParser.js';
 import {
   buildSharedSurfaceTelegramContext,
   canUseInteractiveGroupAi,

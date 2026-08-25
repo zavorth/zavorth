@@ -10,7 +10,7 @@ import type {
 import {
   EXTERNAL_EXECUTOR_LABEL,
   getRuntimeAdapterRoleFromMetadata,
-} from '../../../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
+} from '../../../../../channels/commands/ExternalExecutorIdentity.js';
 import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 interface TelegramApi {

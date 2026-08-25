@@ -1,5 +1,5 @@
 import type { Bot } from 'grammy';
-import type { CommandParser } from '../../../../gateways/channels/telegram/CommandParser.js';
+import type { ChannelCommandParser } from '../../../../channels/commands/ChannelCommandParser.js';
 import type { AudioHandler } from '../../../../gateways/channels/telegram/AudioHandler.js';
 import type { VideoHandler } from '../../../../services/media/VideoHandler.js';
 import type { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';
@@ -78,7 +78,7 @@ export abstract class BotGatewayState {
   public readonly platform = 'telegram';
   public readonly supportsRoleAwareBroadcast = true;
   protected bot!: Bot;
-  protected parser!: CommandParser;
+  protected parser!: ChannelCommandParser;
   protected audioHandler!: AudioHandler;
   protected echoOutputStage!: EchoOutputStageService;
   protected videoHandler!: VideoHandler;

@@ -8,7 +8,7 @@ import { WorkspaceResolver } from '../../../../../security/WorkspaceResolver.js'
 import { parseTelegramCommand } from '../../../../../gateways/channels/telegram/BotGatewayHelpers.js';
 import { TelegramChannelContractService } from '../../../../../gateways/channels/telegram/TelegramChannelContractService.js';
 import { TelegramAuthorizedChatRegistry } from '../../../../../gateways/channels/telegram/TelegramAuthorizedChatRegistry.js';
-import type { ParsedCommand } from '../../../../../gateways/channels/telegram/CommandParser.js';
+import type { ParsedCommand } from '../../../../../channels/commands/ChannelCommandParser.js';
 import { EchoOutputStageService } from '../../../../../services/EchoOutputStageService.js';
 import type { BotGatewaySupportRuntime } from '../../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportTypes.js';
 import { telegramLegacySurfacePolicyService } from '../../../../../gateways/channels/telegram/controllers/TelegramLegacySurfacePolicyService.js';

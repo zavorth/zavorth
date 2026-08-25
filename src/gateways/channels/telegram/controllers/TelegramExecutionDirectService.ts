@@ -11,7 +11,7 @@ import {
   EXTERNAL_EXECUTOR_ID,
   EXTERNAL_EXECUTOR_LABEL,
   getExternalExecutorTimeoutSeconds,
-} from '../../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
+} from '../../../../channels/commands/ExternalExecutorIdentity.js';
 
 type StoreExecutionResultFn = (task: Task, result: unknown) => void;
 type FormatExecutionOutputFn = (label: string, workspace: string, result: unknown) => string;

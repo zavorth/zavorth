@@ -1,9 +1,9 @@
 import { logger } from '../../../logger.js';
 import { Context, NextFunction } from 'grammy';
 import { config } from '../../../config/index.js';
-import { normalizeTelegramCommandToken } from '../../../gateways/channels/telegram/CommandParser.js';
+import { normalizeChannelCommandToken } from '../../../channels/commands/ChannelCommandParser.js';
 import { HostIdentityService } from '../../../services/HostIdentityService.js';
-import { getExplicitExecutorForCommand } from '../../../gateways/channels/telegram/commandCatalog.js';
+import { getExplicitExecutorForCommand } from '../../../channels/commands/ChannelCommandCatalog.js';
 import {
   EXTERNAL_EXECUTOR_COMMAND,
   EXTERNAL_REVIEW_COMMAND,
@@ -11,7 +11,7 @@ import {
   LEGACY_EXTERNAL_COMMAND,
   LEGACY_EXTERNAL_REVIEW_COMMAND,
   LEGACY_EXTERNAL_REVIEW_DASH_COMMAND,
-} from '../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
+} from '../../../channels/commands/ExternalExecutorIdentity.js';
 export class AuthGuard {
   private static readonly FUN_COMMANDS = ['/roll', '/coinflip', '/8ball', '/joke', '/roulette'];
   private static readonly READ_ONLY_ALLOWED_COMMANDS = new Set([
@@ -123,7 +123,7 @@ export class AuthGuard {
       const chat_id = ctx.chat?.id.toString();
       const user_id = ctx.from?.id.toString();
       const text = ctx.message?.text || '';
-      const normalizedCommand = normalizeTelegramCommandToken(text.split(' ')[0] || '');
+      const normalizedCommand = normalizeChannelCommandToken(text.split(' ')[0] || '');
       const isGroup = ctx.chat?.type === 'group' || ctx.chat?.type === 'supergroup';
       const isServiceMessage = AuthGuard.isGroupServiceMessage(ctx);
       const isGroupMessageUpdate = Boolean(ctx.message);
@@ -212,7 +212,7 @@ export class AuthGuard {
 
       if (!isAdmin) {
         const text = ctx.message?.text || '';
-        const commandType = normalizeTelegramCommandToken(text.split(' ')[0] || '');
+        const commandType = normalizeChannelCommandToken(text.split(' ')[0] || '');
 
         if (AuthGuard.BLOCKED_COMMANDS_FOR_VICE_OWNER.has(commandType) || AuthGuard.isHiddenPrivilegedInput(text)) {
           await ctx.reply(

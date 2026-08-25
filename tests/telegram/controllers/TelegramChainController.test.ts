@@ -5,7 +5,7 @@ import { config } from '../../../src/config/index';
 import { Database } from '../../../src/storage/Database';
 import { MemoryService } from '../../../src/services/MemoryService';
 import { SnippetService } from '../../../src/services/SnippetService';
-import { CommandParser } from '../../../src/telegram/CommandParser';
+import { ChannelCommandParser } from '../../../src/channels/commands/ChannelCommandParser';
 import { TelegramChainController } from '../../../src/telegram/controllers/TelegramChainController';
 
 // resolveChainTemplates constructs its own SQLite-backed MemoryService and
@@ -32,7 +32,7 @@ describe('TelegramChainController', () => {
 
   function createController() {
     return new TelegramChainController({
-      parser: new CommandParser(),
+      parser: new ChannelCommandParser(),
       processTextMessage: jest.fn().mockResolvedValue(undefined),
       truncateForTelegram: (content: string) => content,
     });

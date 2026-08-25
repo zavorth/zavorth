@@ -3,7 +3,7 @@ import {
   createSurfaceResponse,
   type SurfaceResponse,
 } from '../../../../domain/surface/application/surface-response/index.js';
-import { CommandCatalogEntry, TELEGRAM_COMMAND_CATALOG } from '../../../../gateways/channels/telegram/commandCatalog.js';
+import { CommandCatalogEntry, CHANNEL_COMMAND_CATALOG } from '../../../../channels/commands/ChannelCommandCatalog.js';
 
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
 
@@ -154,7 +154,7 @@ export class TelegramMenuController {
   }
 
   private getCommandCatalog(): CommandCatalogEntry[] {
-    return TELEGRAM_COMMAND_CATALOG.filter((entry) => !entry.hidden);
+    return CHANNEL_COMMAND_CATALOG.filter((entry) => !entry.hidden);
   }
 
   private prioritizeMenuCommands(

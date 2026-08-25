@@ -1,4 +1,4 @@
-import { getDefaultCapabilityRegistry } from '../../../capabilities/CapabilityRegistry.js';
+import { getDefaultCapabilityRegistry } from '../../capabilities/CapabilityRegistry.js';
 import {
   EXTERNAL_EXECUTOR_COMMAND,
   EXTERNAL_REVIEW_COMMAND,
@@ -7,7 +7,7 @@ import {
   LEGACY_EXTERNAL_REVIEW_COMMAND,
   LEGACY_EXTERNAL_REVIEW_DASH_COMMAND,
   LEGACY_EXTERNAL_SHORT_COMMAND,
-} from '../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
+} from './ExternalExecutorIdentity.js';
 
 export type CommandSection =
   | 'entry'
@@ -1031,14 +1031,14 @@ export const COMMAND_EXECUTORS: Record<string, string | null> = {
   ...capabilityRegistry.getExplicitExecutorMap(),
 };
 
-export const TELEGRAM_COMMAND_CATALOG: CommandCatalogEntry[] = [
+export const CHANNEL_COMMAND_CATALOG: CommandCatalogEntry[] = [
   ...STATIC_COMMAND_CATALOG,
   ...CAPABILITY_COMMAND_CATALOG.filter(
     (entry) => !STATIC_COMMAND_CATALOG.some((staticEntry) => staticEntry.command === entry.command),
   ),
 ];
 
-export const KNOWN_COMMANDS = new Set(TELEGRAM_COMMAND_CATALOG.map((entry) => `/${entry.command}`));
+export const KNOWN_COMMANDS = new Set(CHANNEL_COMMAND_CATALOG.map((entry) => `/${entry.command}`));
 
 export function resolveCommandAlias(commandType: string): string {
   return COMMAND_ALIASES[commandType] || commandType;

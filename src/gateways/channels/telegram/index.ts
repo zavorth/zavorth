@@ -3,8 +3,6 @@
 export * from './TelegramGateway.js';
 export * from './BotGateway.js';
 export * from './i18n.js';
-export * from './commandCatalog.js';
-export * from './CommandParser.js';
 export * from './AuthGuard.js';
 export * from './EchoTrace.js';
 export * from './TelegramCommandRoutingService.js';
@@ -22,6 +20,6 @@ export * from './TelegramExperienceActionCardRegistry.js';
 
 export * from './TelegramPriorityCommandService.js';
 export * from './TelegramSchedulerSupport.js';
-export * from './ExternalExecutorIdentity.js';
+export * from '../../../channels/commands/ExternalExecutorIdentity.js';
 export * from './BotGatewayHelpers.js';
 export * from './AudioHandler.js';

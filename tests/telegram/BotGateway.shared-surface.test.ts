@@ -1,10 +1,10 @@
-import { CommandParser } from '../../src/telegram/CommandParser';
+import { ChannelCommandParser } from '../../src/channels/commands/ChannelCommandParser';
 import { BotGateway } from '../../src/telegram/BotGateway';
 
 describe('BotGateway shared surface fallback', () => {
   function createGatewayHarness(sharedSurfaceCommandService: any) {
     const gateway = Object.create(BotGateway.prototype) as any;
-    gateway.parser = new CommandParser();
+    gateway.parser = new ChannelCommandParser();
     gateway.surfaceIdentityService = {
       linkIdentity: jest.fn(),
     };

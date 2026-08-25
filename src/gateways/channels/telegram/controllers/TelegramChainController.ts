@@ -1,5 +1,5 @@
 import { Context } from 'grammy';
-import { CommandParser } from '../../../../gateways/channels/telegram/CommandParser.js';
+import { ChannelCommandParser } from '../../../../channels/commands/ChannelCommandParser.js';
 import { MemoryService } from '../../../../services/MemoryService.js';
 import { SmartOutputService } from '../../../../services/SmartOutputService.js';
 import { SnippetService } from '../../../../services/SnippetService.js';
@@ -17,7 +17,7 @@ type ProcessTextMessageFn = (ctx: Context, text: string) => Promise<void>;
 type TelegramTruncator = (content: string, maxLength: number) => string;
 
 export type TelegramChainControllerDeps = {
-  parser: CommandParser;
+  parser: ChannelCommandParser;
   processTextMessage: ProcessTextMessageFn;
   truncateForTelegram: TelegramTruncator;
 };

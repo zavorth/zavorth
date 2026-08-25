@@ -1,4 +1,4 @@
-import { getExplicitExecutorForCommand, isKnownCommand, resolveCommandAlias } from '../../../gateways/channels/telegram/commandCatalog.js';
+import { getExplicitExecutorForCommand, isKnownCommand, resolveCommandAlias } from './ChannelCommandCatalog.js';
 
 export interface ParsedCommand {
   command_type: string;
@@ -9,7 +9,7 @@ export interface ParsedCommand {
   workspace_command_name?: string | null;
 }
 
-export function normalizeTelegramCommandToken(commandToken: string): string {
+export function normalizeChannelCommandToken(commandToken: string): string {
   const normalizedToken = commandToken.trim().toLowerCase();
   if (!normalizedToken.startsWith('/')) {
     return normalizedToken;
@@ -25,7 +25,7 @@ function inferShortFollowUpReference(message: string): boolean {
   return message.length > 0 && message.length <= SHORT_FOLLOWUP_QUESTION_MAX_LENGTH && message.endsWith('?');
 }
 
-export class CommandParser {
+export class ChannelCommandParser {
   public parse(rawMessage: string): ParsedCommand {
     const text = rawMessage.trim();
     let command_type = 'message';
@@ -34,7 +34,7 @@ export class CommandParser {
 
     if (text.startsWith('/')) {
       const parts = text.split(' ');
-      command_type = resolveCommandAlias(normalizeTelegramCommandToken(parts[0]));
+      command_type = resolveCommandAlias(normalizeChannelCommandToken(parts[0]));
       command_args = parts.slice(1).join(' ').trim();
       explicit_executor = getExplicitExecutorForCommand(command_type);
 

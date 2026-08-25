@@ -1,6 +1,6 @@
 import { Context } from 'grammy';
 import { TypingHeartbeat } from '../../../../channels/presence/TypingHeartbeat.js';
-import { ParsedCommand } from '../../../../gateways/channels/telegram/CommandParser.js';
+import { ParsedCommand } from '../../../../channels/commands/ChannelCommandParser.js';
 import { Task } from '@zavorth/contracts/TaskContract.js';
 import { RouteIntent } from '../../../../orchestrator/IntentRouter.js';
 import { RiskClassification } from '../../../../orchestrator/RiskClassifier.js';

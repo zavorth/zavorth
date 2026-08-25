@@ -10,7 +10,7 @@ import {
   getRuntimeAdapterRoleFromMetadata,
   isExternalCommand,
   isExternalExecutor,
-} from '../../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
+} from '../../../../channels/commands/ExternalExecutorIdentity.js';
 
 export class TelegramExecutionGatewayPlanService {
   private readonly workspaceProfileService = new WorkspaceProfileService();

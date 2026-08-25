@@ -1,5 +1,5 @@
 import { Context } from 'grammy';
-import type { ParsedCommand } from '../../../gateways/channels/telegram/CommandParser.js';
+import type { ParsedCommand } from '../../../channels/commands/ChannelCommandParser.js';
 import {
   GatewayMemoryCommandRouter,
   type GatewayMemoryCommandRouterDeps,

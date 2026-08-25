@@ -1,4 +1,4 @@
-import { CommandParser } from '../../../../gateways/channels/telegram/CommandParser.js';
+import { ChannelCommandParser } from '../../../../channels/commands/ChannelCommandParser.js';
 import { TelegramChannelContractService } from '../../../../gateways/channels/telegram/TelegramChannelContractService.js';
 import { EchoOutputStageService } from '../../../../services/EchoOutputStageService.js';
 import { HostIdentityService } from '../../../../services/HostIdentityService.js';
@@ -27,7 +27,7 @@ export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): Bo
     // require one, but support construction itself must not fail without it.
     bot: gateway.bot || (null as unknown as import('grammy').Bot),
     logRepo: gateway.logRepo || { log: () => undefined },
-    parser: gateway.parser || new CommandParser(),
+    parser: gateway.parser || new ChannelCommandParser(),
     priorityCommandService: gateway.priorityCommandService || { handle: async () => false },
     securityLock: gateway.securityLock || { isLocked: () => false, isCommandAllowedWhenLocked: () => true },
     chainController: gateway.chainController || { handleCommandChain: async () => undefined },

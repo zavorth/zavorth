@@ -13,7 +13,7 @@ import {
   getExternalExecutorAgentId,
   getExternalMetadataValue,
   isExternalPathAccessRequiredError,
-} from '../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
+} from '../../../channels/commands/ExternalExecutorIdentity.js';
 
 export type TelegramCommandToken = {
   commandType: string;

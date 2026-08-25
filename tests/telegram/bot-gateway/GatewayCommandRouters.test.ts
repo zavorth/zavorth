@@ -1,7 +1,7 @@
 import { GatewayMemoryCommandRouter } from '../../../src/telegram/bot-gateway/GatewayMemoryCommandRouter';
 import { GatewayPermissionBroker } from '../../../src/telegram/bot-gateway/GatewayPermissionBroker';
 import { GatewaySchedulerCommandRouter } from '../../../src/telegram/bot-gateway/GatewaySchedulerCommandRouter';
-import type { ParsedCommand } from '../../../src/telegram/CommandParser';
+import type { ParsedCommand } from '../../../src/channels/commands/ChannelCommandParser';
 
 function parsed(commandType: string, commandArgs = ''): ParsedCommand {
   return {

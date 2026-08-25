@@ -1,7 +1,7 @@
-import { CommandParser } from '../../src/telegram/CommandParser';
+import { ChannelCommandParser } from '../../src/channels/commands/ChannelCommandParser';
 
 describe('CommandParser', () => {
-  const parser = new CommandParser();
+  const parser = new ChannelCommandParser();
 
   it('maps /external to the explicit external_executor executor', () => {
     const parsed = parser.parse('/external revise o bootstrap');

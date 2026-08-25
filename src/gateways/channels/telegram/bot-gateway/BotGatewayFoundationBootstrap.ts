@@ -1,6 +1,6 @@
 import { logger } from '../../../../logger.js';
 import { Bot } from 'grammy';
-import { CommandParser } from '../../../../gateways/channels/telegram/CommandParser.js';
+import { ChannelCommandParser } from '../../../../channels/commands/ChannelCommandParser.js';
 import { AudioHandler } from '../../../../gateways/channels/telegram/AudioHandler.js';
 import { VideoHandler } from '../../../../services/media/VideoHandler.js';
 import { EchoOutputStageService } from '../../../../services/EchoOutputStageService.js';
@@ -57,7 +57,7 @@ import type { HoneypotMonitor } from '../../../../monitoring/HoneypotMonitor.js'
 type BotGatewayFoundationTarget = {
   telegramLiveEnabled: boolean;
   bot: Bot;
-  parser: CommandParser;
+  parser: ChannelCommandParser;
   audioHandler: AudioHandler;
   videoHandler: VideoHandler;
   zavorthBridgePreferenceStore: ZavorthBridgePreferenceStore;
@@ -117,7 +117,7 @@ export function initializeBotGatewayFoundation(
   gateway.bot = new Bot(
     resolvedToken || '0:TELEGRAM_DISABLED_LOCAL_BOOT',
   );
-  gateway.parser = new CommandParser();
+  gateway.parser = new ChannelCommandParser();
   gateway.audioHandler = new AudioHandler();
   gateway.videoHandler = new VideoHandler(gateway.audioHandler);
   gateway.zavorthBridgePreferenceStore = new ZavorthBridgePreferenceStore();
