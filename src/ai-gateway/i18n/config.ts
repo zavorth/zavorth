@@ -1,62 +1,55 @@
-export const LOCALES = [
-  "ar",
-  "bg",
-  "cs",
-  "da",
-  "de",
-  "en",
-  "es",
-  "fi",
-  "fr",
-  "he",
-  "hi",
-  "hu",
-  "id",
-  "it",
-  "ja",
-  "ko",
-  "ms",
-  "nl",
-  "no",
-  "phi",
-  "pl",
-  "pt",
-  "pt-BR",
-  "ro",
-  "ru",
-  "sk",
-  "sv",
-  "th",
-  "tr",
-  "uk-UA",
-  "vi",
-  "zh-CN",
-] as const;
-export type Locale = (typeof LOCALES)[number];
+/**
+ * AI-gateway locale surface.
+ *
+ * The negotiated locale set, RTL list, and display metadata are re-exported
+ * from the unified locale registry (src/services/localization/localeContracts);
+ * this module keeps only gateway-owned HTTP concerns: cookie name, system
+ * sentinel, default locale, and the curated language-picker order.
+ */
+
+import {
+  LOCALE_ENDONYMS,
+  LOCALE_FLAGS,
+  SUPPORTED_LOCALES,
+  RTL_LOCALES as REGISTRY_RTL_LOCALES,
+  type SupportedLocale,
+} from "../../services/localization/localeContracts";
+
+export type Locale = SupportedLocale;
+
+export const LOCALES: readonly Locale[] = SUPPORTED_LOCALES;
 
 export const DEFAULT_LOCALE: Locale = "en";
 export const SYSTEM_LOCALE = "system";
+
+/** Curated picker order; labels and flags derive from registry metadata. */
+const LANGUAGE_DISPLAY_ORDER = [
+  "en",
+  "pt-BR",
+  "pt",
+  "es",
+  "fr",
+  "de",
+  "it",
+  "ja",
+  "ko",
+  "zh-CN",
+  "ar",
+  "he",
+] as const satisfies readonly Locale[];
 
 export const LANGUAGES: readonly {
   code: Locale;
   label: string;
   name: string;
   flag: string;
-}[] = [
-  { code: "en", label: "EN", name: "English", flag: "US" },
-  { code: "pt-BR", label: "PT", name: "Português (Brasil)", flag: "BR" },
-  { code: "pt", label: "PT", name: "Português", flag: "PT" },
-  { code: "es", label: "ES", name: "Español", flag: "ES" },
-  { code: "fr", label: "FR", name: "Français", flag: "FR" },
-  { code: "de", label: "DE", name: "Deutsch", flag: "DE" },
-  { code: "it", label: "IT", name: "Italiano", flag: "IT" },
-  { code: "ja", label: "JA", name: "日本語", flag: "JP" },
-  { code: "ko", label: "KO", name: "한국어", flag: "KR" },
-  { code: "zh-CN", label: "ZH", name: "简体中文", flag: "CN" },
-  { code: "ar", label: "AR", name: "العربية", flag: "AR" },
-  { code: "he", label: "HE", name: "עברית", flag: "IL" },
-] as const;
+}[] = LANGUAGE_DISPLAY_ORDER.map((code) => ({
+  code,
+  label: code.split("-")[0].toUpperCase(),
+  name: LOCALE_ENDONYMS[code],
+  flag: LOCALE_FLAGS[code],
+}));
 
-export const RTL_LOCALES = ["ar", "he"] as const;
+export const RTL_LOCALES = [...REGISTRY_RTL_LOCALES] as const;
 
 export const LOCALE_COOKIE = "NEXT_LOCALE";
