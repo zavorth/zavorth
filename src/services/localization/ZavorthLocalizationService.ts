@@ -5,7 +5,7 @@ import {
   type SupportedLocale,
   type LocalizationCatalog,
 } from './localeContracts.js';
-import { BUILTIN_CATALOGS } from './catalogs/index.js';
+import { BUILTIN_CATALOGS, ENGLISH_CATALOG } from './catalogs/index.js';
 
 export interface LocalizationOptions {
   locale?: SupportedLocale;
@@ -46,9 +46,9 @@ export class ZavorthLocalizationService {
       return this.dynamicCatalogs.get(normalized)!;
     }
     if (this.isSupportedLocale(normalized)) {
-      return BUILTIN_CATALOGS[normalized] ?? BUILTIN_CATALOGS[this.fallbackLocale];
+      return BUILTIN_CATALOGS[normalized] ?? ENGLISH_CATALOG;
     }
-    return BUILTIN_CATALOGS[this.fallbackLocale];
+    return ENGLISH_CATALOG;
   }
 
   public isRtl(locale: string = this.currentLocale): boolean {
@@ -82,7 +82,7 @@ export class ZavorthLocalizationService {
   public t(keyPath: string, params: Record<string, string | number> = {}, overrideLocale?: string): string {
     const targetLocale = overrideLocale || this.currentLocale;
     const catalog = this.getCatalog(targetLocale);
-    const fallbackCatalog = BUILTIN_CATALOGS[this.fallbackLocale];
+    const fallbackCatalog = ENGLISH_CATALOG;
 
     const value = this.extractNestedKey(catalog, keyPath) || this.extractNestedKey(fallbackCatalog, keyPath) || keyPath;
 

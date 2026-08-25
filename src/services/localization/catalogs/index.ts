@@ -42,6 +42,9 @@ export const BUILTIN_CATALOGS: Partial<Record<SupportedLocale, LocalizationCatal
   hu,
 };
 
+/** Guaranteed-non-empty fallback catalog anchoring every resolution chain. */
+export const ENGLISH_CATALOG: LocalizationCatalog = en;
+
 export {
   en,
   pt,
