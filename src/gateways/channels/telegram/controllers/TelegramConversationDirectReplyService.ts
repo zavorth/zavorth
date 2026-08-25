@@ -4,7 +4,7 @@ import { SmartOutputService } from '../../../../services/SmartOutputService.js';
 import { EchoOutputStageService } from '../../../../services/EchoOutputStageService.js';
 import { buildWorkspaceContinuityContext } from '../../../../runtime/context/WorkspaceContinuityContext.js';
 import type { WorkspaceTaskKind, WorkspaceTaskSubtype } from '../../../../services/WorkspaceTaskKind.js';
-import type { AudioSynthesisOptions } from '../../../../gateways/channels/telegram/AudioHandler.js';
+import type { AudioSynthesisOptions } from '../../../../services/AudioSynthesisService.js';
 import { logEchoTrace, resolveEchoTraceId } from '../../../../gateways/channels/telegram/EchoTrace.js';
 import { TelegramConversationStateService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationStateService.js';
 import { logger } from '../../../../logger.js';

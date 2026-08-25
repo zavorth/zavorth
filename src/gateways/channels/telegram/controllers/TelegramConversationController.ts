@@ -22,7 +22,7 @@ import {
 } from '@zavorth/runtime/agent/index.js';
 import type { GraphRuntimeService } from '@zavorth/services/graph/GraphRuntimeService.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
-import type { AudioSynthesisOptions } from '../../../../gateways/channels/telegram/AudioHandler.js';
+import type { AudioSynthesisOptions } from '../../../../services/AudioSynthesisService.js';
 import { TelegramConversationAutonomousService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationAutonomousService.js';
 import { TelegramConversationDecisionService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationDecisionService.js';
 import { TelegramConversationContextService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationContextService.js';

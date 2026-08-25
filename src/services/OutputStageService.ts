@@ -1,6 +1,6 @@
 import { logger } from '../logger.js';
 import { config } from '../config/index.js';
-import type { AudioSynthesisOptions } from '../gateways/channels/telegram/AudioHandler.js';
+import type { AudioSynthesisOptions } from './AudioSynthesisService.js';
 import { logEchoTrace } from '../gateways/channels/telegram/EchoTrace.js';
 import { asErrorLike } from '../utils/errorLike.js';
 import { getVoicePreferenceService } from './voice/VoicePreferenceService.js';

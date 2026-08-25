@@ -4,7 +4,7 @@ import type { SurfaceCommandBoundary } from '../../../../api/internal/InternalSu
 import type { TelegramGatewayHandlerRegistrar } from '../../../../gateways/channels/telegram/TelegramGatewayHandlerRegistrar.js';
 import type { TelegramChannelContractService } from '../../../../gateways/channels/telegram/TelegramChannelContractService.js';
 import type { ParsedCommand } from '../../../../gateways/channels/telegram/CommandParser.js';
-import type { AudioSynthesisOptions } from '../../../../gateways/channels/telegram/AudioHandler.js';
+import type { AudioSynthesisOptions } from '../../../../services/AudioSynthesisService.js';
 import type { LegacyUnifiedGatewayAdapter } from '../../../../context-engine/LegacyUnifiedGatewayAdapter.js';
 import type { ZavorthAgentGateway } from '../../../../runtime/agent/index.js';
 import type { EchoOutputStageService } from '../../../../services/EchoOutputStageService.js';

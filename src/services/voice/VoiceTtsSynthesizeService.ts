@@ -1,11 +1,11 @@
 /**
- * Preference-aware TTS synthesis for Desktop / duplex (edge-tts | gemini via AudioHandler).
+ * Preference-aware TTS synthesis for Desktop / duplex (edge-tts | gemini via AudioSynthesisService).
  * Returns base64 audio for browser playback — not silent speechSynthesis fallback only.
  */
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { AudioHandler } from '../../gateways/channels/telegram/AudioHandler.js';
+import { AudioSynthesisService } from '../AudioSynthesisService.js';
 import {
   getVoicePreferenceService,
   type VoicePreferenceService,
@@ -39,14 +39,14 @@ export type VoiceTtsSynthResult = VoiceTtsSynthOk | VoiceTtsSynthFail;
 
 export class VoiceTtsSynthesizeService {
   private readonly preferences: VoicePreferenceService;
-  private readonly audioHandler: AudioHandler;
+  private readonly audioSynthesis: AudioSynthesisService;
 
   constructor(options: {
     voicePreferences?: VoicePreferenceService;
-    audioHandler?: AudioHandler;
+    synthesis?: AudioSynthesisService;
   } = {}) {
     this.preferences = options.voicePreferences || getVoicePreferenceService();
-    this.audioHandler = options.audioHandler || new AudioHandler();
+    this.audioSynthesis = options.synthesis || new AudioSynthesisService();
   }
 
   public async synthesize(input: {
@@ -100,7 +100,7 @@ export class VoiceTtsSynthesizeService {
     const t0 = Date.now();
 
     try {
-      const filePath = await this.audioHandler.synthesize(text, {
+      const filePath = await this.audioSynthesis.synthesize(text, {
         forceProvider: resolved.forceProvider,
         voiceId: resolved.voiceId || undefined,
         preferredLanguageCode: lang.isAuto ? undefined : lang.bcp47,
