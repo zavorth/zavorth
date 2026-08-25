@@ -6,7 +6,7 @@ import { config } from '../../../config/index.js';
 import { InlineData } from '../../../providers/ILlmProvider.js';
 import { AudioHandler } from '../../../gateways/channels/telegram/AudioHandler.js';
 import { AudioChunker } from '../../../gateways/channels/telegram/AudioChunker.js';
-import { GeminiVideoAnalyzer } from '../../../gateways/channels/telegram/GeminiVideoAnalyzer.js';
+import { GeminiVideoService } from '../../../providers/GeminiVideoService.js';
 import { StorageMaintenance } from '../../../gateways/channels/telegram/StorageMaintenance.js';
 import { YtDlpFallback } from '../../../gateways/channels/telegram/YtDlpFallback.js';
 import {
@@ -49,8 +49,8 @@ export class VideoHandler {
   private audioHandler: AudioHandler;
   private audioChunker: AudioChunker;
   private videoContextDir: string;
-  private geminiVideoAnalyzer: GeminiVideoAnalyzer;
-  private geminiTranscriptionFallbackAnalyzer: GeminiVideoAnalyzer;
+  private geminiVideoAnalyzer: GeminiVideoService;
+  private geminiTranscriptionFallbackAnalyzer: GeminiVideoService;
   private storageMaintenance: StorageMaintenance;
   private ytDlpFallback: YtDlpFallback;
   private transcriptionPipeline: VideoTranscriptionPipeline;
@@ -60,8 +60,8 @@ export class VideoHandler {
     this.audioHandler = new AudioHandler();
     this.audioChunker = new AudioChunker();
     this.videoContextDir = path.join(config.dataDir, 'video-contexts');
-    this.geminiVideoAnalyzer = new GeminiVideoAnalyzer();
-    this.geminiTranscriptionFallbackAnalyzer = new GeminiVideoAnalyzer({
+    this.geminiVideoAnalyzer = new GeminiVideoService();
+    this.geminiTranscriptionFallbackAnalyzer = new GeminiVideoService({
       apiKey: config.geminiTranscriptionApiKey,
       model: config.geminiTranscriptionModel,
     });

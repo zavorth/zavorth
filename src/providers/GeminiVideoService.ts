@@ -1,8 +1,8 @@
-import { logger } from '../../../logger.js';
+import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
-import { config } from '../../../config/index.js';
-import { safeFetch } from '../../../security/SafeFetchService.js';
+import { config } from '../config/index.js';
+import { safeFetch } from '../security/SafeFetchService.js';
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 const INLINE_MEDIA_LIMIT_BYTES = 20 * 1024 * 1024;
 const FILE_ACTIVE_POLL_INTERVAL_MS = 5000;
@@ -28,18 +28,24 @@ interface GeminiFile {
   };
 }
 
-interface GeminiVideoAnalyzerOptions {
+export interface GeminiVideoServiceOptions {
   apiKey?: string;
+  apiBaseUrl?: string;
   model?: string;
+  fetchImpl?: typeof fetch;
 }
 
-export class GeminiVideoAnalyzer {
-  private apiKey: string;
-  private model: string;
+export class GeminiVideoService {
+  private readonly apiKey: string;
+  private readonly apiBaseUrl: string;
+  private readonly model: string;
+  private readonly fetchImpl?: typeof fetch;
 
-  constructor(options: GeminiVideoAnalyzerOptions = {}) {
-    this.apiKey = options.apiKey ?? config.geminiApiKey;
-    this.model = options.model ?? config.geminiVideoModel;
+  constructor(options: GeminiVideoServiceOptions = {}) {
+    this.apiKey = options.apiKey ?? config.geminiApiKey ?? '';
+    this.apiBaseUrl = String(options.apiBaseUrl || GEMINI_API_BASE).trim().replace(/\/+$/, '');
+    this.model = options.model ?? config.geminiVideoModel ?? '';
+    this.fetchImpl = options.fetchImpl;
   }
 
   public isEnabled(): boolean {
@@ -381,7 +387,7 @@ export class GeminiVideoAnalyzer {
   }
 
   private async generateContent(parts: Array<Record<string, unknown>>): Promise<string> {
-    const response = await safeFetch(`${GEMINI_API_BASE}/models/${this.model}:generateContent`, {
+    const response = await this.requestSafe(`${this.apiBaseUrl}/models/${this.model}:generateContent`, {
       method: 'POST',
       headers: {
         'x-goog-api-key': this.apiKey,
@@ -428,7 +434,7 @@ export class GeminiVideoAnalyzer {
   private async uploadFile(filePath: string, mimeType: string, displayName: string): Promise<GeminiFile> {
     const buffer = fs.readFileSync(filePath);
 
-    const startResponse = await safeFetch(`${GEMINI_API_BASE.replace('/v1beta', '')}/upload/v1beta/files`, {
+    const startResponse = await this.requestSafe(`${this.apiBaseUrl.replace('/v1beta', '')}/upload/v1beta/files`, {
       method: 'POST',
       headers: {
         'x-goog-api-key': this.apiKey,
@@ -457,7 +463,7 @@ export class GeminiVideoAnalyzer {
       throw new Error('Gemini did not return a resumable upload URL.');
     }
 
-    const uploadResponse = await safeFetch(uploadUrl, {
+    const uploadResponse = await this.requestSafe(uploadUrl, {
       method: 'POST',
       headers: {
         'Content-Length': String(buffer.length),
@@ -510,7 +516,7 @@ export class GeminiVideoAnalyzer {
 
   private async getFile(fileName: string): Promise<GeminiFile> {
     const encodedName = fileName.split('/').map(encodeURIComponent).join('/');
-    const response = await safeFetch(`${GEMINI_API_BASE}/${encodedName}`, {
+    const response = await this.requestSafe(`${this.apiBaseUrl}/${encodedName}`, {
       headers: {
         'x-goog-api-key': this.apiKey,
       },
@@ -535,7 +541,7 @@ export class GeminiVideoAnalyzer {
   private async deleteFile(fileName: string): Promise<void> {
     try {
       const encodedName = fileName.split('/').map(encodeURIComponent).join('/');
-      await safeFetch(`${GEMINI_API_BASE}/${encodedName}`, {
+      await this.requestSafe(`${this.apiBaseUrl}/${encodedName}`, {
         method: 'DELETE',
         headers: {
           'x-goog-api-key': this.apiKey,
@@ -543,11 +549,24 @@ export class GeminiVideoAnalyzer {
       }, {
         serviceName: 'Gemini video file cleanup',
       });
-    } catch (error: unknown) {logger.warn(`[GeminiVideoAnalyzer] Failed to remove Gemini temporary file: ${error}`);
+    } catch (error: unknown) {logger.warn(`[GeminiVideoService] Failed to remove Gemini temporary file: ${error}`);
     }
   }
 
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private async requestSafe(
+    url: string,
+    init: RequestInit,
+    options: { serviceName: string }
+  ): Promise<Response> {
+    if (this.fetchImpl) {
+      return this.fetchImpl(url, init);
+    }
+    return safeFetch(url, init, {
+      serviceName: options.serviceName,
+    });
   }
 }

@@ -29,4 +29,3 @@ export * from './AudioHandler.js';
 export * from './AudioChunker.js';
 export * from './VideoHandler.js';
 export * from './YtDlpFallback.js';
-export * from './GeminiVideoAnalyzer.js';

@@ -2,7 +2,7 @@ import { logger } from '../../../../logger.js';
 import { config } from '../../../../config/index.js';
 import { AudioHandler } from '../../../../gateways/channels/telegram/AudioHandler.js';
 import { AudioChunker, type PreparedAudioChunk } from '../../../../gateways/channels/telegram/AudioChunker.js';
-import { GeminiVideoAnalyzer, type GeminiVideoAnalysis } from '../../../../gateways/channels/telegram/GeminiVideoAnalyzer.js';
+import { GeminiVideoService, type GeminiVideoAnalysis } from '../../../../providers/GeminiVideoService.js';
 import { VideoHandlerUrlSupport } from '../../../../gateways/channels/telegram/video-handler/VideoHandlerUrlSupport.js';
 import { VideoHandlerFormatSupport } from '../../../../gateways/channels/telegram/video-handler/VideoHandlerFormatSupport.js';
 import { asErrorLike } from '../../../../utils/errorLike.js';
@@ -20,8 +20,8 @@ export type VideoTranscriptResult = {
 export type VideoTranscriptionPipelineDeps = {
   audioHandler: AudioHandler;
   audioChunker: AudioChunker;
-  geminiVideoAnalyzer: GeminiVideoAnalyzer;
-  geminiTranscriptionFallbackAnalyzer: GeminiVideoAnalyzer;
+  geminiVideoAnalyzer: GeminiVideoService;
+  geminiTranscriptionFallbackAnalyzer: GeminiVideoService;
 };
 
 export class VideoTranscriptionPipeline {
