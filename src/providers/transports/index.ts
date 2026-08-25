@@ -4,5 +4,7 @@ export { AnthropicTransport } from './AnthropicTransport.js';
 export { BedrockTransport } from './BedrockTransport.js';
 export { CodexTransport } from './CodexTransport.js';
 export { GeminiTransport } from './GeminiTransport.js';
+export { GeminiInteractionsTransport } from './GeminiInteractionsTransport.js';
+export type { GeminiInteractionsTransportOptions } from './GeminiInteractionsTransport.js';
 export { RotatingKeyClient } from './RotatingKeyClient.js';
 export type { KeyRotationHooks, StreamingKeyOperation } from './RotatingKeyClient.js';

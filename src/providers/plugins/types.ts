@@ -4,7 +4,8 @@ export type ApiMode =
   | 'openai_completions'
   | 'anthropic_messages'
   | 'bedrock_converse'
-  | 'codex_responses';
+  | 'codex_responses'
+  | 'gemini_interactions';
 
 export type AuthType =
   | 'api_key'

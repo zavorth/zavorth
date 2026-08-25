@@ -4,6 +4,7 @@ import { AnthropicTransport } from './transports/AnthropicTransport.js';
 import { BedrockTransport } from './transports/BedrockTransport.js';
 import { CodexTransport } from './transports/CodexTransport.js';
 import { GeminiTransport } from './transports/GeminiTransport.js';
+import { GeminiInteractionsTransport } from './transports/GeminiInteractionsTransport.js';
 
 import type { CompatLayer } from './compat/types.js';
 import { registerCompat, getCompat } from './compat/Registry.js';
@@ -76,6 +77,8 @@ const PROVIDER_API_MODES: Record<string, string> = {
   cerebras: 'openai_completions',
   bedrock: 'bedrock_converse',
   codex: 'codex_responses',
+  'gemini-interactions': 'gemini_interactions',
+  'interactions-api': 'gemini_interactions',
 };
 
 const PROVIDER_AUTH_TYPES: Record<string, string> = {
@@ -174,6 +177,9 @@ export class ProviderBootstrap {
       const googleFallback = process.env.GOOGLE_API_KEY || process.env.GOOGLE_AI_API_KEY || '';
       return new GeminiTransport(keys.length > 0 ? keys : (googleFallback ? [googleFallback] : []), DEFAULT_MODELS.google);
     });
+    if (isGeminiInteractionsEnabled()) {
+      registerTransport('gemini_interactions', () => new GeminiInteractionsTransport());
+    }
 
     ProviderBootstrap.initialized = true;
   }
@@ -253,6 +259,10 @@ function resolveEnvKeys(envKey: string): string[] {
   const value = process.env[envKey];
   if (!value) return [];
   return value.split(',').map((k) => k.trim()).filter(Boolean);
+}
+
+function isGeminiInteractionsEnabled(): boolean {
+  return process.env.ZAVORTH_GEMINI_INTERACTIONS_ENABLED === 'true';
 }
 
 function resolveBaseUrl(name: string, envPrefix: string): string | null {
