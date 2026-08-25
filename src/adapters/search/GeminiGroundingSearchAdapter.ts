@@ -17,6 +17,7 @@ import { asErrorLike } from '../../utils/errorLike';
 
 import { GoogleGenerativeAI, type Tool as GeminiTool } from '@google/generative-ai';
 import { config } from '../../config/index.js';
+import { RotatingKeyClient } from '../../providers/transports/RotatingKeyClient.js';
 import { logger } from '../../logger.js';
 import type {
   SearchQueryMode,
@@ -37,6 +38,9 @@ export class GeminiGroundingSearchAdapter implements ISearchAdapter {
   public readonly supportedModes: ReadonlyArray<SearchQueryMode> = ['grounded'];
   public readonly capabilities: ReadonlyArray<SearchAdapterCapability> = ['search'];
 
+  private keyRotation: RotatingKeyClient<string> | null = null;
+  private keyRotationKeys: string[] | null = null;
+
   public async isAvailable(): Promise<boolean> {
     return true;
   }
@@ -53,16 +57,30 @@ export class GeminiGroundingSearchAdapter implements ISearchAdapter {
       throw new GroundingAdapterError(this.adapterId, 'No Gemini key is configured for grounding search.');
     }
 
-    for (const key of keys) {
-      try {
-        return await this.executeGroundedSearch(key, query);
-      } catch (error: unknown) {
-        const err = asErrorLike(error);
-        logger.warn(`[GeminiGroundingSearchAdapter] Key failed: ${err instanceof Error ? err.message : String(err)}`);
-      }
-    }
+    const rotation = this.resolveKeyRotation(keys);
 
-    throw new GroundingAdapterError(this.adapterId, 'All Gemini keys failed during grounding search.');
+    return rotation.run(
+      (apiKey) => this.executeGroundedSearch(apiKey, query),
+      {
+        onKeyFailure: (_keyNumber, _totalKeys, error) => {
+          const err = asErrorLike(error);
+          logger.warn(`[GeminiGroundingSearchAdapter] Key failed: ${err instanceof Error ? err.message : String(err)}`);
+        },
+        exhaustionError: () => new GroundingAdapterError(this.adapterId, 'All Gemini keys failed during grounding search.'),
+      },
+    );
+  }
+
+  private resolveKeyRotation(keys: string[]): RotatingKeyClient<string> {
+    const cached = this.keyRotationKeys;
+    const unchanged = !!cached
+      && cached.length === keys.length
+      && keys.every((key, index) => cached[index] === key);
+    if (!this.keyRotation || !unchanged) {
+      this.keyRotation = new RotatingKeyClient<string>(keys);
+      this.keyRotationKeys = [...keys];
+    }
+    return this.keyRotation;
   }
 
   // Execution with a specific key

@@ -8,7 +8,7 @@ import type {
   ToolCall,
 } from '../ILlmProvider.js';
 import type { TransportAdapter } from './TransportAdapter.js';
-import { isProviderAbortError } from '../ProviderAbort.js';
+import { RotatingKeyClient, type StreamingKeyOperation } from './RotatingKeyClient.js';
 import { logger } from '../../logger.js';
 import { errorMessage } from '../../utils/errorLike.js';
 
@@ -40,17 +40,23 @@ type ResponseItem = {
   status?: string;
 };
 
+type ResponsesApi = {
+  responses: {
+    create: (params: Record<string, unknown>, requestOptions?: { signal?: AbortSignal }) => Promise<Record<string, unknown>>;
+    stream: (params: Record<string, unknown>, requestOptions?: { signal?: AbortSignal }) => Promise<AsyncIterable<ResponseStreamEvent>>;
+  };
+};
+
 export class CodexTransport implements TransportAdapter {
   public readonly name = 'codex';
 
-  private clients: OpenAI[];
-  private currentClientIndex = 0;
+  private readonly keyRotation: RotatingKeyClient<OpenAI>;
 
   constructor(apiKeys: string[], private defaultModel: string) {
     if (apiKeys.length === 0) {
       throw new Error('At least one OpenAI API key is required for Codex transport');
     }
-    this.clients = apiKeys.map((key) => new OpenAI({ apiKey: key }));
+    this.keyRotation = new RotatingKeyClient<OpenAI>(apiKeys.map((key) => new OpenAI({ apiKey: key })));
   }
 
   public async chat(
@@ -58,52 +64,39 @@ export class CodexTransport implements TransportAdapter {
     tools?: ToolDefinition[],
     options?: ProviderChatOptions,
   ): Promise<LlmResponse> {
-    let lastError: unknown;
-    for (let attempt = 0; attempt < this.clients.length; attempt += 1) {
-      const clientIndex = (this.currentClientIndex + attempt) % this.clients.length;
-      const client = this.clients[clientIndex];
-      try {
-        const input = buildResponsesInput(messages);
-        const params: Record<string, unknown> = {
-          model: options?.modelName || this.defaultModel,
-          input,
-          instructions: extractInstructions(messages),
-        };
+    return this.keyRotation.run(async (client) => {
+      const input = buildResponsesInput(messages);
+      const params: Record<string, unknown> = {
+        model: options?.modelName || this.defaultModel,
+        input,
+        instructions: extractInstructions(messages),
+      };
 
-        if (tools && tools.length > 0) {
-          params.tools = tools.map(toCodexTool);
-        }
-
-        if (options?.reasoningEffort && options.reasoningEffort !== 'none') {
-          params.reasoning = { effort: mapReasoningEffort(options.reasoningEffort) };
-        }
-
-        const responsesClient = client as unknown as {
-          responses: {
-            create: (params: Record<string, unknown>, requestOptions?: { signal?: AbortSignal }) => Promise<Record<string, unknown>>;
-            stream: (params: Record<string, unknown>, requestOptions?: { signal?: AbortSignal }) => Promise<AsyncIterable<ResponseStreamEvent>>;
-          };
-        };
-        const response = await responsesClient.responses.create(
-          params,
-          options?.signal ? { signal: options.signal } : undefined,
-        );
-
-        if (attempt > 0) {
-          logger.info(`[Codex Transport] Failover succeeded with key ${clientIndex + 1}/${this.clients.length}`);
-        }
-        this.currentClientIndex = clientIndex;
-
-        return parseCodexResponse(response);
-      } catch (error: unknown) {
-        if (isProviderAbortError(error, options?.signal)) {
-          throw error;
-        }
-        lastError = error;
-        logger.warn(`[Codex Transport] Request failed with key ${clientIndex + 1}: ${errorMessage(error)}`);
+      if (tools && tools.length > 0) {
+        params.tools = tools.map(toCodexTool);
       }
-    }
-    throw lastError || new Error('Codex transport: all keys exhausted');
+
+      if (options?.reasoningEffort && options.reasoningEffort !== 'none') {
+        params.reasoning = { effort: mapReasoningEffort(options.reasoningEffort) };
+      }
+
+      const responsesClient = client as unknown as ResponsesApi;
+      const response = await responsesClient.responses.create(
+        params,
+        options?.signal ? { signal: options.signal } : undefined,
+      );
+
+      return parseCodexResponse(response);
+    }, {
+      signal: options?.signal,
+      onKeyFailure: (keyNumber, _totalKeys, error) => {
+        logger.warn(`[Codex Transport] Request failed with key ${keyNumber}: ${errorMessage(error)}`);
+      },
+      onFailoverSuccess: (keyNumber, totalKeys) => {
+        logger.info(`[Codex Transport] Failover succeeded with key ${keyNumber}/${totalKeys}`);
+      },
+      exhaustionError: (lastError) => lastError || new Error('Codex transport: all keys exhausted'),
+    });
   }
 
   public async *streamChat(
@@ -111,52 +104,42 @@ export class CodexTransport implements TransportAdapter {
     tools?: ToolDefinition[],
     options?: ProviderChatOptions,
   ): AsyncIterable<LlmStreamEvent> {
-    let lastError: unknown;
-    for (let attempt = 0; attempt < this.clients.length; attempt += 1) {
-      const clientIndex = (this.currentClientIndex + attempt) % this.clients.length;
-      const client = this.clients[clientIndex];
-      try {
-        const input = buildResponsesInput(messages);
-        const params: Record<string, unknown> = {
-          model: options?.modelName || this.defaultModel,
-          input,
-          instructions: extractInstructions(messages),
-          stream: true,
-        };
+    const input = buildResponsesInput(messages);
+    const params: Record<string, unknown> = {
+      model: options?.modelName || this.defaultModel,
+      input,
+      instructions: extractInstructions(messages),
+      stream: true,
+    };
 
-        if (tools && tools.length > 0) {
-          params.tools = tools.map(toCodexTool);
-        }
+    if (tools && tools.length > 0) {
+      params.tools = tools.map(toCodexTool);
+    }
 
-        if (options?.reasoningEffort && options.reasoningEffort !== 'none') {
-          params.reasoning = { effort: mapReasoningEffort(options.reasoningEffort) };
-        }
+    if (options?.reasoningEffort && options.reasoningEffort !== 'none') {
+      params.reasoning = { effort: mapReasoningEffort(options.reasoningEffort) };
+    }
 
-        const responsesClient = client as unknown as {
-          responses: {
-            stream: (params: Record<string, unknown>, requestOptions?: { signal?: AbortSignal }) => Promise<AsyncIterable<ResponseStreamEvent>>;
-          };
-        };
-        const stream = await responsesClient.responses.stream(
+    const operation: StreamingKeyOperation<OpenAI, ResponseStreamEvent, ResponseStreamEvent> = {
+      open: async (client) => {
+        const responsesClient = client as unknown as ResponsesApi;
+        return responsesClient.responses.stream(
           params,
           options?.signal ? { signal: options.signal } : undefined,
         );
-
-        if (attempt > 0) {
-          logger.info(`[Codex Transport] Stream failover succeeded with key ${clientIndex + 1}/${this.clients.length}`);
-        }
-        this.currentClientIndex = clientIndex;
-        yield* this.processStream(stream);
-        return;
-      } catch (error: unknown) {
-        if (isProviderAbortError(error, options?.signal)) {
-          throw error;
-        }
-        lastError = error;
-        logger.warn(`[Codex Transport] Stream failed with key ${clientIndex + 1}: ${errorMessage(error)}`);
-      }
-    }
-    throw lastError || new Error('Codex transport: all keys exhausted (stream)');
+      },
+      project: (event) => [event],
+    };
+    yield* this.processStream(this.keyRotation.stream(operation, {
+      signal: options?.signal,
+      onKeyFailure: (keyNumber, _totalKeys, error) => {
+        logger.warn(`[Codex Transport] Stream failed with key ${keyNumber}: ${errorMessage(error)}`);
+      },
+      onFailoverSuccess: (keyNumber, totalKeys) => {
+        logger.info(`[Codex Transport] Stream failover succeeded with key ${keyNumber}/${totalKeys}`);
+      },
+      exhaustionError: (lastError) => lastError || new Error('Codex transport: all keys exhausted (stream)'),
+    }));
   }
 
   private async *processStream(stream: AsyncIterable<ResponseStreamEvent>): AsyncIterable<LlmStreamEvent> {

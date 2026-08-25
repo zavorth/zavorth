@@ -15,7 +15,7 @@ import {
   asRecord,
 } from '../utils/anthropicConversion.js';
 import { buildAnthropicThinkingHint } from '../reasoningEffortPayload.js';
-import { isProviderAbortError } from '../ProviderAbort.js';
+import { RotatingKeyClient, type StreamingKeyOperation } from './RotatingKeyClient.js';
 import { logger } from '../../logger.js';
 import { errorMessage } from '../../utils/errorLike.js';
 
@@ -29,18 +29,17 @@ type AnthropicStreamEvent = {
 export class AnthropicTransport implements TransportAdapter {
   public readonly name = 'anthropic';
 
-  private clients: Anthropic[];
-  private currentClientIndex = 0;
+  private readonly keyRotation: RotatingKeyClient<Anthropic>;
 
   constructor(apiKeys: string[], private defaultModel: string) {
     if (apiKeys.length === 0) {
       throw new Error('At least one Anthropic API key is required');
     }
-    this.clients = apiKeys.map((key) => {
+    this.keyRotation = new RotatingKeyClient<Anthropic>(apiKeys.map((key) => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const AnthropicSdk = require('@anthropic-ai/sdk').default;
-      return new AnthropicSdk({ apiKey: key });
-    });
+      return new AnthropicSdk({ apiKey: key }) as Anthropic;
+    }));
   }
 
   public async chat(
@@ -48,47 +47,39 @@ export class AnthropicTransport implements TransportAdapter {
     tools?: ToolDefinition[],
     options?: ProviderChatOptions,
   ): Promise<LlmResponse> {
-    let lastError: unknown;
-    for (let attempt = 0; attempt < this.clients.length; attempt += 1) {
-      const clientIndex = (this.currentClientIndex + attempt) % this.clients.length;
-      const client = this.clients[clientIndex];
-      try {
-        const systemPrompt = extractSystemPrompt(messages);
-        const thinkingHint = buildAnthropicThinkingHint(options);
+    return this.keyRotation.run(async (client) => {
+      const systemPrompt = extractSystemPrompt(messages);
+      const thinkingHint = buildAnthropicThinkingHint(options);
 
-        const requestParams: Record<string, unknown> = {
-          model: options?.modelName || this.defaultModel,
-          max_tokens: 8192,
-          messages: toAnthropicMessages(messages),
-          ...(systemPrompt ? { system: systemPrompt } : {}),
-          ...(tools && tools.length > 0 ? { tools: tools.map(toAnthropicTool) } : {}),
-        };
+      const requestParams: Record<string, unknown> = {
+        model: options?.modelName || this.defaultModel,
+        max_tokens: 8192,
+        messages: toAnthropicMessages(messages),
+        ...(systemPrompt ? { system: systemPrompt } : {}),
+        ...(tools && tools.length > 0 ? { tools: tools.map(toAnthropicTool) } : {}),
+      };
 
-        if (thinkingHint) {
-          requestParams.thinking = thinkingHint;
-          requestParams.max_tokens = Math.max(8192, thinkingHint.budget_tokens + 1024);
-        }
-
-        const response = await client.messages.create(
-          requestParams as never,
-          options?.signal ? { signal: options.signal } : undefined,
-        );
-
-        if (attempt > 0) {
-          logger.info(`[Anthropic Transport] Failover succeeded with key ${clientIndex + 1}/${this.clients.length}`);
-        }
-        this.currentClientIndex = clientIndex;
-
-        return parseAnthropicResponse(response);
-      } catch (error: unknown) {
-        if (isProviderAbortError(error, options?.signal)) {
-          throw error;
-        }
-        lastError = error;
-        logger.warn(`[Anthropic Transport] Request failed with key ${clientIndex + 1}: ${errorMessage(error)}`);
+      if (thinkingHint) {
+        requestParams.thinking = thinkingHint;
+        requestParams.max_tokens = Math.max(8192, thinkingHint.budget_tokens + 1024);
       }
-    }
-    throw lastError || new Error('Anthropic transport: all keys exhausted');
+
+      const response = await client.messages.create(
+        requestParams as never,
+        options?.signal ? { signal: options.signal } : undefined,
+      );
+
+      return parseAnthropicResponse(response);
+    }, {
+      signal: options?.signal,
+      onKeyFailure: (keyNumber, _totalKeys, error) => {
+        logger.warn(`[Anthropic Transport] Request failed with key ${keyNumber}: ${errorMessage(error)}`);
+      },
+      onFailoverSuccess: (keyNumber, totalKeys) => {
+        logger.info(`[Anthropic Transport] Failover succeeded with key ${keyNumber}/${totalKeys}`);
+      },
+      exhaustionError: (lastError) => lastError || new Error('Anthropic transport: all keys exhausted'),
+    });
   }
 
   public async *streamChat(
@@ -96,48 +87,40 @@ export class AnthropicTransport implements TransportAdapter {
     tools?: ToolDefinition[],
     options?: ProviderChatOptions,
   ): AsyncIterable<LlmStreamEvent> {
-    let lastError: unknown;
-    for (let attempt = 0; attempt < this.clients.length; attempt += 1) {
-      const clientIndex = (this.currentClientIndex + attempt) % this.clients.length;
-      const client = this.clients[clientIndex];
-      try {
-        const systemPrompt = extractSystemPrompt(messages);
-        const thinkingHint = buildAnthropicThinkingHint(options);
+    const systemPrompt = extractSystemPrompt(messages);
+    const thinkingHint = buildAnthropicThinkingHint(options);
 
-        const requestParams: Record<string, unknown> = {
-          model: options?.modelName || this.defaultModel,
-          max_tokens: 8192,
-          messages: toAnthropicMessages(messages),
-          stream: true,
-          ...(systemPrompt ? { system: systemPrompt } : {}),
-          ...(tools && tools.length > 0 ? { tools: tools.map(toAnthropicTool) } : {}),
-        };
+    const requestParams: Record<string, unknown> = {
+      model: options?.modelName || this.defaultModel,
+      max_tokens: 8192,
+      messages: toAnthropicMessages(messages),
+      stream: true,
+      ...(systemPrompt ? { system: systemPrompt } : {}),
+      ...(tools && tools.length > 0 ? { tools: tools.map(toAnthropicTool) } : {}),
+    };
 
-        if (thinkingHint) {
-          requestParams.thinking = thinkingHint;
-          requestParams.max_tokens = Math.max(8192, thinkingHint.budget_tokens + 1024);
-        }
-
-        const stream = await client.messages.stream(
-          requestParams as never,
-          options?.signal ? { signal: options.signal } : undefined,
-        );
-
-        if (attempt > 0) {
-          logger.info(`[Anthropic Transport] Stream failover succeeded with key ${clientIndex + 1}/${this.clients.length}`);
-        }
-        this.currentClientIndex = clientIndex;
-        yield* this.processStream(stream as AsyncIterable<AnthropicStreamEvent>);
-        return;
-      } catch (error: unknown) {
-        if (isProviderAbortError(error, options?.signal)) {
-          throw error;
-        }
-        lastError = error;
-        logger.warn(`[Anthropic Transport] Stream failed with key ${clientIndex + 1}: ${errorMessage(error)}`);
-      }
+    if (thinkingHint) {
+      requestParams.thinking = thinkingHint;
+      requestParams.max_tokens = Math.max(8192, thinkingHint.budget_tokens + 1024);
     }
-    throw lastError || new Error('Anthropic transport: all keys exhausted (stream)');
+
+    const operation: StreamingKeyOperation<Anthropic, AnthropicStreamEvent, AnthropicStreamEvent> = {
+      open: async (client) => (await client.messages.stream(
+        requestParams as never,
+        options?.signal ? { signal: options.signal } : undefined,
+      )) as AsyncIterable<AnthropicStreamEvent>,
+      project: (event) => [event],
+    };
+    yield* this.processStream(this.keyRotation.stream(operation, {
+      signal: options?.signal,
+      onKeyFailure: (keyNumber, _totalKeys, error) => {
+        logger.warn(`[Anthropic Transport] Stream failed with key ${keyNumber}: ${errorMessage(error)}`);
+      },
+      onFailoverSuccess: (keyNumber, totalKeys) => {
+        logger.info(`[Anthropic Transport] Stream failover succeeded with key ${keyNumber}/${totalKeys}`);
+      },
+      exhaustionError: (lastError) => lastError || new Error('Anthropic transport: all keys exhausted (stream)'),
+    }));
   }
 
   private async *processStream(stream: AsyncIterable<AnthropicStreamEvent>): AsyncIterable<LlmStreamEvent> {

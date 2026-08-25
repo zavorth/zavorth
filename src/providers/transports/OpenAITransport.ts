@@ -10,7 +10,7 @@ import type {
 import type { TransportAdapter } from './TransportAdapter.js';
 import { convertChatMessagesToOpenAI, convertToolDefinitions } from '../utils/openaiConversion.js';
 import { buildOpenAiReasoningEffortBody } from '../reasoningEffortPayload.js';
-import { isProviderAbortError } from '../ProviderAbort.js';
+import { RotatingKeyClient, type StreamingKeyOperation } from './RotatingKeyClient.js';
 import { logger } from '../../logger.js';
 import { errorMessage } from '../../utils/errorLike.js';
 
@@ -38,14 +38,13 @@ type ToolCallAccumulator = {
 export class OpenAITransport implements TransportAdapter {
   public readonly name = 'openai';
 
-  private clients: OpenAI[];
-  private currentClientIndex = 0;
+  private readonly keyRotation: RotatingKeyClient<OpenAI>;
 
   constructor(apiKeys: string[], private defaultModel: string) {
     if (apiKeys.length === 0) {
       throw new Error('At least one OpenAI API key is required');
     }
-    this.clients = apiKeys.map((key) => new OpenAI({ apiKey: key }));
+    this.keyRotation = new RotatingKeyClient<OpenAI>(apiKeys.map((key) => new OpenAI({ apiKey: key })));
   }
 
   public async chat(
@@ -53,51 +52,43 @@ export class OpenAITransport implements TransportAdapter {
     tools?: ToolDefinition[],
     options?: ProviderChatOptions,
   ): Promise<LlmResponse> {
-    let lastError: unknown;
-    for (let attempt = 0; attempt < this.clients.length; attempt += 1) {
-      const clientIndex = (this.currentClientIndex + attempt) % this.clients.length;
-      const client = this.clients[clientIndex];
-      try {
-        const response = await client.chat.completions.create(
-          {
-            model: options?.modelName || this.defaultModel,
-            messages: convertChatMessagesToOpenAI(messages),
-            tools: convertToolDefinitions(tools),
-            ...buildOpenAiReasoningEffortBody(options),
-          },
-          options?.signal ? { signal: options.signal } : undefined,
-        );
+    return this.keyRotation.run(async (client) => {
+      const response = await client.chat.completions.create(
+        {
+          model: options?.modelName || this.defaultModel,
+          messages: convertChatMessagesToOpenAI(messages),
+          tools: convertToolDefinitions(tools),
+          ...buildOpenAiReasoningEffortBody(options),
+        },
+        options?.signal ? { signal: options.signal } : undefined,
+      );
 
-        if (attempt > 0) {
-          logger.info(`[OpenAI Transport] Failover succeeded with key ${clientIndex + 1}/${this.clients.length}`);
-        }
-        this.currentClientIndex = clientIndex;
+      const choice = response.choices[0];
+      const toolCalls: ToolCall[] = (choice.message.tool_calls || []).flatMap((tc) => {
+        const fn = 'function' in tc ? tc.function : undefined;
+        if (!fn) return [];
+        return [{
+          id: tc.id,
+          name: fn.name,
+          arguments: parseJsonSafe(fn.arguments),
+        }];
+      });
 
-        const choice = response.choices[0];
-        const toolCalls: ToolCall[] = (choice.message.tool_calls || []).flatMap((tc) => {
-          const fn = 'function' in tc ? tc.function : undefined;
-          if (!fn) return [];
-          return [{
-            id: tc.id,
-            name: fn.name,
-            arguments: parseJsonSafe(fn.arguments),
-          }];
-        });
-
-        return {
-          content: choice.message.content,
-          toolCalls,
-          finishReason: choice.finish_reason as LlmResponse['finishReason'],
-        };
-      } catch (error: unknown) {
-        if (isProviderAbortError(error, options?.signal)) {
-          throw error;
-        }
-        lastError = error;
-        logger.warn(`[OpenAI Transport] Request failed with key ${clientIndex + 1}: ${errorMessage(error)}`);
-      }
-    }
-    throw lastError || new Error('OpenAI transport: all keys exhausted');
+      return {
+        content: choice.message.content,
+        toolCalls,
+        finishReason: choice.finish_reason as LlmResponse['finishReason'],
+      };
+    }, {
+      signal: options?.signal,
+      onKeyFailure: (keyNumber, _totalKeys, error) => {
+        logger.warn(`[OpenAI Transport] Request failed with key ${keyNumber}: ${errorMessage(error)}`);
+      },
+      onFailoverSuccess: (keyNumber, totalKeys) => {
+        logger.info(`[OpenAI Transport] Failover succeeded with key ${keyNumber}/${totalKeys}`);
+      },
+      exhaustionError: (lastError) => lastError || new Error('OpenAI transport: all keys exhausted'),
+    });
   }
 
   public async *streamChat(
@@ -105,37 +96,29 @@ export class OpenAITransport implements TransportAdapter {
     tools?: ToolDefinition[],
     options?: ProviderChatOptions,
   ): AsyncIterable<LlmStreamEvent> {
-    let lastError: unknown;
-    for (let attempt = 0; attempt < this.clients.length; attempt += 1) {
-      const clientIndex = (this.currentClientIndex + attempt) % this.clients.length;
-      const client = this.clients[clientIndex];
-      try {
-        const stream = await client.chat.completions.create(
-          {
-            model: options?.modelName || this.defaultModel,
-            messages: convertChatMessagesToOpenAI(messages),
-            tools: convertToolDefinitions(tools),
-            ...buildOpenAiReasoningEffortBody(options),
-            stream: true,
-          },
-          options?.signal ? { signal: options.signal } : undefined,
-        );
-
-        if (attempt > 0) {
-          logger.info(`[OpenAI Transport] Stream failover succeeded with key ${clientIndex + 1}/${this.clients.length}`);
-        }
-        this.currentClientIndex = clientIndex;
-        yield* this.processStream(stream);
-        return;
-      } catch (error: unknown) {
-        if (isProviderAbortError(error, options?.signal)) {
-          throw error;
-        }
-        lastError = error;
-        logger.warn(`[OpenAI Transport] Stream failed with key ${clientIndex + 1}: ${errorMessage(error)}`);
-      }
-    }
-    throw lastError || new Error('OpenAI transport: all keys exhausted (stream)');
+    const operation: StreamingKeyOperation<OpenAI, StreamChunk, StreamChunk> = {
+      open: (client) => client.chat.completions.create(
+        {
+          model: options?.modelName || this.defaultModel,
+          messages: convertChatMessagesToOpenAI(messages),
+          tools: convertToolDefinitions(tools),
+          ...buildOpenAiReasoningEffortBody(options),
+          stream: true,
+        },
+        options?.signal ? { signal: options.signal } : undefined,
+      ),
+      project: (chunk) => [chunk],
+    };
+    yield* this.processStream(this.keyRotation.stream(operation, {
+      signal: options?.signal,
+      onKeyFailure: (keyNumber, _totalKeys, error) => {
+        logger.warn(`[OpenAI Transport] Stream failed with key ${keyNumber}: ${errorMessage(error)}`);
+      },
+      onFailoverSuccess: (keyNumber, totalKeys) => {
+        logger.info(`[OpenAI Transport] Stream failover succeeded with key ${keyNumber}/${totalKeys}`);
+      },
+      exhaustionError: (lastError) => lastError || new Error('OpenAI transport: all keys exhausted (stream)'),
+    }));
   }
 
   private async *processStream(stream: AsyncIterable<StreamChunk>): AsyncIterable<LlmStreamEvent> {
