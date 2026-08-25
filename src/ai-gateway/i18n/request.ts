@@ -1,24 +1,22 @@
 /**
  * Gateway API request-scoped locale negotiation (next-intl).
  *
- * KEPT AS BUILD-TIME STATIC JSON — deliberately NOT routed through
- * src/services/localization/:
- * 1. next-intl requires statically analyzable `./messages/<locale>.json`
- *     imports at this server boundary; delegating lookups to a Node-side
- *     singleton service would break the framework contract for zero gain.
- * 2. It serves 32 HTTP locales (bg, cs, da, fi, he, hi, id, ms, nl, no, phi,
- *     pl, ro, sk, sv, th, vi, ...), most of which have no localization-system
- *     catalog; unifying would drop coverage or force synthesizing 20+ new
- *     catalogs.
- * 3. Negotiation is per-request (cookie → x-locale → accept-language); the
- *     localization system resolves process-wide locales, so coupling them
- *     risks cross-request state bleed.
+ * Messages resolve through the unified localization system via catalogBridge:
+ * a materialized ./messages/<locale>.json is served on the fast path, while
+ * locales without one are resolved (and AI-translated once, then persisted) by
+ * src/services/localization and written back as materialized JSON for later
+ * requests. The files under ./messages/ are therefore regenerable artifacts of
+ * scripts/sync-gateway-i18n-catalogs.mjs rather than hand-owned sources.
+ *
+ * Negotiation stays per-request (cookie → x-locale → accept-language) and
+ * never touches process-wide localization state.
  */
 
 import { getRequestConfig } from "next-intl/server";
 import { cookies, headers } from "next/headers";
 import { LOCALES, DEFAULT_LOCALE, LOCALE_COOKIE, SYSTEM_LOCALE } from "./config";
 import type { Locale } from "./config";
+import { loadGatewayMessages } from "./catalogBridge";
 import { logger } from '@/shared/utils/logger';function normalizeLocale(value: string): string {
   try {
     return Intl.getCanonicalLocales(value.trim().replace(/_/g, "-"))[0] || value.trim();
@@ -75,7 +73,7 @@ export default getRequestConfig(async () => {
     locale = DEFAULT_LOCALE;
   }
 
-  const messages = (await import(`./messages/${locale}.json`)).default;
+  const messages = await loadGatewayMessages(locale as Locale);
 
   return {
     locale,

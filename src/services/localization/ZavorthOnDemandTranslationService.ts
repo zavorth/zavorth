@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import type { LocalizationCatalog } from './localeContracts.js';
+import type { GatewayCatalogSection, LocalizationCatalog } from './localeContracts.js';
 import { en } from './catalogs/en.js';
 import { ZavorthJsonSchemaRepairService } from '../llm/repair/ZavorthJsonSchemaRepairService.js';
 
@@ -22,6 +22,7 @@ export class ZavorthOnDemandTranslationService {
   private readonly memoryCache: Map<string, LocalizationCatalog>;
   private readonly dynamicStringCache: Map<string, string>;
   private readonly stringsMemoryCache: Map<string, Map<string, string>>;
+  private readonly sectionMemoryCache: Map<string, GatewayCatalogSection>;
 
   public constructor(options: OnDemandTranslationOptions = {}) {
     this.storageDir = options.storageDir || path.join(os.homedir(), '.zavorth', 'locales');
@@ -30,6 +31,7 @@ export class ZavorthOnDemandTranslationService {
     this.memoryCache = new Map();
     this.dynamicStringCache = new Map();
     this.stringsMemoryCache = new Map();
+    this.sectionMemoryCache = new Map();
 
     this.ensureStorageDir();
   }
@@ -83,6 +85,99 @@ export class ZavorthOnDemandTranslationService {
 
   public async getOrTranslateCatalog(targetLocale: string): Promise<LocalizationCatalog> {
     return this.getOrSynthesizeCatalog(targetLocale);
+  }
+
+  /**
+   * Resolve a single message-tree catalog section (for example the migrated
+   * AI-gateway `gateway` namespace) for a locale: serve the persisted tree when
+   * present, translate the source tree once through the provider bridge, and
+   * persist the result so later calls resolve offline.
+   */
+  public async getOrTranslateSection(
+    targetLocale: string,
+    sectionName: string,
+    sourceSection: GatewayCatalogSection,
+  ): Promise<GatewayCatalogSection | null> {
+    const normalized = targetLocale.toLowerCase().trim();
+    const cacheKey = `${sectionName}:${normalized}`;
+
+    const cached = this.sectionMemoryCache.get(cacheKey);
+    if (cached) return cached;
+
+    const persisted = this.readPersistedSection(normalized, sectionName);
+    if (persisted) {
+      this.sectionMemoryCache.set(cacheKey, persisted);
+      return persisted;
+    }
+
+    const synthesized = await this.synthesizeSectionViaProvider(normalized, sourceSection);
+    if (!synthesized) return null;
+
+    this.sectionMemoryCache.set(cacheKey, synthesized);
+    this.persistSection(normalized, sectionName, synthesized);
+    return synthesized;
+  }
+
+  private sectionDiskPath(normalized: string, sectionName: string): string {
+    return path.join(this.storageDir, `${normalized}.${sectionName}.json`);
+  }
+
+  private readPersistedSection(normalized: string, sectionName: string): GatewayCatalogSection | null {
+    const diskPath = this.sectionDiskPath(normalized, sectionName);
+    try {
+      if (!fs.existsSync(diskPath)) return null;
+      const parsed: unknown = JSON.parse(fs.readFileSync(diskPath, 'utf8'));
+      if (!isLocalizedMessageTree(parsed)) return null;
+      return parsed;
+    } catch {
+      // Corrupted section files are re-synthesized on the next call.
+      return null;
+    }
+  }
+
+  private persistSection(
+    normalized: string,
+    sectionName: string,
+    section: GatewayCatalogSection,
+  ): void {
+    try {
+      fs.mkdirSync(this.storageDir, { recursive: true });
+      fs.writeFileSync(
+        this.sectionDiskPath(normalized, sectionName),
+        JSON.stringify(section, null, 2),
+        'utf8',
+      );
+    } catch {
+      // Read-only filesystems keep synthesized sections memory-resident only.
+    }
+  }
+
+  private async synthesizeSectionViaProvider(
+    normalized: string,
+    sourceSection: GatewayCatalogSection,
+  ): Promise<GatewayCatalogSection | null> {
+    if (!this.providerBridge) return null;
+
+    const payload = JSON.stringify(sourceSection, null, 2);
+    const prompt = `Translate all UI string values in the following JSON message catalog into language code "${normalized}".
+IMPORTANT INVARIANTS:
+1. Preserve all JSON keys exactly as they are; keys are stable identifiers, not prose.
+2. Translate string values naturally as user-interface text.
+3. Preserve placeholders such as {count} and tags such as <endpoint> verbatim.
+4. Output ONLY the valid JSON object without markdown code fences or conversational text.
+
+SOURCE JSON:
+${payload}`;
+
+    try {
+      const rawOutput = await this.providerBridge.completePrompt(prompt);
+      const repaired = this.jsonRepairService.repairJsonString(rawOutput);
+      const parsed: unknown = JSON.parse(repaired);
+      if (!isLocalizedMessageTree(parsed)) return null;
+      return parsed;
+    } catch {
+      return null;
+    }
   }
 
   public async translateDynamicText(text: string, targetLocale: string): Promise<string> {
@@ -224,4 +319,15 @@ ${baseJsonString}`;
       return null;
     }
   }
+}
+
+export function isLocalizedMessageTree(value: unknown): value is GatewayCatalogSection {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  return Object.values(value).every(isLocalizedMessageTreeNode);
+}
+
+function isLocalizedMessageTreeNode(value: unknown): boolean {
+  if (typeof value === 'string') return true;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  return Object.values(value).every(isLocalizedMessageTreeNode);
 }

@@ -8,7 +8,7 @@ import { BUILTIN_CATALOGS } from '../../../src/services/localization/catalogs/in
 describe('ZavorthLocalizationService', () => {
   // Progressive-coverage namespaces ship English canonical copy plus selected
   // translations and cascade to English for the remaining locales.
-  const PROGRESSIVE_CATALOG_SECTIONS = new Set(['legacy', 'pluginTips', 'approval']);
+  const PROGRESSIVE_CATALOG_SECTIONS = new Set(['legacy', 'pluginTips', 'approval', 'gateway']);
 
   it('should support all 18 built-in locale catalogs without missing keys', () => {
     const service = new ZavorthLocalizationService({ locale: 'en' });
