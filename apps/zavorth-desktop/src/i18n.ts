@@ -6,7 +6,8 @@
  * Relationship between the localization systems present in this repository:
  *
  * 1. `src/services/localization/` (INTELLIGENT SYSTEM — single source of truth):
- *    `ZavorthLocalizationService` serves typed builtin catalogs for 17 locales
+ *    `ZavorthLocalizationService` serves typed builtin catalogs for every
+ *    locale in the unified registry (localeContracts SUPPORTED_LOCALES)
  *    plus dynamically registered catalogs; `ZavorthOnDemandTranslationService`
  *    synthesizes missing translations once through an LLM provider bridge and
  *    persists them under `~/.zavorth/locales/`, so they resolve offline

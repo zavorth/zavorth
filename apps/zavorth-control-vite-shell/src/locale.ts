@@ -2,7 +2,8 @@
  * Zavorth Web Control Console Localization Facade.
  *
  * Connects the Web Console directly to the universal ZavorthLocalizationService
- * supporting 18 global locales, endonyms, RTL, and on-demand translation.
+ * backing the unified locale registry, with endonyms, RTL, and on-demand
+ * translation.
  */
 
 import { shellWarn } from './shell-debug';
@@ -14,27 +15,10 @@ import {
   type SupportedLocale,
 } from '../../../src/services/localization/localeContracts.js';
 
-export type SupportedControlLocale =
-  | 'en-US'
-  | 'pt-BR'
-  | 'es-AR'
-  | 'zh-CN'
-  | 'zh-TW'
-  | 'de'
-  | 'es'
-  | 'ja-JP'
-  | 'ko'
-  | 'fr'
-  | 'ar'
-  | 'it'
-  | 'tr'
-  | 'uk'
-  | 'id'
-  | 'pl'
-  | 'th'
-  | 'vi'
-  | 'nl'
-  | 'fa';
+/** Historical preference tags persisted before unification. */
+export type LegacyControlLocaleAlias = 'en-US' | 'es-AR' | 'zh-TW' | 'ja-JP' | 'fa';
+
+export type SupportedControlLocale = SupportedLocale | LegacyControlLocaleAlias;
 
 export type ControlLocalePreference = SupportedControlLocale | 'system';
 export type ControlLocale = SupportedControlLocale;

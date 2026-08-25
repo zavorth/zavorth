@@ -7,58 +7,21 @@
  */
 
 import { ZavorthLocalizationService } from '../../../../src/services/localization/ZavorthLocalizationService.js';
-import { lookupDesktopPlaneString } from './desktopPlane';
+import { SUPPORTED_LOCALES } from '../../../../src/services/localization/localeContracts.js';
+import { lookupDesktopPlaneString, PLUGIN_OS_TITLE_SEED } from './desktopPlane';
 
 const localizationService = new ZavorthLocalizationService();
 
+/** Historical plugin-tip alias tags that predate the unified registry. */
+const LEGACY_ALIAS_TAGS = ['pt-PT', 'zh-Hans', 'zh-Hant', 'zh-TW', 'el', 'fa', 'bn', 'already'] as const;
+
 /** Locale set aligned with the unified plugin-tip catalog locales. */
-const PLUGIN_OS_ALIAS_LOCALES = [
-  'en', 'pt', 'pt-BR', 'pt-PT', 'es', 'fr', 'de', 'it', 'already', 'ja', 'zh',
-  'zh-CN', 'zh-Hans', 'zh-Hant', 'zh-TW', 'ko', 'ru', 'uk', 'ar', 'hi', 'nl',
-  'pl', 'tr', 'vi', 'id', 'th', 'sv', 'cs', 'ro', 'hu', 'el', 'he', 'fa', 'bn',
-  'ms',
-] as const;
+const PLUGIN_OS_ALIAS_LOCALES: readonly string[] = [...SUPPORTED_LOCALES, ...LEGACY_ALIAS_TAGS];
 
-/** Alias mapping shared with the plugin-tip resolver for exotic tags. */
+/** Alias mapping for exotic tags with no direct seed entry. */
 const SEED_ALIASES: Record<string, string> = {
-  'pt-PT': 'pt',
-  'zh-CN': 'zh',
-  'zh-Hans': 'zh',
-  'zh-TW': 'zh-Hant',
   already: 'ja',
-};
-
-/** Localized Plugin OS titles used before any runtime hydration lands. */
-const SEED_TITLE: Record<string, string> = {
-  en: 'Plugin OS',
-  pt: 'Plugin OS',
-  es: 'SO de Plugins',
-  fr: 'OS de Plugins',
-  de: 'Plugin-OS',
-  it: 'SO dei Plugin',
-  zh: '插件系统',
-  'zh-Hant': '外掛系統',
-  ko: '플러그인 OS',
-  ru: 'ОС плагинов',
-  uk: 'ОС плагінів',
-  ar: 'نظام الإضافات',
-  hi: 'प्लगइन ओएस',
-  nl: 'Plug-in OS',
-  pl: 'System wtyczek',
-  tr: 'Eklenti OS',
-  vi: 'Hệ thống Plugin',
-  id: 'OS Plugin',
-  th: 'ระบบปลั๊กอิน',
-  sv: 'Plugin-OS',
-  cs: 'Systém pluginů',
-  ro: 'OS de Plugin-uri',
-  hu: 'Plugin OS',
-  el: 'Λειτουργικό Πρόσθετων',
-  he: 'מערכת תוספים',
-  fa: 'سیستم افزونه‌ها',
-  bn: 'প্লাগইন ওএস',
-  ms: 'OS Plugin',
-  ja: 'プラグイン OS',
+  'zh-Hant': 'zh-hant',
 };
 
 export function resolveDesktopLocale(language?: string | null): string {
@@ -69,11 +32,10 @@ export function resolveDesktopLocale(language?: string | null): string {
 }
 
 function seedTitleFor(locale: string): string | undefined {
-  if (SEED_TITLE[locale]) return SEED_TITLE[locale];
+  if (PLUGIN_OS_TITLE_SEED[locale]) return PLUGIN_OS_TITLE_SEED[locale];
   const aliasTarget = SEED_ALIASES[locale];
-  if (aliasTarget && SEED_TITLE[aliasTarget]) return SEED_TITLE[aliasTarget];
-  const base = locale.split('-')[0];
-  return SEED_TITLE[base];
+  if (aliasTarget && PLUGIN_OS_TITLE_SEED[aliasTarget]) return PLUGIN_OS_TITLE_SEED[aliasTarget];
+  return PLUGIN_OS_TITLE_SEED[locale.split('-')[0]];
 }
 
 export function tPluginOs(key: string, language?: string | null): string {
@@ -200,11 +162,8 @@ export function pluginOsPlaneLabels(language?: string | null): Record<string, st
  * runtime translation arrives.
  */
 export const PLUGIN_OS_PLANE_I18N: Record<string, Record<string, string>> = Object.fromEntries(
-  PLUGIN_OS_ALIAS_LOCALES.map((locale) => {
-    const title =
-      SEED_TITLE[locale] ||
-      seedTitleFor(locale) ||
-      SEED_TITLE.en;
-    return [locale, { 'pluginOs.title': title }];
-  }),
+  PLUGIN_OS_ALIAS_LOCALES.map((locale) => [
+    locale,
+    { 'pluginOs.title': seedTitleFor(locale) ?? PLUGIN_OS_TITLE_SEED.en },
+  ]),
 );

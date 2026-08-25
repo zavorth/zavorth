@@ -8,7 +8,9 @@
  * @module web/zavorthControl/controlRequestSupport
  */
 
-const SUPPORTED_LANGUAGES = new Set(["en", "pt-BR", "es", "fr", "de", "it", "ja", "zh"]);
+import { SUPPORTED_LOCALES } from "../../../../../services/localization/localeContracts";
+
+const SUPPORTED_LANGUAGES = new Set<string>(SUPPORTED_LOCALES);
 
 const FALLBACK_LANGUAGE = "en";
 
