@@ -78,7 +78,13 @@ export class CodexTransport implements TransportAdapter {
           params.reasoning = { effort: mapReasoningEffort(options.reasoningEffort) };
         }
 
-        const response = await (client as any).responses.create( // eslint-disable-line @typescript-eslint/no-explicit-any
+        const responsesClient = client as unknown as {
+          responses: {
+            create: (params: Record<string, unknown>, requestOptions?: { signal?: AbortSignal }) => Promise<Record<string, unknown>>;
+            stream: (params: Record<string, unknown>, requestOptions?: { signal?: AbortSignal }) => Promise<AsyncIterable<ResponseStreamEvent>>;
+          };
+        };
+        const response = await responsesClient.responses.create(
           params,
           options?.signal ? { signal: options.signal } : undefined,
         );
@@ -126,7 +132,12 @@ export class CodexTransport implements TransportAdapter {
           params.reasoning = { effort: mapReasoningEffort(options.reasoningEffort) };
         }
 
-        const stream = await (client as any).responses.stream( // eslint-disable-line @typescript-eslint/no-explicit-any
+        const responsesClient = client as unknown as {
+          responses: {
+            stream: (params: Record<string, unknown>, requestOptions?: { signal?: AbortSignal }) => Promise<AsyncIterable<ResponseStreamEvent>>;
+          };
+        };
+        const stream = await responsesClient.responses.stream(
           params,
           options?.signal ? { signal: options.signal } : undefined,
         );

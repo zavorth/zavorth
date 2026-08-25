@@ -1,27 +1,36 @@
 import { SchemaType, type FunctionDeclaration } from '@google/generative-ai';
 import type { ToolDefinition } from '../ILlmProvider.js';
 
+type GeminiSchemaNode = {
+  type: SchemaType;
+  description?: string;
+  enum?: unknown[];
+  items?: GeminiSchemaNode;
+  properties?: Record<string, GeminiSchemaNode>;
+  required?: string[];
+};
+
 export function convertGeminiTool(tool: ToolDefinition): FunctionDeclaration {
-  const properties: Record<string, any> = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
+  const properties: Record<string, GeminiSchemaNode> = {};
   for (const [key, param] of Object.entries(tool.parameters.properties)) {
     properties[key] = convertSchema(param as unknown as Record<string, unknown>);
   }
   return {
     name: tool.name,
     description: tool.description,
+    // The Gemini SDK models schemas as a closed discriminated union; our generic JSON-schema
+    // projection is structurally valid but not narrowable to a single union member.
     parameters: {
       type: SchemaType.OBJECT,
       properties,
       required: tool.parameters.required || [],
-    },
+    } as unknown as FunctionDeclaration['parameters'],
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function convertSchema(schema: Record<string, unknown>): any {
+function convertSchema(schema: Record<string, unknown>): GeminiSchemaNode {
   const type = String(schema.type || 'string');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const converted: any = { type: mapSchemaType(type) };
+  const converted: GeminiSchemaNode = { type: mapSchemaType(type) };
 
   if (typeof schema.description === 'string' && schema.description.trim()) {
     converted.description = schema.description;

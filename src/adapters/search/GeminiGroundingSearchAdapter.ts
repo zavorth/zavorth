@@ -15,7 +15,7 @@ import { asErrorLike } from '../../utils/errorLike';
  * @author Zavorth Core Team
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, type Tool as GeminiTool } from '@google/generative-ai';
 import { config } from '../../config/index.js';
 import { logger } from '../../logger.js';
 import type {
@@ -71,7 +71,7 @@ export class GeminiGroundingSearchAdapter implements ISearchAdapter {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
       model: config.geminiModel || 'gemini-2.0-flash',
-      tools: [{ googleSearch: {} } as any], // eslint-disable-line @typescript-eslint/no-explicit-any
+      tools: [{ googleSearch: {} } as GeminiTool],
     });
 
     const result = await model.generateContent({

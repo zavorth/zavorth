@@ -121,8 +121,7 @@ export class GeminiVoiceService {
       }),
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const body = await readSafeJsonResponse<any>(response as any, 'Gemini Voice Service').catch(() => null);
+    const body = await readSafeJsonResponse<GeminiVoiceResponseBody>(response, 'Gemini Voice Service').catch(() => null);
     if (!response.ok) {
       const message =
         body?.error?.message
@@ -172,13 +171,25 @@ export class GeminiVoiceService {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function readInlineAudio(body: any): { data?: string; mimeType?: string } | null {
-  const candidates = Array.isArray(body?.candidates) ? body.candidates : [];
+type GeminiVoiceResponseBody = {
+  error?: { message?: string };
+  message?: string;
+};
+
+function readInlineAudio(body: GeminiVoiceResponseBody | null): { data?: string; mimeType?: string } | null {
+  if (!body || typeof body !== 'object') {
+    return null;
+  }
+  const candidates = Array.isArray((body as Record<string, unknown>).candidates)
+    ? (body as Record<string, unknown>).candidates as unknown[]
+    : [];
   for (const candidate of candidates) {
-    const parts = Array.isArray(candidate?.content?.parts) ? candidate.content.parts : [];
+    const candidateRecord = (typeof candidate === 'object' && candidate !== null ? candidate : {}) as Record<string, unknown>;
+    const content = (typeof candidateRecord.content === 'object' && candidateRecord.content !== null ? candidateRecord.content : {}) as Record<string, unknown>;
+    const parts = Array.isArray(content.parts) ? content.parts : [];
     for (const part of parts) {
-      const inlineData = part?.inlineData || part?.inline_data;
+      const partRecord = (typeof part === 'object' && part !== null ? part : {}) as Record<string, unknown>;
+      const inlineData = (partRecord.inlineData || partRecord.inline_data || null) as Record<string, unknown> | null;
       if (inlineData?.data) {
         return {
           data: String(inlineData.data),

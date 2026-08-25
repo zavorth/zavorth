@@ -114,8 +114,7 @@ export class GatewayCallbackRouter {
             });
             await ctx.answerCallbackQuery();
           } else if (action === 'view') {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const card = (kanban as any).db.prepare('SELECT * FROM cards WHERE id = ?').get(cardId) as any;
+            const card = kanban.getCard(cardId);
             if (!card) {
               await ctx.answerCallbackQuery({ text: 'Task not found.' });
               return;

@@ -12,6 +12,7 @@ import {
   ToolDefinition,
 } from '../ILlmProvider.js';
 import { buildOpenAiCompatibleNativeToolPayload } from '../ProviderNativeToolPayload.js';
+import type { OpenAiFunctionTool, ProviderSpecificNativeTool } from '../ProviderNativeToolPayload.js';
 import { buildProviderRequestOptions, isProviderAbortError } from '../ProviderAbort.js';
 import { buildOpenAiReasoningEffortBody } from '../reasoningEffortPayload.js';
 import { streamOpenAICompatibleCompletion } from '../OpenAICompatibleStreaming.js';
@@ -156,11 +157,12 @@ export abstract class OpenAICompatibleProvider implements ILlmProvider {
   }
 
   private mergeTools(
-    functionTools: OpenAI.ChatCompletionTool[] | undefined,
+    functionTools: Array<OpenAiFunctionTool | ProviderSpecificNativeTool> | undefined,
     options?: ProviderChatOptions,
   ): OpenAI.ChatCompletionTool[] | undefined {
     const nativeTools = this.buildNativeTools(undefined, options);
     if (!functionTools && !nativeTools) return undefined;
-    return [...(functionTools || []), ...(nativeTools || [])];
+    // Compatible providers tolerate provider-specific tool shapes beyond the strict OpenAI schema.
+    return [...(functionTools || []), ...(nativeTools || [])] as unknown as OpenAI.ChatCompletionTool[];
   }
 }

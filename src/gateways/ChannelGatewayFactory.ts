@@ -38,7 +38,7 @@ import { InstagramGateway } from './channels/instagram/InstagramGateway.js';
 import { logger } from '../logger.js';
 import { applyLiveGatewayWebhookCompat } from './liveGatewayWebhookCompat.js';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- gateway constructors are intentionally heterogeneous (single options object vs broker/runtime pairs); the factory treats them uniformly and forwards one shared options argument.
 type GatewayClass = new (...args: any[]) => unknown;
 
 type GatewayRegistration = {

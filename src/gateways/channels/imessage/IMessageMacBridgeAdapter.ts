@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { asBoundaryRecord } from '../ChannelBoundaryPayload.js';
 import { config } from '../../../config/index.js';
 import { GatewayChannelAdapter } from '../../../gateway/channels/GatewayChannelAdapter';
 import { GatewayEventBus } from '../../../gateway/events/GatewayEventBus';
@@ -69,12 +70,12 @@ export class IMessageMacBridgeAdapter implements GatewayChannelAdapter {
     logger.info('[ChannelMesh] iMessage Mac bridge detached.');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async onMessageReceived(payload: any): Promise<void> {
-    const userId = String(payload?.sender || payload?.handle || payload?.userId || payload?.from || '').trim();
-    const chatId = String(payload?.chatId || payload?.conversationId || userId || 'imessage').trim();
-    const rawText = String(payload?.text || payload?.message || payload?.rawText || '').trim();
-    const messageId = String(payload?.messageId || payload?.guid || payload?.id || '').trim() || null;
+  async onMessageReceived(payload: unknown): Promise<void> {
+    const source = asBoundaryRecord(payload);
+    const userId = String(source.sender || source.handle || source.userId || source.from || '').trim();
+    const chatId = String(source.chatId || source.conversationId || userId || 'imessage').trim();
+    const rawText = String(source.text || source.message || source.rawText || '').trim();
+    const messageId = String(source.messageId || source.guid || source.id || '').trim() || null;
     const isAllowed = await this.policyManager.verifyAccess('imessage', userId);
     if (!isAllowed) {
       logger.warn(`[Security] Blocked unauthorized iMessage interaction from ${userId}`);
@@ -94,28 +95,28 @@ export class IMessageMacBridgeAdapter implements GatewayChannelAdapter {
     }));
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async sendMessage(outboundPayload: any): Promise<void> {
+  async sendMessage(outboundPayload: unknown): Promise<void> {
     if (this.readOnly) {
       throw new Error('iMessage Mac bridge is in read-only mode; promote the bridge before sending.');
     }
-    if (this.requireApproval && outboundPayload?.approved !== true) {
+    const source = asBoundaryRecord(outboundPayload);
+    if (this.requireApproval && source.approved !== true) {
       throw new Error('iMessage Mac bridge requires explicit approval before recording a send.');
     }
 
     const envelope = buildOutboundChannelEnvelope({
       platform: 'imessage',
       transport: this.nodeHostId ? 'mac-bridge-configured' : 'local-outbox',
-      recipients: Array.isArray(outboundPayload?.recipients) ? outboundPayload.recipients : [],
+      recipients: Array.isArray(source.recipients) ? source.recipients : [],
       message: typeof outboundPayload === 'string'
         ? outboundPayload
-        : String(outboundPayload?.text || outboundPayload?.message || '').trim(),
-      payload: outboundPayload && typeof outboundPayload === 'object' ? outboundPayload : null,
+        : String(source.text || source.message || '').trim(),
+      payload: typeof outboundPayload === 'object' && outboundPayload !== null ? source : null,
       now: this.now(),
       fields: {
         nodeHostId: this.nodeHostId || null,
-        recipient: String(outboundPayload?.recipient || outboundPayload?.to || outboundPayload?.chatId || '').trim() || null,
-        approved: outboundPayload?.approved === true,
+        recipient: String(source.recipient || source.to || source.chatId || '').trim() || null,
+        approved: source.approved === true,
       },
     });
     persistChannelOutboxEnvelope(this.outboxDir, envelope);

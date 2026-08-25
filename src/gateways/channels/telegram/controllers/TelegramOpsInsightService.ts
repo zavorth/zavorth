@@ -239,9 +239,14 @@ export class TelegramOpsInsightService {
     }
 
     if (resumableWorkflow) {
-      const workflowLabel = String((resumableWorkflow as any).workflow || '').trim() || 'workflow';
+      const workflowHint = resumableWorkflow as {
+        workflow?: string;
+        stage_label?: string;
+        resume_stage_label?: string;
+      };
+      const workflowLabel = String(workflowHint.workflow || '').trim() || 'workflow';
       const stageLabel = String(
-        (resumableWorkflow as any).stage_label || (resumableWorkflow as any).resume_stage_label || '',
+        workflowHint.stage_label || workflowHint.resume_stage_label || '',
       ).trim();
       lines.push(`- Workflow to resume: ${workflowLabel}${stageLabel ? ` · ${stageLabel}` : ''}.`);
     }

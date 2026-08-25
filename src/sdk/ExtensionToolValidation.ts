@@ -3,34 +3,34 @@ import type { CustomToolDescriptor } from './CustomToolDescriptor.js';
 const RESERVED_NAMESPACES = new Set(['core', 'system', 'zavorth', 'admin']);
 const PERMITTED_RISK_CLASSES = new Set(['safe', 'low', 'medium', 'high', 'critical', 'unknown']);
 
-function checkObjectForSecrets(obj: any): void {
-  if (!obj || typeof obj !== 'object') {
+function checkObjectForSecrets(value: unknown): void {
+  if (!value || typeof value !== 'object') {
     return;
   }
   const secretPattern = /token|secret|key|auth|password|bearer|sk-|ciphertext|authTag/i;
 
-  if (Array.isArray(obj)) {
-    for (const item of obj) {
+  if (Array.isArray(value)) {
+    for (const item of value) {
       checkObjectForSecrets(item);
     }
     return;
   }
 
-  for (const [key, value] of Object.entries(obj)) {
+  for (const [key, entry] of Object.entries(value)) {
     if (secretPattern.test(key)) {
       throw new Error(`Rejected: Metadata key "${key}" contains forbidden secret keywords.`);
     }
-    if (typeof value === 'string') {
+    if (typeof entry === 'string') {
       const isobviousSecret =
-        secretPattern.test(value) ||
-        value.startsWith('sk-') ||
-        value.startsWith('Bearer ') ||
-        (value.length > 40 && /[a-zA-Z0-9]{40,}/.test(value));
+        secretPattern.test(entry) ||
+        entry.startsWith('sk-') ||
+        entry.startsWith('Bearer ') ||
+        (entry.length > 40 && /[a-zA-Z0-9]{40,}/.test(entry));
       if (isobviousSecret) {
         throw new Error(`Rejected: Metadata value for "${key}" contains an obvious raw secret or token.`);
       }
-    } else if (typeof value === 'object') {
-      checkObjectForSecrets(value);
+    } else if (typeof entry === 'object' && entry !== null) {
+      checkObjectForSecrets(entry);
     }
   }
 }

@@ -104,10 +104,8 @@ export type DiscordGatewayInteractionLike = {
 export type DiscordGatewayClientLike = {
   login(token: string): Promise<string>;
   destroy(): void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  on(event: string, listener: (...args: any[]) => void): unknown;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  once(event: string, listener: (...args: any[]) => void): unknown;
+  on(event: string, listener: (...args: never[]) => void): unknown;
+  once(event: string, listener: (...args: never[]) => void): unknown;
   isReady?: () => boolean;
   user?: {
     id?: string;

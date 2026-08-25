@@ -209,6 +209,11 @@ export class KanbanSQLiteDispatcherService {
     return `Card "${title}" added a "${column}" no board "${boardId}". ID: ${cardId}`;
   }
 
+  public getCard(cardId: string): KanbanCard | null {
+    const card = this.db.prepare('SELECT * FROM cards WHERE id = ?').get(cardId) as KanbanCard | undefined;
+    return card || null;
+  }
+
   public moveCard(boardId: string, cardId: string, targetColumn: string, reason?: string): string {
     const board = this.getBoardData(boardId);
     if (!board) return `Error: board "${boardId}" not found.`;

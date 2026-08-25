@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { asBoundaryRecord } from '../ChannelBoundaryPayload.js';
 import { config } from '../../../config/index.js';
 import { GatewayChannelAdapter } from '../../../gateway/channels/GatewayChannelAdapter';
 import { GatewayEventBus } from '../../../gateway/events/GatewayEventBus';
@@ -63,13 +64,13 @@ export class EmailChannelAdapter implements GatewayChannelAdapter {
     logger.info('[ChannelMesh] Email bridge detached.');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async onMessageReceived(payload: any): Promise<void> {
-    const userId = String(payload?.from || payload?.sender || payload?.userId || '').trim().toLowerCase();
-    const chatId = String(payload?.threadId || payload?.messageId || payload?.id || userId || 'email').trim();
-    const rawText = String(payload?.text || payload?.body || payload?.rawText || '').trim();
-    const messageId = String(payload?.messageId || payload?.id || '').trim() || null;
-    const subject = String(payload?.subject || '').trim() || null;
+  async onMessageReceived(payload: unknown): Promise<void> {
+    const source = asBoundaryRecord(payload);
+    const userId = String(source.from || source.sender || source.userId || '').trim().toLowerCase();
+    const chatId = String(source.threadId || source.messageId || source.id || userId || 'email').trim();
+    const rawText = String(source.text || source.body || source.rawText || '').trim();
+    const messageId = String(source.messageId || source.id || '').trim() || null;
+    const subject = String(source.subject || '').trim() || null;
     const isAllowed = await this.policyManager.verifyAccess('email', userId);
     if (!isAllowed) {
       logger.warn(`[Security] Blocked unauthorized Email interaction from ${userId}`);
@@ -89,10 +90,10 @@ export class EmailChannelAdapter implements GatewayChannelAdapter {
     }));
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async sendMessage(outboundPayload: any): Promise<void> {
-    const recipients = Array.isArray(outboundPayload?.recipients)
-      ? outboundPayload.recipients.map((entry: unknown) => String(entry || '').trim().toLowerCase())
+  async sendMessage(outboundPayload: unknown): Promise<void> {
+    const source = asBoundaryRecord(outboundPayload);
+    const recipients = Array.isArray(source.recipients)
+      ? source.recipients.map((entry) => String(entry || '').trim().toLowerCase())
       : [];
     const envelope = buildOutboundChannelEnvelope({
       platform: 'email',
@@ -100,12 +101,12 @@ export class EmailChannelAdapter implements GatewayChannelAdapter {
       recipients,
       message: typeof outboundPayload === 'string'
         ? outboundPayload
-        : String(outboundPayload?.text || outboundPayload?.message || '').trim(),
-      payload: outboundPayload && typeof outboundPayload === 'object' ? outboundPayload : null,
+        : String(source.text || source.message || '').trim(),
+      payload: typeof outboundPayload === 'object' && outboundPayload !== null ? source : null,
       now: this.now(),
       fields: {
-        recipient: String(outboundPayload?.recipient || outboundPayload?.to || outboundPayload?.chatId || '').trim().toLowerCase() || null,
-        subject: String(outboundPayload?.subject || 'Zavorth notification').trim(),
+        recipient: String(source.recipient || source.to || source.chatId || '').trim().toLowerCase() || null,
+        subject: String(source.subject || 'Zavorth notification').trim(),
       },
     });
     persistChannelOutboxEnvelope(this.outboxDir, envelope);

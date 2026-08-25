@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { asBoundaryRecord } from '../ChannelBoundaryPayload.js';
 import { config } from '../../../config/index.js';
 import { GatewayChannelAdapter } from '../../../gateway/channels/GatewayChannelAdapter';
 import { GatewayEventBus } from '../../../gateway/events/GatewayEventBus';
@@ -67,13 +68,13 @@ export class SlackChannelAdapter implements GatewayChannelAdapter {
     logger.info('[ChannelMesh] Slack detached.');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async onMessageReceived(slackPayload: any): Promise<void> {
-    const userId = String(slackPayload?.user || slackPayload?.userId || '').trim();
-    const channelId = String(slackPayload?.channel || slackPayload?.channelId || '').trim() || 'slack';
-    const rawText = String(slackPayload?.text || slackPayload?.rawText || '').trim();
-    const threadTs = String(slackPayload?.threadTs || slackPayload?.thread_ts || '').trim() || null;
-    const messageId = String(slackPayload?.ts || slackPayload?.messageId || '').trim() || null;
+  async onMessageReceived(slackPayload: unknown): Promise<void> {
+    const source = asBoundaryRecord(slackPayload);
+    const userId = String(source.user || source.userId || '').trim();
+    const channelId = String(source.channel || source.channelId || '').trim() || 'slack';
+    const rawText = String(source.text || source.rawText || '').trim();
+    const threadTs = String(source.threadTs || source.thread_ts || '').trim() || null;
+    const messageId = String(source.ts || source.messageId || '').trim() || null;
     const isAllowed = await this.policyManager.verifyAccess('slack', userId);
     if (!isAllowed) {
         logger.warn(`[Security] Blocked unauthorized Slack user: ${userId}`);
@@ -94,23 +95,23 @@ export class SlackChannelAdapter implements GatewayChannelAdapter {
     }));
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async sendMessage(outboundPayload: any): Promise<void> {
+  async sendMessage(outboundPayload: unknown): Promise<void> {
+    const source = asBoundaryRecord(outboundPayload);
     const envelope = buildOutboundChannelEnvelope({
       platform: 'slack',
       transport: this.botToken ? 'native-configured' : 'local-outbox',
-      recipients: Array.isArray(outboundPayload?.recipients) ? outboundPayload.recipients : [],
+      recipients: Array.isArray(source.recipients) ? source.recipients : [],
       message: truncateSlackText(
         typeof outboundPayload === 'string'
           ? outboundPayload
-          : String(outboundPayload?.text || outboundPayload?.message || '').trim(),
+          : String(source.text || source.message || '').trim(),
         8000
       ),
-      payload: outboundPayload && typeof outboundPayload === 'object' ? outboundPayload : null,
+      payload: typeof outboundPayload === 'object' && outboundPayload !== null ? source : null,
       now: this.now(),
       fields: {
-        channelId: String(outboundPayload?.channelId || outboundPayload?.channel || '').trim() || null,
-        threadTs: String(outboundPayload?.threadTs || outboundPayload?.thread_ts || '').trim() || null,
+        channelId: String(source.channelId || source.channel || '').trim() || null,
+        threadTs: String(source.threadTs || source.thread_ts || '').trim() || null,
       },
     });
     persistChannelOutboxEnvelope(this.outboxDir, envelope);

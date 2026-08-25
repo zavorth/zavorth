@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { asBoundaryRecord } from '../ChannelBoundaryPayload.js';
 import { config } from '../../../config/index.js';
 import { GatewayChannelAdapter } from '../../../gateway/channels/GatewayChannelAdapter';
 import { GatewayEventBus } from '../../../gateway/events/GatewayEventBus';
@@ -61,12 +62,12 @@ export class SignalChannelAdapter implements GatewayChannelAdapter {
     logger.info('[ChannelMesh] Signal bridge detached.');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async onMessageReceived(payload: any): Promise<void> {
-    const userId = String(payload?.sender || payload?.source || payload?.userId || payload?.from || '').trim();
-    const chatId = String(payload?.groupId || payload?.chatId || userId || 'signal').trim();
-    const rawText = String(payload?.message || payload?.text || payload?.rawText || '').trim();
-    const messageId = String(payload?.messageId || payload?.id || payload?.timestamp || '').trim() || null;
+  async onMessageReceived(payload: unknown): Promise<void> {
+    const source = asBoundaryRecord(payload);
+    const userId = String(source.sender || source.source || source.userId || source.from || '').trim();
+    const chatId = String(source.groupId || source.chatId || userId || 'signal').trim();
+    const rawText = String(source.message || source.text || source.rawText || '').trim();
+    const messageId = String(source.messageId || source.id || source.timestamp || '').trim() || null;
     const isAllowed = await this.policyManager.verifyAccess('signal', userId);
     if (!isAllowed) {
       logger.warn(`[Security] Blocked unauthorized Signal interaction from ${userId}`);
@@ -81,24 +82,24 @@ export class SignalChannelAdapter implements GatewayChannelAdapter {
       messageId,
       now: this.now(),
       fields: {
-        groupId: payload?.groupId || null,
+        groupId: source.groupId || null,
       },
     }));
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async sendMessage(outboundPayload: any): Promise<void> {
+  async sendMessage(outboundPayload: unknown): Promise<void> {
+    const source = asBoundaryRecord(outboundPayload);
     const envelope = buildOutboundChannelEnvelope({
       platform: 'signal',
       transport: this.bridgeTarget ? 'signal-cli-configured' : 'local-outbox',
-      recipients: Array.isArray(outboundPayload?.recipients) ? outboundPayload.recipients : [],
+      recipients: Array.isArray(source.recipients) ? source.recipients : [],
       message: typeof outboundPayload === 'string'
         ? outboundPayload
-        : String(outboundPayload?.text || outboundPayload?.message || '').trim(),
-      payload: outboundPayload && typeof outboundPayload === 'object' ? outboundPayload : null,
+        : String(source.text || source.message || '').trim(),
+      payload: typeof outboundPayload === 'object' && outboundPayload !== null ? source : null,
       now: this.now(),
       fields: {
-        recipient: String(outboundPayload?.recipient || outboundPayload?.to || outboundPayload?.chatId || '').trim() || null,
+        recipient: String(source.recipient || source.to || source.chatId || '').trim() || null,
       },
     });
     persistChannelOutboxEnvelope(this.outboxDir, envelope);

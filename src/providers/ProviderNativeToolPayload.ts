@@ -1,14 +1,31 @@
 import type { ProviderChatOptions, ProviderNativeToolRequest, ToolDefinition } from './ILlmProvider.js';
 
+export type OpenAiFunctionTool = {
+  type: 'function';
+  function: {
+    name: string;
+    description?: string;
+    parameters?: Record<string, unknown>;
+  };
+};
+
+export type ProviderSpecificNativeTool = {
+  type: string;
+  function?: {
+    name: string;
+    description?: string;
+    parameters?: Record<string, unknown>;
+  };
+  [key: string]: unknown;
+};
+
 export type OpenAiCompatibleNativeToolPayload = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tools: any[] | undefined;
+  tools: Array<OpenAiFunctionTool | ProviderSpecificNativeTool> | undefined;
   extraBody: Record<string, unknown>;
   metadata: Record<string, unknown>;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function buildFunctionTools(tools?: ToolDefinition[]): any[] {
+export function buildFunctionTools(tools?: ToolDefinition[]): OpenAiFunctionTool[] {
   return (tools || []).map((tool) => ({
     type: 'function' as const,
     function: {
@@ -27,8 +44,7 @@ export function buildOpenAiCompatibleNativeToolPayload(input: {
   const providerName = normalize(input.providerName);
   const requested = input.options?.providerNativeTools || [];
   const functionTools = buildFunctionTools(input.tools);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const nativeTools: any[] = [];
+  const nativeTools: ProviderSpecificNativeTool[] = [];
   const extraBody: Record<string, unknown> = {};
   const activated: string[] = [];
   const unsupported: string[] = [];

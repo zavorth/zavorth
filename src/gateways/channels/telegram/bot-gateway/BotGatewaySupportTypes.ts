@@ -182,6 +182,7 @@ export type BotGatewaySupportRuntime = {
   hostIdentityService: HostIdentityService;
   telegramChannelContractService: TelegramChannelContractService;
   callbackController: { handleCallback: (ctx: Context, data: string) => Promise<void> };
+  permissionController?: { handleMessageReaction: (ctx: Context) => Promise<void> | void };
   processTextMessage?: (
     ctx: Context,
     text: string,

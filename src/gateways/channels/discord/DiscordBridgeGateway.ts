@@ -341,8 +341,8 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
         chatId,
         isGroup: Boolean(envelope.channel.guildId),
         rawText: String(envelope.message.content || '').trim(),
-        reply: async (text: string, // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          options?: any) => {
+        reply: async (text: string,
+          options?: { components?: unknown[] }) => {
           await this.queueOutbound({
             protocol: DISCORD_BRIDGE_PROTOCOL,
             eventId: crypto.randomUUID(),

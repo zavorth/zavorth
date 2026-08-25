@@ -271,8 +271,8 @@ export class TelegramGatewayHandlerRegistrar {
     });
 
     // F5e — emoji reactions on approval messages
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.dependencies.bot.on('message_reaction' as any, async (ctx: Context) => {
+    const messageReactionFilter = 'message_reaction' as unknown as Parameters<typeof this.dependencies.bot.on>[0];
+    this.dependencies.bot.on(messageReactionFilter, async (ctx: Context) => {
       if (!this.dependencies.permissionReactionHandler) return;
       try {
         await this.dependencies.permissionReactionHandler.handleMessageReaction(ctx);
@@ -291,12 +291,17 @@ export class TelegramGatewayHandlerRegistrar {
    * Removes all registered handlers to prevent listener leaks on restart.
    */
   public unregisterHandlers(): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const bot = this.dependencies.bot as any;
-    bot.off('message:new_chat_members');
-    bot.off('message:left_chat_member');
-    bot.off('message:text');
-    bot.off('callback_query:data');
-    bot.off('message_reaction');
+    // grammy does not type an unsubscribe API; degrade silently when unavailable.
+    const removable = this.dependencies.bot as unknown as { off?: (filter: string) => void };
+    const filters = [
+      'message:new_chat_members',
+      'message:left_chat_member',
+      'message:text',
+      'callback_query:data',
+      'message_reaction',
+    ];
+    for (const filter of filters) {
+      removable.off?.(filter);
+    }
   }
 }

@@ -1,6 +1,14 @@
+import type { Bot } from 'grammy';
 import { logger } from '../../../../logger.js';
 import { HoneypotMonitor } from "../../../../monitoring/HoneypotMonitor.js";
-export function createTelegramHoneypotMonitor(gateway: any): HoneypotMonitor { // eslint-disable-line @typescript-eslint/no-explicit-any
+import type { SecurityLockService } from '../../../../services/SecurityLockService.js';
+
+type TelegramHoneypotGateway = {
+  securityLock: SecurityLockService;
+  bot: Pick<Bot, 'api'>;
+};
+
+export function createTelegramHoneypotMonitor(gateway: TelegramHoneypotGateway): HoneypotMonitor {
   return new HoneypotMonitor(gateway.securityLock, async (msg) => {
     const adminIds = process.env.TELEGRAM_ALLOWED_USER_IDS?.split(",") || [];
     for (const adminId of adminIds) {

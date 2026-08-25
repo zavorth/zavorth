@@ -1,4 +1,5 @@
 import { BedrockRuntimeClient, ConverseCommand, ConverseStreamCommand } from '@aws-sdk/client-bedrock-runtime';
+import type { ConverseCommandInput, ConverseStreamCommandInput } from '@aws-sdk/client-bedrock-runtime';
 import type {
   ChatMessage,
   LlmResponse,
@@ -45,6 +46,8 @@ export class BedrockTransport implements TransportAdapter {
     for (let attempt = 0; attempt <= 1; attempt += 1) {
       try {
         const systemPrompt = extractSystemPrompt(messages);
+        // The AWS SDK v3 brands Message/Tool unions with an internal $unknown marker that
+        // cannot be satisfied by plain wire-compatible objects; one documented seam here.
         const requestParams: Record<string, unknown> = {
           modelId: options?.modelName || this.defaultModel,
           messages: toBedrockMessages(messages),
@@ -59,10 +62,9 @@ export class BedrockTransport implements TransportAdapter {
           requestParams.toolConfig = { tools: tools.map(toBedrockTool) };
         }
 
-        const abortSignal = options?.signal;
-        const command = new ConverseCommand(requestParams as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+        const command = new ConverseCommand(requestParams as unknown as ConverseCommandInput);
         const response = await this.client.send(command, {
-          abortSignal: abortSignal as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+          abortSignal: options?.signal,
         });
 
         if (attempt > 0) {
@@ -104,10 +106,9 @@ export class BedrockTransport implements TransportAdapter {
           requestParams.toolConfig = { tools: tools.map(toBedrockTool) };
         }
 
-        const abortSignal = options?.signal;
-        const command = new ConverseStreamCommand(requestParams as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+        const command = new ConverseStreamCommand(requestParams as unknown as ConverseStreamCommandInput);
         const response = await this.client.send(command, {
-          abortSignal: abortSignal as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+          abortSignal: options?.signal,
         });
 
         if (attempt > 0) {
@@ -129,7 +130,8 @@ export class BedrockTransport implements TransportAdapter {
 
   private async *processStream(response: Record<string, unknown>): AsyncIterable<LlmStreamEvent> {
     const stream = response.body;
-    if (!stream || typeof (stream as any)[Symbol.asyncIterator] !== 'function') { // eslint-disable-line @typescript-eslint/no-explicit-any
+        const streamable = stream as { [Symbol.asyncIterator]?: unknown };
+        if (!stream || typeof streamable[Symbol.asyncIterator] !== 'function') {
       throw new Error('Bedrock transport: no stream in response');
     }
 

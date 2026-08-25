@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { asBoundaryRecord } from '../ChannelBoundaryPayload.js';
 import { config } from '../../../config/index.js';
 import { GatewayChannelAdapter } from '../../../gateway/channels/GatewayChannelAdapter';
 import { GatewayEventBus } from '../../../gateway/events/GatewayEventBus';
@@ -63,25 +64,27 @@ export class TeamsChannelAdapter implements GatewayChannelAdapter {
     logger.info('[ChannelMesh] Teams bridge detached.');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async onMessageReceived(payload: any): Promise<void> {
+  async onMessageReceived(payload: unknown): Promise<void> {
+    const source = asBoundaryRecord(payload);
+    const from = asBoundaryRecord(source.from);
+    const conversation = asBoundaryRecord(source.conversation);
     const userId = String(
-      payload?.userId
-      || payload?.from?.id
-      || payload?.from?.aadObjectId
-      || payload?.sender
+      source.userId
+      || from.id
+      || from.aadObjectId
+      || source.sender
       || '',
     ).trim();
     const chatId = String(
-      payload?.conversationId
-      || payload?.conversation?.id
-      || payload?.channelId
+      source.conversationId
+      || conversation.id
+      || source.channelId
       || userId
       || 'teams',
     ).trim();
-    const rawText = String(payload?.text || payload?.message || payload?.rawText || '').trim();
-    const messageId = String(payload?.id || payload?.messageId || payload?.activityId || '').trim() || null;
-    const threadId = String(payload?.replyToId || payload?.threadId || '').trim() || null;
+    const rawText = String(source.text || source.message || source.rawText || '').trim();
+    const messageId = String(source.id || source.messageId || source.activityId || '').trim() || null;
+    const threadId = String(source.replyToId || source.threadId || '').trim() || null;
     const isAllowed = await this.policyManager.verifyAccess('teams', userId);
     if (!isAllowed) {
       logger.warn(`[Security] Blocked unauthorized Teams interaction from ${userId}`);
@@ -102,25 +105,25 @@ export class TeamsChannelAdapter implements GatewayChannelAdapter {
     }));
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async sendMessage(outboundPayload: any): Promise<void> {
+  async sendMessage(outboundPayload: unknown): Promise<void> {
+    const source = asBoundaryRecord(outboundPayload);
     const envelope = buildOutboundChannelEnvelope({
       platform: 'teams',
       transport: this.providerHint || config.teamsAppId ? 'graph-bot-configured' : 'local-outbox',
-      recipients: Array.isArray(outboundPayload?.recipients) ? outboundPayload.recipients : [],
+      recipients: Array.isArray(source.recipients) ? source.recipients : [],
       message: typeof outboundPayload === 'string'
         ? outboundPayload
-        : String(outboundPayload?.text || outboundPayload?.message || '').trim(),
-      payload: outboundPayload && typeof outboundPayload === 'object' ? outboundPayload : null,
+        : String(source.text || source.message || '').trim(),
+      payload: typeof outboundPayload === 'object' && outboundPayload !== null ? source : null,
       now: this.now(),
       fields: {
         conversationId: String(
-          outboundPayload?.conversationId
-          || outboundPayload?.chatId
-          || outboundPayload?.recipient
+          source.conversationId
+          || source.chatId
+          || source.recipient
           || '',
         ).trim() || null,
-        replyToId: String(outboundPayload?.replyToId || outboundPayload?.threadId || '').trim() || null,
+        replyToId: String(source.replyToId || source.threadId || '').trim() || null,
       },
     });
     persistChannelOutboxEnvelope(this.outboxDir, envelope);

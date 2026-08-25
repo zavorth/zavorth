@@ -157,48 +157,56 @@ export class GeminiInteractionsProviderAdapter implements ILlmProvider {
   }
 }
 
+type GeminiInteractionStepLike = Record<string, unknown>;
+
 export function mapGeminiInteractionToReceipt(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  interaction: any,
+  interaction: unknown,
   model: string,
   previousInteractionId: string | null = null,
   storedServerSide = false,
 ): GeminiInteractionReceipt {
-  const steps = Array.isArray(interaction?.steps) ? interaction.steps : [];
+  const source = (typeof interaction === 'object' && interaction !== null ? interaction : {}) as GeminiInteractionStepLike;
+  const steps = Array.isArray(source.steps) ? source.steps : [];
   return {
     provider: 'gemini-interactions',
     model,
-    interactionId: cleanText(interaction?.id || interaction?.name),
+    interactionId: cleanText(source.id || source.name),
     previousInteractionId,
     storedServerSide,
     steps: steps.map((step: unknown, index: number) => mapStep(step, index)),
   };
 }
 
-function mapStep(// eslint-disable-next-line @typescript-eslint/no-explicit-any
-  step: any, index: number): GeminiInteractionTimelineStep {
-  const rawKind = cleanText(step?.type || step?.kind || step?.step_type || step?.stepType);
-  const functionCall = step?.function_call || step?.functionCall || step?.tool_call || step?.toolCall || null;
+function mapStep(step: unknown, index: number): GeminiInteractionTimelineStep {
+  const source = (typeof step === 'object' && step !== null ? step : {}) as GeminiInteractionStepLike;
+  const rawKind = cleanText(source.type || source.kind || source.step_type || source.stepType);
+  const functionCall = (source.function_call || source.functionCall || source.tool_call || source.toolCall || null) as GeminiInteractionStepLike | null;
+  const content = asBoundaryRecordCompat(source.content);
+  const modelOutput = asBoundaryRecordCompat(source.model_output);
+  const thought = asBoundaryRecordCompat(source.thought);
   return {
     index,
-    kind: normalizeStepKind(rawKind, step),
-    text: cleanText(step?.text || step?.output_text || step?.content?.text || step?.model_output?.text || step?.thought?.text),
+    kind: normalizeStepKind(rawKind, source),
+    text: cleanText(source.text || source.output_text || content.text || modelOutput.text || thought.text),
     toolName: cleanText(functionCall?.name),
     toolArguments: normalizeArguments(functionCall?.args || functionCall?.arguments),
     rawKind,
   };
 }
 
-function normalizeStepKind(// eslint-disable-next-line @typescript-eslint/no-explicit-any
-  rawKind: string | null, step: any): GeminiInteractionStepKind {
+function normalizeStepKind(rawKind: string | null, step: GeminiInteractionStepLike): GeminiInteractionStepKind {
   const normalized = String(rawKind || '').toLowerCase().replace(/[^a-z0-9]+/g, '_');
   if (normalized.includes('user')) return 'user_input';
   if (normalized.includes('model') || normalized.includes('output')) return 'model_output';
   if (normalized.includes('function_call') || normalized.includes('tool_call')) return 'function_call';
   if (normalized.includes('function_result') || normalized.includes('tool_result')) return 'function_result';
-  if (normalized.includes('thought') || step?.thought) return 'thought';
-  if (step?.function_call || step?.functionCall || step?.tool_call || step?.toolCall) return 'function_call';
+  if (normalized.includes('thought') || step.thought) return 'thought';
+  if (step.function_call || step.functionCall || step.tool_call || step.toolCall) return 'function_call';
   return 'unknown';
+}
+
+function asBoundaryRecordCompat(value: unknown): GeminiInteractionStepLike {
+  return typeof value === 'object' && value !== null ? value as GeminiInteractionStepLike : {};
 }
 
 function normalizeArguments(value: unknown): Record<string, unknown> | null {

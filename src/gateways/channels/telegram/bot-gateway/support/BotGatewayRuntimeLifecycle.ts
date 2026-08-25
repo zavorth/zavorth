@@ -298,10 +298,10 @@ export function getTelegramGatewayHandlerRegistrar(
         groupEventController: runtime.groupEventController,
         mediaController: runtime.mediaController,
         callbackController: runtime.callbackController,
-        permissionReactionHandler: (runtime as any).permissionController // eslint-disable-line @typescript-eslint/no-explicit-any
+        permissionReactionHandler: runtime.permissionController
           ? {
               handleMessageReaction: (ctx: Context) =>
-                (runtime as any).permissionController.handleMessageReaction(ctx), // eslint-disable-line @typescript-eslint/no-explicit-any
+                runtime.permissionController?.handleMessageReaction(ctx),
             }
           : null,
         hostIdentityService: runtime.hostIdentityService,

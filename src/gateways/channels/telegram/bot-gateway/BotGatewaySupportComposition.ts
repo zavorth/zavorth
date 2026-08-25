@@ -1,7 +1,9 @@
 import { CommandParser } from '../../../../gateways/channels/telegram/CommandParser.js';
 import { TelegramChannelContractService } from '../../../../gateways/channels/telegram/TelegramChannelContractService.js';
 import { EchoOutputStageService } from '../../../../services/EchoOutputStageService.js';
+import { HostIdentityService } from '../../../../services/HostIdentityService.js';
 import { BotGatewaySupport } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupport.js';
+import type { Context } from 'grammy';
 import type {
   BotGatewaySupportRuntime,
   BotGatewaySupportState,
@@ -20,19 +22,37 @@ export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): Bo
     return gateway.botGatewaySupport;
   }
 
+  if (!gateway.bot || !gateway.securityLock || !gateway.logRepo) {
+    throw new Error('BotGatewaySupport composition requires a bot, security lock, and log repository.');
+  }
+
   const created = new BotGatewaySupport({
     bot: gateway.bot,
     logRepo: gateway.logRepo,
     parser: gateway.parser || new CommandParser(),
     priorityCommandService: gateway.priorityCommandService || { handle: async () => false },
     securityLock: gateway.securityLock,
-    chainController: gateway.chainController,
-    hubController: gateway.hubController,
-    opsController: gateway.opsController,
-    capabilityController: gateway.capabilityController,
-    commandRoutingService: gateway.commandRoutingService,
-    groupEventController: gateway.groupEventController,
-    mediaController: gateway.mediaController,
+    chainController: gateway.chainController || { handleCommandChain: async () => undefined },
+    hubController: gateway.hubController || { handleStartCommand: async () => undefined },
+    opsController: gateway.opsController || { handleStatus: async () => undefined },
+    capabilityController: gateway.capabilityController || { handleCommand: async () => false },
+    commandRoutingService: gateway.commandRoutingService || {
+      dispatchPrivateCommand: async () => false,
+      dispatchGroupCommand: async () => false,
+    },
+    groupEventController: gateway.groupEventController || {
+      processAntiSpam: async () => false,
+      processMessageFilter: async () => false,
+      trackMessage: async () => undefined,
+      handleNewMembers: async () => undefined,
+      handleLeftMember: async () => undefined,
+    },
+    mediaController: gateway.mediaController || {
+      handlePhoto: async () => undefined,
+      handleVoice: async () => undefined,
+      handleVideo: async () => undefined,
+      handleDocument: async () => undefined,
+    },
     surfaceTaskDispatcher: gateway.surfaceTaskDispatcher || { dispatchTaskMessage: async () => undefined },
     legacyUnifiedGateway: gateway.legacyUnifiedGateway || null,
     agentGateway: gateway.agentGateway || null,
@@ -61,7 +81,7 @@ export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): Bo
     researchQueueWorker: gateway.researchQueueWorker || { start: () => undefined },
     julesQueueWorker: gateway.julesQueueWorker || { start: () => undefined },
     chatCleanup: gateway.chatCleanup || { trackMessage: () => undefined },
-    hostIdentityService: gateway.hostIdentityService,
+    hostIdentityService: gateway.hostIdentityService || new HostIdentityService(),
     telegramChannelContractService: gateway.telegramChannelContractService || new TelegramChannelContractService(),
     callbackController: gateway.callbackController || { handleCallback: async () => undefined },
     // Certification matrix: Echo Mode — voice response
@@ -71,12 +91,9 @@ export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): Bo
       audioHandler: gateway.audioHandler || null,
       preferenceStore: gateway.zavorthBridgePreferenceStore || null,
     }),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    processTextMessage: (ctx: any, text: any) => gateway.processTextMessage?.(ctx, text) ?? Promise.resolve(),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    processGroupCommand: (ctx: any, text: any) => gateway.processGroupCommand?.(ctx, text) ?? Promise.resolve(),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    canUseInteractiveGroupAi: (ctx: any) => gateway.canUseInteractiveGroupAi?.(ctx) ?? Promise.resolve(false),
+    processTextMessage: (ctx: Context, text: string) => gateway.processTextMessage?.(ctx, text) ?? Promise.resolve(),
+    processGroupCommand: (ctx: Context, text: string) => gateway.processGroupCommand?.(ctx, text) ?? Promise.resolve(),
+    canUseInteractiveGroupAi: (ctx: Context) => gateway.canUseInteractiveGroupAi?.(ctx) ?? Promise.resolve(false),
     state: {
       supervisedRuntimeNotificationTimer: null,
       supervisedRuntimeNotificationFlushInFlight: false,
@@ -86,7 +103,7 @@ export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): Bo
       gateway.getSharedSurfaceCommandService?.()
       ?? gateway.sharedSurfaceCommandService
       ?? null,
-  } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+  });
 
   gateway.botGatewaySupport = created;
   return created;
