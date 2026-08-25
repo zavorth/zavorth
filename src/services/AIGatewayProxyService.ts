@@ -410,7 +410,7 @@ export class AIGatewayProxyService {
       return response.ok;
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      logger.warn('Healthcheck do upstream failed.', { err });
+      logger.warn('Healthcheck of upstream failed.', { err });
       return false;
     }
   }

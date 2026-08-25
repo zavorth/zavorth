@@ -722,7 +722,7 @@ function countReferences(dir: string): number {
     return fs.readdirSync(references, { withFileTypes: true }).filter((entry) => entry.isFile()).length;
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    logger.warn('[SkillCuratorLiveLoop] countReferences: failure ao ler diretorio de referencias', { references, error: (err as Error).message });
+    logger.warn('[SkillCuratorLiveLoop] countReferences: failed to read references directory', { references, error: (err as Error).message });
     return 0;
   }
 }
@@ -967,7 +967,7 @@ function visitUsageRoot(dir: string, results: string[], depth: number): void {
     entries = fs.readdirSync(dir, { withFileTypes: true });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    logger.warn('[SkillCuratorLiveLoop] visitUsageRoot: failure ao ler diretorio de usage', { dir, error: (err as Error).message });
+    logger.warn('[SkillCuratorLiveLoop] visitUsageRoot: failed to read usage directory', { dir, error: (err as Error).message });
     return;
   }
   for (const entry of entries) {

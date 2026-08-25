@@ -60,7 +60,7 @@ export class SelfHealingService {
       }
 
       return output;
-    } catch (error: unknown) {logger.error('Failure no SelfHealingService:', error);
+    } catch (error: unknown) {logger.error('Failure in SelfHealingService:', error);
       return null;
     }
   }

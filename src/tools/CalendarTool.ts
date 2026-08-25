@@ -144,7 +144,7 @@ export class CalendarTool extends BaseTool {
     if (typeof args.attendees === 'string') {
       try {
         attendees = JSON.parse(args.attendees);
-      } catch (error: unknown) {logger.warn('[Calendar] JSON parse failed', error); return 'Error: JSON de attendees is invalid.'; }
+      } catch (error: unknown) {logger.warn('[Calendar] JSON parse failed', error); return 'Error: attendees JSON is invalid.'; }
     }
 
     const event: CalendarEvent = {

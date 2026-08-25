@@ -208,7 +208,7 @@ export class ProactiveInferencePlaneService {
         correlation: pendingIntent.correlation || null,
         warnings: memoryRecall.warnings || [],
       };
-    } catch (error: unknown) {logger.error('[ProactiveInferencePlane] Ciclo de inferencia failed.', error);
+    } catch (error: unknown) {logger.error('[ProactiveInferencePlane] Inference cycle failed.', error);
       return {
         ok: false,
         skipped: 'invalid_payload',

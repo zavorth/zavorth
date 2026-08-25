@@ -8,14 +8,14 @@ import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/
 
 type TelegramSkillCatalogControllerDeps = {
   skillMcpSidecarService?: Pick<SkillMcpSidecarService, 'renderReport'>;
-  skillLibraryPresentationService?: Pick<SkillLibraryPresentationService, 'renderReport'>;
+  skillLibraryPresentationService?: Pick<SkillLibraryPresentationService, 'renderReport' | 'buildSnapshot'>;
   skillInstallPlanPresentationService?: Pick<SkillInstallPlanPresentationService, 'renderReport'>;
   skillBridgeActivationService?: Pick<UniversalSkillBridgeActivationService, 'executeCommand' | 'renderReport'>;
 };
 
 export class TelegramSkillCatalogController {
   private readonly skillMcpSidecarService: Pick<SkillMcpSidecarService, 'renderReport'>;
-  private readonly skillLibraryPresentationService: Pick<SkillLibraryPresentationService, 'renderReport'>;
+  private readonly skillLibraryPresentationService: Pick<SkillLibraryPresentationService, 'renderReport' | 'buildSnapshot'>;
   private readonly skillInstallPlanPresentationService: Pick<SkillInstallPlanPresentationService, 'renderReport'>;
   private readonly skillBridgeActivationService: Pick<UniversalSkillBridgeActivationService, 'executeCommand' | 'renderReport'>;
 
@@ -25,7 +25,7 @@ export class TelegramSkillCatalogController {
       deps.skillLibraryPresentationService || new SkillLibraryPresentationService();
     this.skillInstallPlanPresentationService =
       deps.skillInstallPlanPresentationService || new SkillInstallPlanPresentationService({
-        skillLibraryPresentationService: this.skillLibraryPresentationService as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        skillLibraryPresentationService: this.skillLibraryPresentationService,
       });
     this.skillBridgeActivationService =
       deps.skillBridgeActivationService || new UniversalSkillBridgeActivationService();
@@ -41,7 +41,7 @@ export class TelegramSkillCatalogController {
       const snapshot = await this.skillBridgeActivationService.executeCommand({
         args: normalizedArgs,
         channel: 'telegram',
-        actorId: String((ctx as any).from?.id || '').trim() || null, // eslint-disable-line @typescript-eslint/no-explicit-any
+        actorId: String(ctx.from?.id || '').trim() || null,
       });
       await this.replySkillReport(
         ctx,

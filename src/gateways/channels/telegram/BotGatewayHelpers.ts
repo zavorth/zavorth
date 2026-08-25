@@ -41,6 +41,7 @@ type PermissionServiceLike = {
 
 type TaskManagerLike = {
   advanceState(task: Task, state: string): void;
+  saveTask?(task: Task): void;
 };
 
 type ExternalExecutorMetadata = {
