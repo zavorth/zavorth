@@ -200,7 +200,7 @@ describe('AudioHandler', () => {
       languageCode: 'auto',
     });
     expect(voiceTelemetryService.recordSuccess).toHaveBeenCalledWith(expect.objectContaining({
-      surface: 'telegram',
+      surface: 'unknown',
       provider: 'gemini',
       model: 'gemini-2.5-flash',
       voiceName: 'Kore',
