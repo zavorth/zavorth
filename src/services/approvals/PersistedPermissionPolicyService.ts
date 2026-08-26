@@ -10,6 +10,17 @@ import { Task } from '../../contracts/TaskContract.js';
 import { PermissionService, type PermissionMetadataValue } from '../PermissionService.js';
 import { TenantContextService } from '../TenantContextService.js';
 
+type TenantMetadataMatch = { tenant_id: string; tenant_policy_profile?: string } | undefined;
+
+function toMetadataRecord(match: TenantMetadataMatch): Record<string, PermissionMetadataValue> | undefined {
+  if (!match) return undefined;
+  const record: Record<string, PermissionMetadataValue> = { tenant_id: match.tenant_id };
+  if (match.tenant_policy_profile) {
+    record.tenant_policy_profile = match.tenant_policy_profile;
+  }
+  return record;
+}
+
 export type PersistedPermissionPathPolicy = {
   path: string;
   access_level: PermissionAccessLevel;
@@ -52,18 +63,18 @@ export class PersistedPermissionPolicyService {
 
   public async applyPersistedPermissionPolicies(task: Task, executor: string): Promise<void> {
     const workspace = task.workspace || config.defaultWorkspace;
-    const tenantMetadataMatch = TenantContextService.buildPermissionMetadataMatchFromTask(task);
+    const metadataMatch = toMetadataRecord(TenantContextService.buildPermissionMetadataMatchFromTask(task));
     const allowedPathPolicies = await this.deps.permissionService.listApprovedRequests(
       executor,
       'workspace_access',
       workspace,
-      tenantMetadataMatch as unknown as Record<string, PermissionMetadataValue>,
+      metadataMatch,
     );
     const allowedCommandPolicies = await this.deps.permissionService.listApprovedRequests(
       executor,
       'command_access',
       workspace,
-      tenantMetadataMatch as unknown as Record<string, PermissionMetadataValue>,
+      metadataMatch,
     );
 
     const taskLocalAllowedPaths = Array.isArray(task.metadata?.extra_allowed_paths)
@@ -151,7 +162,7 @@ export class PersistedPermissionPolicyService {
         'external_executor',
         'agent_binding',
         workspace,
-        tenantMetadataMatch as unknown as Record<string, PermissionMetadataValue>,
+        metadataMatch,
       );
       const agentBindings: Record<string, string> = {};
       const permissionIds: Record<string, string> = {};
@@ -185,13 +196,13 @@ export class PersistedPermissionPolicyService {
         'aistudio',
         'builtin_tool_access',
         workspace,
-        tenantMetadataMatch as unknown as Record<string, PermissionMetadataValue>,
+        metadataMatch,
       );
       const approvedServicePolicies = await this.deps.permissionService.listApprovedRequests(
         'aistudio',
         'service_access',
         workspace,
-        tenantMetadataMatch as unknown as Record<string, PermissionMetadataValue>,
+        metadataMatch,
       );
 
       const taskLocalAllowedTools = Array.isArray(task.metadata?.aistudio_allowed_tools)
