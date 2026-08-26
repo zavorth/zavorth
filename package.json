@@ -376,6 +376,8 @@
     "code:runtime-bridge:smoke": "node scripts/smoke-runtime-bridge.mjs",
     "code:dispatch:smoke": "node scripts/smoke-code-dispatch.mjs",
     "test": "node scripts/run-jest-ci-groups.mjs",
+    "test:quick": "node --experimental-vm-modules node_modules/jest/bin/jest.js --maxWorkers=50% --passWithNoTests --bail=1",
+    "test:changed": "node --experimental-vm-modules node_modules/jest/bin/jest.js --onlyChanged --maxWorkers=50% --passWithNoTests --bail=1",
     "lint": "eslint src scripts tests --ext .ts --ext .tsx",
     "test:ci": "node scripts/run-jest-ci-groups.mjs",
     "test:ci:security": "node scripts/run-jest-ci-groups.mjs --group=security",

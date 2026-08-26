@@ -214,12 +214,15 @@ function runGroup(group, timeoutMs, passThroughArgs) {
   const ignorePatterns = (group.exclude || [])
     .filter((entry) => fs.existsSync(path.join(projectRoot, entry)))
     .flatMap((entry) => ['--testPathIgnorePatterns', entry.replace(/\\/g, '/')]);
+  const heavyGroupIds = new Set(['runtime-agent', 'platform', 'zavorth-control']);
+  const isHeavy = heavyGroupIds.has(group.id);
+  const concurrencyArgs = isHeavy ? ['--runInBand'] : ['--maxWorkers=50%'];
   const args = [
     jestBin,
     ...paths,
     ...ignorePatterns,
     ...(group.jestArgs || []),
-    '--runInBand',
+    ...concurrencyArgs,
     '--bail=1',
     '--forceExit',
     ...passThroughArgs,
