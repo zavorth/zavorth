@@ -805,6 +805,13 @@ const STATIC_COMMAND_CATALOG: CommandCatalogEntry[] = [
     privateMenu: false,
   },
   {
+    command: 'approvals',
+    description: 'Lists pending decisions across registered surfaces.',
+    section: 'permissions',
+    usage: '',
+    privateMenu: false,
+  },
+  {
     command: 'undo',
     description: 'Attempts to undo a task by id.',
     section: 'permissions',

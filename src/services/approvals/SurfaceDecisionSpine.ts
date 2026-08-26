@@ -3,6 +3,11 @@ import {
   type ApprovalPresenterDismissal,
 } from './ApprovalCoordinator.js';
 import type { AgentPermissionService } from '../permission/AgentPermissionService.js';
+import type {
+  SmartDecisionAdvice,
+  SmartDecisionAdvisor,
+  SmartDecisionInput,
+} from './SmartDecisionAdvisor.js';
 import { SURFACE_DECISION_TYPES } from './SurfaceDecisionContract.js';
 import type {
   SurfaceDecisionChoice,
@@ -14,13 +19,25 @@ import type {
 } from './SurfaceDecisionContract.js';
 import {
   createCaptureReplyIO,
+  type SurfaceDecisionPendingFilter,
   type SurfaceDecisionPort,
 } from './SurfaceDecisionPort.js';
 
+export type SurfaceDecisionPendingEntry = {
+  decisionType: SurfaceDecisionType;
+  ref: string;
+};
+
 type SurfaceDecisionSpineOptions = {
-  coordinator: Pick<ApprovalCoordinator, 'registerPendingApproval' | 'collectPresenterDismissals'>;
+  coordinator: Pick<ApprovalCoordinator, 'registerPendingApproval' | 'collectPresenterDismissals'> &
+    Partial<Pick<ApprovalCoordinator, 'listPendingMenuRefs'>>;
   scopeMemory: Pick<AgentPermissionService, 'respond' | 'evaluate'>;
   accessGate?: (input: { userId: string | null }) => Promise<{ allowed: boolean; reason?: string }>;
+  /**
+   * Opt-in pre-decision advisor (OFF when omitted). Never consulted by
+   * resolve(): callers MAY invoke advisePending() before deciding.
+   */
+  smartAdvisor?: Pick<SmartDecisionAdvisor, 'advise'>;
 };
 
 export type SurfaceDecisionResolveInput =
@@ -45,11 +62,13 @@ export class SurfaceDecisionSpine {
   private readonly coordinator: SurfaceDecisionSpineOptions['coordinator'];
   private readonly scopeMemory: SurfaceDecisionSpineOptions['scopeMemory'];
   private readonly accessGate: SurfaceDecisionSpineOptions['accessGate'];
+  private readonly smartAdvisor: SurfaceDecisionSpineOptions['smartAdvisor'];
 
   constructor(options: SurfaceDecisionSpineOptions) {
     this.coordinator = options.coordinator;
     this.scopeMemory = options.scopeMemory;
     this.accessGate = options.accessGate;
+    this.smartAdvisor = options.smartAdvisor;
   }
 
   public registerDecisionPort(type: SurfaceDecisionType, port: SurfaceDecisionPort): void {
@@ -58,6 +77,80 @@ export class SurfaceDecisionSpine {
 
   public listRegisteredTypes(): SurfaceDecisionType[] {
     return SURFACE_DECISION_TYPES.filter((type) => this.ports.has(type));
+  }
+
+  /**
+   * Explicit pre-decision advice hook. Callers MAY invoke this before
+   * resolve(); the spine never consults it automatically, so wiring an
+   * advisor can never change what resolve() does. Without an advisor the
+   * answer is the fail-closed disabled verdict.
+   */
+  public async advisePending(input: SmartDecisionInput): Promise<SmartDecisionAdvice> {
+    if (!this.smartAdvisor) {
+      return { action: 'ask', source: 'disabled' };
+    }
+    return this.smartAdvisor.advise(input);
+  }
+
+  /**
+   * First registered decision type whose port claims the reference, in the
+   * canonical contract order. Cross-surface resolvers use this to honor
+   * 'decisionType: first registered port claiming ref'; null means no port
+   * claims it and callers fall back to their default type.
+   */
+  public findClaimingType(ref: string): SurfaceDecisionType | null {
+    const normalized = String(ref || '').trim();
+    for (const type of SURFACE_DECISION_TYPES) {
+      const port = this.ports.get(type);
+      if (port && port.findPending(normalized)) {
+        return type;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Deterministic cross-surface pending listing: every registered port that
+   * can enumerate its store contributes its refs under its own decision type,
+   * then live coordinator menus contribute their rendered refs attributed to
+   * the agent-run domain (the coordinator's gateway is the universal-run
+   * approval store). Refs already listed by a port are not repeated.
+   */
+  public listPending(filter: SurfaceDecisionPendingFilter = {}): SurfaceDecisionPendingEntry[] {
+    const entries: SurfaceDecisionPendingEntry[] = [];
+    const seenKeys = new Set<string>();
+    const portRefs = new Set<string>();
+    for (const type of SURFACE_DECISION_TYPES) {
+      const port = this.ports.get(type);
+      if (!port?.listPending) {
+        continue;
+      }
+      for (const ref of port.listPending(filter)) {
+        const normalized = String(ref || '').trim();
+        if (!normalized) {
+          continue;
+        }
+        const key = `${type}:${normalized}`;
+        if (seenKeys.has(key)) {
+          continue;
+        }
+        seenKeys.add(key);
+        portRefs.add(normalized);
+        entries.push({ decisionType: type, ref: normalized });
+      }
+    }
+    for (const ref of this.coordinator.listPendingMenuRefs?.() ?? []) {
+      if (portRefs.has(ref)) {
+        continue;
+      }
+      const key = `agent-run:${ref}`;
+      if (seenKeys.has(key)) {
+        continue;
+      }
+      seenKeys.add(key);
+      entries.push({ decisionType: 'agent-run', ref });
+    }
+    return entries;
   }
 
   public async resolve(input: SurfaceDecisionResolveInput): Promise<SurfaceDecisionReceipt> {

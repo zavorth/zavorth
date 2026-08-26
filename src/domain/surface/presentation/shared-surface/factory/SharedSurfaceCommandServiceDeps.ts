@@ -87,6 +87,7 @@ import type { ComputerUseWatchModePolicyFileService } from "../../../../../servi
 import type { CapabilityLifecycleService } from "../../../../../services/CapabilityLifecycleService.js";
 import type { TaskResourcePlannerService } from "../../../../../services/TaskResourcePlannerService.js";
 import type { SharedSurfaceOpsPort } from "../SharedSurfaceOpsCommandPack.js";
+import type { SurfaceDecisionSpine } from "../../../../../services/approvals/SurfaceDecisionSpine.js";
 
 type TaskAdvanceOptions = {
   actor?: string | null;
@@ -303,4 +304,5 @@ export type SharedSurfaceCommandServiceDeps = {
   > | null;
   mcpBrowserDoctorService?: Pick<AutomaticBrowserDoctorService, "run"> | null;
   opsController?: SharedSurfaceOpsPort | null;
+  surfaceDecisionSpine?: SurfaceDecisionSpine | null;
 };

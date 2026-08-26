@@ -30,7 +30,13 @@ import { ApprovalCoordinator } from '../../../../services/approvals/ApprovalCoor
 import type { ApprovalCoordinatorGatewayPort } from '../../../../services/approvals/ApprovalCoordinator.js';
 import { SurfaceDecisionSpine } from '../../../../services/approvals/SurfaceDecisionSpine.js';
 import type { SurfaceDecisionResolveInput } from '../../../../services/approvals/SurfaceDecisionSpine.js';
+import {
+  HeadlessPermissionDecisionService,
+  surfaceChoiceToPermissionScopeWord,
+} from '../../../../services/approvals/HeadlessPermissionDecisionService.js';
+import type { SmartDecisionAdvisor } from '../../../../services/approvals/SmartDecisionAdvisor.js';
 import { TaskDecisionPort } from '../../../../services/approvals/ports/TaskDecisionPort.js';
+import { PermissionRegistryPort } from '../../../../services/approvals/ports/PermissionRegistryPort.js';
 import { getAgentPermissionService } from '../../../../services/permission/AgentPermissionService.js';
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
 import {
@@ -82,6 +88,8 @@ export type TelegramPermissionControllerDeps = {
   resolveUserRoles?: () => Record<string, string[]>;
   /** Injection seam for a pre-wired decision spine; self-built when absent. */
   decisionSpine?: SurfaceDecisionSpine;
+  /** Opt-in spine advisor; OFF (unused) when omitted. */
+  smartAdvisor?: Pick<SmartDecisionAdvisor, 'advise'>;
 };
 
 function createPassiveApprovalGateway(): ApprovalCoordinatorGatewayPort {
@@ -102,6 +110,7 @@ export class TelegramPermissionController {
   private readonly taskApproval: TelegramTaskApprovalService;
   private readonly permissionCommands: TelegramPermissionCommandService;
   private readonly permissionInteraction: TelegramPermissionInteractionService;
+  private readonly headlessPermissions: HeadlessPermissionDecisionService;
   private readonly decisionSpine: SurfaceDecisionSpine;
   private readonly resolveUserRoles: () => Record<string, string[]>;
 
@@ -156,7 +165,34 @@ export class TelegramPermissionController {
         this.resolveUnifiedApprovalFallback(ctx, parsed),
     });
     this.resolveUserRoles = deps.resolveUserRoles ?? (() => config.telegramUserRoles || {});
+    this.headlessPermissions = new HeadlessPermissionDecisionService({
+      approveRequest: (permissionId, decidedBy, patch) =>
+        this.deps.permissionService.approveRequest(permissionId, decidedBy, patch),
+      rejectRequest: (permissionId, decidedBy, note) =>
+        this.deps.permissionService.rejectRequest(permissionId, decidedBy, note),
+      resolvePermissionReference: (ref) => this.resolvePermissionReference(ref),
+      normalizePermissionScope: (value) => this.permissionPolicy.normalizePermissionScope(value),
+      buildDecisionSurfaceResponse: (permission, action) =>
+        this.permissionPresentation.buildPermissionDecisionSurfaceResponse(permission, action),
+      externalExecutorAgentId: config.externalExecutorAgentId,
+    });
     this.decisionSpine = deps.decisionSpine ?? this.buildDefaultDecisionSpine();
+  }
+
+  /** Injection/access seam for cross-surface resolvers reusing this spine's gate and ports. */
+  public getDecisionSpine(): SurfaceDecisionSpine {
+    return this.decisionSpine;
+  }
+
+  private listPendingTaskApprovalRefs(): string[] {
+    const recent = this.deps.taskManager.getRecentTasks?.(50) ?? [];
+    return recent
+      .filter(
+        (task) =>
+          String(task.approval_status || '') === 'pending' ||
+          String(task.status || '') === 'waiting_approval',
+      )
+      .map((task) => task.task_id);
   }
 
   private buildDefaultDecisionSpine(): SurfaceDecisionSpine {
@@ -164,8 +200,26 @@ export class TelegramPermissionController {
       coordinator: new ApprovalCoordinator(createPassiveApprovalGateway()),
       scopeMemory: getAgentPermissionService({ projectRoot: process.cwd() }),
       accessGate: async ({ userId }) => this.checkTaskDecisionAccess(userId),
+      smartAdvisor: this.deps.smartAdvisor,
     });
-    spine.registerDecisionPort('task', new TaskDecisionPort(this.taskApproval));
+    spine.registerDecisionPort(
+      'task',
+      new TaskDecisionPort(this.taskApproval, {
+        pendingRefs: () => this.listPendingTaskApprovalRefs(),
+      }),
+    );
+    spine.registerDecisionPort(
+      'permission',
+      new PermissionRegistryPort(async ({ reference, action, scope, actorId }) => {
+        const outcome = await this.headlessPermissions.decide({
+          reference,
+          action,
+          scopeWord: surfaceChoiceToPermissionScopeWord(scope),
+          actorId: actorId ?? '',
+        });
+        return outcome.receiptText;
+      }),
+    );
     return spine;
   }
 

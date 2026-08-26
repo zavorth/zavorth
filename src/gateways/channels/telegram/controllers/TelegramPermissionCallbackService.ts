@@ -1,9 +1,12 @@
 import { Context } from 'grammy';
 import { config } from '../../../../config/index.js';
 import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
+import {
+  INLINE_PERMISSION_REJECTION_NOTE,
+  buildPermissionApprovalPatch,
+} from '../../../../services/approvals/HeadlessPermissionDecisionService.js';
 import type { ParsedPermissionCallback } from '../../../../services/approvals/PermissionCallbackAlias.js';
 import { parsePermissionCallbackData } from '../../../../services/approvals/PermissionCallbackAlias.js';
-import type { TelegramPermissionApprovalPatch } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionDecisionService.js';
 import { TelegramPermissionDecisionService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionDecisionService.js';
 import { TelegramPermissionPolicyService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPolicyService.js';
 import { asErrorLike } from '../../../../utils/errorLike.js';
@@ -63,15 +66,12 @@ export class TelegramPermissionCallbackService {
       if (parsed && parsed.action === 'approve') {
         await ctx.answerCallbackQuery({ text: 'Approving permission...' });
         callbackAnswered = true;
-        const patch: TelegramPermissionApprovalPatch = {};
-        if (parsed.scope) {
-          patch.scope = this.deps.permissionPolicy.normalizePermissionScope(parsed.scope);
-        }
-        if (!patch.resolved_value && permission.executor === 'external_executor') {
-          patch.resolved_value =
-            permission.resolved_value ||
-            String(permission.metadata?.suggested_agent_id || config.externalExecutorAgentId || 'main');
-        }
+        const patch = buildPermissionApprovalPatch({
+          permission,
+          scopeWord: parsed.scope,
+          normalizeScope: (value) => this.deps.permissionPolicy.normalizePermissionScope(value),
+          externalExecutorAgentId: config.externalExecutorAgentId,
+        });
         await this.deps.permissionDecision.applyPermissionApproval(ctx, permission, patch, userId);
       } else if (parsed && parsed.action === 'deny') {
         await ctx.answerCallbackQuery({ text: 'Rejecting permission...' });
@@ -80,7 +80,7 @@ export class TelegramPermissionCallbackService {
           ctx,
           permission,
           userId,
-          'Inline rejection from Telegram.',
+          INLINE_PERMISSION_REJECTION_NOTE,
         );
       } else {
         await ctx.answerCallbackQuery({ text: 'Unknown inline action.' });

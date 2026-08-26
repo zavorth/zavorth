@@ -252,6 +252,26 @@ export class ApprovalCoordinator {
   }
 
   /**
+   * Deterministic read-only view of every reference rendered in a live
+   * (non-expired) pending menu, in registration order and de-duplicated.
+   * Expired menus are skipped without mutating coordinator state.
+   */
+  public listPendingMenuRefs(): string[] {
+    const refs: string[] = [];
+    for (const menu of [...this.menus.values()]) {
+      if (this.nowMs() - menu.registeredAtMs >= APPROVAL_MENU_TIMEOUT_MS) {
+        continue;
+      }
+      for (const ref of menu.refs) {
+        if (!refs.includes(ref)) {
+          refs.push(ref);
+        }
+      }
+    }
+    return refs;
+  }
+
+  /**
    * Single source of truth for cross-surface dismissal: given the refs that a
    * decision just resolved, returns every OTHER surface presenter that still
    * renders one of them and immediately retires its canonical state (menu,

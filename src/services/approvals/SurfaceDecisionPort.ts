@@ -57,7 +57,9 @@ export type SurfaceDecisionPortDecideRawInput = {
  * The one port every decision engine implements so any surface can resolve
  * any decision type through the spine. `findPending` must answer whether the
  * reference still has a live pending decision; engines without an accurate
- * lookup stay optimistic (true) and let their own error paths speak.
+ * lookup stay optimistic (true) and let their own error paths speak. Ports
+ * that CAN enumerate their store implement `listPending`; the spine's
+ * cross-surface pending listing only includes ports that do.
  */
 export interface SurfaceDecisionPort {
   findPending(ref: string): boolean;
@@ -68,4 +70,14 @@ export interface SurfaceDecisionPort {
    * parsing (ordinals, bare refs, deny words, multi-pending guidance).
    */
   decideRaw?(input: SurfaceDecisionPortDecideRawInput): Promise<SurfaceDecisionReceipt>;
+  /**
+   * Optional enumeration of live pending references for `/approvals`-style
+   * listings. The filter narrows by session where the engine tracks one;
+   * engines without session scoping return their full pending set.
+   */
+  listPending?(filter?: SurfaceDecisionPendingFilter): string[];
 }
+
+export type SurfaceDecisionPendingFilter = {
+  sessionId?: string | null;
+};

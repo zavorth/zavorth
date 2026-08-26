@@ -545,6 +545,7 @@ export function buildSharedSurfaceCommandServiceComposition(
       trustPlaneService,
       trustPlaneActionService,
       opsController: deps.opsController || null,
+      surfaceDecisionSpine: deps.surfaceDecisionSpine || null,
     },
   );
 }

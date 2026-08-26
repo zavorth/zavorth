@@ -4,6 +4,7 @@ import type { SurfaceDecisionReceipt } from '../SurfaceDecisionContract.js';
 import {
   createCaptureReplyIO,
   type CaptureReplyIO,
+  type SurfaceDecisionPendingFilter,
   type SurfaceDecisionPort,
   type SurfaceDecisionPortDecideInput,
   type SurfaceDecisionPortDecideRawInput,
@@ -21,6 +22,11 @@ export type TaskDecisionPortOptions = {
    * error path produces the guidance receipt.
    */
   isPending?: (ref: string) => boolean;
+  /**
+   * Enumeration of live pending task references for cross-surface pending
+   * listings; without it the port cannot contribute to spine.listPending.
+   */
+  pendingRefs?: (filter: SurfaceDecisionPendingFilter) => string[];
 };
 
 const UNTEXTED_RECEIPT: SurfaceDecisionReceipt = {
@@ -41,10 +47,12 @@ const UNTEXTED_RECEIPT: SurfaceDecisionReceipt = {
 export class TaskDecisionPort implements SurfaceDecisionPort {
   private readonly engine: TaskDecisionEngine;
   private readonly isPendingOverride: ((ref: string) => boolean) | null;
+  private readonly pendingRefsProvider: ((filter: SurfaceDecisionPendingFilter) => string[]) | null;
 
   constructor(engine: TaskDecisionEngine, options: TaskDecisionPortOptions = {}) {
     this.engine = engine;
     this.isPendingOverride = options.isPending ?? null;
+    this.pendingRefsProvider = options.pendingRefs ?? null;
   }
 
   public findPending(ref: string): boolean {
@@ -52,6 +60,10 @@ export class TaskDecisionPort implements SurfaceDecisionPort {
       return this.isPendingOverride(ref);
     }
     return true;
+  }
+
+  public listPending(filter: SurfaceDecisionPendingFilter = {}): string[] {
+    return this.pendingRefsProvider ? this.pendingRefsProvider(filter) : [];
   }
 
   public async decide(input: SurfaceDecisionPortDecideInput): Promise<SurfaceDecisionReceipt> {

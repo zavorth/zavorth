@@ -3,6 +3,7 @@ import { SharedSurfaceZavorthBridgeMobileCommandPack } from '../SharedSurfaceZav
 import { SharedSurfaceCapabilityCommandPack } from '../SharedSurfaceCapabilityCommandPack.js';
 import { SharedSurfaceCodexRemoteCommandPack } from '../SharedSurfaceCodexRemoteCommandPack.js';
 import { SharedSurfaceControlPlaneCommandPack } from '../SharedSurfaceControlPlaneCommandPack.js';
+import { SharedSurfaceDecisionCommandPack } from '../SharedSurfaceDecisionCommandPack.js';
 import { SharedSurfaceDesktopCommandPack } from '../SharedSurfaceDesktopCommandPack.js';
 import { SharedSurfaceEcosystemCommandPack } from '../SharedSurfaceEcosystemCommandPack.js';
 import { SharedSurfaceGatewayToolingCommandPack } from '../SharedSurfaceGatewayToolingCommandPack.js';
@@ -292,6 +293,9 @@ export function buildSharedSurfaceCommandServiceAssembly(
   const opsCommandPack = new SharedSurfaceOpsCommandPack({
     opsController: deps.opsController || null,
   });
+  const decisionCommandPack = new SharedSurfaceDecisionCommandPack({
+    decisionSpine: deps.surfaceDecisionSpine || null,
+  });
   return {
     ...deps,
     accessCommandPack,
@@ -309,6 +313,7 @@ export function buildSharedSurfaceCommandServiceAssembly(
     memoryCommandPack,
     operationsCommandPack,
     opsCommandPack,
+    decisionCommandPack,
     runtimeMaintenanceCommandPack,
     watchModeCommandPack,
     sessionNodeCommandPack,

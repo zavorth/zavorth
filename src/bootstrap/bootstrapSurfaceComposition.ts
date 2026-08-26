@@ -144,6 +144,7 @@ export function composeSurfaceRuntime(
     buildPermissionKeyboard: botGateway.buildPermissionKeyboard.bind(botGateway) as unknown as SharedSurfaceCommandServiceDeps['buildPermissionKeyboard'],
     workflowController: botGateway.getWorkflowController() as unknown as SharedSurfaceCommandServiceDeps['workflowController'],
     opsController: botGateway.getOpsController(),
+    surfaceDecisionSpine: botGateway.getSurfaceDecisionSpine(),
   });
   const sharedSurfaceApi = new InternalSurfaceApiService({
     commandService: sharedSurfaceCommandService,

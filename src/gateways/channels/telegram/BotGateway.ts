@@ -13,6 +13,7 @@ import type { TelegramOpsController } from '../../../gateways/channels/telegram/
 import type { TelegramExecutionController } from '../../../gateways/channels/telegram/controllers/TelegramExecutionController.js';
 import type { TelegramPipelineController } from '../../../gateways/channels/telegram/controllers/TelegramPipelineController.js';
 import type { SurfaceTaskDispatchService } from '../../../orchestrator/SurfaceTaskDispatchService.js';
+import type { SurfaceDecisionSpine } from '../../../services/approvals/SurfaceDecisionSpine.js';
 import type { SurfaceCommandBoundary } from '../../../api/internal/InternalSurfaceApiCompat.js';
 import type { BotGatewaySupport } from '../../../gateways/channels/telegram/bot-gateway/BotGatewaySupport.js';
 import type { EchoOutputStageService } from '../../../services/EchoOutputStageService.js';
@@ -150,6 +151,10 @@ export class BotGateway extends BotGatewayState implements LiveChannelBroadcastG
 
   public getOpsController(): TelegramOpsController {
     return this.opsController;
+  }
+
+  public getSurfaceDecisionSpine(): SurfaceDecisionSpine {
+    return this.permissionController.getDecisionSpine();
   }
 
   public getBotApi(): Bot['api'] {
