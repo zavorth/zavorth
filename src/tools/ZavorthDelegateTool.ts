@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
-import { DynamicSwarmCoordinator } from '../agents/DynamicSwarmCoordinator.js';
+import { DynamicSwarmPlanner } from '../agents/DynamicSwarmPlanner.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
@@ -213,18 +213,23 @@ export class ZavorthDelegateTool extends BaseTool {
     this.saveTask(task);
 
     if (args.background === true) {
-      const bgTask = DynamicSwarmCoordinator.executeTaskBackground(taskDescription, 'session-delegation');
-      task.status = 'running';
+      const plan = DynamicSwarmPlanner.buildExecutionPlan(taskDescription, 'session-delegation');
+      task.status = 'completed';
       task.started_at = new Date().toISOString();
+      task.completed_at = new Date().toISOString();
+      task.result = plan.treeView;
       this.saveTask(task);
 
       return [
-        `Delegated background swarm spawned successfully.`,
+        `Delegated task created with execution plan.`,
         `  - ID: ${taskId}`,
-        `  - Swarm Task ID: ${bgTask.taskId}`,
-        `  - Status: running_in_background`,
+        `  - Plan ID: ${plan.planId}`,
+        `  - Status: planned (no background execution — planning only)`,
+        `  - Specialists planned: ${plan.specialists.length}`,
+        `  - Estimated tokens: ${plan.estimatedTokens}`,
+        `  - Estimated cost: $${plan.estimatedCostUsd.toFixed(4)}`,
         `  - Description: ${taskDescription}`,
-        `  - Note: Execution is running asynchronously. Completion chime will ring when finished.`,
+        `  - Note: This is a planning output. No specialist work was executed.`,
       ].join('\n');
     }
 

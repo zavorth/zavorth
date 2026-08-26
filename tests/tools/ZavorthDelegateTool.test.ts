@@ -104,7 +104,8 @@ describe('ZavorthDelegateTool', () => {
       task_description: 'Build backend API in background',
       background: true,
     });
-    expect(result).toContain('Delegated background swarm spawned successfully');
-    expect(result).toContain('running_in_background');
+    expect(result).toContain('Delegated task created with execution plan');
+    expect(result).toContain('planned (no background execution');
+    expect(result).toContain('No specialist work was executed');
   });
 });

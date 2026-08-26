@@ -6,7 +6,7 @@
 
 import { TerminalAudioNotifier } from '../../cli/presentation/TerminalAudioNotifier.js';
 import { SystemPowerWakeLockService } from '../../services/system/SystemPowerWakeLockService.js';
-import type { SwarmExecutionReport } from '../DynamicSwarmCoordinator.js';
+import type { SwarmExecutionPlan } from '../DynamicSwarmPlanner.js';
 
 export interface BackgroundSwarmTask {
   id: string;
@@ -15,7 +15,7 @@ export interface BackgroundSwarmTask {
   startedAt: string;
   completedAt?: string;
   durationMs?: number;
-  report?: SwarmExecutionReport;
+  report?: SwarmExecutionPlan;
   error?: string;
 }
 
@@ -29,7 +29,7 @@ export class BackgroundSwarmManager {
   static startTask(
     taskId: string,
     description: string,
-    executor: () => Promise<SwarmExecutionReport>
+    executor: () => Promise<SwarmExecutionPlan>
   ): BackgroundSwarmTask {
     const task: BackgroundSwarmTask = {
       id: taskId,

@@ -7,7 +7,7 @@ import { ModelPickerModal } from '../presentation/ModelPickerModal.js';
 import { VariantPickerModal } from '../presentation/VariantPickerModal.js';
 import { SessionPickerModal } from '../presentation/SessionPickerModal.js';
 import { SessionPersistenceService } from '../../storage/SessionPersistenceService.js';
-import { DynamicSwarmCoordinator } from '../../agents/DynamicSwarmCoordinator.js';
+import { DynamicSwarmPlanner } from '../../agents/DynamicSwarmPlanner.js';
 import { ProjectEvolutionMemoryService } from '../../storage/ProjectEvolutionMemoryService.js';
 import { TerminalAudioNotifier } from '../presentation/TerminalAudioNotifier.js';
 import { SwarmTreeRenderer } from '../presentation/SwarmTreeRenderer.js';
@@ -526,7 +526,7 @@ export class UnifiedSlashCommandHandler {
         const sub = args[0]?.toLowerCase();
 
         if (sub === 'tree') {
-          const specialists = DynamicSwarmCoordinator.planSpecialists('Default project full architecture and verification');
+          const specialists = DynamicSwarmPlanner.planSpecialists('Default project full architecture and verification');
           const architect = specialists[0];
           const workers = specialists.slice(1);
 
@@ -560,8 +560,15 @@ export class UnifiedSlashCommandHandler {
             return { ok: false, handled: true, output: [err], error: err };
           }
 
-          const spawned = DynamicSwarmCoordinator.executeTaskBackground(taskDesc, currentSessionId);
-          const output = `${TerminalTheme.symbols.check} Spawned background swarm ${TerminalTheme.colors.accent(spawned.taskId)} for: "${spawned.description}". You can continue using the terminal. Notification chime will ring when done.`;
+          const plan = DynamicSwarmPlanner.buildExecutionPlan(taskDesc, currentSessionId);
+          const output = [
+            `${TerminalTheme.symbols.check} Execution plan created for: "${taskDesc}"`,
+            `  - Plan ID: ${plan.planId}`,
+            `  - Specialists planned: ${plan.specialists.length}`,
+            `  - Estimated tokens: ${plan.estimatedTokens}`,
+            `  - Estimated cost: $${plan.estimatedCostUsd.toFixed(4)}`,
+            `  - Note: Planning only — no specialist work was executed.`,
+          ].join('\n');
           writer.line(output);
           return { ok: true, handled: true, output: [output], error: null };
         }
@@ -594,18 +601,15 @@ export class UnifiedSlashCommandHandler {
             return { ok: false, handled: true, output: [err], error: err };
           }
 
-          writer.line(TerminalTheme.colors.primary(`🐝 Orchestrating Dynamic Swarm for: "${taskDesc}"...`));
-          const report = await DynamicSwarmCoordinator.executeTask(taskDesc, currentSessionId);
+          writer.line(TerminalTheme.colors.primary(`🐝 Planning Dynamic Swarm for: "${taskDesc}"...`));
+          const plan = DynamicSwarmPlanner.buildExecutionPlan(taskDesc, currentSessionId);
 
           const lines: string[] = [];
           lines.push('');
-          lines.push(TerminalTheme.colors.success(`✓ Swarm Execution ${report.status.toUpperCase()} (${report.totalDurationMs}ms · $${report.totalCostUsd.toFixed(4)} spent)`));
+          lines.push(TerminalTheme.colors.success(`✓ Swarm Plan Ready (${plan.specialists.length} specialists · est. $${plan.estimatedCostUsd.toFixed(4)})`));
           lines.push('');
-          lines.push(report.treeView);
-          lines.push(report.selfHealing.passed
-            ? `  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Self-Healing: All files verified with 100% clean consensus.')}`
-            : `  ⚠ ${TerminalTheme.colors.error(`Self-Healing: ${report.selfHealing.remainingErrors.length} issue(s) unresolved.`)}`);
-
+          lines.push(plan.treeView);
+          lines.push(TerminalTheme.colors.dim(`  Note: ${plan.note}`));
           const output = lines.join('\n');
           writer.line(output);
           return { ok: true, handled: true, output: [output], error: null };
@@ -613,15 +617,14 @@ export class UnifiedSlashCommandHandler {
 
         // Default: Swarm Status & Architecture
         const lines: string[] = [];
-        lines.push(TerminalTheme.colors.primary('=== Zavorth Dynamic Swarm Engine ==='));
+        lines.push(TerminalTheme.colors.primary('=== Zavorth Dynamic Swarm Planner ==='));
         lines.push('');
-        lines.push('  • Architecture: On-Demand Dynamic Specialist Spawning');
+        lines.push('  • Architecture: On-Demand Multi-Agent Decomposition');
         lines.push('  • Roles: Architect, Core Implementer, QA & Test Auditor, Security Guardian');
-        lines.push('  • Verification: In-Memory LSP (<50ms) + Test Suite Auto-Loop');
-        lines.push('  • Background: /swarm bg <task> (Async non-blocking execution)');
-        lines.push('  • Topology: /swarm tree (View real-time multi-agent tree)');
+        lines.push('  • Planning: /swarm run <task> or /swarm bg <task> (honest planning output)');
+        lines.push('  • Topology: /swarm tree (View multi-agent plan tree)');
         lines.push('');
-        lines.push(TerminalTheme.colors.dim('Use /swarm run <task> or /swarm bg <task> to dispatch a multi-agent swarm.'));
+        lines.push(TerminalTheme.colors.dim('Use /swarm run <task> to generate an execution plan. Actual specialist execution requires a separate executor.'));
         const output = lines.join('\n');
         writer.line(output);
         return { ok: true, handled: true, output: [output], error: null };

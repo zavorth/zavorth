@@ -22,7 +22,7 @@ export type ZavorthProviderCapabilityCatalogSnapshot = {
   generatedAt: string;
   status: ZavorthProviderCapabilityCatalogStatus;
   summary: {
-    extensionPackageJsonCount: number;
+    totalExtensionManifests: number;
     providerLikeExtensionCount: number;
     providerDirectoryEntries: number;
     documentedProviderIds: number;
@@ -93,7 +93,7 @@ export class ZavorthProviderCapabilityCatalogService {
       generatedAt: this.now().toISOString(),
       status,
       summary: {
-        extensionPackageJsonCount: ZAVORTH_PROVIDER_CAPABILITY_COUNTS.extensionPackageJsonCount,
+        totalExtensionManifests: ZAVORTH_PROVIDER_CAPABILITY_COUNTS.totalExtensionManifests,
         providerLikeExtensionCount: ZAVORTH_PROVIDER_CAPABILITY_COUNTS.providerLikeExtensionCount,
         providerDirectoryEntries: ZAVORTH_PROVIDER_CAPABILITY_COUNTS.providerDirectoryEntries,
         documentedProviderIds: ZAVORTH_PROVIDER_DOCUMENTED_IDS.length,
@@ -148,7 +148,7 @@ export class ZavorthProviderCapabilityCatalogService {
     return [
       '[provider-capability-catalog]',
       `status=${snapshot.status}`,
-      `extensions=${snapshot.summary.extensionPackageJsonCount} provider_like=${snapshot.summary.providerLikeExtensionCount} provider_docs=${snapshot.summary.providerDirectoryEntries}`,
+      `extensions=${snapshot.summary.totalExtensionManifests} provider_like=${snapshot.summary.providerLikeExtensionCount} provider_docs=${snapshot.summary.providerDirectoryEntries}`,
       `static_catalog_providers=${snapshot.summary.staticCatalogProviderCount} static_models=${snapshot.summary.staticCatalogModelCount}`,
       `catalog_providers=${snapshot.summary.catalogProviderEntries} catalog_models=${snapshot.summary.catalogModelEntries}`,
       `capability_manifests=${snapshot.summary.capabilityManifests} registered_routes=${snapshot.summary.registeredCapabilityRoutes}`,

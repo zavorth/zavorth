@@ -43,7 +43,7 @@ export type ZavorthMediaProviderRow = {
 };
 
 export const ZAVORTH_PROVIDER_CAPABILITY_COUNTS = {
-  extensionPackageJsonCount: 122,
+  totalExtensionManifests: 122,
   providerLikeExtensionCount: 65,
   providerDirectoryEntries: 52,
   staticCatalogProviderCount: 26,

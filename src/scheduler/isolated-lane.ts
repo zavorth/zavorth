@@ -37,8 +37,9 @@ export class IsolatedExecutionLane {
       if (options.customExecutor) {
         output = await options.customExecutor(job);
       } else {
-        // Default execution runner
-        output = `Executed prompt: ${job.prompt}`;
+        // No executor configured: mark the run as a no-op dry-run rather than
+        // fabricating a successful execution result.
+        output = `[dry-run] No executor configured for job "${job.name}"; prompt not executed: ${job.prompt}`;
       }
 
       clearTimeout(timer);

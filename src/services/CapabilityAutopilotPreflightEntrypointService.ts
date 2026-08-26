@@ -1,3 +1,11 @@
+/**
+ * CapabilityAutopilot Preflight Entrypoint — Proposal Engine
+ *
+ * This service is the entry point for capability preflight checks. It generates
+ * proposals (hints, receipts, memory context) for capability execution readiness.
+ * It does NOT execute capabilities or modify state — it prepares the context
+ * needed by an executor to make informed execution decisions.
+ */
 import type {
   CapabilityAutopilotAudience,
   CapabilityAutopilotSurface,

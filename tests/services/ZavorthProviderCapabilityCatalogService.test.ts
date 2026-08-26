@@ -11,7 +11,7 @@ describe('ZavorthProviderCapabilityCatalogService', () => {
     const snapshot = service.buildSnapshot();
 
     expect(snapshot.status).toBe('ready');
-    expect(snapshot.summary.extensionPackageJsonCount).toBeGreaterThanOrEqual(122);
+    expect(snapshot.summary.totalExtensionManifests).toBeGreaterThanOrEqual(122);
     expect(snapshot.summary.providerLikeExtensionCount).toBeGreaterThanOrEqual(65);
     expect(snapshot.summary.providerDirectoryEntries).toBeGreaterThanOrEqual(52);
     expect(snapshot.summary.staticCatalogProviderCount).toBeGreaterThanOrEqual(26);

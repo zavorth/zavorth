@@ -1,3 +1,19 @@
+/**
+ * CapabilityAutopilot Contract — Proposal Engine
+ *
+ * This subsystem defines the type contracts for Zavorth's capability autopilot.
+ * It is a proposal/planning engine: it generates rollout plans, preflight checks,
+ * canary promotion decisions, and release candidates. It does NOT execute
+ * deployments or modify production state directly. Actual execution requires
+ * a separate executor that interprets and applies these proposals.
+ *
+ * Key concepts:
+ * - Surfaces: where capabilities are presented (chat, CLI, Telegram, etc.)
+ * - Trust levels: permission scoping for capability execution
+ * - Lifecycle hooks: detect → diagnose → repair → validate → run → fallback
+ * - Preflight: readiness checks before capability execution
+ * - Release gates: canary, beta, production promotion decisions
+ */
 import type {
   CapabilityDefinition,
   CapabilityPolicy,

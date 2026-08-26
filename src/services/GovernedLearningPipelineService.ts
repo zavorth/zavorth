@@ -1,5 +1,3 @@
-// Stub: source was removed; this provides the minimal interface the tests depend on.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import fs from 'node:fs';
 import { logger } from '../logger.js';
 

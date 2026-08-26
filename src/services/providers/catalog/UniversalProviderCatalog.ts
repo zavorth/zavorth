@@ -1,3 +1,18 @@
+/**
+ * Provider catalog entry — describes a single AI provider or service.
+ *
+ * Categories:
+ * - `cloud`: Major cloud AI providers (OpenAI, Anthropic, Azure, etc.)
+ * - `silicon`: Specialized AI chip/cloud providers (Cerebras, Groq, etc.)
+ * - `asian_global`: Asian-origin AI providers (DeepSeek, Qwen, etc.)
+ * - `search_rag`: Embedding/reranking/search providers (Voyage, Jina, etc.)
+ * - `local`: Local inference engines (Ollama, LM Studio, etc.)
+ * - `aggregator`: Multi-provider routers (OpenRouter, Portkey, etc.)
+ *
+ * Note: Some entries like Render, Fly.io, Railway are hosting platforms that
+ * support AI workloads. They are categorized as `cloud` for convenience but
+ * are not AI-native providers.
+ */
 export interface ProviderCatalogEntry {
   id: string;
   name: string;

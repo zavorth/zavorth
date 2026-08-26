@@ -54,6 +54,14 @@ export class PromptEvolutionLabService {
     this.now = deps.now || (() => new Date());
   }
 
+  /**
+   * Generates deterministic prompt variants by appending canned family suffixes
+   * (safety, profile, evidence, concise, tools) to the base prompt.
+   * Scores each variant by keyword-based behavior matching and safety pattern
+   * detection. No LLM evaluation or true evolutionary algorithm is used.
+   * Promotion always requires human approval, regression gate, and rollback.
+   */
+
   public buildSnapshot(input: PromptEvolutionInput): PromptEvolutionSnapshot {
     const basePrompt = String(input.basePrompt || '').trim();
     const promptId = normalizeId(input.promptId, 'prompt');
