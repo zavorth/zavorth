@@ -9,7 +9,7 @@ import { TelegramCommandRoutingService } from '../../../../gateways/channels/tel
 
 import { TelegramPriorityCommandService } from '../../../../gateways/channels/telegram/TelegramPriorityCommandService.js';
 import { TelegramSchedulerBootstrap } from '../../../../gateways/channels/telegram/TelegramSchedulerSupport.js';
-import { createBotGatewaySupport } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportBootstrap.js';
+import { createBotGatewaySupport } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportComposition.js';
 import { initializeTelegramTaskRuntime } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewayTaskRuntimeBootstrap.js';
 import type { BotGatewayRuntimeOptions } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewayBootstrapTypes.js';
 import { processTextMessage } from '../../../../gateways/channels/telegram/bot-gateway/support/BotGatewayMessageProcessing.js';
