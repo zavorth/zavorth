@@ -26,6 +26,12 @@ import { TelegramPermissionPolicyService } from '../../../../gateways/channels/t
 import { TelegramPermissionPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPresentationService.js';
 import { PersistedPermissionPolicyService } from '../../../../services/approvals/PersistedPermissionPolicyService.js';
 import { TelegramTaskApprovalService } from '../../../../gateways/channels/telegram/controllers/TelegramTaskApprovalService.js';
+import { ApprovalCoordinator } from '../../../../services/approvals/ApprovalCoordinator.js';
+import type { ApprovalCoordinatorGatewayPort } from '../../../../services/approvals/ApprovalCoordinator.js';
+import { SurfaceDecisionSpine } from '../../../../services/approvals/SurfaceDecisionSpine.js';
+import type { SurfaceDecisionResolveInput } from '../../../../services/approvals/SurfaceDecisionSpine.js';
+import { TaskDecisionPort } from '../../../../services/approvals/ports/TaskDecisionPort.js';
+import { getAgentPermissionService } from '../../../../services/permission/AgentPermissionService.js';
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
 import {
   applySurfaceLifecycleOp,
@@ -72,7 +78,20 @@ export type TelegramPermissionControllerDeps = {
   telemetryRuntime?: TelemetryRuntimeService;
   auditLogger?: AuditLogger;
   createCompanionBridge?: () => ZavorthBridgeCompanionBridgeLike;
+  /** Role table for the spine access gate; defaults to config.telegramUserRoles. */
+  resolveUserRoles?: () => Record<string, string[]>;
+  /** Injection seam for a pre-wired decision spine; self-built when absent. */
+  decisionSpine?: SurfaceDecisionSpine;
 };
+
+function createPassiveApprovalGateway(): ApprovalCoordinatorGatewayPort {
+  return {
+    findPendingApproval: () => null,
+    approve: async () => null,
+    reject: async () => null,
+    listRuns: () => [],
+  };
+}
 
 export class TelegramPermissionController {
   private taskSecurityPosture = new TaskSecurityPostureService();
@@ -83,6 +102,8 @@ export class TelegramPermissionController {
   private readonly taskApproval: TelegramTaskApprovalService;
   private readonly permissionCommands: TelegramPermissionCommandService;
   private readonly permissionInteraction: TelegramPermissionInteractionService;
+  private readonly decisionSpine: SurfaceDecisionSpine;
+  private readonly resolveUserRoles: () => Record<string, string[]>;
 
   constructor(private deps: TelegramPermissionControllerDeps) {
     this.permissionPresentation = new TelegramPermissionPresentationService(this.permissionPolicy);
@@ -134,6 +155,68 @@ export class TelegramPermissionController {
       resolveUnifiedApprovalFallback: (ctx, parsed) =>
         this.resolveUnifiedApprovalFallback(ctx, parsed),
     });
+    this.resolveUserRoles = deps.resolveUserRoles ?? (() => config.telegramUserRoles || {});
+    this.decisionSpine = deps.decisionSpine ?? this.buildDefaultDecisionSpine();
+  }
+
+  private buildDefaultDecisionSpine(): SurfaceDecisionSpine {
+    const spine = new SurfaceDecisionSpine({
+      coordinator: new ApprovalCoordinator(createPassiveApprovalGateway()),
+      scopeMemory: getAgentPermissionService({ projectRoot: process.cwd() }),
+      accessGate: async ({ userId }) => this.checkTaskDecisionAccess(userId),
+    });
+    spine.registerDecisionPort('task', new TaskDecisionPort(this.taskApproval));
+    return spine;
+  }
+
+  /**
+   * Spine-side mirror of the legacy guard pair (admin role first, host
+   * writability second) with the exact same rejection messages, so the
+   * routed decision path and the direct methods enforce one policy.
+   */
+  private async checkTaskDecisionAccess(userId: string | null): Promise<{
+    allowed: boolean;
+    reason?: string;
+  }> {
+    if (!userId) {
+      return { allowed: false, reason: 'Invalid user ID.' };
+    }
+    const userRoles = this.resolveUserRoles()?.[userId] || ['admin'];
+    if (!userRoles.includes('admin')) {
+      return { allowed: false, reason: 'Only administrators can decide on approvals/permissions.' };
+    }
+    const status = this.deps.hostIdentityService?.getStatus();
+    if (status && !status.authorized) {
+      return {
+        allowed: false,
+        reason: 'New host detected. Zavorth is in read-only mode until /hostauth trust.',
+      };
+    }
+    return { allowed: true };
+  }
+
+  /**
+   * Resolves a task decision through the universal spine. A null receipt text
+   * means the engine already spoke through the bound transport context; any
+   * other text is delivered exactly where the legacy guards replied.
+   */
+  private async resolveTaskDecisionThroughSpine(
+    ctx: Context,
+    request: SurfaceDecisionResolveInput,
+  ): Promise<void> {
+    const receipt = await this.decisionSpine.resolve(request);
+    if (receipt.receiptText == null) {
+      return;
+    }
+    await ctx.reply(receipt.receiptText).catch(() => undefined);
+  }
+
+  private currentActorId(ctx: Context): string | null {
+    return ctx.from?.id?.toString() ?? null;
+  }
+
+  private currentChatId(ctx: Context): string {
+    return ctx.chat?.id != null ? String(ctx.chat.id) : '';
   }
 
   /**
@@ -166,28 +249,27 @@ export class TelegramPermissionController {
   }
 
   public async handleApproval(ctx: Context, args: string): Promise<void> {
-    // Same admin gate as task:approve callbacks (unified slash/button policy).
-    try {
-      this.assertUserIsAdmin(ctx);
-      this.assertHostWritable();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      await ctx.reply(message).catch(() => undefined);
-      return;
-    }
-    await this.taskApproval.handleApproval(ctx, args);
+    await this.resolveTaskDecisionThroughSpine(ctx, {
+      decisionType: 'task',
+      decisionRef: '',
+      surface: 'telegram',
+      chatId: this.currentChatId(ctx),
+      userId: this.currentActorId(ctx),
+      rawArgs: String(args ?? ''),
+      transportContext: ctx,
+    });
   }
 
   public async handleRejection(ctx: Context, taskId: string): Promise<void> {
-    try {
-      this.assertUserIsAdmin(ctx);
-      this.assertHostWritable();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      await ctx.reply(message).catch(() => undefined);
-      return;
-    }
-    await this.taskApproval.handleRejection(ctx, taskId);
+    await this.resolveTaskDecisionThroughSpine(ctx, {
+      decisionType: 'task',
+      decisionRef: String(taskId ?? '').trim(),
+      surface: 'telegram',
+      chatId: this.currentChatId(ctx),
+      userId: this.currentActorId(ctx),
+      choice: 'deny',
+      transportContext: ctx,
+    });
   }
 
   public async handlePermissionCommand(ctx: Context, args: string): Promise<void> {
@@ -391,57 +473,70 @@ export class TelegramPermissionController {
       return;
     }
 
-    try {
-      this.assertUserIsAdmin(ctx);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      await ctx.answerCallbackQuery({ text: message.slice(0, 180) }).catch(() => undefined);
-      await ctx.reply(message).catch(() => undefined);
+    const { choice, taskId } = permission;
+    const decisionRequest: SurfaceDecisionResolveInput =
+      choice === 'deny'
+        ? {
+            decisionType: 'task',
+            decisionRef: taskId,
+            surface: 'telegram',
+            chatId: this.currentChatId(ctx),
+            userId: this.currentActorId(ctx),
+            choice: 'deny',
+            transportContext: ctx,
+          }
+        : {
+            decisionType: 'task',
+            decisionRef: '',
+            surface: 'telegram',
+            chatId: this.currentChatId(ctx),
+            userId: this.currentActorId(ctx),
+            rawArgs: `${taskId} ${choice}`,
+            transportContext: ctx,
+          };
+    const receipt = await this.decisionSpine.resolve(decisionRequest);
+
+    if (!receipt.resolved) {
+      const message = receipt.receiptText;
+      if (message != null) {
+        await ctx.answerCallbackQuery({ text: message.slice(0, 180) }).catch(() => undefined);
+        await ctx.reply(message).catch(() => undefined);
+      }
       return;
     }
 
-    const { choice, taskId } = permission;
-    try {
-      this.assertHostWritable();
-      if (choice === 'deny') {
-        await ctx.answerCallbackQuery({ text: 'Denying...' }).catch(() => undefined);
-        await this.taskApproval.handleRejection(ctx, taskId);
-      } else {
-        await ctx.answerCallbackQuery({ text: `Allow ${choice}...` }).catch(() => undefined);
-        await this.taskApproval.handleApproval(ctx, `${taskId} ${choice}`);
-      }
-      // F5a — clear controls after decision (lifecycle op; best-effort)
-      const messageId = String(ctx.callbackQuery?.message?.message_id || '').trim();
-      const messageCtx = ctx as unknown as TelegramMessageEditContext;
-      for (const op of buildPostDecisionLifecycle({
-        surface: 'telegram',
-        choice,
-        approvalId: taskId,
-        allowed: choice !== 'deny',
-      })) {
-        await applySurfaceLifecycleOp(
-          {
-            surface: 'telegram',
-            editMessage: async (id, text, options) => {
-              await messageCtx.api?.editMessageText?.(ctx.chat?.id, Number(id), text, options).catch(() => undefined);
-              if (options && messageCtx.editMessageReplyMarkup) {
-                await messageCtx.editMessageReplyMarkup({ reply_markup: options.reply_markup ?? { inline_keyboard: [] } }).catch(() => undefined);
-              }
-            },
-            editReplyMarkup: async () => {
-              await messageCtx.editMessageReplyMarkup?.({ reply_markup: { inline_keyboard: [] } }).catch(() => undefined);
-            },
-          },
-          op,
-          { surface: 'telegram', messageId: messageId || null, approvalId: taskId, choice },
-        ).catch(() => undefined);
-      }
-      await messageCtx.editMessageReplyMarkup?.({ reply_markup: undefined }).catch(() => undefined);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      await ctx.answerCallbackQuery({ text: message.slice(0, 180) }).catch(() => undefined);
-      await ctx.reply(message).catch(() => undefined);
+    if (choice === 'deny') {
+      await ctx.answerCallbackQuery({ text: 'Denying...' }).catch(() => undefined);
+    } else {
+      await ctx.answerCallbackQuery({ text: `Allow ${choice}...` }).catch(() => undefined);
     }
+    // F5a — clear controls after decision (lifecycle op; best-effort)
+    const messageId = String(ctx.callbackQuery?.message?.message_id || '').trim();
+    const messageCtx = ctx as unknown as TelegramMessageEditContext;
+    for (const op of buildPostDecisionLifecycle({
+      surface: 'telegram',
+      choice,
+      approvalId: taskId,
+      allowed: choice !== 'deny',
+    })) {
+      await applySurfaceLifecycleOp(
+        {
+          surface: 'telegram',
+          editMessage: async (id, text, options) => {
+            await messageCtx.api?.editMessageText?.(ctx.chat?.id, Number(id), text, options).catch(() => undefined);
+            if (options && messageCtx.editMessageReplyMarkup) {
+              await messageCtx.editMessageReplyMarkup({ reply_markup: options.reply_markup ?? { inline_keyboard: [] } }).catch(() => undefined);
+            }
+          },
+          editReplyMarkup: async () => {
+            await messageCtx.editMessageReplyMarkup?.({ reply_markup: { inline_keyboard: [] } }).catch(() => undefined);
+          },
+        },
+        op,
+        { surface: 'telegram', messageId: messageId || null, approvalId: taskId, choice },
+      ).catch(() => undefined);
+    }
+    await messageCtx.editMessageReplyMarkup?.({ reply_markup: undefined }).catch(() => undefined);
   }
 
   public buildPermissionKeyboard(permission: PermissionRequest): InlineKeyboard {

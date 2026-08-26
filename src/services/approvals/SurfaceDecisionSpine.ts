@@ -23,6 +23,16 @@ type SurfaceDecisionSpineOptions = {
   accessGate?: (input: { userId: string | null }) => Promise<{ allowed: boolean; reason?: string }>;
 };
 
+export type SurfaceDecisionResolveInput =
+  | (SurfaceDecisionRequest & {
+      choice: SurfaceDecisionChoice;
+      transportContext?: unknown;
+    })
+  | (SurfaceDecisionRequest & {
+      rawArgs: string;
+      transportContext?: unknown;
+    });
+
 const GROUPED_RECEIPT_PREFIX = '[grouped] ';
 
 /**
@@ -50,9 +60,7 @@ export class SurfaceDecisionSpine {
     return SURFACE_DECISION_TYPES.filter((type) => this.ports.has(type));
   }
 
-  public async resolve(
-    input: SurfaceDecisionRequest & { choice: SurfaceDecisionChoice },
-  ): Promise<SurfaceDecisionReceipt> {
+  public async resolve(input: SurfaceDecisionResolveInput): Promise<SurfaceDecisionReceipt> {
     if (this.accessGate) {
       const verdict = await this.accessGate({ userId: input.userId ?? null });
       if (!verdict.allowed) {
@@ -85,15 +93,24 @@ export class SurfaceDecisionSpine {
       return { resolved: false, receiptText: null, decidedBy: 'operator', dismissals: [] };
     }
 
-    const outcome = await port.decide({
-      ref,
-      choice: input.choice,
-      actorId: input.userId ?? null,
-      surface: input.surface,
-      chatId: input.chatId,
-      sessionId: input.sessionId ?? null,
-      io: createCaptureReplyIO(),
-    });
+    const outcome =
+      'rawArgs' in input && port.decideRaw
+        ? await port.decideRaw({
+            rawArgs: input.rawArgs,
+            actorId: input.userId ?? null,
+            chatId: input.chatId ?? null,
+            transportContext: input.transportContext,
+          })
+        : await port.decide({
+            ref,
+            choice: readChoice(input),
+            actorId: input.userId ?? null,
+            surface: input.surface,
+            chatId: input.chatId,
+            sessionId: input.sessionId ?? null,
+            io: createCaptureReplyIO(),
+            transportContext: input.transportContext,
+          });
 
     const receiptText =
       outcome.receiptText == null ? null : grouped ? `${GROUPED_RECEIPT_PREFIX}${outcome.receiptText}` : outcome.receiptText;
@@ -103,7 +120,9 @@ export class SurfaceDecisionSpine {
       receiptText,
       decidedBy: grouped ? 'coalesced-follower' : outcome.decidedBy,
       scopeMemory:
-        outcome.resolved && input.choice !== 'once' ? this.recordScopeMemory(input) : undefined,
+        outcome.resolved && 'choice' in input && input.choice !== 'once'
+          ? this.recordScopeMemory(input, input.choice)
+          : undefined,
       dismissals: outcome.resolved
         ? this.coordinator.collectPresenterDismissals([ref]).map(toReceiptDismissal)
         : [],
@@ -112,14 +131,17 @@ export class SurfaceDecisionSpine {
 
   /**
    * Best-effort scope memory write: a failing memory must never break the
-   * operator's decision, so any error collapses into recorded:false.
+   * operator's decision, so any error collapses into recorded:false. Raw-args
+   * resolutions never reach this method — their engines run their own
+   * permission memory inside the parsed decision itself.
    */
   private recordScopeMemory(
-    input: SurfaceDecisionRequest & { choice: SurfaceDecisionChoice },
+    input: SurfaceDecisionRequest,
+    choice: SurfaceDecisionChoice,
   ): SurfaceDecisionScopeMemory {
     try {
       const remembered = this.scopeMemory.respond({
-        choice: input.choice,
+        choice,
         toolName: `${input.decisionType}:${input.decisionRef}`,
         pattern: input.title ?? input.reason ?? '',
         risk: input.risk ?? null,
@@ -129,13 +151,17 @@ export class SurfaceDecisionSpine {
       });
       return {
         recorded: Boolean(remembered?.remembered),
-        choice: input.choice,
+        choice,
         expiresAt: remembered?.expiresAt ?? null,
       };
     } catch {
-      return { recorded: false, choice: input.choice, expiresAt: null };
+      return { recorded: false, choice, expiresAt: null };
     }
   }
+}
+
+function readChoice(input: SurfaceDecisionResolveInput): SurfaceDecisionChoice {
+  return 'choice' in input ? input.choice : 'once';
 }
 
 function toReceiptDismissal(dismissal: ApprovalPresenterDismissal): SurfaceDecisionDismissal {

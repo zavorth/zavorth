@@ -37,6 +37,20 @@ export type SurfaceDecisionPortDecideInput = {
   io: DecisionIO;
   chatId?: string | null;
   sessionId?: string | null;
+  /**
+   * Transport-native interaction context (grammy Context, discord message…).
+   * When supplied, the engine receives it verbatim so downstream hooks keep
+   * the original object identity; the receipt then carries no text because
+   * the engine already spoke through that live context.
+   */
+  transportContext?: unknown;
+};
+
+export type SurfaceDecisionPortDecideRawInput = {
+  rawArgs: string;
+  actorId: string | null;
+  chatId?: string | null;
+  transportContext?: unknown;
 };
 
 /**
@@ -48,4 +62,10 @@ export type SurfaceDecisionPortDecideInput = {
 export interface SurfaceDecisionPort {
   findPending(ref: string): boolean;
   decide(input: SurfaceDecisionPortDecideInput): Promise<SurfaceDecisionReceipt>;
+  /**
+   * Unparsed-decision entry: the port hands the raw operator input straight
+   * to the engine, which keeps sole ownership of reference and scope-word
+   * parsing (ordinals, bare refs, deny words, multi-pending guidance).
+   */
+  decideRaw?(input: SurfaceDecisionPortDecideRawInput): Promise<SurfaceDecisionReceipt>;
 }
