@@ -152,8 +152,7 @@ const staticRules = [
     files: [
       'src/runtime/agent/ZavorthAgentGateway.ts',
       'src/services/WebAppConversationService.ts',
-      'src/telegram/controllers/TelegramConversationController.ts',
-      'src/gateways/discord-gateway/DiscordGatewayInboundService.ts',
+      'src/gateways/channels/discord/discord-gateway/DiscordGatewayInboundService.ts',
       'src/cli/ZavorthCliCommandHelpers.ts',
       'src/cli/ZavorthCliFlowHelpers.ts',
       'src/core/CoreOrchestrator.ts',

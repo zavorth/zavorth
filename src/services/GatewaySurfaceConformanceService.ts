@@ -327,7 +327,6 @@ export function buildTelegramGatewaySurfaceDescriptor(): GatewaySurfaceDescripto
       llmDirectEntryAllowed: false,
       sourceFiles: [
         'src/telegram/bot-gateway/support/BotGatewayMessageProcessing.ts',
-        'src/telegram/controllers/TelegramConversationController.ts',
       ],
     },
     degradedMode: {

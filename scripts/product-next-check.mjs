@@ -94,7 +94,6 @@ const suites = {
     'tests/integration/CrossSurfaceContinuity.test.ts',
     'tests/services/WebAppGatewaySessions.test.ts',
     'tests/telegram/TelegramChannelContractService.test.ts',
-    'tests/telegram/controllers/TelegramConversationStateService.test.ts',
   ],
   'memory-hybrid': [
     'tests/services/HybridMemoryService.test.ts',
