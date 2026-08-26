@@ -6,7 +6,7 @@ import {
   PermissionScope,
   PermissionStatus,
 } from '../../../../contracts/PermissionRequest.js';
-import { TelegramPermissionDescriptorService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionDescriptorService.js';
+import { PermissionDescriptorService } from '../../../../services/approvals/PermissionDescriptorService.js';
 
 export type TelegramPermissionPathPolicy = {
   path: string;
@@ -67,10 +67,10 @@ export interface RawPermissionPolicy {
 }
 
 export class TelegramPermissionPolicyService {
-  private readonly descriptorService: TelegramPermissionDescriptorService;
+  private readonly descriptorService: PermissionDescriptorService;
 
   constructor() {
-    this.descriptorService = new TelegramPermissionDescriptorService({
+    this.descriptorService = new PermissionDescriptorService({
       normalizePermissionAccessLevel: (value) => this.normalizePermissionAccessLevel(value),
       normalizePermissionCommandMatchType: (value) => this.normalizePermissionCommandMatchType(value),
     });

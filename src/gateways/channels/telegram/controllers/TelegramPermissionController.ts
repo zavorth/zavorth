@@ -24,7 +24,7 @@ import type { ParsedPermissionCallback } from '../../../../services/approvals/Pe
 import { toTaskApprovalChoice } from '../../../../services/approvals/PermissionCallbackAlias.js';
 import { TelegramPermissionPolicyService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPolicyService.js';
 import { TelegramPermissionPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPresentationService.js';
-import { TelegramPersistedPermissionPolicyService } from '../../../../gateways/channels/telegram/controllers/TelegramPersistedPermissionPolicyService.js';
+import { PersistedPermissionPolicyService } from '../../../../services/approvals/PersistedPermissionPolicyService.js';
 import { TelegramTaskApprovalService } from '../../../../gateways/channels/telegram/controllers/TelegramTaskApprovalService.js';
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
 import {
@@ -79,14 +79,14 @@ export class TelegramPermissionController {
   private readonly permissionDecision: TelegramPermissionDecisionService;
   private readonly permissionPolicy = new TelegramPermissionPolicyService();
   private readonly permissionPresentation: TelegramPermissionPresentationService;
-  private readonly persistedPolicies: TelegramPersistedPermissionPolicyService;
+  private readonly persistedPolicies: PersistedPermissionPolicyService;
   private readonly taskApproval: TelegramTaskApprovalService;
   private readonly permissionCommands: TelegramPermissionCommandService;
   private readonly permissionInteraction: TelegramPermissionInteractionService;
 
   constructor(private deps: TelegramPermissionControllerDeps) {
     this.permissionPresentation = new TelegramPermissionPresentationService(this.permissionPolicy);
-    this.persistedPolicies = new TelegramPersistedPermissionPolicyService({
+    this.persistedPolicies = new PersistedPermissionPolicyService({
       permissionService: this.deps.permissionService,
       permissionPolicy: this.permissionPolicy,
       persistTask: this.deps.persistTask,

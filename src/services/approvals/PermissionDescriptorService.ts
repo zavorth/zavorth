@@ -7,13 +7,13 @@ import {
   PermissionStatus,
 } from '@zavorth/contracts/PermissionRequest.js';
 
-export type TelegramPermissionDescriptorNormalization = {
+export type PermissionDescriptorNormalization = {
   normalizePermissionAccessLevel(value: unknown): PermissionAccessLevel;
   normalizePermissionCommandMatchType(value: unknown): PermissionCommandMatchType;
 };
 
-export class TelegramPermissionDescriptorService {
-  constructor(private readonly normalization: TelegramPermissionDescriptorNormalization) {}
+export class PermissionDescriptorService {
+  constructor(private readonly normalization: PermissionDescriptorNormalization) {}
 
   public describePermissionStatus(status: PermissionStatus | 'all'): string {
     switch (status) {

@@ -1,23 +1,54 @@
-import { config } from '../../../../config/index.js';
+import { config } from '../../config/index.js';
 import {
   PermissionAccessLevel,
   PermissionCommandMatchType,
+  PermissionRequest,
   PermissionScope,
-} from '../../../../contracts/PermissionRequest.js';
-import { Task } from '../../../../contracts/TaskContract.js';
+} from '../../contracts/PermissionRequest.js';
+import { Task } from '../../contracts/TaskContract.js';
 
-import { PermissionService } from '../../../../services/PermissionService.js';
-import { TenantContextService } from '../../../../services/TenantContextService.js';
-import { TelegramPermissionPolicyService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPolicyService.js';
+import { PermissionService } from '../PermissionService.js';
+import { TenantContextService } from '../TenantContextService.js';
 
-export type TelegramPersistedPermissionPolicyServiceDeps = {
+export type PersistedPermissionPathPolicy = {
+  path: string;
+  access_level: PermissionAccessLevel;
+  scope: PermissionScope;
+  permission_id?: string | null;
+};
+
+export type PersistedPermissionCommandPolicy = {
+  command: string;
+  match_type: PermissionCommandMatchType;
+  scope: PermissionScope;
+  permission_id?: string | null;
+};
+
+export type PersistedPermissionPolicyNormalizer = {
+  normalizePathPolicy(policy: unknown): PersistedPermissionPathPolicy | null;
+  normalizeCommandPolicy(policy: unknown): PersistedPermissionCommandPolicy | null;
+  getPermissionAccessLevel(permission: PermissionRequest): PermissionAccessLevel;
+  getPermissionCommandMatchType(permission: PermissionRequest): PermissionCommandMatchType;
+  mergePathPolicies(
+    ...policies: Array<PersistedPermissionPathPolicy | null>
+  ): PersistedPermissionPathPolicy[];
+  mergeCommandPolicies(
+    ...policies: Array<PersistedPermissionCommandPolicy | null>
+  ): PersistedPermissionCommandPolicy[];
+  resolveExternalExecutorAgentRole(task: Task): string;
+  getExternalExecutorAgentRole(permission: PermissionRequest): string;
+  extractAiStudioPermissionValues(permission: PermissionRequest): string[];
+  mergeNormalizedValues(...collections: Array<Iterable<string> | null | undefined>): string[];
+};
+
+export type PersistedPermissionPolicyServiceDeps = {
   permissionService: PermissionService;
-  permissionPolicy: TelegramPermissionPolicyService;
+  permissionPolicy: PersistedPermissionPolicyNormalizer;
   persistTask: (task: Task) => void;
 };
 
-export class TelegramPersistedPermissionPolicyService {
-  constructor(private readonly deps: TelegramPersistedPermissionPolicyServiceDeps) {}
+export class PersistedPermissionPolicyService {
+  constructor(private readonly deps: PersistedPermissionPolicyServiceDeps) {}
 
   public async applyPersistedPermissionPolicies(task: Task, executor: string): Promise<void> {
     const workspace = task.workspace || config.defaultWorkspace;
