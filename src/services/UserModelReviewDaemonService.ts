@@ -3,7 +3,7 @@ import path from 'path';
 
 import { UserModelTurnCaptureService, type CapturedTurn } from './UserModelTurnCaptureService.js';
 import { UserModelDialecticReasoningService, type DialecticSynthesis } from './UserModelDialecticReasoningService.js';
-import { UserModelDialecticService } from './UserModelDialecticService.js';
+import { UserModelDialecticService, type DialecticQuestionCategory } from './UserModelDialecticService.js';
 import { ZavorthLlmRuntimeService } from './ZavorthLlmRuntimeService.js';
 import { logger } from '../logger.js';
 
@@ -123,8 +123,8 @@ export class UserModelReviewDaemonService {
     });
 
     for (const insight of synthesis.insights) {
-      if (insight.confidence >= 0.5 && insight.category !== 'inquiry') {
-        this.dialectic.recordAnswer(insight.category, insight.observation);
+      if (insight.confidence >= 0.5 && insight.category !== 'inquiry' && this.isKnownTraitCategory(insight.category)) {
+        this.dialectic.recordTrait(insight.category, insight.observation);
       }
     }
 
@@ -141,6 +141,17 @@ export class UserModelReviewDaemonService {
     this.saveStatus();
 
     return synthesis;
+  }
+
+  private isKnownTraitCategory(category: string): category is DialecticQuestionCategory {
+    return (
+      category === 'communication_style' ||
+      category === 'work_preferences' ||
+      category === 'domain_expertise' ||
+      category === 'tool_preferences' ||
+      category === 'schedule' ||
+      category === 'personality'
+    );
   }
 
   async runLlmReview(): Promise<DialecticSynthesis | null> {
@@ -168,8 +179,8 @@ export class UserModelReviewDaemonService {
     });
 
     for (const insight of synthesis.insights) {
-      if (insight.confidence >= 0.5 && insight.category !== 'inquiry') {
-        this.dialectic.recordAnswer(insight.category, insight.observation);
+      if (insight.confidence >= 0.5 && insight.category !== 'inquiry' && this.isKnownTraitCategory(insight.category)) {
+        this.dialectic.recordTrait(insight.category, insight.observation);
       }
     }
 

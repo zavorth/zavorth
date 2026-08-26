@@ -414,19 +414,19 @@ export class ZavorthMemoryLearningLoopService {
     nowIso: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any[] {
-    const placeholders = layers.map(() => '...').join(', ');
+    const placeholders = layers.map(() => '?').join(', ');
     const params: unknown[] = [ftsQuery, ...layers];
     let filter = `m.layer IN (${placeholders})`;
     if (input.userId) {
-      filter += ' AND (m.user_id = - OR m.user_id IS NULL)';
+      filter += ' AND (m.user_id = ? OR m.user_id IS NULL)';
       params.push(input.userId);
     }
     if (input.sessionId) {
-      filter += ' AND (m.session_id = - OR m.session_id IS NULL)';
+      filter += ' AND (m.session_id = ? OR m.session_id IS NULL)';
       params.push(input.sessionId);
     }
     if (input.workspace) {
-      filter += ' AND (m.workspace = - OR m.workspace IS NULL)';
+      filter += ' AND (m.workspace = ? OR m.workspace IS NULL)';
       params.push(input.workspace);
     }
     params.push(nowIso, limit);
@@ -434,10 +434,12 @@ export class ZavorthMemoryLearningLoopService {
       SELECT m.*, bm25(zavorth_learning_memory_fts) * -1 AS score
       FROM zavorth_learning_memory_fts
       JOIN zavorth_learning_memory m ON m.id = zavorth_learning_memory_fts.entry_id
-      WHERE zavorth_learning_memory_fts MATCH ?         AND ${filter}
-        AND (m.expires_at IS NULL OR m.expires_at > ...)
+      WHERE zavorth_learning_memory_fts MATCH ?
+        AND ${filter}
+        AND (m.expires_at IS NULL OR m.expires_at > ?)
       ORDER BY score DESC, m.updated_at DESC
-      LIMIT ?     `).all(...params);
+      LIMIT ?
+    `).all(...params);
   }
 
   private searchLike(

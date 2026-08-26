@@ -94,6 +94,12 @@ export class UserModelDialecticService {
     this.saveProfile();
   }
 
+  recordTrait(category: DialecticQuestionCategory, observation: string): void {
+    this.profile.userTraits[category] = observation;
+    this.profile.generatedAt = this.now().toISOString();
+    this.saveProfile();
+  }
+
   markAsked(questionId: string): void {
     const question = this.profile.questions.find((q) => q.id === questionId);
     if (!question) return;
