@@ -21,6 +21,7 @@ import {
   WhatsAppGateway,
 } from '../adapters/channels/index.js';
 import { ZavorthGatewayService } from '../services/ZavorthGatewayService.js';
+import { ToolRuntimeDecisionPort } from '../services/approvals/ports/ToolRuntimeDecisionPort.js';
 
 import { GoalLoopStatusProjectionService } from '../services/GoalLoopStatusProjectionService.js';
 import type { BroadcastCapableGateway } from '../services/ZavorthChannelActionService.js';
@@ -127,6 +128,11 @@ export function composeSurfaceRuntime(
   });
   const sharedSelfModificationCommandService = new SelfModificationCommandService();
   foundation.agentGateway.attachSelfModificationService(sharedSelfModificationCommandService);
+  const surfaceDecisionSpine = botGateway.getSurfaceDecisionSpine();
+  surfaceDecisionSpine.registerDecisionPort(
+    'tool-runtime',
+    new ToolRuntimeDecisionPort(botGateway.getEchoApprovalController()),
+  );
   const sharedSurfaceCommandService = new SharedSurfaceCommandService({
     runtimeDiagnostics: sharedRuntimeDiagnostics,
     taskManager: foundation.taskManager as unknown as SharedSurfaceCommandServiceDeps['taskManager'],
@@ -144,7 +150,7 @@ export function composeSurfaceRuntime(
     buildPermissionKeyboard: botGateway.buildPermissionKeyboard.bind(botGateway) as unknown as SharedSurfaceCommandServiceDeps['buildPermissionKeyboard'],
     workflowController: botGateway.getWorkflowController() as unknown as SharedSurfaceCommandServiceDeps['workflowController'],
     opsController: botGateway.getOpsController(),
-    surfaceDecisionSpine: botGateway.getSurfaceDecisionSpine(),
+    surfaceDecisionSpine,
   });
   const sharedSurfaceApi = new InternalSurfaceApiService({
     commandService: sharedSurfaceCommandService,
