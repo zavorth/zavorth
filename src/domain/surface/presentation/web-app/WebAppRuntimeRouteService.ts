@@ -1,6 +1,6 @@
 import * as http from 'http';
 import type { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
-import type { SharedSurfaceRuntime } from '../../../../services/SurfaceRuntime.js';
+import type { SharedSurfaceRuntime } from '../../../../orchestrator/SurfaceRuntime.js';
 import { ZavorthControlAuthService } from '../../../../services/ZavorthControlAuthService.js';
 import { RuntimeAccessManifestService } from '../../../../runtime/access/RuntimeAccessManifestService.js';
 import { RuntimeAccessReadinessService } from '../../../../runtime/access/RuntimeAccessReadinessService.js';

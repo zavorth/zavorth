@@ -24,8 +24,8 @@ import { IntegrationHubService } from '../../../../services/IntegrationHubServic
 import { MemoryService } from '../../../../services/MemoryService.js';
 import type { OperationsHealthService } from '../../../../observability/OperationsHealthService.js';
 import type { ProviderControlPlaneService } from '../../../../services/ProviderControlPlaneService.js';
-import type { SharedSurfaceRuntime } from '../../../../services/SurfaceRuntime.js';
-import { SurfaceTaskDispatchService } from '../../../../services/SurfaceTaskDispatchService.js';
+import type { SharedSurfaceRuntime } from '../../../../orchestrator/SurfaceRuntime.js';
+import { SurfaceTaskDispatchService } from '../../../../orchestrator/SurfaceTaskDispatchService.js';
 import { WebRealtimeService } from '../../../../services/WebRealtimeService.js';
 import { WorkspaceOperationalMemoryService } from '../../../../runtime/context/WorkspaceOperationalMemoryService.js';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';

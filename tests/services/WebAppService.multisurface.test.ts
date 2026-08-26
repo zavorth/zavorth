@@ -4,7 +4,7 @@ import path from 'path';
 import { config } from '../../src/config/index.js';
 import { DashboardService } from '../../src/services/DashboardService';
 import { SurfaceIdentityService } from '../../src/services/SurfaceIdentityService';
-import { SurfaceTaskDispatchService } from '../../src/services/SurfaceTaskDispatchService';
+import { SurfaceTaskDispatchService } from '../../src/orchestrator/SurfaceTaskDispatchService';
 import { createTestLogRepo, fetchNoKeepAlive } from '../helpers/dashboardWebTestUtils.js';
 
 async function webJson(

@@ -54,7 +54,7 @@ import {
   type ZavorthProductizationContractSnapshot,
 } from './ZavorthProductizationContractService.js';
 import type { ZavorthSandboxControlPlaneSnapshot } from './ZavorthSandboxControlPlaneService.js';
-import type { SharedSurfaceRuntime } from './SurfaceRuntime.js';
+import type { SharedSurfaceRuntime } from '../orchestrator/SurfaceRuntime.js';
 import {
   WebAppRuntimeInfrastructureService,
   type WebAppRealtimeInfrastructure,

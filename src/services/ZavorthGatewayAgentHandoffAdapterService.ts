@@ -215,7 +215,7 @@ export class ZavorthGatewayAgentHandoffAdapterService {
         owner: 'shared',
         sourceFiles: [
           'src/core/CoreOrchestrator.ts',
-          'src/services/SurfaceTaskDispatchService.ts',
+          'src/orchestrator/SurfaceTaskDispatchService.ts',
           'src/telegram/bot-gateway/support/BotGatewayMessageProcessing.ts',
           'src/runtime/agent/ZavorthAgentGateway.ts',
         ],
@@ -456,7 +456,7 @@ export class ZavorthGatewayAgentHandoffAdapterService {
         description: 'Mapped the current legacy pass-through equivalents before any gateway wiring change.',
         evidence: [
           'src/core/CoreOrchestrator.ts',
-          'src/services/SurfaceTaskDispatchService.ts',
+          'src/orchestrator/SurfaceTaskDispatchService.ts',
           'src/telegram/bot-gateway/support/BotGatewayMessageProcessing.ts',
           'src/runtime/agent/ZavorthAgentGateway.ts',
         ],

@@ -58,7 +58,7 @@ import { SupervisedExecutionGatewayService } from '../../../../services/Supervis
 import { SupervisedRuntimeAdapterRegistryService } from '../../../../services/SupervisedRuntimeAdapterRegistryService.js';
 import { SwarmV2Service } from '../../../../agents/SwarmV2Service.js';
 import { SwarmScalePlaneRuntimeService } from '../../../../services/SwarmScalePlaneRuntimeService.js';
-import type { SharedSurfaceRuntime } from '../../../../services/SurfaceRuntime.js';
+import type { SharedSurfaceRuntime } from '../../../../orchestrator/SurfaceRuntime.js';
 import { SystemOverlordControlService } from '../../../../services/SystemSupervisorControlService.js';
 import { TaskResourcePlannerService } from '../../../../services/TaskResourcePlannerService.js';
 import { TrustDecisionService } from '../../../../services/TrustDecisionService.js';

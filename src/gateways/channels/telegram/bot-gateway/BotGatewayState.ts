@@ -64,7 +64,7 @@ import type { TelegramSkillCatalogController } from '../../../../gateways/channe
 import type { SupervisedRuntimeNotificationService } from '../../../../services/SupervisedRuntimeNotificationService.js';
 import type { HostIdentityService } from '../../../../services/HostIdentityService.js';
 import type { SurfaceIdentityService } from '../../../../services/SurfaceIdentityService.js';
-import type { SurfaceTaskDispatchService } from '../../../../services/SurfaceTaskDispatchService.js';
+import type { SurfaceTaskDispatchService } from '../../../../orchestrator/SurfaceTaskDispatchService.js';
 import type { TelegramCommandRoutingService } from '../../../../gateways/channels/telegram/TelegramCommandRoutingService.js';
 import type { TelegramPriorityCommandService } from '../../../../gateways/channels/telegram/TelegramPriorityCommandService.js';
 import type { SurfaceCommandBoundary } from '../../../../api/internal/InternalSurfaceApiCompat.js';

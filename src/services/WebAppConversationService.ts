@@ -11,7 +11,7 @@ import { ComposerCatalogService } from './ComposerCatalogService.js';
 import { ComposerContextService } from './ComposerContextService.js';
 import { ComposerPayloadService, type NormalizedComposerPayload } from './ComposerPayloadService.js';
 import { GatewaySessionToolsService } from '../runtime/sessions/GatewaySessionToolsService.js';
-import type { SharedSurfaceRuntime } from './SurfaceRuntime.js';
+import type { SharedSurfaceRuntime } from '../orchestrator/SurfaceRuntime.js';
 import { WebRealtimeService } from './WebRealtimeService.js';
 import type { IMessageContext } from '../contracts/IMessageBroker.js';
 import {

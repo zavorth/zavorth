@@ -3,7 +3,7 @@ import { CompanionDistributionService } from '../nodes/companion/CompanionDistri
 import { NodeMeshRecoveryService } from './NodeMeshRecoveryService.js';
 import { NodeMeshTransportRouteService } from './NodeMeshTransportRouteService.js';
 import { NodeOnboardingService } from './NodeOnboardingService.js';
-import type { SharedSurfaceRuntime } from './SurfaceRuntime.js';
+import type { SharedSurfaceRuntime } from '../orchestrator/SurfaceRuntime.js';
 import { errorMessage } from '../utils/errorLike.js';
 // Dynamic service bag: route handlers access node services by key.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

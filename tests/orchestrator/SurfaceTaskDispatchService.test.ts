@@ -1,5 +1,5 @@
 import { SurfaceIdentityService } from '../../src/services/SurfaceIdentityService';
-import { SurfaceTaskDispatchService } from '../../src/services/SurfaceTaskDispatchService';
+import { SurfaceTaskDispatchService } from '../../src/orchestrator/SurfaceTaskDispatchService';
 
 describe('SurfaceTaskDispatchService', () => {
   it('resolves the principal id, links the surface and dispatches through the shared task controller', async () => {

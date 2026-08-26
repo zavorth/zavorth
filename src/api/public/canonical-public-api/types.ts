@@ -1,4 +1,4 @@
-import type { SharedSurfaceRuntime } from '../../../services/SurfaceRuntime.js';
+import type { SharedSurfaceRuntime } from '../../../orchestrator/SurfaceRuntime.js';
 import type { ZavorthGatewayService } from '../../../services/ZavorthGatewayService.js';
 import type { ZavorthNodeMeshService } from '../../../services/ZavorthNodeMeshService.js';
 import type { ZavorthPlatformRegistryService } from '../../../services/ZavorthPlatformRegistryService.js';

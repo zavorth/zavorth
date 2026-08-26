@@ -20,7 +20,7 @@ import { ZavorthControlPresentationDepsBridgeService } from '../ZavorthControlPr
 import type { ZavorthControlOperationsDepsBridgeSource } from '../ZavorthControlOperationsDepsBridgeService.js';
 import { ZavorthControlOperationsDepsBridgeService } from '../ZavorthControlOperationsDepsBridgeService.js';
 import type { WebAppOperationsDepsBridgeSource } from '../../../../../services/WebAppOperationsDepsBridgeService.js';
-import type { SharedSurfaceRuntime } from '../../../../../services/SurfaceRuntime.js';
+import type { SharedSurfaceRuntime } from '../../../../../orchestrator/SurfaceRuntime.js';
 import { WebAppOperationsDepsBridgeService } from './ZavorthControlServiceDependencies.js';
 import { ZavorthControlCoreRouteService } from '../ZavorthControlCoreRouteService.js';
 import { ZavorthControlLegacyRouteService } from '../ZavorthControlLegacyRouteService.js';

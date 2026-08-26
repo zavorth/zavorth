@@ -1,4 +1,4 @@
-import type { SharedSurfaceRuntime, SurfaceControllerContext, PermissionControllerLike } from '../../../../services/SurfaceRuntime.js';
+import type { SharedSurfaceRuntime, SurfaceControllerContext, PermissionControllerLike } from '../../../../orchestrator/SurfaceRuntime.js';
 import type { SharedSurfaceCommandServiceDeps } from '../shared-surface/factory/SharedSurfaceCommandServiceDeps.js';
 import type { RuntimeDiagnosticsService } from '../../../../services/RuntimeDiagnosticsService.js';
 import type { PermissionService } from '../../../../services/PermissionService.js';

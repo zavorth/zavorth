@@ -1,6 +1,6 @@
 import type { PermissionRequest } from "../../../../../contracts/PermissionRequest.js";
 import type { Task } from "../../../../../contracts/TaskContract.js";
-import type { SurfaceControllerContext, SurfaceTaskDispatcherLike } from "../../../../../services/SurfaceRuntime.js";
+import type { SurfaceControllerContext, SurfaceTaskDispatcherLike } from "../../../../../orchestrator/SurfaceRuntime.js";
 import type { DesktopResourcePlaneService } from "../../../../../services/DesktopResourcePlaneService.js";
 import type { CompanionControlService } from "../../../../../services/CompanionControlService.js";
 import type { CompanionWorkspaceOptimizerService } from "../../../../../services/CompanionWorkspaceOptimizerService.js";

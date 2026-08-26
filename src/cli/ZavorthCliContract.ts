@@ -1,7 +1,7 @@
 import type { Interface as ReadlineInterface } from 'readline/promises';
 import type { SurfaceCommandBoundary } from '../api/internal/InternalSurfaceApiCompat.js';
 import type { ZavorthGatewayService } from '../services/ZavorthGatewayService.js';
-import type { SurfaceTaskDispatcherLike } from '../services/SurfaceRuntime.js';
+import type { SurfaceTaskDispatcherLike } from '../orchestrator/SurfaceRuntime.js';
 import type { SurfaceOperationalIntentService } from '../services/SurfaceOperationalIntentService.js';
 import type { LegacyUnifiedGatewayAdapter } from '../context-engine/LegacyUnifiedGatewayAdapter.js';
 import type { SupervisedRuntimeService } from '../services/SupervisedRuntimeService.js';

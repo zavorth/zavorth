@@ -1,5 +1,5 @@
 import * as http from 'http';
-import type { SurfaceControllerContext } from '../../../../services/SurfaceRuntime.js';
+import type { SurfaceControllerContext } from '../../../../orchestrator/SurfaceRuntime.js';
 import { asErrorLike } from '../../../../utils/errorLike.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
 

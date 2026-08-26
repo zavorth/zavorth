@@ -1,7 +1,7 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type { Task } from '../../../../contracts/TaskContract.js';
 import { StateMachine } from '../../../../orchestrator/StateMachine.js';
-import type { SurfaceControllerContext, SurfaceTaskDispatcherLike } from '../../../../services/SurfaceRuntime.js';
+import type { SurfaceControllerContext, SurfaceTaskDispatcherLike } from '../../../../orchestrator/SurfaceRuntime.js';
 import { RecentTaskResolver } from '../../../../services/RecentTaskResolver.js';
 
 import type { SharedSurfaceWorkflowGovernanceCommandPack } from './SharedSurfaceWorkflowGovernanceCommandPack.js';

@@ -19,7 +19,7 @@ import { SharedSurfaceTenantGovernanceCommandPack } from '../SharedSurfaceTenant
 import { SharedSurfaceWatchModeCommandPack } from '../SharedSurfaceWatchModeCommandPack.js';
 import { SharedSurfaceWorkflowGovernanceCommandPack } from '../SharedSurfaceWorkflowGovernanceCommandPack.js';
 import type { IMessageContext } from '../../../../../contracts/IMessageBroker.js';
-import type { SurfaceControllerContext } from '../../../../../services/SurfaceRuntime.js';
+import type { SurfaceControllerContext } from '../../../../../orchestrator/SurfaceRuntime.js';
 import type { SharedSurfaceCommandServiceDeps } from './SharedSurfaceCommandServiceDeps.js';
 
 type RequiredAssemblyDepKeys =

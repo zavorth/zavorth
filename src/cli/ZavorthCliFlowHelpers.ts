@@ -9,7 +9,7 @@ import type {
   CliWriter,
   CliRuntimeProfile,
 } from './ZavorthCliContract.js';
-import type { SurfaceTaskDispatcherLike, SurfaceControllerContext } from '../services/SurfaceRuntime.js';
+import type { SurfaceTaskDispatcherLike, SurfaceControllerContext } from '../orchestrator/SurfaceRuntime.js';
 import type { MessageChannel, TaskSource } from '../contracts/PlatformContract.js';
 import {
   type UniversalAgentChannel,

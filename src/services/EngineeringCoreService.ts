@@ -24,7 +24,7 @@ import { DependencyNegotiationService } from './DependencyNegotiationService.js'
 import { RepairPlannerService } from './RepairPlannerService.js';
 import { EngineeringRunLoopService } from './EngineeringRunLoopService.js';
 import { SupervisedExecutionGatewayService } from './SupervisedExecutionGatewayService.js';
-import type { SurfaceTaskDispatcherLike, SurfaceControllerContext } from './SurfaceRuntime.js';
+import type { SurfaceTaskDispatcherLike, SurfaceControllerContext } from '../orchestrator/SurfaceRuntime.js';
 import { TaskSource } from '../contracts/PlatformContract.js';
 import type {
   SelfModificationApplyResult,

@@ -11,7 +11,7 @@ import type { BroadcastCapableGateway } from '../../../services/ZavorthChannelAc
 import type { TelegramPermissionController } from '../../../gateways/channels/telegram/controllers/TelegramPermissionController.js';
 import type { TelegramExecutionController } from '../../../gateways/channels/telegram/controllers/TelegramExecutionController.js';
 import type { TelegramPipelineController } from '../../../gateways/channels/telegram/controllers/TelegramPipelineController.js';
-import type { SurfaceTaskDispatchService } from '../../../services/SurfaceTaskDispatchService.js';
+import type { SurfaceTaskDispatchService } from '../../../orchestrator/SurfaceTaskDispatchService.js';
 import type { SurfaceCommandBoundary } from '../../../api/internal/InternalSurfaceApiCompat.js';
 import type { BotGatewaySupport } from '../../../gateways/channels/telegram/bot-gateway/BotGatewaySupport.js';
 import type { EchoOutputStageService } from '../../../services/EchoOutputStageService.js';

@@ -1,6 +1,6 @@
-import { SurfaceIdentityService } from './SurfaceIdentityService.js';
-import { TenantContextService } from './TenantContextService.js';
-import { TenantRegistryService } from './TenantRegistryService.js';
+import { SurfaceIdentityService } from '../services/SurfaceIdentityService.js';
+import { TenantContextService } from '../services/TenantContextService.js';
+import { TenantRegistryService } from '../services/TenantRegistryService.js';
 import type {
   SurfaceTaskDispatchInput,
   SurfaceTaskDispatchResult,

@@ -10,7 +10,7 @@ import * as http from 'http';
 import { configureCanonicalPublicApi } from '../api/public/endpoints.js';
 import { ZavorthControlAuthService } from './ZavorthControlAuthService.js';
 import { SharedSurfaceCommandService } from './SharedSurfaceCommandService.js';
-import type { SharedSurfaceRuntime } from './SurfaceRuntime.js';
+import type { SharedSurfaceRuntime } from '../orchestrator/SurfaceRuntime.js';
 import { WebAppConversationService } from './WebAppConversationService.js';
 import type { WebAppRealtimeInfrastructure } from '../domain/surface/presentation/web-app/WebAppRuntimeInfrastructureService.js';
 import type { WebAppSharedSurfaceFactorySource } from '../domain/surface/presentation/web-app/WebAppSharedSurfaceFactoryService.js';

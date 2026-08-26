@@ -11,7 +11,7 @@ import type {
 } from '../../../../contracts/HybridMemoryContract.js';
 
 import { shouldPersistZavorthArtifacts } from '../../../../contracts/ZavorthResponseDecisionContract.js';
-import type { SurfaceControllerContext } from '../../../../services/SurfaceRuntime.js';
+import type { SurfaceControllerContext } from '../../../../orchestrator/SurfaceRuntime.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
 import { buildWebAppRuntimeEmptyMemoryRecall } from './web-app-runtime-route/WebAppRuntimeRouteHelpers.js';
 import { WebAppGatewayCapabilitySupport } from './web-app-gateway-control/WebAppGatewayCapabilitySupport.js';

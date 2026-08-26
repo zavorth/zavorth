@@ -1,7 +1,7 @@
 import { IMessageBroker, IMessageContext } from '../contracts/IMessageBroker.js';
 import { PlatformGatewayContract, PlatformKey, TaskSource } from '../contracts/PlatformContract.js';
 import { LogRepository } from '../storage/LogRepository.js';
-import type { SurfaceTaskDispatcherLike, SurfaceControllerContext } from '../services/SurfaceRuntime.js';
+import type { SurfaceTaskDispatcherLike, SurfaceControllerContext } from '../orchestrator/SurfaceRuntime.js';
 import type { EchoOutputStageService } from '../services/EchoOutputStageService.js';
 import { ChannelCommandParser } from '../channels/commands/ChannelCommandParser.js';
 import {

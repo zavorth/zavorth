@@ -4,7 +4,7 @@ import type { WebComposerMention } from '../contracts/WebComposer.js';
 import type { MessageTransportKind } from '../contracts/IMessageBroker.js';
 import type { TenantContext } from '../contracts/TenantContext.js';
 import type { LegacyUnifiedGatewayAdapter } from '../context-engine/LegacyUnifiedGatewayAdapter.js';
-import type { EchoOutputStageService } from './EchoOutputStageService.js';
+import type { EchoOutputStageService } from '../services/EchoOutputStageService.js';
 
 // Task object returned by the task manager
 export type SurfaceTask = {

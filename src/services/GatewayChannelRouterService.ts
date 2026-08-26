@@ -1,5 +1,5 @@
 import type { MessageChannel, TaskSource } from '../contracts/PlatformContract.js';
-import type { SurfaceTaskDispatcherLike } from './SurfaceRuntime.js';
+import type { SurfaceTaskDispatcherLike } from '../orchestrator/SurfaceRuntime.js';
 import {
   GatewayChannelRegistryService,
   type GatewayChannelRegistryEntry,

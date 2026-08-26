@@ -7,7 +7,7 @@ import type {
 import type { PermissionRequest } from '../contracts/PermissionRequest.js';
 import type { MessageChannel } from '../contracts/PlatformContract.js';
 import type { Task } from '../contracts/TaskContract.js';
-import type { SurfaceTaskDispatchInput } from './SurfaceRuntime.js';
+import type { SurfaceTaskDispatchInput } from '../orchestrator/SurfaceRuntime.js';
 import {
   asTenantContextRecord,
   isSharedTenantBoundary,

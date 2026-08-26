@@ -5,7 +5,7 @@ import { LogRepository } from '../../../../storage/LogRepository.js';
 import type { Task } from '../../../../contracts/TaskContract.js';
 import { TrustedBoundary } from '../../../../security/TrustedBoundary.js';
 import { WorkspaceOperationalMemoryService } from '../../../../runtime/context/WorkspaceOperationalMemoryService.js';
-import { SurfaceTaskDispatchService } from '../../../../services/SurfaceTaskDispatchService.js';
+import { SurfaceTaskDispatchService } from '../../../../orchestrator/SurfaceTaskDispatchService.js';
 import type { EchoOutputStageService } from '../../../../services/EchoOutputStageService.js';
 import { TelegramTaskOrchestrationController } from '../../../../gateways/channels/telegram/controllers/TelegramTaskOrchestrationController.js';
 import type { TelegramTaskPreparationInput } from '../../../../gateways/channels/telegram/controllers/TelegramTaskPreparationService.js';
@@ -23,7 +23,7 @@ import type {
   SurfaceTaskDispatcherLike,
   PermissionControllerLike,
   HostIdentityServiceLike,
-} from '../../../../services/SurfaceRuntime.js';
+} from '../../../../orchestrator/SurfaceRuntime.js';
 import type { WorkflowRunService } from '../../../../services/WorkflowRunService.js';
 import type { SecurityAuditLogger } from '../../../../services/SecurityAuditLogger.js';
 import type { OperatorModeService } from '../../../../services/OperatorModeService.js';
