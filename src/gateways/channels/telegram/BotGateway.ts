@@ -9,6 +9,7 @@ import type { ChannelIngressGateways } from '../../../services/ZavorthControlSer
 import type { RuntimeCompositionService } from '../../../services/RuntimeCompositionService.js';
 import type { BroadcastCapableGateway } from '../../../services/ZavorthChannelActionService.js';
 import type { TelegramPermissionController } from '../../../gateways/channels/telegram/controllers/TelegramPermissionController.js';
+import type { TelegramOpsController } from '../../../gateways/channels/telegram/controllers/TelegramOpsController.js';
 import type { TelegramExecutionController } from '../../../gateways/channels/telegram/controllers/TelegramExecutionController.js';
 import type { TelegramPipelineController } from '../../../gateways/channels/telegram/controllers/TelegramPipelineController.js';
 import type { SurfaceTaskDispatchService } from '../../../orchestrator/SurfaceTaskDispatchService.js';
@@ -145,6 +146,10 @@ export class BotGateway extends BotGatewayState implements LiveChannelBroadcastG
 
   public getPermissionController(): TelegramPermissionController {
     return this.permissionController;
+  }
+
+  public getOpsController(): TelegramOpsController {
+    return this.opsController;
   }
 
   public getBotApi(): Bot['api'] {

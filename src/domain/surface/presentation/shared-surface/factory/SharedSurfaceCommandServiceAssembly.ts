@@ -11,6 +11,7 @@ import { SharedSurfaceIntegrationCommandPack } from '../SharedSurfaceIntegration
 import { SharedSurfaceLearningCommandPack } from '../SharedSurfaceLearningCommandPack.js';
 import { SharedSurfaceMemoryCommandPack } from '../SharedSurfaceMemoryCommandPack.js';
 import { SharedSurfaceOperationsCommandPack } from '../SharedSurfaceOperationsCommandPack.js';
+import { SharedSurfaceOpsCommandPack } from '../SharedSurfaceOpsCommandPack.js';
 import { SharedSurfacePresentationCommandPack } from '../SharedSurfacePresentationCommandPack.js';
 import { SharedSurfaceRuntimeMaintenanceCommandPack } from '../SharedSurfaceRuntimeMaintenanceCommandPack.js';
 import { SharedSurfaceSessionNodeCommandPack } from '../SharedSurfaceSessionNodeCommandPack.js';
@@ -288,6 +289,9 @@ export function buildSharedSurfaceCommandServiceAssembly(
     trustPlaneService: deps.trustPlaneService,
     trustPlaneActionService: deps.trustPlaneActionService,
   });
+  const opsCommandPack = new SharedSurfaceOpsCommandPack({
+    opsController: deps.opsController || null,
+  });
   return {
     ...deps,
     accessCommandPack,
@@ -304,6 +308,7 @@ export function buildSharedSurfaceCommandServiceAssembly(
     learningCommandPack,
     memoryCommandPack,
     operationsCommandPack,
+    opsCommandPack,
     runtimeMaintenanceCommandPack,
     watchModeCommandPack,
     sessionNodeCommandPack,

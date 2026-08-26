@@ -37,6 +37,7 @@ export class SharedSurfaceCommandService {
   private readonly learningCommandPack!: SharedSurfaceCommandServiceComposition['learningCommandPack'];
   private readonly memoryCommandPack!: SharedSurfaceCommandServiceComposition['memoryCommandPack'];
   private readonly operationsCommandPack!: SharedSurfaceCommandServiceComposition['operationsCommandPack'];
+  private readonly opsCommandPack!: SharedSurfaceCommandServiceComposition['opsCommandPack'];
   private readonly runtimeMaintenanceCommandPack!: SharedSurfaceCommandServiceComposition['runtimeMaintenanceCommandPack'];
   private readonly watchModeCommandPack!: SharedSurfaceCommandServiceComposition['watchModeCommandPack'];
   private readonly sessionNodeCommandPack!: SharedSurfaceCommandServiceComposition['sessionNodeCommandPack'];
@@ -123,7 +124,7 @@ export class SharedSurfaceCommandService {
       return true;
     }
 
-    return dispatchSharedSurfaceBuiltinCommand({
+    if (await dispatchSharedSurfaceBuiltinCommand({
       ctx,
       command: preDispatch.command,
       runtimeDiagnostics: this.deps.runtimeDiagnostics,
@@ -135,6 +136,13 @@ export class SharedSurfaceCommandService {
       tenantGovernanceCommandPack: this.tenantGovernanceCommandPack,
       capabilityCommandPack: this.capabilityCommandPack,
       taskControlCommandPack: this.taskControlCommandPack,
+    })) {
+      return true;
+    }
+
+    return this.opsCommandPack.handle({
+      context: ctx,
+      parsedCommand: preDispatch.command,
     });
   }
 }

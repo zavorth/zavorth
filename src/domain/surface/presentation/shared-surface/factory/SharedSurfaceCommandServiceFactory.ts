@@ -544,6 +544,7 @@ export function buildSharedSurfaceCommandServiceComposition(
       tenantGovernanceActionService,
       trustPlaneService,
       trustPlaneActionService,
+      opsController: deps.opsController || null,
     },
   );
 }
