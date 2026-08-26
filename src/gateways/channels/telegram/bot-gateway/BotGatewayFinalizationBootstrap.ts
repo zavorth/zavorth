@@ -22,7 +22,7 @@ import type { ZavorthBridgePreferenceStore } from '../../../../agents/ZavorthBri
 import type { BotGatewaySupport } from './BotGatewaySupport.js';
 import type { TelegramHubController } from '../controllers/TelegramHubController.js';
 import type { TelegramPermissionController } from '../controllers/TelegramPermissionController.js';
-import type { TelegramEchoApprovalController } from '../controllers/TelegramEchoApprovalController.js';
+import type { TelegramEchoApprovalController } from '../controllers/TelegramToolRuntimeApprovalController.js';
 import type { TelegramOpsController } from '../controllers/TelegramOpsController.js';
 import type { TelegramMenuController } from '../controllers/TelegramMenuController.js';
 import type { TelegramSchedulerController } from '../controllers/TelegramSchedulerController.js';

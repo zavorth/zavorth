@@ -19,7 +19,7 @@ import { TelegramMediaController } from '../../../../gateways/channels/telegram/
 import { TelegramZavorthBridgeController } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeController.js';
 import { TelegramHubController } from '../../../../gateways/channels/telegram/controllers/TelegramHubController.js';
 import { TelegramPermissionController } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionController.js';
-import { TelegramEchoApprovalController } from '../../../../gateways/channels/telegram/controllers/TelegramEchoApprovalController.js';
+import { TelegramEchoApprovalController } from '../../../../gateways/channels/telegram/controllers/TelegramToolRuntimeApprovalController.js';
 import { TelegramKnowledgeController } from '../../../../gateways/channels/telegram/controllers/TelegramKnowledgeController.js';
 import { TelegramSchedulerController } from '../../../../gateways/channels/telegram/controllers/TelegramSchedulerController.js';
 import { TelegramInspectionController } from '../../../../gateways/channels/telegram/controllers/TelegramInspectionController.js';

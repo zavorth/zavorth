@@ -1,4 +1,4 @@
-import { TelegramEchoApprovalController } from '../../src/telegram/controllers/TelegramEchoApprovalController';
+import { TelegramEchoApprovalController } from '../../src/telegram/controllers/TelegramToolRuntimeApprovalController';
 
 function createPermission(id = 'approval-echo-1234567890') {
   return {

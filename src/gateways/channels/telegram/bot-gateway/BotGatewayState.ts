@@ -42,7 +42,7 @@ import type { TelegramMediaController } from '../../../../gateways/channels/tele
 import type { TelegramZavorthBridgeController } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeController.js';
 import type { TelegramHubController } from '../../../../gateways/channels/telegram/controllers/TelegramHubController.js';
 import type { TelegramPermissionController } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionController.js';
-import type { TelegramEchoApprovalController } from '../../../../gateways/channels/telegram/controllers/TelegramEchoApprovalController.js';
+import type { TelegramEchoApprovalController } from '../../../../gateways/channels/telegram/controllers/TelegramToolRuntimeApprovalController.js';
 import type { TelegramCallbackController } from '../../../../gateways/channels/telegram/controllers/TelegramCallbackController.js';
 import type { TelegramKnowledgeController } from '../../../../gateways/channels/telegram/controllers/TelegramKnowledgeController.js';
 import type { TelegramSchedulerController } from '../../../../gateways/channels/telegram/controllers/TelegramSchedulerController.js';
