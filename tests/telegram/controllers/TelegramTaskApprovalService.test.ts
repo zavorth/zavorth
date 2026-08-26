@@ -1,5 +1,5 @@
 import type { Context } from 'grammy';
-import { TelegramTaskApprovalService } from '../../../src/gateways/channels/telegram/controllers/TelegramTaskApprovalService';
+import { TaskApprovalService } from '../../../src/services/approvals/TaskApprovalService';
 import { TaskSecurityPostureService } from '../../../src/services/TaskSecurityPostureService';
 import {
   AgentPermissionService,
@@ -92,7 +92,7 @@ function buildHarness(tasks: Task[]): TaskManagerHarness {
 function buildService(taskManager: TaskManagerHarness) {
   const persistTask = jest.fn();
   const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
-  const service = new TelegramTaskApprovalService({
+  const service = new TaskApprovalService({
     taskManager: taskManager as unknown as TaskManager,
     persistTask,
     resumeTaskExecution,
@@ -101,7 +101,7 @@ function buildService(taskManager: TaskManagerHarness) {
   return { service, persistTask, resumeTaskExecution };
 }
 
-describe('TelegramTaskApprovalService', () => {
+describe('TaskApprovalService', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });

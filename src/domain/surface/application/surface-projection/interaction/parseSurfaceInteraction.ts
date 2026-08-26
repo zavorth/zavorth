@@ -339,7 +339,7 @@ export function parseSurfaceInteraction(
 }
 
 /**
- * Map a semantic event to TelegramTaskApprovalService args: `"<taskId> <choice>"`.
+ * Map a semantic event to TaskApprovalService args: `"<taskId> <choice>"`.
  */
 export function toPermissionApprovalArgs(
   event: SemanticInteractionEvent,

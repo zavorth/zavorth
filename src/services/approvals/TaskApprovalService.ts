@@ -1,21 +1,26 @@
-import { Context } from 'grammy';
-import { Task } from '../../../../contracts/TaskContract.js';
-import { ApprovalManager } from '../../../../orchestrator/ApprovalManager.js';
-import { TaskManager } from '../../../../orchestrator/TaskManager.js';
-import { HighRiskConfirmationService } from '../../../../services/HighRiskConfirmationService.js';
-import { TelemetryRuntimeService } from '../../../../observability/telemetry/TelemetryRuntimeService.js';
-import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
-import { TaskSecurityPostureService } from '../../../../services/TaskSecurityPostureService.js';
-import type { WorkflowRunService } from '../../../../runtime/workflows/WorkflowRunService.js';
-import { logger } from '../../../../logger';
-import { asErrorLike } from '../../../../utils/errorLike.js';
-import { getAgentPermissionService } from '../../../../services/permission/AgentPermissionService.js';
+import { Task } from '../../contracts/TaskContract.js';
+import { ApprovalManager } from '../../orchestrator/ApprovalManager.js';
+import { TaskManager } from '../../orchestrator/TaskManager.js';
+import { HighRiskConfirmationService } from '../HighRiskConfirmationService.js';
+import { TelemetryRuntimeService } from '../../observability/telemetry/TelemetryRuntimeService.js';
+import { AuditLogger } from '../../monitoring/AuditLogger.js';
+import { TaskSecurityPostureService } from '../TaskSecurityPostureService.js';
+import type { WorkflowRunService } from '../../runtime/workflows/WorkflowRunService.js';
+import { logger } from '../../logger';
+import { asErrorLike } from '../../utils/errorLike.js';
+import { getAgentPermissionService } from '../permission/AgentPermissionService.js';
 
-export type TelegramTaskApprovalServiceDeps = {
+export interface TaskDecisionContext {
+  reply(text: string, options?: Record<string, unknown>): Promise<unknown>;
+  from?: { id?: number | string } | null;
+  chat?: { id?: number | string | null; type?: string } | null;
+}
+
+export type TaskApprovalServiceDeps = {
   taskManager: TaskManager;
   persistTask: (task: Task) => void;
-  resumeTaskExecution: (ctx: Context, task: Task) => Promise<void>;
-  resumeWorkflowExecution?: (ctx: Context, task: Task) => Promise<boolean>;
+  resumeTaskExecution(ctx: TaskDecisionContext, task: Task): Promise<void>;
+  resumeWorkflowExecution?(ctx: TaskDecisionContext, task: Task): Promise<boolean>;
   workflowRunService?: Pick<WorkflowRunService, 'applyStageApprovalDecision'>;
   telemetryRuntime?: TelemetryRuntimeService;
   auditLogger?: AuditLogger;
@@ -23,10 +28,10 @@ export type TelegramTaskApprovalServiceDeps = {
   taskSecurityPosture: TaskSecurityPostureService;
 };
 
-export class TelegramTaskApprovalService {
+export class TaskApprovalService {
   private readonly highRiskConfirmation: HighRiskConfirmationService;
 
-  constructor(private readonly deps: TelegramTaskApprovalServiceDeps) {
+  constructor(private readonly deps: TaskApprovalServiceDeps) {
     this.highRiskConfirmation = this.deps.highRiskConfirmation || new HighRiskConfirmationService();
   }
 
@@ -35,7 +40,7 @@ export class TelegramTaskApprovalService {
     return this.highRiskConfirmation.requiresPin(task);
   }
 
-  public async handleApproval(ctx: Context, args: string): Promise<void> {
+  public async handleApproval(ctx: TaskDecisionContext, args: string): Promise<void> {
     const approvalManager = new ApprovalManager(this.deps.taskManager);
     const userId = ctx.from?.id?.toString() || null;
     let taskId = '';
@@ -125,7 +130,7 @@ export class TelegramTaskApprovalService {
     }
   }
 
-  public async handleRejection(ctx: Context, taskIdOrArgs: string): Promise<void> {
+  public async handleRejection(ctx: TaskDecisionContext, taskIdOrArgs: string): Promise<void> {
     const approvalManager = new ApprovalManager(this.deps.taskManager);
     const userId = ctx.from?.id?.toString() || null;
     let taskId =
@@ -170,7 +175,7 @@ export class TelegramTaskApprovalService {
 
   private parseTaskApprovalInput(
     args: string,
-    ctx: Context,
+    ctx: TaskDecisionContext,
   ): {
     taskId: string;
     choice: 'once' | 'session' | 'always' | 'deny' | 'approve';
@@ -211,7 +216,7 @@ export class TelegramTaskApprovalService {
    * Resolve bare /approve, ordinal /approve 1, short prefix, or full task id
    * against pending tasks for this user/session (newest first).
    */
-  private resolvePendingTaskReference(ref: string, ctx: Context): string {
+  private resolvePendingTaskReference(ref: string, ctx: TaskDecisionContext): string {
     const normalized = String(ref || '').trim();
     const pending = this.listPendingTasksForContext(ctx);
 
@@ -248,7 +253,7 @@ export class TelegramTaskApprovalService {
     return normalized;
   }
 
-  private resolveExplicitTaskReference(ref: string, ctx: Context): string | null {
+  private resolveExplicitTaskReference(ref: string, ctx: TaskDecisionContext): string | null {
     const normalized = String(ref || '').trim();
     if (!normalized) {
       return null;
@@ -266,7 +271,7 @@ export class TelegramTaskApprovalService {
     return prefixMatch?.task_id || null;
   }
 
-  private listPendingTasksForContext(ctx: Context): Task[] {
+  private listPendingTasksForContext(ctx: TaskDecisionContext): Task[] {
     const userId = ctx.from?.id?.toString() || undefined;
     const chatId = ctx.chat?.id != null ? String(ctx.chat.id) : undefined;
     const recentByUser =
@@ -361,7 +366,7 @@ export class TelegramTaskApprovalService {
     }
   }
 
-  private async resumeApprovedTaskOrWorkflow(ctx: Context, task: Task): Promise<void> {
+  private async resumeApprovedTaskOrWorkflow(ctx: TaskDecisionContext, task: Task): Promise<void> {
     const resumedWorkflow = await this.tryResumeWorkflowExecution(ctx, task);
     if (resumedWorkflow) {
       return;
@@ -371,7 +376,7 @@ export class TelegramTaskApprovalService {
     await this.deps.resumeTaskExecution(ctx, task);
   }
 
-  private async tryResumeWorkflowExecution(ctx: Context, task: Task): Promise<boolean> {
+  private async tryResumeWorkflowExecution(ctx: TaskDecisionContext, task: Task): Promise<boolean> {
     if (!this.deps.resumeWorkflowExecution) {
       return false;
     }

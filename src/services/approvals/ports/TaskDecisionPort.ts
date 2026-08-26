@@ -1,6 +1,5 @@
-import type { Context } from 'grammy';
-import type { TelegramTaskApprovalService } from '../../../gateways/channels/telegram/controllers/TelegramTaskApprovalService.js';
 import type { SurfaceDecisionReceipt } from '../SurfaceDecisionContract.js';
+import type { TaskApprovalService, TaskDecisionContext } from '../TaskApprovalService.js';
 import {
   createCaptureReplyIO,
   type CaptureReplyIO,
@@ -11,7 +10,7 @@ import {
 } from '../SurfaceDecisionPort.js';
 
 export type TaskDecisionEngine = Pick<
-  TelegramTaskApprovalService,
+  TaskApprovalService,
   'handleApproval' | 'handleRejection'
 >;
 
@@ -37,12 +36,13 @@ const UNTEXTED_RECEIPT: SurfaceDecisionReceipt = {
 };
 
 /**
- * Adapts the Telegram task-approval decision engine to the universal port.
- * The engine speaks grammy Context and pushes its receipt through ctx.reply;
- * headless resolutions hand it a capturing io so the text comes back as
- * receiptText instead of being sent. When a live transport context is bound
- * the engine receives it verbatim — downstream hooks (task/workflow resume)
- * keep the original context identity and the receipt stays textless.
+ * Adapts the channel-agnostic task-approval decision engine to the universal
+ * port. The engine speaks the structural TaskDecisionContext and pushes its
+ * receipt through ctx.reply; headless resolutions hand it a capturing io so
+ * the text comes back as receiptText instead of being sent. When a live
+ * transport context is bound the engine receives it verbatim — downstream
+ * hooks (task/workflow resume) keep the original context identity and the
+ * receipt stays textless.
  */
 export class TaskDecisionPort implements SurfaceDecisionPort {
   private readonly engine: TaskDecisionEngine;
@@ -68,7 +68,7 @@ export class TaskDecisionPort implements SurfaceDecisionPort {
 
   public async decide(input: SurfaceDecisionPortDecideInput): Promise<SurfaceDecisionReceipt> {
     if (input.transportContext != null) {
-      const nativeContext = input.transportContext as Context;
+      const nativeContext = input.transportContext as TaskDecisionContext;
       if (input.choice === 'deny') {
         await this.engine.handleRejection(nativeContext, input.ref);
       } else {
@@ -90,7 +90,7 @@ export class TaskDecisionPort implements SurfaceDecisionPort {
 
   public async decideRaw(input: SurfaceDecisionPortDecideRawInput): Promise<SurfaceDecisionReceipt> {
     if (input.transportContext != null) {
-      await this.engine.handleApproval(input.transportContext as Context, input.rawArgs);
+      await this.engine.handleApproval(input.transportContext as TaskDecisionContext, input.rawArgs);
       return UNTEXTED_RECEIPT;
     }
 
@@ -120,18 +120,14 @@ export class TaskDecisionPort implements SurfaceDecisionPort {
     await this.engine.handleApproval(this.buildLegacyContext(input, capture), args);
   }
 
-  // Single documented seam: the legacy engine is typed against grammy Context,
-  // while the universal contract only guarantees actor/chat hints; the capture
-  // harness satisfies the engine structurally at runtime.
   private buildLegacyContext(
     input: { actorId: string | null; chatId?: string | null },
     capture: CaptureReplyIO,
-  ): Context {
-    const synthetic = {
+  ): TaskDecisionContext {
+    return {
       reply: (text: string) => capture.reply(text),
       from: input.actorId ? { id: input.actorId } : undefined,
       chat: input.chatId ? { id: input.chatId } : undefined,
     };
-    return synthetic as unknown as Context;
   }
 }

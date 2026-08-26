@@ -25,7 +25,7 @@ import { toTaskApprovalChoice } from '../../../../services/approvals/PermissionC
 import { TelegramPermissionPolicyService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPolicyService.js';
 import { TelegramPermissionPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPresentationService.js';
 import { PersistedPermissionPolicyService } from '../../../../services/approvals/PersistedPermissionPolicyService.js';
-import { TelegramTaskApprovalService } from '../../../../gateways/channels/telegram/controllers/TelegramTaskApprovalService.js';
+import { TaskApprovalService } from '../../../../services/approvals/TaskApprovalService.js';
 import { ApprovalCoordinator } from '../../../../services/approvals/ApprovalCoordinator.js';
 import type { ApprovalCoordinatorGatewayPort } from '../../../../services/approvals/ApprovalCoordinator.js';
 import { SurfaceDecisionSpine } from '../../../../services/approvals/SurfaceDecisionSpine.js';
@@ -107,7 +107,7 @@ export class TelegramPermissionController {
   private readonly permissionPolicy = new TelegramPermissionPolicyService();
   private readonly permissionPresentation: TelegramPermissionPresentationService;
   private readonly persistedPolicies: PersistedPermissionPolicyService;
-  private readonly taskApproval: TelegramTaskApprovalService;
+  private readonly taskApproval: TaskApprovalService;
   private readonly permissionCommands: TelegramPermissionCommandService;
   private readonly permissionInteraction: TelegramPermissionInteractionService;
   private readonly headlessPermissions: HeadlessPermissionDecisionService;
@@ -121,7 +121,7 @@ export class TelegramPermissionController {
       permissionPolicy: this.permissionPolicy,
       persistTask: this.deps.persistTask,
     });
-    this.taskApproval = new TelegramTaskApprovalService({
+    this.taskApproval = new TaskApprovalService({
       taskManager: this.deps.taskManager,
       persistTask: this.deps.persistTask,
       resumeTaskExecution: this.deps.resumeTaskExecution,
@@ -276,7 +276,7 @@ export class TelegramPermissionController {
   /**
    * Alias layer of the unified approval spine: a `perm:*` callback whose
    * reference is not a legacy PermissionRequest resolves through the exact
-   * decision path used by task:* callbacks (TelegramTaskApprovalService), so
+    * decision path used by task:* callbacks (TaskApprovalService), so
    * both callback families share one approval semantics.
    */
   private async resolveUnifiedApprovalFallback(
