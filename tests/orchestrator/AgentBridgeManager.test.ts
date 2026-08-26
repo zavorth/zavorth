@@ -10,7 +10,7 @@ describe('AgentBridgeManager', () => {
     while (tempDirs.length > 0) {
       const target = tempDirs.pop();
       if (target && fs.existsSync(target)) {
-        fs.rmSync(target, { recursive: true, force: true });
+        rmWithRetry(target);
       }
     }
   });
@@ -116,3 +116,23 @@ describe('AgentBridgeManager', () => {
     expect(content).toContain(handoff.responseFile);
   });
 });
+
+function rmWithRetry(targetPath: string): void {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    try {
+      fs.rmSync(targetPath, { recursive: true, force: true });
+      return;
+    } catch (error) {
+      if (attempt === 7) {
+        console.warn(`[test-cleanup] could not remove temp dir ${targetPath}`, error);
+        return;
+      }
+      sleepSync(25 * (attempt + 1));
+    }
+  }
+}
+
+function sleepSync(ms: number): void {
+  const buffer = new SharedArrayBuffer(4);
+  Atomics.wait(new Int32Array(buffer), 0, 0, ms);
+}
