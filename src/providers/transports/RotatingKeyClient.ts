@@ -15,6 +15,7 @@ export interface StreamingKeyOperation<TClient, TChunk, TEvent> {
 
 export class RotatingKeyClient<TClient> {
   private readonly clients: readonly TClient[];
+  /** Shared index across run() and stream() for deliberate cross-operation load-distribution rotation. */
   private index = 0;
 
   constructor(clients: readonly TClient[]) {

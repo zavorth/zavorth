@@ -55,11 +55,11 @@ async function collectStreamEvents(
 }
 
 describe('GeminiInteractionsTransport', () => {
-  it('exposes the gemini-interactions transport name', () => {
+  it('exposes the gemini_interactions transport name', () => {
     const chat = jest.fn().mockResolvedValue(responseFixture('ok'));
-    const transport = new GeminiInteractionsTransport({ adapter: { name: 'gemini-interactions', chat } });
+    const transport = new GeminiInteractionsTransport({ adapter: { name: 'gemini_interactions', chat } });
 
-    expect(transport.name).toBe('gemini-interactions');
+    expect(transport.name).toBe('gemini_interactions');
   });
 
   describe('chat', () => {
@@ -117,7 +117,7 @@ describe('GeminiInteractionsTransport', () => {
       expect(chat).toHaveBeenCalledWith(messagesFixture, toolFixture(), { modelName: 'gemini-2.5-flash' });
     });
 
-    it('skips the delta event when content is null but tool calls are present', async () => {
+    it('skips the delta event when content is null but emits tool_call_delta for tool calls', async () => {
       const toolCalls: ToolCall[] = [{
         id: 'interaction_step_2',
         name: 'preview',
@@ -129,14 +129,25 @@ describe('GeminiInteractionsTransport', () => {
 
       const events = await collectStreamEvents(transport, messagesFixture);
 
-      expect(events.map((event) => event.type)).toEqual(['start', 'done']);
+      expect(events.map((event) => event.type)).toEqual(['start', 'tool_call_delta', 'done']);
       expect(events[1]).toEqual({
+        type: 'tool_call_delta',
+        toolCallDelta: {
+          index: 0,
+          id: 'interaction_step_2',
+          name: 'preview',
+          arguments: '{"risk":"low"}',
+        },
+        accumulated: '',
+        done: false,
+      });
+      expect(events[2]).toEqual({
         type: 'done',
         accumulated: '',
         response,
         done: true,
       });
-      expect(events[1]?.response?.toolCalls).toEqual(toolCalls);
+      expect(events[2]?.response?.toolCalls).toEqual(toolCalls);
     });
 
     it('propagates the adapter rejection after start without yielding any delta', async () => {
@@ -188,7 +199,7 @@ describe('ProviderBootstrap gemini_interactions gating', () => {
 
     expect(resolved.apiMode).toBe('gemini_interactions');
     expect(resolved.transport).toBeInstanceOf(transportCtor);
-    expect(resolved.transport.name).toBe('gemini-interactions');
+    expect(resolved.transport.name).toBe('gemini_interactions');
   });
 
   it('resolves the interactions-api alias to the same api mode when enabled', () => {

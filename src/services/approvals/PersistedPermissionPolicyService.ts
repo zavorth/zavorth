@@ -7,7 +7,7 @@ import {
 } from '../../contracts/PermissionRequest.js';
 import { Task } from '../../contracts/TaskContract.js';
 
-import { PermissionService } from '../PermissionService.js';
+import { PermissionService, type PermissionMetadataValue } from '../PermissionService.js';
 import { TenantContextService } from '../TenantContextService.js';
 
 export type PersistedPermissionPathPolicy = {
@@ -57,13 +57,13 @@ export class PersistedPermissionPolicyService {
       executor,
       'workspace_access',
       workspace,
-      tenantMetadataMatch as never,
+      tenantMetadataMatch as unknown as Record<string, PermissionMetadataValue>,
     );
     const allowedCommandPolicies = await this.deps.permissionService.listApprovedRequests(
       executor,
       'command_access',
       workspace,
-      tenantMetadataMatch as never,
+      tenantMetadataMatch as unknown as Record<string, PermissionMetadataValue>,
     );
 
     const taskLocalAllowedPaths = Array.isArray(task.metadata?.extra_allowed_paths)
@@ -151,7 +151,7 @@ export class PersistedPermissionPolicyService {
         'external_executor',
         'agent_binding',
         workspace,
-        tenantMetadataMatch as never,
+        tenantMetadataMatch as unknown as Record<string, PermissionMetadataValue>,
       );
       const agentBindings: Record<string, string> = {};
       const permissionIds: Record<string, string> = {};
@@ -185,13 +185,13 @@ export class PersistedPermissionPolicyService {
         'aistudio',
         'builtin_tool_access',
         workspace,
-        tenantMetadataMatch as never,
+        tenantMetadataMatch as unknown as Record<string, PermissionMetadataValue>,
       );
       const approvedServicePolicies = await this.deps.permissionService.listApprovedRequests(
         'aistudio',
         'service_access',
         workspace,
-        tenantMetadataMatch as never,
+        tenantMetadataMatch as unknown as Record<string, PermissionMetadataValue>,
       );
 
       const taskLocalAllowedTools = Array.isArray(task.metadata?.aistudio_allowed_tools)

@@ -6,11 +6,28 @@ import { SwarmV2Service, type SwarmV2TrackedSnapshot } from '../agents/SwarmV2Se
 import { ZavorthAgentReviewService, type ZavorthAgentReviewSnapshot } from './ZavorthAgentReviewService.js';
 import { ZavorthProviderModelCatalogService } from './ZavorthProviderModelCatalogService.js';
 import { ZavorthSkillCuratorLiveLoopService } from './ZavorthSkillCuratorLiveLoopService.js';
-import { TelegramDailyAssistantService } from '../gateways/channels/telegram/TelegramDailyAssistantService.js';
-import type { UniversalAgentRun, ZavorthAgentGateway } from '../runtime/agent/index.js';
+import type { UniversalAgentRun } from '../runtime/agent/index.js';
 
 export const ZAVORTH_DAILY_USE_SCENARIO_TEST_CONTRACT_VERSION =
   'zavorth-daily-use-scenario-test/1' as const;
+
+export type DailyAssistantServiceLike = {
+  handleTask(input: {
+    text: string;
+    userId: string;
+    sessionId: string;
+    workspace: string | null;
+  }): Promise<{
+    handled: boolean;
+    receipt: {
+      id: string;
+      runId: string | null;
+      receiptReturnedToTelegram: boolean;
+      externalMutationBeforeApproval: boolean;
+      replayCommand: string | null;
+    };
+  }>;
+};
 
 export type ZavorthDailyUseScenarioId =
   | 'faculdade-documentos'
@@ -80,7 +97,7 @@ type Runtime = {
   skillCurator?: Pick<ZavorthSkillCuratorLiveLoopService, 'buildSnapshot'>;
   agentReview?: Pick<ZavorthAgentReviewService, 'run'>;
   swarm?: Pick<SwarmV2Service, 'launchOfficialSwarm'>;
-  telegram?: TelegramDailyAssistantService | null;
+  telegram?: DailyAssistantServiceLike | null;
 };
 
 export class ZavorthDailyUseScenarioTestService {
@@ -90,7 +107,7 @@ export class ZavorthDailyUseScenarioTestService {
   private readonly skillCurator: Pick<ZavorthSkillCuratorLiveLoopService, 'buildSnapshot'>;
   private readonly agentReview: Pick<ZavorthAgentReviewService, 'run'>;
   private readonly swarm: Pick<SwarmV2Service, 'launchOfficialSwarm'>;
-  private readonly telegram: TelegramDailyAssistantService;
+  private readonly telegram: DailyAssistantServiceLike;
 
   public constructor(runtime: Runtime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -384,35 +401,27 @@ export class ZavorthDailyUseScenarioTestService {
       })));
   }
 
-  private createTelegramDryRun(): TelegramDailyAssistantService {
-    const runs: UniversalAgentRun[] = [];
-    const gateway = {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      handle: async (request: any) => {
+  private createTelegramDryRun(): DailyAssistantServiceLike {
+    return {
+      handleTask: async (input) => {
         const run = createDryRunRun({
-          text: request.text,
-          sessionId: request.sessionId,
-          userId: request.userId,
+          text: input.text,
+          sessionId: input.sessionId,
+          userId: input.userId,
           generatedAt: this.now().toISOString(),
         });
-        runs.push(run);
         return {
-          run,
-          replies: [{
-            text: 'I am monitoring here. There is no pending approval in this dryRun; if something sensitive appears, I will request confirmation first.',
-          }],
+          handled: true,
+          receipt: {
+            id: `dry-run-${run.id}`,
+            runId: run.id,
+            receiptReturnedToTelegram: true,
+            externalMutationBeforeApproval: false,
+            replayCommand: null,
+          },
         };
       },
-      buildSnapshot: () => ({ runs }),
-      resolveApprovalIntent: async () => ({
-        resolution: { status: 'not_approval_intent' },
-        result: null,
-      }),
     };
-    return new TelegramDailyAssistantService({
-      agentGateway: gateway as unknown as Pick<ZavorthAgentGateway, 'handle' | 'buildSnapshot' | 'resolveApprovalIntent'>,
-      now: this.now,
-    });
   }
 }
 

@@ -173,6 +173,10 @@ export class ApprovalCoordinator {
     this.nowMs = nowMs;
   }
 
+  public getGatewayPort(): ApprovalCoordinatorGatewayPort {
+    return this.gatewayPort;
+  }
+
   /**
    * Registers a pending approval for duplicate-request coalescing. Identical
    * concurrent requests inside one chat session (same title/tool identity and

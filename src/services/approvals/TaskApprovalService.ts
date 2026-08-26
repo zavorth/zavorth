@@ -344,7 +344,7 @@ export class TaskApprovalService {
       });
     } catch (error: unknown) {
       // telemetry should never block approval handling
-      logger.warn('[Telegram Task Approval] load operation failed', error);
+      logger.warn('[TaskApproval] telemetry recording failed', error);
     }
   }
 

@@ -12,6 +12,7 @@ export type SurfaceTask = {
   status: string;
   title?: string;
   chatId?: string;
+  // Index signature required: actual runtime objects carry dynamic Task properties (workspace, executor_used, summary, etc.)
   [key: string]: unknown;
 };
 
@@ -19,6 +20,7 @@ export type SurfaceTask = {
 export type ParsedSurfaceMessage = {
   type: string;
   intent?: string;
+  // Index signature required: parsers may attach dynamic properties (command_type, command_args, etc.)
   [key: string]: unknown;
 };
 
@@ -28,6 +30,7 @@ export type SurfaceControllerContext = {
   chatId?: string;
   platform?: MessageChannel;
   tenant?: TenantContext | null;
+  // Index signature required: arbitrary objects are cast to this type via `as unknown as SurfaceControllerContext`
   [key: string]: unknown;
 };
 
@@ -35,6 +38,7 @@ export type SurfaceControllerContext = {
 export type WorkflowRunServiceLike = {
   startRun?(input: unknown): Promise<unknown>;
   getRun?(runId: string): Promise<unknown>;
+  // Index signature required: duck-typed service implementations may expose additional methods
   [key: string]: unknown;
 };
 

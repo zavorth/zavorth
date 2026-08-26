@@ -22,6 +22,7 @@ import {
 } from '../adapters/channels/index.js';
 import { ZavorthGatewayService } from '../services/ZavorthGatewayService.js';
 import { ToolRuntimeDecisionPort } from '../services/approvals/ports/ToolRuntimeDecisionPort.js';
+import { AgentRunDecisionPort } from '../services/approvals/ports/AgentRunDecisionPort.js';
 
 import { GoalLoopStatusProjectionService } from '../services/GoalLoopStatusProjectionService.js';
 import type { BroadcastCapableGateway } from '../services/ZavorthChannelActionService.js';
@@ -132,6 +133,10 @@ export function composeSurfaceRuntime(
   surfaceDecisionSpine.registerDecisionPort(
     'tool-runtime',
     new ToolRuntimeDecisionPort(botGateway.getEchoApprovalController()),
+  );
+  surfaceDecisionSpine.registerDecisionPort(
+    'agent-run',
+    new AgentRunDecisionPort(surfaceDecisionSpine.getGatewayPort()),
   );
   const sharedSurfaceCommandService = new SharedSurfaceCommandService({
     runtimeDiagnostics: sharedRuntimeDiagnostics,

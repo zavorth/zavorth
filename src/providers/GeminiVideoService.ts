@@ -8,6 +8,8 @@ const INLINE_MEDIA_LIMIT_BYTES = 20 * 1024 * 1024;
 const FILE_ACTIVE_POLL_INTERVAL_MS = 5000;
 const FILE_ACTIVE_TIMEOUT_MS = 5 * 60 * 1000;
 
+const DEFAULT_LANGUAGE_INSTRUCTION = 'Respond in Markdown';
+
 export interface GeminiVideoAnalysis {
   analysisText: string;
   source: string;
@@ -32,6 +34,7 @@ export interface GeminiVideoServiceOptions {
   apiKey?: string;
   apiBaseUrl?: string;
   model?: string;
+  languageInstruction?: string;
   fetchImpl?: typeof fetch;
 }
 
@@ -39,12 +42,14 @@ export class GeminiVideoService {
   private readonly apiKey: string;
   private readonly apiBaseUrl: string;
   private readonly model: string;
+  private readonly languageInstruction: string;
   private readonly fetchImpl?: typeof fetch;
 
   constructor(options: GeminiVideoServiceOptions = {}) {
     this.apiKey = options.apiKey ?? config.geminiApiKey ?? '';
     this.apiBaseUrl = String(options.apiBaseUrl || GEMINI_API_BASE).trim().replace(/\/+$/, '');
     this.model = options.model ?? config.geminiVideoModel ?? '';
+    this.languageInstruction = options.languageInstruction || DEFAULT_LANGUAGE_INSTRUCTION;
     this.fetchImpl = options.fetchImpl;
   }
 
@@ -199,7 +204,7 @@ export class GeminiVideoService {
       'Analyze this video to serve as a basis for subsequent conversation.',
       titleLine,
       `Material source: ${sourceLabel}.`,
-      'Respond in Brazilian Portuguese, in Markdown, with the following sections:',
+      `${this.languageInstruction}, with the following sections:`,
       '1. Executive summary',
       '2. Key points',
       '3. Timeline with important timestamps',
@@ -219,7 +224,7 @@ export class GeminiVideoService {
       'Analyze this audio extracted from a video to serve as a basis for subsequent conversation.',
       titleLine,
       `Material source: ${sourceLabel}.`,
-      'Respond in Brazilian Portuguese, in Markdown, with the following sections:',
+      `${this.languageInstruction}, with the following sections:`,
       '1. Executive summary',
       '2. Approximate structured transcription of what is understandable',
       '3. Key points',
@@ -245,7 +250,7 @@ export class GeminiVideoService {
       'Transcribe this audio faithfully to serve as a textual reference for later consultation.',
       titleLine,
       `Material source: ${sourceLabel}.`,
-      'Respond in Brazilian Portuguese, in Markdown.',
+      `${this.languageInstruction}.`,
       'Prioritize literal transcription or as close as possible to what was said, without summarizing the content.',
       'Include approximate timestamps at subject change points or at each relevant block, when possible.',
       'Preserve proper names, technical terms, numbers, and factual data.',
@@ -270,7 +275,7 @@ export class GeminiVideoService {
       'You are summarizing a set of excerpts from a long video, podcast, or documentary.',
       titleLine,
       `This is batch ${batchIndex} of ${totalBatches}.`,
-      'Respond in Brazilian Portuguese, in Markdown, with the following sections:',
+      `${this.languageInstruction}, with the following sections:`,
       '1. Batch summary',
       '2. Key points of the batch',
       '3. Approximate timeline of the batch',
@@ -288,7 +293,7 @@ export class GeminiVideoService {
     return [
       'You will consolidate partial summaries from a long video, podcast, or documentary.',
       titleLine,
-      'Respond in Brazilian Portuguese, in Markdown, with the following sections:',
+      `${this.languageInstruction}, with the following sections:`,
       '1. Executive summary',
       '2. Key points',
       '3. Approximate timeline',

@@ -1,5 +1,4 @@
 import type { Context } from 'grammy';
-import type { TelegramEchoApprovalController } from '../../../gateways/channels/telegram/controllers/TelegramToolRuntimeApprovalController.js';
 import type { SurfaceDecisionReceipt } from '../SurfaceDecisionContract.js';
 import {
   createCaptureReplyIO,
@@ -10,10 +9,15 @@ import {
   type SurfaceDecisionPortDecideRawInput,
 } from '../SurfaceDecisionPort.js';
 
-export type ToolRuntimeDecisionEngine = Pick<
-  TelegramEchoApprovalController,
-  'handleEchoCommand'
->;
+function assertEngineContext(context: unknown): asserts context is Context {
+  if (!context || typeof (context as Record<string, unknown>).reply !== 'function') {
+    throw new Error('Invalid engine context: missing reply()');
+  }
+}
+
+export type ToolRuntimeDecisionEngine = {
+  handleEchoCommand: (ctx: Context, args: string) => Promise<void>;
+};
 
 export type ToolRuntimeDecisionPortOptions = {
   /**
@@ -109,11 +113,9 @@ export class ToolRuntimeDecisionPort implements SurfaceDecisionPort {
     };
   }
 
-  // Single documented seam: the legacy engine is typed against grammy Context,
-  // while the universal contract only guarantees actor/chat hints; the capture
-  // harness satisfies the engine structurally at runtime.
   private asEngineContext(context: unknown): Context {
-    return context as Context;
+    assertEngineContext(context);
+    return context;
   }
 
   private buildLegacyContext(

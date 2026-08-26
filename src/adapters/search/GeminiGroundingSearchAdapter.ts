@@ -42,7 +42,10 @@ export class GeminiGroundingSearchAdapter implements ISearchAdapter {
   private keyRotationKeys: string[] | null = null;
 
   public async isAvailable(): Promise<boolean> {
-    return true;
+    const keys = config.geminiApiKeys?.length > 0
+      ? config.geminiApiKeys
+      : [config.geminiApiKey].filter(Boolean);
+    return keys.length > 0;
   }
 
   public async search(request: SearchQueryRequest, _intent: SemanticIntent): Promise<AdapterSearchOutput> {
@@ -66,7 +69,11 @@ export class GeminiGroundingSearchAdapter implements ISearchAdapter {
           const err = asErrorLike(error);
           logger.warn(`[GeminiGroundingSearchAdapter] Key failed: ${err instanceof Error ? err.message : String(err)}`);
         },
-        exhaustionError: () => new GroundingAdapterError(this.adapterId, 'All Gemini keys failed during grounding search.'),
+        exhaustionError: (lastError) => {
+          const err = asErrorLike(lastError);
+          logger.warn(`[GeminiGroundingSearchAdapter] All keys exhausted: ${err instanceof Error ? err.message : String(err)}`);
+          return new GroundingAdapterError(this.adapterId, 'All Gemini keys failed during grounding search.');
+        },
       },
     );
   }

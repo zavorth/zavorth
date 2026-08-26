@@ -1,11 +1,21 @@
 import type { PermissionRequest, PermissionScope } from '../../contracts/PermissionRequest.js';
-import type { TelegramPermissionApprovalPatch } from '../../gateways/channels/telegram/controllers/TelegramPermissionDecisionService.js';
+import type { PermissionMetadataValue } from '../PermissionService.js';
 import {
   renderPlainSurfaceResponse,
   type SurfaceResponse,
   type SurfaceResponseAction,
 } from '../../domain/surface/application/surface-response/index.js';
 import type { SurfaceDecisionChoice } from './SurfaceDecisionContract.js';
+
+export type PermissionApprovalPatch = {
+  scope?: PermissionScope;
+  workspace?: string | null;
+  requested_value?: string | null;
+  resolved_value?: string | null;
+  reason?: string;
+  decision_note?: string | null;
+  metadata?: Record<string, PermissionMetadataValue>;
+};
 
 export const INLINE_PERMISSION_REJECTION_NOTE = 'Inline rejection from Telegram.';
 
@@ -32,7 +42,7 @@ export type HeadlessPermissionDecisionServiceDeps = {
   approveRequest: (
     permissionId: string,
     decidedBy: string | null,
-    patch: TelegramPermissionApprovalPatch,
+    patch: PermissionApprovalPatch,
   ) => Promise<PermissionRequest>;
   rejectRequest: (
     permissionId: string,
@@ -60,8 +70,8 @@ export function buildPermissionApprovalPatch(input: {
   scopeWord: string | null;
   normalizeScope: (value: string) => PermissionScope;
   externalExecutorAgentId: string | null | undefined;
-}): TelegramPermissionApprovalPatch {
-  const patch: TelegramPermissionApprovalPatch = {};
+}): PermissionApprovalPatch {
+  const patch: PermissionApprovalPatch = {};
   if (input.scopeWord) {
     patch.scope = input.normalizeScope(input.scopeWord);
   }

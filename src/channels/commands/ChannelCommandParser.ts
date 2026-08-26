@@ -6,6 +6,7 @@ export interface ParsedCommand {
   normalized_message: string;
   explicit_executor: string | null;
   references_last_task: boolean;
+  /** Initialized null; populated downstream by workspace command resolution. */
   workspace_command_name?: string | null;
 }
 

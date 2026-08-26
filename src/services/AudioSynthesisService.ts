@@ -174,9 +174,9 @@ export class AudioSynthesisService {
       provider: lastGeminiError ? 'gemini' : 'edge-tts',
       inputChars: cleanText.length,
       latencyMs: Date.now() - ttsStartedAt,
-      requestedBy: 'telegram-bot',
+      requestedBy: options.requestedBy || 'system',
       traceId: traceId || null,
-      surface: options.surface || 'telegram',
+      surface: options.surface || 'unknown',
       sessionId: options.sessionId || null,
       fallbackFrom: capabilityError ? 'edge-tts' : null,
       error: lastGeminiError?.message || capabilityError?.message || 'Failed to synthesize audio.',
@@ -294,7 +294,10 @@ export class AudioSynthesisService {
       return '';
     }
     const lower = normalized.toLowerCase();
-    if (lower === 'portuguese' || lower === 'pt') return 'en-US';
+    if (lower === 'portuguese' || lower === 'pt') {
+      logger.warn('[AudioSynthesis] Language "pt" not supported, falling back to "en-US"');
+      return 'en-US';
+    }
     if (lower === 'english' || lower === 'en') return 'en';
     if (lower === 'spanish' || lower === 'es') return 'es';
     return normalized;
@@ -346,7 +349,7 @@ export class AudioSynthesisService {
 
     const outputBytes = fs.statSync(outputFile).size;
     await this.recordVoiceSuccess({
-      surface: options.surface || 'telegram',
+      surface: options.surface || 'unknown',
       provider: 'edge-tts',
       model: voice,
       voiceName: voice,
@@ -356,7 +359,7 @@ export class AudioSynthesisService {
       mimeType: 'audio/mpeg',
       outputBytes,
       estimatedCostUsd: 0,
-      requestedBy: options.requestedBy || 'telegram-bot',
+      requestedBy: options.requestedBy || 'system',
       sessionId: options.sessionId || null,
       traceId: options.traceId || null,
     });
@@ -387,7 +390,7 @@ export class AudioSynthesisService {
       );
       if (detailed?.filePath && fs.existsSync(detailed.filePath)) {
         await this.recordVoiceSuccess({
-          surface: options.surface || 'telegram',
+          surface: options.surface || 'unknown',
           provider: 'gemini',
           model: detailed.model,
           voiceName: detailed.voiceName,
@@ -398,7 +401,7 @@ export class AudioSynthesisService {
           outputBytes: detailed.outputBytes,
           estimatedCostUsd: estimateGeminiTtsCostUsd(detailed.inputChars),
           fallbackFrom,
-          requestedBy: options.requestedBy || 'telegram-bot',
+          requestedBy: options.requestedBy || 'system',
           sessionId: options.sessionId || null,
           traceId: options.traceId || null,
         });
@@ -425,7 +428,7 @@ export class AudioSynthesisService {
     if (geminiAudio && fs.existsSync(geminiAudio)) {
       const outputBytes = fs.statSync(geminiAudio).size;
       await this.recordVoiceSuccess({
-        surface: options.surface || 'telegram',
+        surface: options.surface || 'unknown',
         provider: 'gemini',
         inputChars: cleanText.length,
         latencyMs: 0,
@@ -433,7 +436,7 @@ export class AudioSynthesisService {
         outputBytes,
         estimatedCostUsd: estimateGeminiTtsCostUsd(cleanText.length),
         fallbackFrom,
-        requestedBy: options.requestedBy || 'telegram-bot',
+        requestedBy: options.requestedBy || 'system',
         sessionId: options.sessionId || null,
         traceId: options.traceId || null,
       });

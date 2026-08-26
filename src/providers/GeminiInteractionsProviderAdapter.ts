@@ -1,5 +1,6 @@
 import { config } from '../config/index.js';
 import { safeFetch, readSafeJsonResponse } from '../security/SafeFetchService.js';
+import { logger } from '../logger.js';
 import type {
   ChatMessage,
   ILlmProvider,
@@ -87,7 +88,10 @@ export class GeminiInteractionsProviderAdapter implements ILlmProvider {
       body: JSON.stringify(payload),
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const body = await readSafeJsonResponse<any>(response, 'Gemini Interactions API').catch(() => null);
+    const body = await readSafeJsonResponse<any>(response, 'Gemini Interactions API').catch((err) => {
+      logger.warn('[Gemini Interactions API] Failed to parse response body', err);
+      return null;
+    });
     if (!response.ok) {
       const detail = body?.error?.message || body?.message || `HTTP ${response.status}`;
       throw new Error(`Gemini Interactions API error: ${detail}`);

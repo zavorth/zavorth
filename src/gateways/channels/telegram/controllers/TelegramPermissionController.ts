@@ -195,6 +195,19 @@ export class TelegramPermissionController {
       .map((task) => task.task_id);
   }
 
+  private listPendingPermissionRefs(): string[] {
+    const recent = this.deps.taskManager.getRecentTasks?.(50) ?? [];
+    return recent
+      .filter(
+        (task) =>
+          String(task.metadata?.pendingPermissionId || '').trim() !== '' &&
+          (String(task.approval_status || '') === 'pending' ||
+            String(task.status || '') === 'waiting_approval'),
+      )
+      .map((task) => String(task.metadata?.pendingPermissionId || '').trim())
+      .filter(Boolean);
+  }
+
   private buildDefaultDecisionSpine(): SurfaceDecisionSpine {
     const spine = new SurfaceDecisionSpine({
       coordinator: new ApprovalCoordinator(createPassiveApprovalGateway()),
@@ -217,7 +230,9 @@ export class TelegramPermissionController {
           scopeWord: surfaceChoiceToPermissionScopeWord(scope),
           actorId: actorId ?? '',
         });
-        return outcome.receiptText;
+        return { resolved: outcome.resolved, receiptText: outcome.receiptText };
+      }, {
+        pendingRefs: () => this.listPendingPermissionRefs(),
       }),
     );
     return spine;

@@ -1,7 +1,6 @@
 import { logger } from '../logger.js';
 import { config } from '../config/index.js';
 import type { AudioSynthesisOptions } from './AudioSynthesisService.js';
-import { logEchoTrace } from '../gateways/channels/telegram/EchoTrace.js';
 import { asErrorLike } from '../utils/errorLike.js';
 import { getVoicePreferenceService } from './voice/VoicePreferenceService.js';
 import { resolveVoiceTts, shouldAttemptPreferenceTts } from './voice/VoiceTtsPolicy.js';
@@ -52,6 +51,7 @@ export type EchoOutputStageResult = {
 type EchoOutputStageDeps = {
   audioHandler?: EchoOutputStageAudioHandler | null;
   preferenceStore?: EchoOutputStagePreferenceStore | null;
+  logTrace?: (traceId: string, phase: string, details: Record<string, unknown>) => void;
 };
 
 /**
@@ -61,7 +61,11 @@ type EchoOutputStageDeps = {
  * and this output stage decides whether a reply should become voice or remain text.
  */
 export class EchoOutputStageService {
-  constructor(private readonly deps: EchoOutputStageDeps = {}) {}
+  private readonly logTrace: (traceId: string, phase: string, details: Record<string, unknown>) => void;
+
+  constructor(private readonly deps: EchoOutputStageDeps = {}) {
+    this.logTrace = deps.logTrace ?? defaultLogTrace;
+  }
 
   public async deliver(request: EchoOutputStageRequest): Promise<EchoOutputStageResult> {
     const text = String(request.text || '').trim();
@@ -155,7 +159,7 @@ export class EchoOutputStageService {
       const ttsStartedAt = Date.now();
 
       if (traceId) {
-        logEchoTrace(traceId, 'tts.started', {
+        this.logTrace(traceId, 'tts.started', {
           taskId: request.taskId || null,
           chars: spokenText.length,
           preferredLanguageCode,
@@ -212,7 +216,7 @@ export class EchoOutputStageService {
           source: usePreferenceTts ? 'voice_preference' : 'legacy_echo',
         });
         if (traceId) {
-          logEchoTrace(traceId, 'voice.send.completed', {
+          this.logTrace(traceId, 'voice.send.completed', {
             taskId: request.taskId || null,
             surface: request.surface,
             ttsMs: ttsLatencyMs,
@@ -242,7 +246,7 @@ export class EchoOutputStageService {
         source: 'echo_output_stage',
       });
       if (request.traceId) {
-        logEchoTrace(request.traceId, 'voice.send.failed', {
+        this.logTrace(request.traceId, 'voice.send.failed', {
           taskId: request.taskId || null,
           surface: request.surface,
           error: message,
@@ -325,3 +329,25 @@ export class EchoOutputStageService {
 }
 
 export { EchoOutputStageService as OutputStageService };
+
+function defaultLogTrace(traceId: string, phase: string, details: Record<string, unknown>): void {
+  const suffix = Object.entries(details)
+    .filter(([, value]) => value !== undefined && value !== null && value !== '')
+    .map(([key, value]) => `${key}=${formatTraceValue(value)}`)
+    .join(' ');
+  logger.info(`[EchoTrace] trace=${traceId} phase=${phase}${suffix ? ` ${suffix}` : ''}`);
+}
+
+function formatTraceValue(value: unknown): string {
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  if (typeof value === 'string') {
+    const normalized = value.replace(/\s+/g, ' ').trim();
+    if (!normalized) {
+      return '""';
+    }
+    return /[\s=]/.test(normalized) ? JSON.stringify(normalized) : normalized;
+  }
+  return JSON.stringify(value);
+}

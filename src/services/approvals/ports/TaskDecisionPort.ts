@@ -9,6 +9,12 @@ import {
   type SurfaceDecisionPortDecideRawInput,
 } from '../SurfaceDecisionPort.js';
 
+function assertTaskDecisionContext(context: unknown): asserts context is TaskDecisionContext {
+  if (!context || typeof (context as Record<string, unknown>).reply !== 'function') {
+    throw new Error('Invalid task decision context: missing reply()');
+  }
+}
+
 export type TaskDecisionEngine = Pick<
   TaskApprovalService,
   'handleApproval' | 'handleRejection'
@@ -68,7 +74,8 @@ export class TaskDecisionPort implements SurfaceDecisionPort {
 
   public async decide(input: SurfaceDecisionPortDecideInput): Promise<SurfaceDecisionReceipt> {
     if (input.transportContext != null) {
-      const nativeContext = input.transportContext as TaskDecisionContext;
+      assertTaskDecisionContext(input.transportContext);
+      const nativeContext = input.transportContext;
       if (input.choice === 'deny') {
         await this.engine.handleRejection(nativeContext, input.ref);
       } else {
@@ -90,7 +97,8 @@ export class TaskDecisionPort implements SurfaceDecisionPort {
 
   public async decideRaw(input: SurfaceDecisionPortDecideRawInput): Promise<SurfaceDecisionReceipt> {
     if (input.transportContext != null) {
-      await this.engine.handleApproval(input.transportContext as TaskDecisionContext, input.rawArgs);
+      assertTaskDecisionContext(input.transportContext);
+      await this.engine.handleApproval(input.transportContext, input.rawArgs);
       return UNTEXTED_RECEIPT;
     }
 

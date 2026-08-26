@@ -86,7 +86,7 @@ describe('AudioSynthesisService', () => {
     expect(voiceTelemetryService.recordSuccess).toHaveBeenCalledWith(expect.objectContaining({
       provider: 'edge-tts',
       surface: 'telegram',
-      requestedBy: 'telegram-bot',
+      requestedBy: 'system',
       mimeType: 'audio/mpeg',
     }));
   });
@@ -269,13 +269,13 @@ describe('AudioSynthesisService', () => {
 
     expect(output).toBe(geminiFile);
     expect(voiceTelemetryService.recordSuccess).toHaveBeenCalledWith(expect.objectContaining({
-      surface: 'telegram',
+      surface: 'unknown',
       provider: 'gemini',
       mimeType: 'audio/wav',
       inputChars: 'Plain gemini telemetry payload.'.length,
       latencyMs: 0,
       fallbackFrom: null,
-      requestedBy: 'telegram-bot',
+      requestedBy: 'system',
       sessionId: 'session-77',
       traceId: null,
     }));

@@ -121,7 +121,10 @@ export class GeminiVoiceService {
       }),
     });
 
-    const body = await readSafeJsonResponse<GeminiVoiceResponseBody>(response, 'Gemini Voice Service').catch(() => null);
+    const body = await readSafeJsonResponse<GeminiVoiceResponseBody>(response, 'Gemini Voice Service').catch((err) => {
+      logger.warn('[Gemini Voice Service] Failed to parse response body', err);
+      return null;
+    });
     if (!response.ok) {
       const message =
         body?.error?.message

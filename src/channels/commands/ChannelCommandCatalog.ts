@@ -643,22 +643,6 @@ const STATIC_COMMAND_CATALOG: CommandCatalogEntry[] = [
     groupMenu: true,
   },
   {
-    command: 'teams',
-    description: 'Composed workflows and availability by surface.',
-    section: 'monitoring',
-    usage: '[id]',
-    privateMenu: true,
-    groupMenu: false,
-  },
-  {
-    command: 'tenants',
-    description: 'Governance, onboarding, and allowlists by tenant.',
-    section: 'monitoring',
-    usage: '[tenant|surface]|run <tenantId> <actionId>',
-    privateMenu: true,
-    groupMenu: false,
-  },
-  {
     command: 'trust',
     description: 'Trust Plane with MCP, skills, plugins, and supervised runtime.',
     section: 'monitoring',

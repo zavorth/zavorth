@@ -1,21 +1,20 @@
-import type { Context } from 'grammy';
 import type { ParsedCommand } from '../../../../channels/commands/ChannelCommandParser.js';
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 
-export type SurfaceOpsIO = {
-  reply(text: string): Promise<unknown>;
-  userId?: string;
-  chatId?: string;
+export type SharedOpsContext = {
+  reply(text: string, options?: unknown): Promise<unknown>;
+  from?: { id?: number | string };
+  chat?: { id?: number | string };
 };
 
 export type SharedSurfaceOpsPort = {
-  handleStatus: (ctx: Context) => Promise<void>;
-  handleModels: (ctx: Context) => Promise<void>;
-  handleAudit: (ctx: Context, args: string) => Promise<void>;
-  handleChanges: (ctx: Context) => Promise<void>;
-  handleReadiness: (ctx: Context) => Promise<void>;
-  handleZavorthControl: (ctx: Context) => Promise<void>;
-  handleDashboard: (ctx: Context) => Promise<void>;
+  handleStatus(ctx: SharedOpsContext): Promise<void>;
+  handleModels(ctx: SharedOpsContext): Promise<void>;
+  handleAudit(ctx: SharedOpsContext, args: string): Promise<void>;
+  handleChanges(ctx: SharedOpsContext): Promise<void>;
+  handleReadiness(ctx: SharedOpsContext): Promise<void>;
+  handleZavorthControl(ctx: SharedOpsContext): Promise<void>;
+  handleDashboard(ctx: SharedOpsContext): Promise<void>;
 };
 
 export type SharedSurfaceOpsCommandPackDeps = {
@@ -41,34 +40,33 @@ export class SharedSurfaceOpsCommandPack {
       return false;
     }
 
-    const sharedIo: SurfaceOpsIO = {
-      reply: (text: string) => input.context.reply(text),
-      userId: input.context.userId,
-      chatId: input.context.chatId,
+    const sharedCtx: SharedOpsContext = {
+      reply: (text: string, options?: unknown) => input.context.reply(text, options),
+      from: input.context.userId ? { id: input.context.userId } : undefined,
+      chat: input.context.chatId ? { id: input.context.chatId } : undefined,
     };
-    const grammyContextSeam = sharedIo as unknown as Context;
 
     switch (commandType) {
       case '/status':
-        await this.deps.opsController.handleStatus(grammyContextSeam);
+        await this.deps.opsController.handleStatus(sharedCtx);
         return true;
       case '/models':
-        await this.deps.opsController.handleModels(grammyContextSeam);
+        await this.deps.opsController.handleModels(sharedCtx);
         return true;
       case '/audit':
-        await this.deps.opsController.handleAudit(grammyContextSeam, String(input.parsedCommand.command_args || ''));
+        await this.deps.opsController.handleAudit(sharedCtx, String(input.parsedCommand.command_args || ''));
         return true;
       case '/changes':
-        await this.deps.opsController.handleChanges(grammyContextSeam);
+        await this.deps.opsController.handleChanges(sharedCtx);
         return true;
       case '/readiness':
-        await this.deps.opsController.handleReadiness(grammyContextSeam);
+        await this.deps.opsController.handleReadiness(sharedCtx);
         return true;
       case '/zavorthControl':
-        await this.deps.opsController.handleZavorthControl(grammyContextSeam);
+        await this.deps.opsController.handleZavorthControl(sharedCtx);
         return true;
       case '/dashboard':
-        await this.deps.opsController.handleDashboard(grammyContextSeam);
+        await this.deps.opsController.handleDashboard(sharedCtx);
         return true;
       default:
         return false;

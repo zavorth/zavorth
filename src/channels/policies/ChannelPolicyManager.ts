@@ -513,7 +513,7 @@ function buildDefaultPolicies(env: NodeJS.ProcessEnv, now: () => Date): Record<s
     whatsapp: {
       channelId: 'whatsapp',
       isOpenAccess: false,
-      allowedList: parseIdentifierList(env.ZAVORTH_CHANNEL_POLICY_WHATSAPP_ALLOWED || '+5511999999999'),
+      allowedList: parseIdentifierList(env.ZAVORTH_CHANNEL_POLICY_WHATSAPP_ALLOWED || 'REPLACE_WITH_ACTUAL_NUMBER'),
       blockedList: parseIdentifierList(env.ZAVORTH_CHANNEL_POLICY_WHATSAPP_BLOCKED),
       updatedAt: timestamp,
     },
@@ -668,7 +668,7 @@ function summarizePolicy(policy: ChannelAccessPolicy): ChannelPolicySummary {
         allowedCount,
         blockedCount,
         summary: blockedCount > 0
-          ? `Channel aberto com ${blockedCount} block(s) explicit(s).`
+          ? `Channel open with ${blockedCount} explicit block(s).`
           : 'Channel open for identities authorized by the provider.',
       };
     case 'allowlist':
@@ -678,7 +678,7 @@ function summarizePolicy(policy: ChannelAccessPolicy): ChannelPolicySummary {
         isOpenAccess: false,
         allowedCount,
         blockedCount,
-        summary: `Channel restrito por allowlist com ${allowedCount} identidade(s) permitida(s).`,
+        summary: `Channel restricted by allowlist with ${allowedCount} allowed identity/identities.`,
       };
     case 'mixed':
       return {
@@ -687,7 +687,7 @@ function summarizePolicy(policy: ChannelAccessPolicy): ChannelPolicySummary {
         isOpenAccess: false,
         allowedCount,
         blockedCount,
-        summary: `Channel com allowlist (${allowedCount}) e blocklist (${blockedCount}) explicits.`,
+        summary: `Channel with allowlist (${allowedCount}) and blocklist (${blockedCount}) explicit entries.`,
       };
     case 'blocked-only':
       return {
@@ -696,7 +696,7 @@ function summarizePolicy(policy: ChannelAccessPolicy): ChannelPolicySummary {
         isOpenAccess: false,
         allowedCount,
         blockedCount,
-        summary: `Channel closed com ${blockedCount} block(s) explicit(s) e without allowlist ready.`,
+        summary: `Channel closed with ${blockedCount} explicit block(s) and no allowlist.`,
       };
     default:
       return {

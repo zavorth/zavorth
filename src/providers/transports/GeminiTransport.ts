@@ -45,6 +45,7 @@ interface GeminiStreamState {
   chunkIndex: number;
   finishReason: string;
   toolCalls: ToolCall[];
+  toolCallIds: Map<number, string>;
   finalMetadata: Record<string, unknown> | undefined;
 }
 
@@ -170,6 +171,7 @@ export class GeminiTransport implements TransportAdapter {
       chunkIndex: 0,
       finishReason: 'stop',
       toolCalls: [],
+      toolCallIds: new Map(),
       finalMetadata: undefined,
     };
 
@@ -194,6 +196,7 @@ export class GeminiTransport implements TransportAdapter {
         state.chunkIndex = 0;
         state.finishReason = 'stop';
         state.toolCalls = [];
+        state.toolCallIds = new Map();
         state.finalMetadata = undefined;
 
         return result.stream;
@@ -229,17 +232,20 @@ export class GeminiTransport implements TransportAdapter {
             });
           }
           if (part?.functionCall) {
+            const toolCallId = `call_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
             const toolCall: ToolCall = {
-              id: `call_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+              id: toolCallId,
               name: part.functionCall.name,
               arguments: (part.functionCall.args || {}) as Record<string, unknown>,
             };
+            const index = state.toolCalls.length;
             state.toolCalls.push(toolCall);
+            state.toolCallIds.set(index, toolCallId);
             events.push({
               type: 'tool_call_delta',
               toolCallDelta: {
-                index: state.toolCalls.length - 1,
-                id: toolCall.id,
+                index,
+                id: toolCallId,
                 name: toolCall.name,
                 arguments: JSON.stringify(toolCall.arguments),
               },
@@ -279,6 +285,7 @@ export class GeminiTransport implements TransportAdapter {
     const finalResponse = await this.resolveGeminiStreamResponse(result, {
       accumulated: state.accumulated,
       toolCalls: state.toolCalls,
+      toolCallIds: state.toolCallIds,
       finishReason: state.finishReason,
       metadata: state.finalMetadata,
       options,
@@ -300,6 +307,7 @@ export class GeminiTransport implements TransportAdapter {
     fallback: {
       accumulated: string;
       toolCalls: ToolCall[];
+      toolCallIds: Map<number, string>;
       finishReason: string;
       metadata?: Record<string, unknown>;
       options?: ProviderChatOptions;
@@ -323,16 +331,19 @@ export class GeminiTransport implements TransportAdapter {
 
       const toolCalls: ToolCall[] = [];
       let textContent = '';
+      let functionCallIndex = 0;
       for (const part of candidate.content?.parts || []) {
         if (part?.text) {
           textContent += part.text;
         }
         if (part?.functionCall) {
+          const cachedId = fallback.toolCallIds.get(functionCallIndex);
           toolCalls.push({
-            id: `call_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+            id: cachedId || `call_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
             name: part.functionCall.name,
             arguments: (part.functionCall.args || {}) as Record<string, unknown>,
           });
+          functionCallIndex++;
         }
       }
 

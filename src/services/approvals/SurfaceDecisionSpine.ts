@@ -1,5 +1,6 @@
 import {
   type ApprovalCoordinator,
+  type ApprovalCoordinatorGatewayPort,
   type ApprovalPresenterDismissal,
 } from './ApprovalCoordinator.js';
 import type { AgentPermissionService } from '../permission/AgentPermissionService.js';
@@ -29,7 +30,7 @@ export type SurfaceDecisionPendingEntry = {
 };
 
 type SurfaceDecisionSpineOptions = {
-  coordinator: Pick<ApprovalCoordinator, 'registerPendingApproval' | 'collectPresenterDismissals'> &
+  coordinator: Pick<ApprovalCoordinator, 'registerPendingApproval' | 'collectPresenterDismissals' | 'getGatewayPort'> &
     Partial<Pick<ApprovalCoordinator, 'listPendingMenuRefs'>>;
   scopeMemory: Pick<AgentPermissionService, 'respond' | 'evaluate'>;
   accessGate?: (input: { userId: string | null }) => Promise<{ allowed: boolean; reason?: string }>;
@@ -69,6 +70,10 @@ export class SurfaceDecisionSpine {
     this.scopeMemory = options.scopeMemory;
     this.accessGate = options.accessGate;
     this.smartAdvisor = options.smartAdvisor;
+  }
+
+  public getGatewayPort(): ApprovalCoordinatorGatewayPort {
+    return this.coordinator.getGatewayPort();
   }
 
   public registerDecisionPort(type: SurfaceDecisionType, port: SurfaceDecisionPort): void {
@@ -182,6 +187,13 @@ export class SurfaceDecisionSpine {
     const grouped =
       coalescing.isDuplicate && coalescing.leaderRef !== '' && coalescing.leaderRef !== ref;
 
+    // TOCTOU guard: re-check pending state immediately before deciding.
+    // A concurrent async request for the same ref could have resolved it
+    // between registerPendingApproval and this point. Node.js single-threaded
+    // event loop prevents true parallelism within a synchronous block, but
+    // await boundaries yield the microtask queue. The engine's own idempotency
+    // ensures a duplicate decision is harmless; this guard makes the short-path
+    // explicit rather than relying on that alone.
     if (!port.findPending(ref)) {
       return { resolved: false, receiptText: null, decidedBy: 'operator', dismissals: [] };
     }
