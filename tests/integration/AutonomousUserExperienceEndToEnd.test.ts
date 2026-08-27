@@ -15,7 +15,7 @@ import type { AgentPermissionService } from '../../src/services/permission/Agent
 import type { GatewayEventBus } from '../../src/gateway/events/GatewayEventBus.js';
 import type { ChannelPolicyManager } from '../../src/channels/policies/ChannelPolicyManager.js';
 
-describe('Hermes-Inspired End-to-End User Experience Simulation', () => {
+describe('Autonomous User Experience End-to-End Simulation', () => {
   const testDir = path.join(os.tmpdir(), `zavorth-e2e-user-${Date.now()}`);
 
   beforeAll(() => {
