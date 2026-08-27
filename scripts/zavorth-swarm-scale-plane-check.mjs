@@ -71,7 +71,7 @@ if (!planning.includes('assessSwarmWorkload')) {
   issues.push('AgentRunPlanningFlows.ts must use workload assessment for scale decisions');
 }
 
-const webRoutes = read('src/domain/surface/presentation/web-app/web-app-supervision-route/swarmV2Routes.ts');
+const webRoutes = read('src/domain/surface/presentation/web-app/web-app-supervision-route/zavorthEnsembleRoutes.ts');
 for (const marker of [
   'isSwarmScaleRoute',
   'Swarm Scale Plane',
@@ -80,7 +80,7 @@ for (const marker of [
   'scaleService.resume',
 ]) {
   if (!webRoutes.includes(marker)) {
-    issues.push(`swarmV2Routes.ts missing marker ${marker}`);
+    issues.push(`zavorthEnsembleRoutes.ts missing marker ${marker}`);
   }
 }
 

@@ -162,7 +162,7 @@ export function SwarmMonitor({
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const baseUrl = apiBaseUrl || '/api/web/gateway/swarm-v2';
+  const baseUrl = apiBaseUrl || '/api/web/gateway/zavorth-ensemble';
 
   const currentSwarmId = swarm?.swarmId || null;
 
@@ -297,7 +297,7 @@ export function SwarmMonitor({
     <section style={styles.container}>
       <div style={styles.header}>
         <div>
-          <p style={styles.eyebrow}>Official Swarm v2</p>
+          <p style={styles.eyebrow}>Official Zavorth Ensemble</p>
           <h2 style={styles.title}>Multi-agent execution</h2>
         </div>
         <div style={styles.headerActions}>

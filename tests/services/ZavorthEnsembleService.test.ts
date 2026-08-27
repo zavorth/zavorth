@@ -233,7 +233,7 @@ describe('ExperimentalZavorthEnsembleService', () => {
           }),
         ]),
       }));
-      expect(completed.synthesizedOutput).toMatch(/Ensemble Official Synthesis|Swarm v2 Official Synthesis/i);
+      expect(completed.synthesizedOutput).toMatch(/Zavorth Ensemble Official Synthesis/i);
       expect(replay?.events).toEqual(expect.arrayContaining([
         expect.objectContaining({ type: 'swarm.queued' }),
         expect.objectContaining({ type: 'batch.started' }),
@@ -304,7 +304,7 @@ describe('ExperimentalZavorthEnsembleService', () => {
       expect(completed.synthesizedOutput).toBe('LLM final synthesis with blockers and next steps.');
       expect(llmRuntime.chat).toHaveBeenCalledWith(
         expect.arrayContaining([
-          expect.objectContaining({ content: expect.stringContaining('Zavorth Swarm v2 final synthesizer') }),
+          expect.objectContaining({ content: expect.stringContaining('Zavorth Ensemble final synthesizer') }),
         ]),
         [],
         expect.objectContaining({

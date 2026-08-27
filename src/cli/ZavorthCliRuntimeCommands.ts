@@ -367,7 +367,7 @@ export async function runDynamicWorkflows(rawArgs: string[] = []): Promise<numbe
         '       zavorth workflows preview "<objective>" [options]',
         '       zavorth workflows launch <workflowId> --approval-id <approvalId>',
         '',
-        'Creates a governed wide-work plan: cheap fanout workers, bounded concurrency, cost guard, saved preview and final synthesis through Swarm V2.',
+        'Creates a governed wide-work plan: cheap fanout workers, bounded concurrency, cost guard, saved preview and final synthesis through the Zavorth Ensemble.',
         '',
         'Options:',
         '  --fanout <n>              Number of workers, capped by policy',

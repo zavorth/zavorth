@@ -58,13 +58,13 @@ itself.
 The runtime coordinates tasks, tools, subagents, skills, provider calls,
 workspace operations and scheduled work.
 
-### Official Swarm v2
+### Official Zavorth Ensemble
 
-Swarm v2 is the official multi-agent execution surface for large work. It keeps
+Zavorth Ensemble is the official multi-agent execution surface for large work. It keeps
 Zavorth's normal governance path, but adds a stronger team runtime:
 
-- canonical API: `/api/web/gateway/swarm-v2`;
-- legacy compatibility alias: `/api/web/experimental/swarm-v2`;
+- canonical API: `/api/web/gateway/zavorth-ensemble`;
+- legacy compatibility alias: `/api/web/experimental/zavorth-ensemble`;
 - persistent role library for planner, researcher, implementer, verifier,
   synthesizer, safety reviewer and custom roles;
 - batch queue with bounded concurrency and up to 300 planned roles;
@@ -73,8 +73,8 @@ Zavorth's normal governance path, but adds a stronger team runtime:
   separation and docker/wsl/external-sandbox profiles for stronger hosts;
 - deterministic final synthesis when no LLM synthesis provider is attached.
 
-Use `npm run swarm-v2:check` or the ZavorthControl swarm surface when validating
-multi-agent work interactively. Maintainer CI verifies the official Swarm v2
+Use `npm run zavorth-ensemble:check` or the ZavorthControl swarm surface when validating
+multi-agent work interactively. Maintainer CI verifies the official Zavorth Ensemble
 contract.
 
 ### Memory And Artifact Plane

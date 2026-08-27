@@ -1,12 +1,12 @@
 import { ZavorthExtensionRegistryService } from '../../../src/services/ZavorthExtensionRegistryService.js';
 import { ZavorthRoleRegistryService, defaultRoleDescriptors } from '../../../src/services/ZavorthRoleRegistryService.js';
-import { defaultRoleLibrary, resolveSyncRoleSelection } from '../../../src/agents/swarm-v2/SwarmV2Planner.js';
+import { defaultRoleLibrary, resolveSyncRoleSelection } from '../../../src/agents/ZavorthEnsembleHelpers.js';
 
 describe('ZavorthRoleRegistryService', () => {
   it('publishes all governed compositions through descriptors rather than planner hardcoding', () => {
     const compositions = new Set(defaultRoleDescriptors().map((role) => role.composition));
     expect(compositions).toEqual(new Set(['specialist', 'verifier', 'researcher', 'executor', 'critic', 'observer', 'background', 'tree', 'team', 'swarm', 'kanban']));
-    expect(defaultRoleLibrary().map((role) => role.id)).toEqual(expect.arrayContaining(['planner', 'researcher', 'implementer', 'verifier', 'observer', 'background', 'swarm', 'kanban']));
+    expect(defaultRoleLibrary().map((role) => role.id)).toEqual(expect.arrayContaining(['planner', 'researcher', 'implementer', 'verifier', 'synthesizer', 'safety-reviewer']));
   });
 
   it('rejects unsafe write roles and unbounded budgets', () => {

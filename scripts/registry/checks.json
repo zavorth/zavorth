@@ -581,14 +581,6 @@
       "script": "scripts/standalone-launcher-check.mjs",
       "description": "QA verification for standalone launcher"
     },
-    "swarm-v2-official": {
-      "script": "scripts/swarm-v2-official-check.mjs",
-      "description": "QA verification for swarm v2 official"
-    },
-    "swarm-v2-scale-benchmark": {
-      "script": "scripts/swarm-v2-scale-benchmark-check.mjs",
-      "description": "QA verification for swarm v2 scale benchmark"
-    },
     "terminal-presentation": {
       "script": "scripts/terminal-presentation-check.mjs",
       "description": "QA verification for terminal presentation"

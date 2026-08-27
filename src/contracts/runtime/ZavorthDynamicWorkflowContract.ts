@@ -63,7 +63,7 @@ export type ZavorthDynamicWorkflowSnapshot = {
       evidenceRequired: true;
     };
     connectedRuntime: {
-      swarmV2: true;
+      zavorthEnsemble: true;
       workflowRunService: true;
       receipts: true;
       replay: true;
@@ -71,7 +71,7 @@ export type ZavorthDynamicWorkflowSnapshot = {
   };
   materialization: {
     ready: boolean;
-    target: 'swarm-v2-official';
+    target: 'zavorth-ensemble-official';
     launchCommand: string;
     dryRunOnlyUntilApproval: true;
   };

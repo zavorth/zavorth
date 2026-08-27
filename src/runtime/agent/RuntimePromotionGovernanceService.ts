@@ -131,15 +131,15 @@ const PROMOTION_CATALOG: RuntimePromotionCatalogEntry[] = [
     label: 'SwarmOrchestrator',
     experimentalComponent: 'runtime/sessions/v2/SwarmOrchestrator',
     productAdapterId: 'swarm.escalation',
-    featureFlag: 'ZAVORTH_ENABLE_SWARM_V2',
+featureFlag: 'ZAVORTH_ENABLE_ZAVORTH_ENSEMBLE',
     gates: [
       'canonical-agent-run-adapter',
       'subagent-receipt-store',
       'operator-cancel-resume',
       'non-local-hierarchy-tests',
     ],
-    productReason: 'Swarm v2 already tem adapter oficial, batch queue, replay, role library, receipts e surface canonica.',
-    experimentalReason: 'O produto oficial e a escalaction governada; o orchestrator V2 still needs cancel/resume/receipts persistentes.',
+    productReason: 'Zavorth Ensemble já tem adapter oficial, batch queue, replay, role library, receipts e surface canônica.',
+    experimentalReason: 'O produto oficial e a escalada governada; o orchestrator ainda exige cancel/resume/receipts persistentes.',
     allowPublicClaimWhenOfficial: true,
   },
   {

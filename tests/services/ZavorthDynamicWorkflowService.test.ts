@@ -73,7 +73,7 @@ describe('ZavorthDynamicWorkflowService', () => {
     expect(snapshot.scale.maxConcurrency).toBe(6);
   });
 
-  it('materializes an approved preview into a Swarm V2 launch envelope without direct worker execution', () => {
+  it('materializes an approved preview into a Zavorth Ensemble launch envelope without direct worker execution', () => {
     const launched: any[] = [];
     const service = new ZavorthDynamicWorkflowService({
       now,

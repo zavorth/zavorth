@@ -257,7 +257,7 @@ const CANONICAL_EXECUTION_ENGINES = [
   },
   {
     id: 'swarm',
-    files: ['src/services/CanonicalExecutionPipelineService.ts', 'src/agents/SwarmV2Service.ts'],
+    files: ['src/services/CanonicalExecutionPipelineService.ts', 'src/agents/ZavorthEnsembleService.ts'],
   },
   {
     id: 'selfmod',

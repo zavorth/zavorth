@@ -1,4 +1,4 @@
-import { SwarmV2Service } from '../agents/SwarmV2Service.js';
+import { ZavorthEnsembleService } from '../agents/ZavorthEnsembleService.js';
 import { createHash } from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -14,7 +14,7 @@ import {
 
 import { logger } from '../logger.js';
 
-type SwarmLauncher = Pick<SwarmV2Service, 'launchSwarm'>;
+type SwarmLauncher = Pick<ZavorthEnsembleService, 'launchSwarm'>;
 
 export type ZavorthDynamicWorkflowRuntime = {
   now?: () => Date;
@@ -34,7 +34,7 @@ export class ZavorthDynamicWorkflowService {
 
   public constructor(runtime: ZavorthDynamicWorkflowRuntime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.swarmLauncher = runtime.swarmLauncher || new SwarmV2Service();
+    this.swarmLauncher = runtime.swarmLauncher || new ZavorthEnsembleService();
     this.storageDir = runtime.storageDir || path.join(process.cwd(), 'data', 'runtime', 'dynamic-workflows');
   }
 
@@ -129,7 +129,7 @@ export class ZavorthDynamicWorkflowService {
           evidenceRequired: true,
         },
         connectedRuntime: {
-          swarmV2: true,
+          zavorthEnsemble: true,
           workflowRunService: true,
           receipts: true,
           replay: true,
@@ -137,7 +137,7 @@ export class ZavorthDynamicWorkflowService {
       },
       materialization: {
         ready: status !== 'blocked',
-        target: 'swarm-v2-official',
+        target: 'zavorth-ensemble-official',
         launchCommand: status === 'needs-approval'
           ? `zavorth workflows launch ${workflowId} --approval-id ${stableId('approval', [workflowId, approvalReasons.join('|')])}`
           : `zavorth workflows launch ${workflowId}`,

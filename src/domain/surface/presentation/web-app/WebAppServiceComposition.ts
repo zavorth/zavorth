@@ -56,7 +56,7 @@ import { SkillMcpSidecarService } from '../../../../services/SkillMcpSidecarServ
 import { UniversalSkillBridgeActivationService } from '../../../../services/UniversalSkillBridgeActivationService.js';
 import { SupervisedExecutionGatewayService } from '../../../../services/SupervisedExecutionGatewayService.js';
 import { SupervisedRuntimeAdapterRegistryService } from '../../../../services/SupervisedRuntimeAdapterRegistryService.js';
-import { SwarmV2Service } from '../../../../agents/SwarmV2Service.js';
+import { ZavorthEnsembleService } from '../../../../agents/ZavorthEnsembleService.js';
 import { SwarmScalePlaneRuntimeService } from '../../../../services/SwarmScalePlaneRuntimeService.js';
 import type { SharedSurfaceRuntime } from '../../../../orchestrator/SurfaceRuntime.js';
 import { SystemOverlordControlService } from '../../../../services/SystemSupervisorControlService.js';
@@ -333,7 +333,7 @@ export type WebAppServiceComposition = {
   systemOverlordGateway: SupervisedExecutionGatewayService;
   systemOverlordControl: SystemOverlordControlService;
   engineeringCore: EngineeringCoreService;
-  swarmV2: SwarmV2Service;
+  zavorthEnsemble: ZavorthEnsembleService;
   swarmScalePlane: SwarmScalePlaneRuntimeService;
   sessionV2Sockets: PtyWebSocketServer;
   gatewayControlSockets: ZavorthGatewayControlSocketService;
@@ -494,7 +494,7 @@ export function createWebAppServiceComposition(
     selfModificationCommandService,
     executionGatewayService: systemOverlordGateway,
   });
-  const swarmV2 = new SwarmV2Service();
+  const zavorthEnsemble = new ZavorthEnsembleService();
   const sessionV2Sockets = new PtyWebSocketServer();
   const gatewayControlSockets = new ZavorthGatewayControlSocketService();
   const surfaceRoutes = new WebAppSurfaceRouteService();
@@ -594,7 +594,7 @@ export function createWebAppServiceComposition(
     modeEscalation,
     workspaceOptimizer,
     sessionV2,
-    swarmV2,
+    zavorthEnsemble,
     swarmScalePlane,
     computerUseAgent,
     watchMode: computerUseWatchMode,
@@ -641,7 +641,7 @@ export function createWebAppServiceComposition(
     systemOverlordGateway,
     systemOverlordControl,
     engineeringCore,
-    swarmV2,
+    zavorthEnsemble,
     swarmScalePlane,
     sessionV2Sockets,
     gatewayControlSockets,

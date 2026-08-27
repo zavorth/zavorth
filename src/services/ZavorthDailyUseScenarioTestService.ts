@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { config } from '../config/index.js';
-import { SwarmV2Service, type SwarmV2TrackedSnapshot } from '../agents/SwarmV2Service.js';
+import { ZavorthEnsembleService, type ZavorthEnsembleTrackedSnapshot } from '../agents/ZavorthEnsembleService.js';
 import { ZavorthAgentReviewService, type ZavorthAgentReviewSnapshot } from './ZavorthAgentReviewService.js';
 import { ZavorthProviderModelCatalogService } from './ZavorthProviderModelCatalogService.js';
 import { ZavorthSkillCuratorLiveLoopService } from './ZavorthSkillCuratorLiveLoopService.js';
@@ -96,7 +96,7 @@ type Runtime = {
   providerCatalog?: Pick<ZavorthProviderModelCatalogService, 'buildSnapshot'>;
   skillCurator?: Pick<ZavorthSkillCuratorLiveLoopService, 'buildSnapshot'>;
   agentReview?: Pick<ZavorthAgentReviewService, 'run'>;
-  swarm?: Pick<SwarmV2Service, 'launchOfficialSwarm'>;
+  swarm?: Pick<ZavorthEnsembleService, 'launchOfficialSwarm'>;
   telegram?: DailyAssistantServiceLike | null;
 };
 
@@ -106,7 +106,7 @@ export class ZavorthDailyUseScenarioTestService {
   private readonly providerCatalog: Pick<ZavorthProviderModelCatalogService, 'buildSnapshot'>;
   private readonly skillCurator: Pick<ZavorthSkillCuratorLiveLoopService, 'buildSnapshot'>;
   private readonly agentReview: Pick<ZavorthAgentReviewService, 'run'>;
-  private readonly swarm: Pick<SwarmV2Service, 'launchOfficialSwarm'>;
+  private readonly swarm: Pick<ZavorthEnsembleService, 'launchOfficialSwarm'>;
   private readonly telegram: DailyAssistantServiceLike;
 
   public constructor(runtime: Runtime = {}) {
@@ -442,7 +442,7 @@ function createAgentReviewDryRun(): Pick<ZavorthAgentReviewService, 'run'> {
   };
 }
 
-function createSwarmDryRun(now: () => Date): Pick<SwarmV2Service, 'launchOfficialSwarm'> {
+function createSwarmDryRun(now: () => Date): Pick<ZavorthEnsembleService, 'launchOfficialSwarm'> {
   return {
     launchOfficialSwarm: () => ({
       id: 'daily-use-swarm-dryRun',
@@ -458,7 +458,7 @@ function createSwarmDryRun(now: () => Date): Pick<SwarmV2Service, 'launchOfficia
         dryRunOnly: true,
         noRuntimeAdapterStarted: true,
       },
-    } as unknown as SwarmV2TrackedSnapshot),
+    } as unknown as ZavorthEnsembleTrackedSnapshot),
   };
 }
 

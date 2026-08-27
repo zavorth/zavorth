@@ -224,14 +224,14 @@ describe('WebAppRuntimeRouteService', () => {
     ]));
   });
 
-  it('serves canonical session-v2 and swarm-v2 aliases without breaking experimental routes', async () => {
+  it('serves canonical session-v2 and zavorth-ensemble aliases without breaking experimental routes', async () => {
     const routeService = new WebAppRuntimeRouteService();
     const writeJson = jest.fn();
     const deps = {
       experimentalSessionV2: {
         listSessions: jest.fn(() => [{ sessionId: 'pty-1' }]),
       },
-      experimentalSwarmV2: {
+      experimentalZavorthEnsemble: {
         listSwarms: jest.fn(() => [{ swarmId: 'swarm-1', status: 'running' }]),
       },
       writeJson,
@@ -247,8 +247,8 @@ describe('WebAppRuntimeRouteService', () => {
     const handledSwarm = await routeService.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/gateway/swarm-v2'),
-      '/api/web/gateway/swarm-v2',
+      new URL('http://localhost/api/web/gateway/zavorth-ensemble'),
+      '/api/web/gateway/zavorth-ensemble',
       deps,
     );
 
@@ -276,10 +276,10 @@ describe('WebAppRuntimeRouteService', () => {
     );
   });
 
-  it('serves official swarm v2 launch, role library and replay on the canonical gateway route', async () => {
+  it('serves official ensemble launch, role library and replay on the canonical gateway route', async () => {
     const routeService = new WebAppRuntimeRouteService();
     const writeJson = jest.fn();
-    const swarmV2 = {
+    const zavorthEnsemble = {
       listSwarms: jest.fn(() => []),
       launchSwarm: jest.fn(),
       launchOfficialSwarmAsync: jest.fn(async () => ({
@@ -324,7 +324,7 @@ describe('WebAppRuntimeRouteService', () => {
       cancelSwarm: jest.fn(),
     };
     const deps = {
-      swarmV2,
+      zavorthEnsemble,
       writeJson,
       readJsonBody: jest.fn(async () => ({
         objective: 'Scale repository review',
@@ -351,38 +351,38 @@ describe('WebAppRuntimeRouteService', () => {
     await routeService.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/gateway/swarm-v2/roles'),
-      '/api/web/gateway/swarm-v2/roles',
+      new URL('http://localhost/api/web/gateway/zavorth-ensemble/roles'),
+      '/api/web/gateway/zavorth-ensemble/roles',
       deps,
     );
     await routeService.handleRequest(
       { method: 'POST' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/gateway/swarm-v2/roles'),
-      '/api/web/gateway/swarm-v2/roles',
+      new URL('http://localhost/api/web/gateway/zavorth-ensemble/roles'),
+      '/api/web/gateway/zavorth-ensemble/roles',
       deps,
     );
     await routeService.handleRequest(
       { method: 'POST' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/gateway/swarm-v2'),
-      '/api/web/gateway/swarm-v2',
+      new URL('http://localhost/api/web/gateway/zavorth-ensemble'),
+      '/api/web/gateway/zavorth-ensemble',
       deps,
     );
     await routeService.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/gateway/swarm-v2/replay?swarmId=swarm-official-1'),
-      '/api/web/gateway/swarm-v2/replay',
+      new URL('http://localhost/api/web/gateway/zavorth-ensemble/replay?swarmId=swarm-official-1'),
+      '/api/web/gateway/zavorth-ensemble/replay',
       deps,
     );
 
-    expect(swarmV2.listRoleLibrary).toHaveBeenCalledTimes(1);
-    expect(swarmV2.upsertRoleLibraryEntry).toHaveBeenCalledWith(expect.objectContaining({
+    expect(zavorthEnsemble.listRoleLibrary).toHaveBeenCalledTimes(1);
+    expect(zavorthEnsemble.upsertRoleLibraryEntry).toHaveBeenCalledWith(expect.objectContaining({
       id: 'qa-specialist',
       label: 'QA Specialist',
     }));
-    expect(swarmV2.launchOfficialSwarmAsync).toHaveBeenCalledWith(expect.objectContaining({
+    expect(zavorthEnsemble.launchOfficialSwarmAsync).toHaveBeenCalledWith(expect.objectContaining({
       objective: 'Scale repository review',
       official: true,
       roleLibraryIds: ['planner', 'verifier'],
@@ -401,9 +401,9 @@ describe('WebAppRuntimeRouteService', () => {
       }),
       toolSpecs: undefined,
     }));
-    expect(swarmV2.launchOfficialSwarm).not.toHaveBeenCalled();
-    expect(swarmV2.launchSwarm).not.toHaveBeenCalled();
-    expect(swarmV2.getSwarmReplay).toHaveBeenCalledWith('swarm-official-1');
+    expect(zavorthEnsemble.launchOfficialSwarm).not.toHaveBeenCalled();
+    expect(zavorthEnsemble.launchSwarm).not.toHaveBeenCalled();
+    expect(zavorthEnsemble.getSwarmReplay).toHaveBeenCalledWith('swarm-official-1');
     expect(writeJson).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
@@ -414,10 +414,10 @@ describe('WebAppRuntimeRouteService', () => {
     );
   });
 
-  it('blocks direct Swarm v2 command/toolSpecs execution from the web route', async () => {
+  it('blocks direct Zavorth Ensemble command/toolSpecs execution from the web route', async () => {
     const routeService = new WebAppRuntimeRouteService();
     const writeJson = jest.fn();
-    const swarmV2 = {
+    const zavorthEnsemble = {
       launchSwarm: jest.fn(),
       launchOfficialSwarm: jest.fn(),
       launchOfficialSwarmAsync: jest.fn(),
@@ -429,7 +429,7 @@ describe('WebAppRuntimeRouteService', () => {
       cancelSwarm: jest.fn(),
     };
     const deps = {
-      swarmV2,
+      zavorthEnsemble,
       writeJson,
       readJsonBody: jest.fn(async () => ({
         objective: 'Run shell tool',
@@ -441,19 +441,19 @@ describe('WebAppRuntimeRouteService', () => {
     const handled = await routeService.handleRequest(
       { method: 'POST' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/gateway/swarm-v2'),
-      '/api/web/gateway/swarm-v2',
+      new URL('http://localhost/api/web/gateway/zavorth-ensemble'),
+      '/api/web/gateway/zavorth-ensemble',
       deps,
     );
 
     expect(handled).toBe(true);
-    expect(swarmV2.launchOfficialSwarmAsync).not.toHaveBeenCalled();
-    expect(swarmV2.launchOfficialSwarm).not.toHaveBeenCalled();
+    expect(zavorthEnsemble.launchOfficialSwarmAsync).not.toHaveBeenCalled();
+    expect(zavorthEnsemble.launchOfficialSwarm).not.toHaveBeenCalled();
     expect(writeJson).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
         ok: false,
-        code: 'swarm_v2_governed_tool_execution_required',
+        code: 'zavorth_ensemble_governed_tool_execution_required',
       }),
       403,
     );

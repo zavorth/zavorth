@@ -95,7 +95,7 @@ type WebAppRouteDepsFactoryOptions = {
   modeEscalation: SurfaceDependency;
   workspaceOptimizer: SurfaceDependency;
   sessionV2: SurfaceDependency;
-  swarmV2: SurfaceDependency;
+  zavorthEnsemble: SurfaceDependency;
   swarmScalePlane: SurfaceDependency;
   computerUseAgent: SurfaceDependency;
   watchMode: SurfaceDependency;
@@ -325,7 +325,7 @@ export class WebAppRouteDepsFactoryService {
       modeEscalation: this.options.modeEscalation,
       workspaceOptimizer: this.options.workspaceOptimizer,
       sessionV2: this.options.sessionV2,
-      swarmV2: this.options.swarmV2,
+      zavorthEnsemble: this.options.zavorthEnsemble,
       swarmScalePlane: this.options.swarmScalePlane,
       computerUseAgent: this.options.computerUseAgent,
       watchMode: this.options.watchMode,

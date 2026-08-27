@@ -69,7 +69,7 @@ const LEGACY_LARGE_SOURCE_ALLOWLIST = new Set([
   'src/runtime/agent/AgentRunService.ts',
   'src/services/WebAppConversationService.ts',
   'src/services/experience/ExperienceCoreService.ts',
-  'src/agents/SwarmV2Service.ts',
+  'src/agents/ZavorthEnsembleService.ts',
   'src/services/ZavorthControlCoreRouteService.ts',
   'src/services/ZavorthRuntimeStateBusService.ts',
   'src/autonomy/ZavorthSpeculativeAutonomyService.ts',
@@ -77,7 +77,7 @@ const LEGACY_LARGE_SOURCE_ALLOWLIST = new Set([
 ]);
 
 const NEW_FILE_LINE_ALLOWLIST = new Set([
-  'src/agents/SwarmV2Service.ts',
+  'src/agents/ZavorthEnsembleService.ts',
   'src/agents/ZavorthSubagentRuntimeService.ts',
   'src/autonomy/ZavorthSpeculativeAutonomyService.ts',
   'src/canvas/CanvasWorkspaceService.ts',

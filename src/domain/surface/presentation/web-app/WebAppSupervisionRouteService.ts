@@ -4,7 +4,7 @@ import { buildWebAppSupervisionRouteContext } from './web-app-supervision-route/
 import { handleComputerUseRoutes } from './web-app-supervision-route/computerUseRoutes.js';
 import { handleEngineeringRoutes } from './web-app-supervision-route/engineeringRoutes.js';
 import { handleSessionV2Routes } from './web-app-supervision-route/sessionV2Routes.js';
-import { handleSwarmV2Routes } from './web-app-supervision-route/swarmV2Routes.js';
+import { handleZavorthEnsembleRoutes } from './web-app-supervision-route/zavorthEnsembleRoutes.js';
 import { handleSystemOverlordRoutes } from './web-app-supervision-route/systemSupervisorRoutes.js';
 import { handleMobileSupervisionRoutes } from './web-app-supervision-route/mobileSupervisionRoutes.js';
 import { handleProviderRouterRoutes } from './web-app-supervision-route/providerRouterRoutes.js';
@@ -50,7 +50,7 @@ export class WebAppSupervisionRouteService {
       return true;
     }
 
-    if (await handleSwarmV2Routes(ctx)) {
+    if (await handleZavorthEnsembleRoutes(ctx)) {
       return true;
     }
 

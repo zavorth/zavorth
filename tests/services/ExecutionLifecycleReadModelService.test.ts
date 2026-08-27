@@ -234,7 +234,7 @@ describe('ExecutionLifecycleReadModelService', () => {
               status: 'completed',
               summary: 'Swarm completed.',
               source: 'swarm',
-              surface: 'swarm-v2',
+              surface: 'zavorth-ensemble',
               parentId: 'swarm-1',
               createdAt: '2026-04-16T11:52:00.000Z',
               updatedAt: '2026-04-16T11:52:00.000Z',

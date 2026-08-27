@@ -10,7 +10,7 @@ import {
 } from '../../../runtime/agent/subagents/index.js';
 import { CanonicalExecutionPipelineService } from '../../../services/CanonicalExecutionPipelineService.js';
 
-import { SwarmV2Service } from '../../../agents/SwarmV2Service.js';
+import { ZavorthEnsembleService } from '../../../agents/ZavorthEnsembleService.js';
 
 export type DynamicHierarchyComplexity = 'low' | 'medium' | 'high';
 
@@ -64,7 +64,7 @@ type ChildRoleTemplate = {
   systemPrompt: string;
 };
 
-type SwarmLauncher = Pick<SwarmV2Service, 'launchSwarm'> & Partial<Pick<SwarmV2Service, 'waitForSwarm'>>;
+type SwarmLauncher = Pick<ZavorthEnsembleService, 'launchSwarm'> & Partial<Pick<ZavorthEnsembleService, 'waitForSwarm'>>;
 
 const DEFAULT_ROOT_ROLES: SwarmRole[] = [
   {
@@ -93,7 +93,7 @@ export class DynamicHierarchySwarmService {
     swarmLauncher?: SwarmLauncher;
   } = {}) {
     this.canonicalExecution = options.canonicalExecutionPipeline || new CanonicalExecutionPipelineService();
-    this.swarmLauncher = options.swarmLauncher || new SwarmV2Service();
+    this.swarmLauncher = options.swarmLauncher || new ZavorthEnsembleService();
   }
 
   public planHierarchy(input: DynamicHierarchyRequest): DynamicHierarchyPlan {
@@ -427,7 +427,7 @@ export class DynamicHierarchySwarmService {
       return createSubagentResultReceipt({
         roleId: role.id,
         status: 'planned',
-        summary: `Dynamic hierarchy subagent ${role.label} planned for existing SwarmV2 execution.`,
+        summary: `Dynamic hierarchy subagent ${role.label} planned for existing Zavorth Ensemble execution.`,
         scope,
         budget,
         approvalBoundary,

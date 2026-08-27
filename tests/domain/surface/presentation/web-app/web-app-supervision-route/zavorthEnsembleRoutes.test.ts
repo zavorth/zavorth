@@ -1,6 +1,6 @@
-import { handleSwarmV2Routes } from '../../../../../../src/domain/surface/presentation/web-app/web-app-supervision-route/swarmV2Routes.js';
+import { handleZavorthEnsembleRoutes } from '../../../../../../src/domain/surface/presentation/web-app/web-app-supervision-route/zavorthEnsembleRoutes.js';
 
-describe('handleSwarmV2Routes swarm scale dynamic configuration', () => {
+describe('handleZavorthEnsembleRoutes swarm scale dynamic configuration', () => {
   it('configures a swarm scale run through the gateway surface', async () => {
     const writes: Array<{ payload: any; status: number }> = [];
     const configureRun = jest.fn().mockReturnValue({
@@ -15,7 +15,7 @@ describe('handleSwarmV2Routes swarm scale dynamic configuration', () => {
       },
     });
 
-    const handled = await handleSwarmV2Routes({
+    const handled = await handleZavorthEnsembleRoutes({
       req: { method: 'POST' } as any,
       res: {} as any,
       url: new URL('http://localhost/api/web/gateway/swarm-scale/configure'),
@@ -35,14 +35,14 @@ describe('handleSwarmV2Routes swarm scale dynamic configuration', () => {
         writeJson: (_res: unknown, payload: any, status: number) => writes.push({ payload, status }),
       } as any,
       experimentalAlias: false,
+      zavorthEnsembleService: null,
       sessionV2Service: null,
-      swarmV2Service: null,
       swarmScalePlaneService: { configureRun },
       sessionV2Label: 'Session V2',
-      swarmV2Label: 'Swarm V2',
+      zavorthEnsembleLabel: 'Zavorth Ensemble',
       isSessionV2Route: () => false,
       isSessionV2RecordingRoute: false,
-      isSwarmV2Route: () => false,
+      isZavorthEnsembleRoute: () => false,
       isSwarmScaleRoute: (suffix = '') => `/api/web/gateway/swarm-scale${suffix}` === '/api/web/gateway/swarm-scale/configure',
     });
 

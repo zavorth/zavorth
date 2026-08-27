@@ -82,7 +82,7 @@ const checks = [
   {
     file: 'tests/domain/surface/presentation/web-app/WebAppRuntimeRouteService.experimental.test.ts',
     markers: [
-      'official swarm v2 launch',
+      'official ensemble launch, role library and replay',
       'getSwarmReplay',
       'launchOfficialSwarm',
     ],

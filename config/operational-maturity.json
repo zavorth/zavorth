@@ -106,24 +106,24 @@
     },
     {
       "id": "swarm-executor",
-      "label": "Official Swarm v2",
+      "label": "Official Zavorth Ensemble",
       "status": "stable",
       "role": "Official multi-role executor with queues/batches, persistent role library, replay, metrics and per-worker isolation.",
-      "runtimeTruth": "Swarm v2 is the official surface at /api/web/gateway/swarm-v2; /experimental/swarm-v2 remains only as a legacy alias.",
-      "publicStatus": "ready as official Swarm v2",
+      "runtimeTruth": "Zavorth Ensemble is the official surface at /api/web/gateway/zavorth-ensemble; /experimental/zavorth-ensemble remains only as a legacy alias.",
+      "publicStatus": "ready as official Zavorth Ensemble",
       "ownerLayer": "execution",
       "isPrimaryBrain": false,
       "isParallelRuntime": false,
       "evidence": [
         "src/execution/SwarmExecutor.ts",
-        "src/agents/SwarmV2Service.ts",
+        "src/agents/ZavorthEnsembleService.ts",
         "src/runtime/sessions/v2/SwarmOrchestrator.ts",
-        "src/domain/surface/presentation/web-app/web-app-supervision-route/swarmV2Routes.ts",
+        "src/domain/surface/presentation/web-app/web-app-supervision-route/zavorthEnsembleRoutes.ts",
         "src/web/components/SwarmMonitor.tsx",
         "tests/runtime/sessions/v2/SwarmOrchestrator.test.ts"
       ],
       "commands": [
-        { "kind": "npm-script", "value": "swarm-v2:check" }
+        { "kind": "npm-script", "value": "zavorth-ensemble:check" }
       ],
       "limitations": [
         "Temp-worktree isolation separates cwd by role; stronger OS isolation should use approved docker, WSL, or external sandbox profiles."

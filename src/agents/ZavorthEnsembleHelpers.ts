@@ -193,6 +193,68 @@ export function defaultRoleLibrary(): ZavorthEnsembleRoleLibraryEntry[] {
   }));
 }
 
+export function resolveSyncRoleSelection(input: {
+  objective: string;
+  library: ZavorthEnsembleRoleLibraryEntry[];
+  selectedRoleIds: string[];
+  requestedRoles: SwarmRole[];
+  autoSelectRoles: boolean;
+  desiredRoleCount: number;
+}): ZavorthEnsembleRoleSelectionSnapshot {
+  const libraryIds = new Set(input.library.map((role) => role.id));
+  if (input.selectedRoleIds.length > 0) {
+    const selected = input.selectedRoleIds
+      .filter((id, index, values) => libraryIds.has(id) && values.indexOf(id) === index)
+      .slice(0, input.desiredRoleCount);
+    return {
+      mode: 'manual',
+      requestedRoleCount: input.desiredRoleCount,
+      selectedRoleIds: selected,
+      availableRoleCount: input.library.length,
+      rationale: 'Operator provided explicit role library IDs.',
+    };
+  }
+  if (input.requestedRoles.length > 0) {
+    return {
+      mode: 'manual',
+      requestedRoleCount: input.requestedRoles.length,
+      selectedRoleIds: input.requestedRoles.map((role, index) =>
+        normalizeKey(role.id || `role-${index + 1}`, `role-${index + 1}`),
+      ),
+      availableRoleCount: input.library.length,
+      rationale: 'Operator provided concrete swarm roles.',
+    };
+  }
+  if (!input.autoSelectRoles) {
+    return {
+      mode: 'manual',
+      requestedRoleCount: input.desiredRoleCount,
+      selectedRoleIds: [],
+      availableRoleCount: input.library.length,
+      rationale: 'No automatic role selection requested; default official role bundle will be used.',
+    };
+  }
+
+  // Structured auto-select: default official bundle order only.
+  // Free-text objective never keyword-routes role activation (LLM path owns free text).
+  const defaultBundle = ['planner', 'researcher', 'implementer', 'verifier', 'synthesizer', 'safety-reviewer'];
+  const selected = defaultBundle
+    .filter((id, index, values) => libraryIds.has(id) && values.indexOf(id) === index)
+    .slice(0, input.desiredRoleCount);
+  for (const role of input.library) {
+    if (selected.length >= input.desiredRoleCount) break;
+    if (!selected.includes(role.id)) selected.push(role.id);
+  }
+  return {
+    mode: 'heuristic',
+    requestedRoleCount: input.desiredRoleCount,
+    selectedRoleIds: selected,
+    availableRoleCount: input.library.length,
+    rationale:
+      'Zavorth selected the default official role bundle (structured auto-select; free-text not keyword-scanned).',
+  };
+}
+
 export function chunkRoles(roles: SwarmRole[], size: number): SwarmRole[][] {
   const chunks: SwarmRole[][] = [];
   for (let index = 0; index < roles.length; index += size) {

@@ -189,7 +189,7 @@ export class WebAppService {
     this.realtime?.stop();
     this.composition.satelliteTransport.shutdown();
     this.composition.sessionV2.shutdown();
-    this.composition.swarmV2.shutdown();
+    this.composition.zavorthEnsemble.shutdown();
     this.composition.gatewayControlSockets.shutdown();
     this.composition.sessionV2Sockets.shutdown();
   }

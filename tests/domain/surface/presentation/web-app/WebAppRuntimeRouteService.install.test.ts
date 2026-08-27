@@ -167,10 +167,10 @@ describe('WebAppRuntimeRouteService', () => {
     );
   });
 
-  it('exposes the experimental swarm v2 routes as an isolated surface', async () => {
+  it('exposes the experimental zavorth ensemble routes as an isolated surface', async () => {
     const routeService = new WebAppRuntimeRouteService();
     const writeJson = jest.fn();
-    const experimentalSwarmV2 = {
+    const experimentalZavorthEnsemble = {
       listSwarms: jest.fn(() => [{ swarmId: 'swarm-1', status: 'running' }]),
       launchSwarm: jest.fn(() => ({
         swarmId: 'swarm-1',
@@ -249,45 +249,45 @@ describe('WebAppRuntimeRouteService', () => {
       })),
       getComposerCatalog: jest.fn(),
       getGatewaySessionTools: jest.fn(),
-      experimentalSwarmV2,
+      experimentalZavorthEnsemble,
     };
 
     await routeService.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/experimental/swarm-v2'),
-      '/api/web/experimental/swarm-v2',
+      new URL('http://localhost/api/web/experimental/zavorth-ensemble'),
+      '/api/web/experimental/zavorth-ensemble',
       baseDeps,
     );
     await routeService.handleRequest(
       { method: 'POST' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/experimental/swarm-v2'),
-      '/api/web/experimental/swarm-v2',
+      new URL('http://localhost/api/web/experimental/zavorth-ensemble'),
+      '/api/web/experimental/zavorth-ensemble',
       baseDeps,
     );
     await routeService.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/experimental/swarm-v2/state?swarmId=swarm-1'),
-      '/api/web/experimental/swarm-v2/state',
+      new URL('http://localhost/api/web/experimental/zavorth-ensemble/state?swarmId=swarm-1'),
+      '/api/web/experimental/zavorth-ensemble/state',
       baseDeps,
     );
     await routeService.handleRequest(
       { method: 'POST' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/experimental/swarm-v2/cancel'),
-      '/api/web/experimental/swarm-v2/cancel',
+      new URL('http://localhost/api/web/experimental/zavorth-ensemble/cancel'),
+      '/api/web/experimental/zavorth-ensemble/cancel',
       baseDeps,
     );
 
-    expect(experimentalSwarmV2.listSwarms).toHaveBeenCalledTimes(1);
-    expect(experimentalSwarmV2.launchSwarm).toHaveBeenCalledWith(expect.objectContaining({
+    expect(experimentalZavorthEnsemble.listSwarms).toHaveBeenCalledTimes(1);
+    expect(experimentalZavorthEnsemble.launchSwarm).toHaveBeenCalledWith(expect.objectContaining({
       swarmId: 'swarm-1',
       objective: 'Inspect rollout',
     }));
-    expect(experimentalSwarmV2.getSwarm).toHaveBeenCalledWith('swarm-1');
-    expect(experimentalSwarmV2.cancelSwarm).toHaveBeenCalledWith('swarm-1');
+    expect(experimentalZavorthEnsemble.getSwarm).toHaveBeenCalledWith('swarm-1');
+    expect(experimentalZavorthEnsemble.cancelSwarm).toHaveBeenCalledWith('swarm-1');
     expect(writeJson).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({

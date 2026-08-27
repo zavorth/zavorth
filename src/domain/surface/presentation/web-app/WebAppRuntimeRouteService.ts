@@ -13,7 +13,7 @@ import { SharedSurfaceConsistencyService } from '../../../../services/SharedSurf
 import { WebConsoleAssetService } from '../web-console/WebConsoleAssetService.js';
 import { WebRealtimeService } from '../../../../services/WebRealtimeService.js';
 import type { SessionV2Service } from '../../../../services/SessionV2Service.js';
-import type { SwarmV2Service } from '../../../../agents/SwarmV2Service.js';
+import type { ZavorthEnsembleService } from '../../../../agents/ZavorthEnsembleService.js';
 import type { SwarmScalePlaneRuntimeService } from '../../../../services/SwarmScalePlaneRuntimeService.js';
 import type { EngineeringCoreService } from '../../../../services/EngineeringCoreService.js';
 import type { SystemOverlordControlService } from '../../../../services/SystemSupervisorControlService.js';
@@ -211,16 +211,16 @@ export type WebAppRuntimeRouteDeps = {
     SessionV2Service,
     'createSession' | 'listSessions' | 'getSession' | 'writeSession' | 'killSession' | 'listRecordings' | 'getRecording' | 'queryMemory'
   > | null;
-  swarmV2?: Pick<
-    SwarmV2Service,
+  zavorthEnsemble?: Pick<
+    ZavorthEnsembleService,
     'launchSwarm' | 'launchOfficialSwarm' | 'launchOfficialSwarmAsync' | 'listSwarms' | 'getSwarm' | 'cancelSwarm' | 'listRoleLibrary' | 'upsertRoleLibraryEntry' | 'getSwarmReplay'
   > | null;
   swarmScalePlane?: Pick<
     SwarmScalePlaneRuntimeService,
     'launch' | 'resume' | 'configureRun' | 'listRuns' | 'getRun'
   > | null;
-  experimentalSwarmV2?: Pick<
-    SwarmV2Service,
+  experimentalZavorthEnsemble?: Pick<
+    ZavorthEnsembleService,
     'launchSwarm' | 'launchOfficialSwarm' | 'launchOfficialSwarmAsync' | 'listSwarms' | 'getSwarm' | 'cancelSwarm' | 'listRoleLibrary' | 'upsertRoleLibraryEntry' | 'getSwarmReplay'
   > | null;
   watchMode?: Pick<

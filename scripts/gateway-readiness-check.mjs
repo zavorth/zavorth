@@ -83,7 +83,6 @@ const gateTests = {
   ],
   8: [
     'tests/services/ExperimentalSessionV2Service.test.ts',
-    'tests/services/ExperimentalSwarmV2Service.test.ts',
     ...webAppRuntimeRouteTests,
   ],
 };
