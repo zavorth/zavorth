@@ -20,6 +20,7 @@ import { logger } from '../../../logger.js';
 type SlackChannelAdapterRuntime = {
   outboxDir?: string;
   now?: () => Date;
+  claimTtlMs?: number;
 };
 
 export class SlackChannelAdapter implements GatewayChannelAdapter {
@@ -29,6 +30,8 @@ export class SlackChannelAdapter implements GatewayChannelAdapter {
   readonly messageCharLimit = 4000;
   private readonly outboxDir: string;
   private readonly now: () => Date;
+  private readonly claimedEvents = new Map<string, number>();
+  private readonly claimTtlMs: number;
 
   constructor(
     private eventBus: GatewayEventBus,
@@ -38,6 +41,7 @@ export class SlackChannelAdapter implements GatewayChannelAdapter {
   ) {
     this.outboxDir = path.resolve(runtime.outboxDir || config.slackOutboxDir);
     this.now = runtime.now || (() => new Date());
+    this.claimTtlMs = runtime.claimTtlMs ?? 60_000;
   }
 
 
@@ -65,7 +69,27 @@ export class SlackChannelAdapter implements GatewayChannelAdapter {
 
   async shutdown(): Promise<void> {
     this.eventBus.unsubscribe?.('public_ws', this.outboundReplyHandler);
+    this.claimedEvents.clear();
     logger.info('[ChannelMesh] Slack detached.');
+  }
+
+  public claimEvent(eventId: string, nowMs: number = Date.now()): boolean {
+    if (!eventId) {
+      return true;
+    }
+
+    for (const [key, expiresAt] of this.claimedEvents.entries()) {
+      if (expiresAt <= nowMs) {
+        this.claimedEvents.delete(key);
+      }
+    }
+
+    if (this.claimedEvents.has(eventId)) {
+      return false;
+    }
+
+    this.claimedEvents.set(eventId, nowMs + this.claimTtlMs);
+    return true;
   }
 
   async onMessageReceived(slackPayload: unknown): Promise<void> {
@@ -75,6 +99,13 @@ export class SlackChannelAdapter implements GatewayChannelAdapter {
     const rawText = String(source.text || source.rawText || '').trim();
     const threadTs = String(source.threadTs || source.thread_ts || '').trim() || null;
     const messageId = String(source.ts || source.messageId || '').trim() || null;
+    const eventId = String(source.event_id || source.client_msg_id || messageId || '').trim();
+
+    if (eventId && !this.claimEvent(eventId, this.now().getTime())) {
+      logger.info(`[ChannelMesh] Ignored duplicate Slack event retry: ${eventId}`);
+      return;
+    }
+
     const isAllowed = await this.policyManager.verifyAccess('slack', userId);
     if (!isAllowed) {
         logger.warn(`[Security] Blocked unauthorized Slack user: ${userId}`);

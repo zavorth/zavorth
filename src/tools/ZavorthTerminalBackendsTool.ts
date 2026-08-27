@@ -26,7 +26,7 @@ export interface ExecuteResult {
 
 export class ZavorthTerminalBackendsTool extends BaseTool {
   public readonly name = 'terminal_backends';
-  public readonly description = 'Manage and execute commands across multiple terminal backends (local, Docker, SSH, WSL, Singularity, Modal).';
+  public readonly description = 'Multi-backend terminal command execution (local, Docker, SSH, WSL, Singularity, Modal).';
 
   public readonly parameters = {
     type: 'object' as const,
@@ -34,28 +34,28 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
       action: {
         type: 'string',
         enum: ['connect', 'disconnect', 'status', 'execute', 'log', 'stats'],
-        description: 'Action to perform on terminal backends.',
+        description: 'Operation to perform.',
       },
       backend: {
         type: 'string',
         enum: ['local', 'docker', 'ssh', 'wsl', 'singularity', 'modal'],
-        description: 'Backend type to operate on.',
+        description: 'Target backend.',
       },
       command: {
         type: 'string',
-        description: 'Command to execute (required for "execute" action).',
+        description: 'Command string to execute.',
       },
       options: {
         type: 'object',
-        description: 'Backend-specific options (e.g., host, port, container, image).',
+        description: 'Backend options (host, port, container, image).',
       },
       timeout_ms: {
         type: 'number',
-        description: 'Execution timeout in milliseconds (default: 30000, max: 120000).',
+        description: 'Timeout in ms (default: 30000).',
       },
       working_directory: {
         type: 'string',
-        description: 'Working directory for command execution (local backend only).',
+        description: 'Execution working directory.',
       },
     },
     required: ['action'],
