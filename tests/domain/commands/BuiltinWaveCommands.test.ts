@@ -10,9 +10,9 @@ describe('Builtin Wave Commands & Capabilities', () => {
     initializeBuiltinCommands();
   });
 
-  it('registers all 12 builtin wave commands across waves 1 to 6', () => {
+  it('registers all 13 builtin wave commands across waves 1 to 6', () => {
     const commands = globalCommandRegistry.listAll();
-    expect(commands.length).toBe(12);
+    expect(commands.length).toBe(13);
 
     const commandIds = commands.map((c) => c.id);
     expect(commandIds).toContain('checkpoint.manage');
@@ -27,6 +27,7 @@ describe('Builtin Wave Commands & Capabilities', () => {
     expect(commandIds).toContain('security.scan');
     expect(commandIds).toContain('mesh.cache.optimize');
     expect(commandIds).toContain('satellite.pair');
+    expect(commandIds).toContain('bot.manage');
   });
 
   it('classifies state-mutating commands behind explicit approval gates', () => {

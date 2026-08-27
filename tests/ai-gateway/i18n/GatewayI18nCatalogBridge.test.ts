@@ -42,14 +42,14 @@ describe('GatewayI18nCatalogBridge', () => {
     const resolveLocalizedMessages = jest.fn().mockResolvedValue(synthesized);
     const options: GatewayMessageSourceOptions = { messagesDir, resolveLocalizedMessages };
 
-    const first = await loadGatewayMessages('ja' as Locale, options);
-    const second = await loadGatewayMessages('ja' as Locale, options);
+    const first = await loadGatewayMessages('xx' as Locale, options);
+    const second = await loadGatewayMessages('xx' as Locale, options);
 
     expect(first).toEqual(synthesized);
     expect(second).toEqual(first);
     expect(resolveLocalizedMessages).toHaveBeenCalledTimes(1);
 
-    const materializedPath = path.join(messagesDir, 'ja.json');
+    const materializedPath = path.join(messagesDir, 'xx.json');
     expect(fs.existsSync(materializedPath)).toBe(true);
     expect(JSON.parse(fs.readFileSync(materializedPath, 'utf8'))).toEqual(synthesized);
   });
