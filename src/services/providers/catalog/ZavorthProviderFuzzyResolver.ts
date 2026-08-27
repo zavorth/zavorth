@@ -1,14 +1,55 @@
 import { UNIVERSAL_PROVIDER_CATALOG, ProviderCatalogEntry } from './UniversalProviderCatalog';
 
+export interface ProviderMatchSuggestion {
+  id: string;
+  label: string;
+  score: number;
+}
+
 export interface ProviderMatch {
   provider: ProviderCatalogEntry | null;
   requestedModel?: string;
   matchKind: 'exact_id' | 'slash_syntax' | 'fuzzy_alias' | 'not_found';
   matchScore?: number;
   explanation?: string[];
+  suggestions?: ProviderMatchSuggestion[];
 }
 
-const MIN_FUZZY_SCORE = 0.6;
+const AUTO_SELECT_SCORE = 0.9;
+const CLEAR_SELECT_SCORE = 0.65;
+const CLEAR_SELECT_MARGIN = 0.15;
+const SUGGEST_MIN_SCORE = 0.5;
+
+export type FuzzyResolutionDecision =
+  | { kind: 'auto_select'; candidate: ProviderMatchSuggestion; explanation: string[] }
+  | { kind: 'suggest'; suggestions: ProviderMatchSuggestion[] }
+  | { kind: 'none' };
+
+/**
+ * Two-zone announce-first fuzzy policy:
+ * - score >= 0.90: auto-correct, always announced in `explanation`.
+ * - score >= 0.65 with a single clear winner (margin >= 0.15 over runner-up): auto-correct, announced.
+ * - otherwise: never guess; return up to 3 suggestions so the user can pick.
+ */
+export function decideFuzzyResolution(
+  input: string,
+  candidates: readonly ProviderMatchSuggestion[],
+): FuzzyResolutionDecision {
+  const [top, runnerUp] = candidates;
+  if (!top) {
+    return { kind: 'none' };
+  }
+  const uniquelyClear =
+    top.score >= CLEAR_SELECT_SCORE && (!runnerUp || top.score - runnerUp.score >= CLEAR_SELECT_MARGIN);
+  if (top.score >= AUTO_SELECT_SCORE || uniquelyClear) {
+    return {
+      kind: 'auto_select',
+      candidate: top,
+      explanation: [`Auto-corrected "${input}" to "${top.id}" (similarity ${top.score.toFixed(2)}).`],
+    };
+  }
+  return { kind: 'suggest', suggestions: candidates.slice(0, 3) };
+}
 
 export class ZavorthProviderFuzzyResolver {
   private readonly catalog = UNIVERSAL_PROVIDER_CATALOG;
@@ -36,39 +77,53 @@ export class ZavorthProviderFuzzyResolver {
       return { provider: this.idToProvider.get(exactId)!, matchKind: 'exact_id' };
     }
 
-    const fuzzy = this.fuzzyMatch(trimmed);
-    if (fuzzy) {
-      return {
-        provider: this.idToProvider.get(fuzzy.id)!,
-        matchKind: 'fuzzy_alias',
-        matchScore: fuzzy.score,
-      };
+    const rawDecision = decideFuzzyResolution(trimmed, this.rankFuzzyCandidates(trimmed));
+    if (rawDecision.kind === 'auto_select') {
+      return this.toFuzzyAliasMatch(rawDecision);
     }
 
+    let strippedDecision: FuzzyResolutionDecision | null = null;
     const stripped = this.stripModelSuffix(trimmed);
     if (stripped !== trimmed) {
       const strippedId = this.resolveId(stripped);
       if (strippedId) {
         return { provider: this.idToProvider.get(strippedId)!, matchKind: 'exact_id' };
       }
-      const strippedFuzzy = this.fuzzyMatch(stripped);
-      if (strippedFuzzy) {
-        return {
-          provider: this.idToProvider.get(strippedFuzzy.id)!,
-          matchKind: 'fuzzy_alias',
-          matchScore: strippedFuzzy.score,
-        };
+      strippedDecision = decideFuzzyResolution(stripped, this.rankFuzzyCandidates(stripped));
+      if (strippedDecision.kind === 'auto_select') {
+        return this.toFuzzyAliasMatch(strippedDecision);
       }
     }
 
+    if (rawDecision.kind === 'suggest') {
+      return this.notFound(rawDecision.suggestions);
+    }
+    if (strippedDecision?.kind === 'suggest') {
+      return this.notFound(strippedDecision.suggestions);
+    }
     return this.notFound();
   }
 
-  private notFound(): ProviderMatch {
+  private toFuzzyAliasMatch(decision: { candidate: ProviderMatchSuggestion; explanation: string[] }): ProviderMatch {
+    return {
+      provider: this.idToProvider.get(decision.candidate.id)!,
+      matchKind: 'fuzzy_alias',
+      matchScore: decision.candidate.score,
+      explanation: decision.explanation,
+    };
+  }
+
+  private notFound(suggestions?: ProviderMatchSuggestion[]): ProviderMatch {
     return {
       provider: null,
       matchKind: 'not_found',
-      explanation: ['Provider not found'],
+      explanation: [
+        'Provider not found.',
+        ...(suggestions?.length
+          ? [`Did you mean: ${suggestions.map((s) => s.id).join(', ')}?`]
+          : []),
+      ],
+      suggestions,
     };
   }
 
@@ -118,20 +173,21 @@ export class ZavorthProviderFuzzyResolver {
     return null;
   }
 
-  private fuzzyMatch(input: string): { id: string; score: number } | null {
+  private rankFuzzyCandidates(input: string): ProviderMatchSuggestion[] {
     if (input.includes('-compatible-') || input.includes('-custom-') || input.includes('-gateway-')) {
-      return null;
+      return [];
     }
-    let best: { id: string; score: number } | null = null;
+    const ranked: ProviderMatchSuggestion[] = [];
     for (const [providerId, candidates] of this.fuzzyCandidates) {
+      let best = 0;
       for (const candidate of candidates) {
-        const score = this.similarity(input, candidate);
-        if (score >= MIN_FUZZY_SCORE && (!best || score > best.score)) {
-          best = { id: providerId, score };
-        }
+        best = Math.max(best, this.similarity(input, candidate));
+      }
+      if (best >= SUGGEST_MIN_SCORE) {
+        ranked.push({ id: providerId, label: this.idToProvider.get(providerId)?.name ?? providerId, score: best });
       }
     }
-    return best;
+    return ranked.sort((a, b) => b.score - a.score);
   }
 
   private stripModelSuffix(input: string): string {

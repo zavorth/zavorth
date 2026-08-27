@@ -1,5 +1,8 @@
 import { UNIVERSAL_PROVIDER_CATALOG } from '../../../src/services/providers/catalog/UniversalProviderCatalog';
-import { ZavorthProviderFuzzyResolver } from '../../../src/services/providers/catalog/ZavorthProviderFuzzyResolver';
+import {
+  ZavorthProviderFuzzyResolver,
+  decideFuzzyResolution,
+} from '../../../src/services/providers/catalog/ZavorthProviderFuzzyResolver';
 import { ZavorthUniversalDynamicAdapter } from '../../../src/providers/ZavorthUniversalDynamicAdapter';
 import { ProviderFactory } from '../../../src/providers/ProviderFactory';
 
@@ -63,6 +66,82 @@ describe('Universal Provider Ecosystem & Fuzzy Resolver Suite', () => {
       const match = resolver.resolveProviderInput('');
       expect(match.matchKind).toBe('not_found');
       expect(match.provider).toBeNull();
+    });
+
+    it('announces auto-correction for clear fuzzy matches instead of correcting silently', () => {
+      const match = resolver.resolveProviderInput('gminii');
+      expect(match.matchKind).toBe('fuzzy_alias');
+      expect(match.provider?.id).toBe('gemini');
+      expect(match.explanation?.join(' ')).toMatch(/auto-corrected/i);
+    });
+
+    it('auto-selects near-exact scores above 0.90 with announcement', () => {
+      const decision = decideFuzzyResolution('fireworkss', [
+        { id: 'fireworks', label: 'Fireworks AI', score: 0.9 },
+      ]);
+      expect(decision.kind).toBe('auto_select');
+      if (decision.kind === 'auto_select') {
+        expect(decision.candidate.id).toBe('fireworks');
+        expect(decision.explanation.join(' ')).toMatch(/auto-corrected/i);
+      }
+    });
+
+    it('auto-selects a unique clear winner in the 0.65-0.90 band with announcement', () => {
+      const decision = decideFuzzyResolution('deepsek', [
+        { id: 'deepseek', label: 'DeepSeek', score: 0.875 },
+        { id: 'mistral', label: 'Mistral', score: 0.3 },
+      ]);
+      expect(decision.kind).toBe('auto_select');
+      if (decision.kind === 'auto_select') {
+        expect(decision.candidate.id).toBe('deepseek');
+      }
+    });
+
+    it('refuses to guess when two candidates sit within the ambiguity margin', () => {
+      const decision = decideFuzzyResolution('gemni', [
+        { id: 'gemini', label: 'Gemini', score: 0.833 },
+        { id: 'gemma', label: 'Gemma', score: 0.75 },
+      ]);
+      expect(decision.kind).toBe('suggest');
+      if (decision.kind === 'suggest') {
+        expect(decision.suggestions.map((s) => s.id)).toEqual(['gemini', 'gemma']);
+      }
+    });
+
+    it('returns none when no candidate reaches the suggestion floor', () => {
+      const decision = decideFuzzyResolution('completely-unrelated', []);
+      expect(decision.kind).toBe('none');
+    });
+
+    it('caps suggestions at three entries ordered by score', () => {
+      const decision = decideFuzzyResolution('x', [
+        { id: 'a', label: 'A', score: 0.7 },
+        { id: 'b', label: 'B', score: 0.69 },
+        { id: 'c', label: 'C', score: 0.68 },
+        { id: 'd', label: 'D', score: 0.67 },
+      ]);
+      expect(decision.kind).toBe('suggest');
+      if (decision.kind === 'suggest') {
+        expect(decision.suggestions).toHaveLength(3);
+        expect(decision.suggestions.map((s) => s.id)).toEqual(['a', 'b', 'c']);
+      }
+    });
+
+    it('returns not_found without suggestions when every candidate is below the suggestion floor', () => {
+      const match = resolver.resolveProviderInput('zzqqxx');
+      expect(match.matchKind).toBe('not_found');
+      expect(match.provider).toBeNull();
+      expect(match.suggestions ?? []).toHaveLength(0);
+      expect(match.explanation?.join(' ')).not.toContain('Did you mean');
+    });
+
+    it('returns not_found with "did you mean" suggestions when the input sits in the ambiguous band', () => {
+      const match = resolver.resolveProviderInput('cereb');
+      expect(match.matchKind).toBe('not_found');
+      expect(match.provider).toBeNull();
+      expect(match.suggestions?.length).toBeGreaterThanOrEqual(2);
+      expect(match.suggestions?.[0].id).toBe('cerebras');
+      expect(match.explanation?.join(' ')).toContain('Did you mean');
     });
   });
 

@@ -4,7 +4,7 @@
  */
 
 import { UNIVERSAL_PROVIDER_CATALOG, type ProviderCatalogEntry } from '../services/providers/catalog/UniversalProviderCatalog.js';
-import { ZavorthProviderFuzzyResolver } from '../services/providers/catalog/ZavorthProviderFuzzyResolver.js';
+import { ZavorthProviderFuzzyResolver, ProviderMatch } from '../services/providers/catalog/ZavorthProviderFuzzyResolver.js';
 import { DynamicModelCatalogService } from '../services/providers/catalog/DynamicModelCatalogService.js';
 import { ZavorthUniversalDynamicAdapter, type DynamicAdapterConfig } from './ZavorthUniversalDynamicAdapter.js';
 import type { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefinition } from './ILlmProvider.js';
@@ -175,9 +175,17 @@ export class ProviderFactory {
     }
     const match = this.resolver.resolveProviderInput(raw);
     if (!match.provider) {
-      throw new Error(`Provider not registered: ${input}`);
+      throw new Error(this.formatUnknownProviderMessage(input, match));
     }
     return match.provider.id;
+  }
+
+  private static formatUnknownProviderMessage(input: string, match: ProviderMatch): string {
+    const base = `Provider not registered: ${input}`;
+    if (match.suggestions?.length) {
+      return `${base}. Did you mean: ${match.suggestions.map((s) => s.id).join(', ')}?`;
+    }
+    return `${base}.`;
   }
 
   static resolveRuntimeTarget(input: string | ProviderFactoryCreateInput): ProviderFactoryRuntimeTarget {
@@ -204,7 +212,7 @@ export class ProviderFactory {
 
     const match = this.resolver.resolveProviderInput(providerFactoryInputName(input));
     if (match.matchKind === 'not_found' || !match.provider) {
-      throw new Error(`Provider not registered: ${providerFactoryInputName(input)}`);
+      throw new Error(this.formatUnknownProviderMessage(providerFactoryInputName(input), match));
     }
     const provider = match.provider;
     const isFirstClass = provider.runtimeSupported;
