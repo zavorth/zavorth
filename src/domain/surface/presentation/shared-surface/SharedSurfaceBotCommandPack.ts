@@ -1,22 +1,31 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import { PersonaRegistryService } from '../../../../runtime/agent/roster/PersonaRegistryService.js';
 import { DynamicPersonaCompilerService } from '../../../../runtime/agent/roster/DynamicPersonaCompilerService.js';
+import { PeerReviewAdvisoryService } from '../../../../runtime/agent/advisory/PeerReviewAdvisoryService.js';
 
 export interface SharedSurfaceBotCommandPackDeps {
   personaRegistryService: PersonaRegistryService;
   dynamicCompilerService?: DynamicPersonaCompilerService;
+  peerReviewService?: PeerReviewAdvisoryService;
 }
 
 export class SharedSurfaceBotCommandPack {
   private readonly registry: PersonaRegistryService;
   private readonly compiler: DynamicPersonaCompilerService;
+  private readonly peerReviewService: PeerReviewAdvisoryService;
 
   constructor(deps: SharedSurfaceBotCommandPackDeps) {
     this.registry = deps.personaRegistryService;
     this.compiler = deps.dynamicCompilerService || new DynamicPersonaCompilerService();
+    this.peerReviewService = deps.peerReviewService || new PeerReviewAdvisoryService();
   }
 
   public async maybeHandle(ctx: IMessageContext, commandType: string, args: string): Promise<boolean> {
+    if (commandType === '/review') {
+      await this.handleReview(ctx, String(args || '').trim());
+      return true;
+    }
+
     if (commandType !== '/bot') {
       return false;
     }
@@ -42,6 +51,9 @@ export class SharedSurfaceBotCommandPack {
         return true;
       case 'chat':
         await this.handleChat(ctx, subArgs);
+        return true;
+      case 'review':
+        await this.handleReview(ctx, subArgs);
         return true;
       default:
         await this.handleHelp(ctx);
@@ -173,6 +185,35 @@ export class SharedSurfaceBotCommandPack {
     await ctx.reply(`🤖 [Persona: **@${persona.id}** (${persona.role})]: Processing your request...\n> "${prompt}"`);
   }
 
+  private async handleReview(ctx: IMessageContext, topic: string): Promise<void> {
+    if (!topic) {
+      await ctx.reply('Usage: `/review <topic>` or `/bot review <topic>`\nExample: `/review Migrate auth session tokens to HTTP-only cookies`');
+      return;
+    }
+
+    const debate = await this.peerReviewService.conductDialecticDebate(topic);
+    const lines = [
+      `🏛️ **Peer Review Dialectic Deliberation: "${debate.topic}"**`,
+      '',
+      `### 💡 Thesis: ${debate.thesis.name}`,
+      `> **Position**: ${debate.thesis.position}`,
+      ...debate.thesis.arguments.map((a) => `- ${a}`),
+      '',
+      `### 🛡️ Antithesis: ${debate.antithesis.name}`,
+      `> **Position**: ${debate.antithesis.position}`,
+      ...debate.antithesis.counterArguments.map((a) => `- ${a}`),
+      '',
+      `### ⚖️ Council Synthesis & Recommendation`,
+      `**Consensus Points**:`,
+      ...debate.synthesis.consensusPoints.map((c) => `✅ ${c}`),
+      '',
+      `**Actionable Recommendation**:`,
+      `> ${debate.synthesis.actionableRecommendation}`,
+    ];
+
+    await ctx.reply(lines.join('\n'));
+  }
+
   private async handleHelp(ctx: IMessageContext): Promise<void> {
     const lines = [
       '📖 **Zavorth Bot Command Reference**',
@@ -182,6 +223,7 @@ export class SharedSurfaceBotCommandPack {
       '`/bot inspect <id>` — View detailed configuration and system prompt of a persona',
       '`/bot delete <id>` — Remove a persona from the roster',
       '`/bot chat <id> <prompt>` — Dispatch a prompt directly to a specialized persona',
+      '`/bot review <topic>` or `/review <topic>` — Trigger a dialectic multi-persona peer review deliberation',
     ];
     await ctx.reply(lines.join('\n'));
   }

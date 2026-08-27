@@ -396,7 +396,7 @@ function buildBuiltinWaveCommandDescriptors(): readonly UniversalCommandDescript
       name: 'Autonomous Bot & Persona Manager',
       description: 'Lists, creates, inspects, and manages specialized autonomous personas.',
       toolName: 'bot_manage',
-      slashAliases: ['/bot', '/persona', '/bots'],
+      slashAliases: ['/bot', '/persona', '/bots', '/review'],
       group: 'general',
       riskLevel: 'read_only',
       requiresApproval: false,
@@ -405,12 +405,12 @@ function buildBuiltinWaveCommandDescriptors(): readonly UniversalCommandDescript
         properties: {
           action: {
             type: 'string',
-            description: 'Action to perform: list, create, inspect, or delete',
-            enum: ['list', 'create', 'inspect', 'delete'],
+            description: 'Action to perform: list, create, inspect, delete, or review',
+            enum: ['list', 'create', 'inspect', 'delete', 'review'],
           },
           target: {
             type: 'string',
-            description: 'Persona ID or description for creation',
+            description: 'Persona ID or description/topic',
           },
         },
         required: ['action'],
@@ -422,6 +422,18 @@ function buildBuiltinWaveCommandDescriptors(): readonly UniversalCommandDescript
         await registry.initialize();
         const action = String(args.action || 'list').toLowerCase();
         const target = String(args.target || '').trim();
+
+        if (action === 'review') {
+          const { PeerReviewAdvisoryService } = await import('../../runtime/agent/advisory/PeerReviewAdvisoryService.js');
+          const advisory = new PeerReviewAdvisoryService();
+          const debate = await advisory.conductDialecticDebate(target || 'Proposed changes');
+          return {
+            success: true,
+            message: `Peer review debate completed on "${debate.topic}".`,
+            data: debate,
+            formattedOutput: `[Peer Review: "${debate.topic}"]\nThesis (${debate.thesis.name}): ${debate.thesis.position}\nAntithesis (${debate.antithesis.name}): ${debate.antithesis.position}\nRecommendation: ${debate.synthesis.actionableRecommendation}`,
+          };
+        }
 
         if (action === 'create') {
           const compiler = new DynamicPersonaCompilerService();

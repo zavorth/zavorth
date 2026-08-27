@@ -90,4 +90,22 @@ describe('SharedSurfaceBotCommandPack', () => {
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth Bot Command Reference'));
   });
+
+  it('should trigger dialectic deliberation on /bot review <topic>', async () => {
+    const ctx = createMockMessageContext();
+    const handled = await pack.maybeHandle(ctx, '/bot', 'review Refactor authentication layer');
+
+    expect(handled).toBe(true);
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Peer Review Dialectic Deliberation'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Thesis'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Antithesis'));
+  });
+
+  it('should trigger dialectic deliberation on canonical /review <topic>', async () => {
+    const ctx = createMockMessageContext();
+    const handled = await pack.maybeHandle(ctx, '/review', 'Migrate to Bun runtime');
+
+    expect(handled).toBe(true);
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Peer Review Dialectic Deliberation: "Migrate to Bun runtime"'));
+  });
 });

@@ -1,4 +1,5 @@
 import type { AgentPermissionService } from '../permission/AgentPermissionService.js';
+import type { PeerReviewAdvisoryService } from '../../runtime/agent/advisory/PeerReviewAdvisoryService.js';
 
 export type SmartDecisionInput = {
   toolName: string;
@@ -7,16 +8,20 @@ export type SmartDecisionInput = {
   workspaceId?: string | null;
   sessionId?: string | null;
   requiresApproval?: boolean;
+  proposedCode?: string | null;
+  targetFile?: string | null;
 };
 
 export type SmartDecisionAdvice = {
   action: 'allow' | 'ask' | 'deny';
-  source: 'deterministic' | 'smart-model' | 'disabled';
+  source: 'deterministic' | 'smart-model' | 'peer-review-veto' | 'disabled';
+  dissentingOpinions?: string[];
 };
 
 export type SmartDecisionAdvisorOptions = {
   permissionService: Pick<AgentPermissionService, 'evaluate'>;
   askModel?: (prompt: string) => Promise<'approve' | 'deny' | null>;
+  peerReviewService?: Pick<PeerReviewAdvisoryService, 'evaluateAction'> | null;
   enabled?: boolean;
 };
 
@@ -31,11 +36,13 @@ const SMART_BLOCKED_RISKS = new Set(['danger', 'high', 'critical']);
 export class SmartDecisionAdvisor {
   private readonly permissionService: SmartDecisionAdvisorOptions['permissionService'];
   private readonly askModel: SmartDecisionAdvisorOptions['askModel'];
+  private readonly peerReviewService: SmartDecisionAdvisorOptions['peerReviewService'];
   private readonly enabled: boolean;
 
   constructor(options: SmartDecisionAdvisorOptions) {
     this.permissionService = options.permissionService;
     this.askModel = options.askModel;
+    this.peerReviewService = options.peerReviewService ?? null;
     this.enabled = options.enabled === true;
   }
 
@@ -51,6 +58,38 @@ export class SmartDecisionAdvisor {
     if (verdict.action !== 'ask') {
       return { action: verdict.action, source: 'deterministic' };
     }
+
+    if (this.peerReviewService) {
+      try {
+        const review = await this.peerReviewService.evaluateAction({
+          toolName: input.toolName,
+          pattern: input.pattern,
+          risk: input.risk,
+          proposedCode: input.proposedCode,
+          targetFile: input.targetFile,
+        });
+
+        if (review.verdict === 'vetoed') {
+          return {
+            action: 'deny',
+            source: 'peer-review-veto',
+            dissentingOpinions: review.dissentingOpinions.map((o) => `[${o.evaluatorName}] ${o.argument}`),
+          };
+        }
+
+        if (review.verdict === 'attention') {
+          return {
+            action: 'ask',
+            source: 'peer-review-veto',
+            dissentingOpinions: review.dissentingOpinions.map((o) => `[${o.evaluatorName}] ${o.argument}`),
+          };
+        }
+      } catch {
+        // Fail-closed to ask on peer review evaluation error
+        return { action: 'ask', source: 'peer-review-veto' };
+      }
+    }
+
     if (!this.enabled || !this.askModel) {
       return { action: 'ask', source: 'disabled' };
     }
