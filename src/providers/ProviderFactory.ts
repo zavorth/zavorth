@@ -110,6 +110,14 @@ export interface ProviderFactoryCreateInput extends ProviderFactoryRouteInput {
   apiKey?: string;
 }
 
+export type ProviderFactoryCustomRegistration = {
+  id: string;
+  name: string;
+  baseUrl: string;
+  apiKeyEnv: string;
+  defaultModel?: string | null;
+};
+
 export function providerFactoryInputName(input: string | ProviderFactoryCreateInput): string {
   if (typeof input === 'string') return input;
   return input.providerName || input.providerId || input.routeId || input.providerLabel || '';
@@ -126,6 +134,41 @@ export class ProviderFactory {
     'LLM_PROVIDER',
     'ZAVORTH_LLM_PROVIDER',
   ];
+  private static customProviders = new Map<string, ProviderFactoryCustomRegistration>();
+
+  static registerCustomProvider(registration: ProviderFactoryCustomRegistration): void {
+    const id = registration.id.trim().toLowerCase();
+    if (!id) {
+      return;
+    }
+    this.customProviders.set(id, {
+      id,
+      name: registration.name.trim() || id,
+      baseUrl: registration.baseUrl.trim(),
+      apiKeyEnv: registration.apiKeyEnv.trim(),
+      defaultModel: registration.defaultModel || null,
+    });
+    this.clearCache();
+  }
+
+  static unregisterCustomProvider(id: string): void {
+    const key = id.trim().toLowerCase();
+    if (this.customProviders.delete(key)) {
+      this.clearCache();
+    }
+  }
+
+  static listCustomProviders(): ProviderFactoryCustomRegistration[] {
+    return Array.from(this.customProviders.values());
+  }
+
+  private static lookupCustomProvider(input: string | ProviderFactoryCreateInput): ProviderFactoryCustomRegistration | null {
+    const name = providerFactoryInputName(input).trim().toLowerCase();
+    if (!name) {
+      return null;
+    }
+    return this.customProviders.get(name) || null;
+  }
 
   private static readonly knownProviderKeys = new Set<string>(
     UNIVERSAL_PROVIDER_CATALOG.flatMap((entry) => [entry.id.toLowerCase(), entry.name.toLowerCase()]),
@@ -157,11 +200,27 @@ export class ProviderFactory {
     }
     for (const key of this.DEFAULT_PROVIDER_ENV_KEYS) {
       const value = process.env[key]?.trim();
-      if (value) return value;
+      if (value) {
+        const custom = this.customProviders.get(value.toLowerCase());
+        if (custom) {
+          return this.customProviderCreateInput(custom);
+        }
+        return value;
+      }
     }
     throw new Error(
       'No provider specified: set ZAVORTH_DEFAULT_PROVIDER (or LLM_PROVIDER / ZAVORTH_LLM_PROVIDER) or pass an explicit provider name.',
     );
+  }
+
+  private static customProviderCreateInput(custom: ProviderFactoryCustomRegistration): ProviderFactoryCreateInput {
+    return {
+      providerName: custom.id,
+      routeKind: 'custom_compatible',
+      baseUrl: custom.baseUrl,
+      apiKey: process.env[custom.apiKeyEnv],
+      modelName: custom.defaultModel || undefined,
+    };
   }
 
   static clearCache(): void {
@@ -172,6 +231,10 @@ export class ProviderFactory {
     const raw = String(input ?? '');
     if (!raw.trim()) {
       return '';
+    }
+    const custom = this.customProviders.get(raw.trim().toLowerCase());
+    if (custom) {
+      return custom.id;
     }
     const match = this.resolver.resolveProviderInput(raw);
     if (!match.provider) {
@@ -205,6 +268,21 @@ export class ProviderFactory {
         adapterKind: 'openai_compatible',
         apiKey: inputObj.apiKey !== undefined ? inputObj.apiKey : process.env[inputObj.credentialRef || 'OPENAI_API_KEY'],
         baseUrl: inputObj.baseUrl,
+        firstClassProvider: false,
+        genericCompatible: true,
+      };
+    }
+
+    const custom = this.lookupCustomProvider(input);
+    if (custom) {
+      const modelName = (inputObj?.modelName || '').trim() || custom.defaultModel || undefined;
+      return {
+        providerName: custom.id,
+        modelName,
+        runtimeSupported: true,
+        adapterKind: 'openai_compatible',
+        apiKey: inputObj?.apiKey !== undefined ? inputObj.apiKey : process.env[custom.apiKeyEnv] || '',
+        baseUrl: inputObj?.baseUrl || custom.baseUrl,
         firstClassProvider: false,
         genericCompatible: true,
       };

@@ -3,6 +3,8 @@ import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { EnvFileService } from '../services/EnvFileService.js';
 import { config } from '../config/index.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
+import { ProviderOnboardingService } from '../services/providers/catalog/ProviderOnboardingService.js';
+import type { ProviderCompatibilityKind } from '../services/providers/catalog/ProviderCompatibilityClassifier.js';
 import path from 'path';
 import { logger } from '../logger.js';
 
@@ -22,15 +24,16 @@ interface MutableConfigProxy {
 export class ConfigureLlmProfileTool extends BaseTool {
   public readonly name = 'configure_llm_profile';
   public readonly description =
-    'Lists and changes Zavorth default conversational provider/model persistently in .env.';
+    'Lists, changes, or onboards Zavorth default conversational provider/model persistently in .env.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       action: {
         type: 'string',
-        enum: ['list', 'set'],
-        description: 'Action to perform. list shows options; set configures a provider/model.',
+        enum: ['list', 'set', 'onboard'],
+        description:
+          'Action to perform. list shows options; set configures a known provider/model; onboard registers a custom compatible provider.',
       },
       providerName: {
         type: 'string',
@@ -38,11 +41,28 @@ export class ConfigureLlmProfileTool extends BaseTool {
       },
       modelName: {
         type: 'string',
-        description: 'Specific model name. Required for action=set.',
+        description: 'Specific model name. Required for action=set and useful for action=onboard.',
       },
       allowUnavailable: {
         type: 'boolean',
         description: 'When true, allows saving a provider before credentials are ready. Use only when the user confirms.',
+      },
+      baseUrl: {
+        type: 'string',
+        description: 'Base URL for action=onboard (http(s) endpoint of the custom compatible provider).',
+      },
+      apiKeyEnv: {
+        type: 'string',
+        description: 'Existing environment variable name that holds the API key for action=onboard (e.g. ACME_API_KEY).',
+      },
+      compatibility: {
+        type: 'string',
+        enum: ['openai_compatible', 'anthropic_compatible', 'local_self_hosted', 'gateway'],
+        description: 'Compatibility kind for action=onboard. Defaults to openai_compatible.',
+      },
+      label: {
+        type: 'string',
+        description: 'Human-readable provider label for action=onboard.',
       },
     },
     required: ['action'],
@@ -81,7 +101,11 @@ Use "set" to save the change.`,
       return JSON.stringify(this.handleSet(providerName, modelName, allowUnavailable), null, 2);
     }
 
-    throw new Error('Action is invalid. Use "list" or "set".');
+    if (action === 'onboard') {
+      return JSON.stringify(await this.handleOnboard(args), null, 2);
+    }
+
+    throw new Error('Action is invalid. Use "list", "set" or "onboard".');
   }
 
   private handleList(): Record<string, unknown> {
@@ -185,6 +209,79 @@ Use "set" to save the change.`,
         providerDefinition.requirement,
       ),
       message: `Configuration permanently updated. Default provider: ${providerDefinition.provider}, model: ${modelName}.`
+    };
+  }
+
+  private async handleOnboard(args: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const providerName = String(args.providerName || '').toLowerCase().trim();
+    const baseUrl = String(args.baseUrl || '').trim();
+    const apiKeyEnv = args.apiKeyEnv ? String(args.apiKeyEnv).trim() : undefined;
+    const modelName = args.modelName ? String(args.modelName).trim() : undefined;
+    const label = args.label ? String(args.label).trim() : providerName;
+    const compatibility = (args.compatibility as ProviderCompatibilityKind) || 'openai_compatible';
+
+    if (!providerName || !baseUrl) {
+      throw new Error('For action "onboard", "providerName" and "baseUrl" are required.');
+    }
+
+    const onboarding = new ProviderOnboardingService();
+    const result = await onboarding.onboardCustom({
+      id: providerName,
+      label,
+      compatibility,
+      authKind: apiKeyEnv ? 'api_key' : 'none',
+      baseUrl,
+      apiKeyEnv: apiKeyEnv || undefined,
+      modelId: modelName,
+    });
+
+    const envService = this.runtime.envFileService || new EnvFileService();
+    const projectRoot = path.resolve(__dirname, '../..');
+    const envFilePath = this.runtime.envFilePath || path.join(projectRoot, '.env');
+    const envUpdates: Array<{ key: string; value: string; overwrite: boolean }> = [
+      { key: 'LLM_PROVIDER', value: result.providerId, overwrite: true },
+    ];
+    if (result.env.baseUrlRef) {
+      envUpdates.push({ key: result.env.baseUrlRef, value: baseUrl, overwrite: true });
+    }
+    if (result.env.apiKeyRef) {
+      envUpdates.push({ key: result.env.apiKeyRef, value: '', overwrite: false });
+    }
+    if (modelName) {
+      const modelKey = `${result.providerId.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '')}_MODEL`;
+      envUpdates.push({ key: modelKey, value: modelName, overwrite: true });
+    }
+    envService.upsertEntries(envFilePath, envUpdates);
+
+    const apiKeyRef = result.env.apiKeyRef;
+    ProviderFactory.registerCustomProvider({
+      id: result.providerId,
+      name: result.label,
+      baseUrl,
+      apiKeyEnv: apiKeyRef || `${result.providerId.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '')}_API_KEY`,
+      defaultModel: modelName || null,
+    });
+
+    (this.runtime.clearProviderCache || (() => ProviderFactory.clearCache()))();
+    const mutableConfig = config as unknown as MutableConfigProxy;
+    mutableConfig.llmProvider = result.providerId;
+
+    const providerReady = result.runtime.supported && (apiKeyRef === null || Boolean(process.env[apiKeyRef]));
+
+    return {
+      status: 'success',
+      provider: result.providerId,
+      label: result.label,
+      baseUrl,
+      model: modelName || null,
+      envFilePath,
+      provider_ready: providerReady,
+      provider_notice: providerReady
+        ? `${result.label}: connected.`
+        : `${result.label}: saved, awaiting credentials.`,
+      warnings: result.warnings,
+      explanation: result.explanation,
+      message: `Provider "${result.providerId}" onboarded as a custom compatible provider. Default provider updated.`,
     };
   }
 

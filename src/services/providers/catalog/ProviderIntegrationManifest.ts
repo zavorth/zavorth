@@ -137,7 +137,7 @@ export function createMinimalProviderIntegrationManifest(
         label: input.label,
         vendorId,
         providerIds: [providerId],
-        summary: `manifest minimo para ${input.label}.`,
+        summary: `Minimal manifest for ${input.label}.`,
         defaultModelName: input.defaultModelName || null,
         secondaryModelNames: [],
         fallbackModelNames: [],

@@ -121,7 +121,7 @@ export class CustomCompatibleProviderOnboardingService {
       catalogSource: input.modelId ? 'custom_model' : 'fallback_catalog',
       limitations: [
         ...(route.limitations || []),
-        'Provider created por onboarding custom-compatible; requer validation before virar default.',
+        'Registered via custom-compatible onboarding; requires validation before becoming default.',
       ],
     }));
     manifest.families = manifest.families.map((family) => ({
@@ -151,7 +151,7 @@ export class CustomCompatibleProviderOnboardingService {
       },
       warnings: this.buildWarnings(input, classification),
       explanation: [
-        `Onboarding prepairu ${input.label} como ${input.compatibility}.`,
+        `Prepared ${input.label} as a ${input.compatibility} compatible provider.`,
         ...classification.explanation,
         'The manifest declares authKind, base URL, and catalog origin before reaching the runtime.',
       ],
@@ -193,7 +193,7 @@ export class CustomCompatibleProviderOnboardingService {
       warnings.push('Anthropic-compatible was cataloged, but does not yet have an active generic adapter in runtime.');
     }
     if (!input.modelId) {
-      warnings.push('No model principal informado; catalog ficara como fallback ate discovery/validation.');
+      warnings.push('No primary model declared; the catalog falls back until discovery or validation.');
     }
     if (classification.baseUrlRequired) {
       warnings.push('Base URL must remain declared and auditable before use.');

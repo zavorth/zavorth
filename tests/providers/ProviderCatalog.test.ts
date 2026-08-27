@@ -94,6 +94,7 @@ const CATALOG_SERVICE_FILES = [
   'ProviderIntegrationManifest.ts',
   'ProviderIntegrationRegistry.ts',
   'ProviderMeshOnboardingProductService.ts',
+  'ProviderOnboardingService.ts',
   'UniversalProviderCatalog.ts',
   'ZavorthProviderFuzzyResolver.ts',
   'zavorthProviderCapabilityInventory.ts'
