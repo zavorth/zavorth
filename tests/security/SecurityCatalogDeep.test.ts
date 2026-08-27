@@ -37,6 +37,7 @@ const SECURITY_FILES = [
   'RbacEngine.ts',
   'SafeFetchService.ts',
   'SafeProcessExec.ts',
+  'SanitizedProviderFetch.ts',
   'SecurityOperationalPreset.ts',
   'SecurityPolicyBroker.ts',
   'SecurityProfile.ts',
@@ -970,6 +971,12 @@ describe('Supporting security files', () => {
   it('SafeFetchService.ts exports fetch service', () => {
     const content = readSecurityFile('SafeFetchService.ts');
     expect(content).toMatch(/export/);
+  });
+
+  it('SanitizedProviderFetch.ts exports guarded fetch', () => {
+    const content = readSecurityFile('SanitizedProviderFetch.ts');
+    expect(content).toMatch(/export\s+async\s+function\s+sanitizedProviderFetch/);
+    expect(content).toMatch(/assertProviderRequestTargetAllowed/);
   });
 
   it('ChildProcessEnv.ts exports env utilities', () => {
