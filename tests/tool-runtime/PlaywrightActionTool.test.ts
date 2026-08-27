@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -84,5 +85,52 @@ describe('PlaywrightActionTool', () => {
       originalSelector: '[data-testid="submit-order"]',
       resolvedSelector: '#finalize-order',
     }));
+  });
+
+  it('validates schema with useRealProfile and allowedDomains', () => {
+    const tool = new PlaywrightActionTool();
+    const parsed = tool.schema.safeParse({
+      action: 'navigate',
+      url: 'https://github.com',
+      useRealProfile: true,
+      allowedDomains: ['*.github.com'],
+    });
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.useRealProfile).toBe(true);
+      expect(parsed.data.allowedDomains).toEqual(['*.github.com']);
+    }
+  });
+
+  it('disposes ephemeral snapshot directory when browser session is closed', async () => {
+    const tool = new PlaywrightActionTool();
+    const mockSnapshotDir = path.join(os.tmpdir(), `zavorth-vault-test-close-${Date.now()}`);
+    fs.mkdirSync(mockSnapshotDir, { recursive: true });
+    fs.writeFileSync(path.join(mockSnapshotDir, 'test.txt'), 'ephemeral');
+
+    const sessionsMap = (PlaywrightActionTool as unknown as { sessions: Map<string, unknown> }).sessions;
+    sessionsMap.set('test-dispose-session', {
+      browser: { close: jest.fn(async () => undefined) },
+      page: { close: jest.fn(async () => undefined) },
+      createdAt: new Date().toISOString(),
+      lastActionAt: new Date().toISOString(),
+      actionCount: 1,
+      lastKnownUrl: null,
+      lastTargetPolicy: null,
+      lastSelfHealing: null,
+      snapshotDir: mockSnapshotDir,
+    });
+
+    expect(fs.existsSync(mockSnapshotDir)).toBe(true);
+
+    const closeResult = await tool.execute({
+      action: 'close',
+    }, {
+      sessionId: 'test-dispose-session',
+    });
+
+    expect(closeResult.success).toBe(true);
+    expect(fs.existsSync(mockSnapshotDir)).toBe(false);
   });
 });

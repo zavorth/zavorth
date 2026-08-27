@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { logger } from '../../../logger.js';
-import type { Browser, Page } from 'playwright-core';
+import type { Browser, BrowserContext, Page } from 'playwright-core';
+import { BrowserProfileResolverService } from './BrowserProfileResolverService.js';
+import { DomainScopedBrowserProfileService } from './DomainScopedBrowserProfileService.js';
 import { IZavorthTool, ToolCategory, ToolDangerLevel, ToolExecutionResult } from '../../types/IZavorthTool.js';
 import { EchoVisionAnalysisService } from '../../../domain/platform-ecosystem/infrastructure/VisionAnalysisService.js';
 import {
@@ -23,7 +25,7 @@ type BrowserSelfHealingSnapshot = {
 };
 
 type BrowserSessionState = {
-    browser: Browser;
+    browser: Browser | BrowserContext;
     page: Page;
     createdAt: string;
     lastActionAt: string;
@@ -31,6 +33,7 @@ type BrowserSessionState = {
     lastKnownUrl: string | null;
     lastTargetPolicy: BrowserTargetPolicy | null;
     lastSelfHealing: BrowserSelfHealingSnapshot | null;
+    snapshotDir?: string | null;
 };
 
 type BrowserInteractiveOutcome =
@@ -58,6 +61,8 @@ interface BrowserToolArgs {
     url?: string;
     selector?: string;
     text?: string;
+    useRealProfile?: boolean;
+    allowedDomains?: string[];
 }
 
 interface BrowserToolContext {
@@ -80,6 +85,8 @@ export class PlaywrightActionTool implements IZavorthTool {
         url: z.string().optional().describe('URL to navigate to. Used only with the navigate action.'),
         selector: z.string().optional().describe('CSS selector to interact with. Used by click, type, and extract.'),
         text: z.string().optional().describe('Text to type. Used only with the type action.'),
+        useRealProfile: z.boolean().optional().describe('When true, mounts an ephemeral domain-scoped snapshot of the user real browser profile.'),
+        allowedDomains: z.array(z.string()).optional().describe('Whitelisted domains for cookie retention when useRealProfile is true.'),
     });
 
     // Session map isolates instances for multi-tenant safety.
@@ -137,7 +144,10 @@ export class PlaywrightActionTool implements IZavorthTool {
                 }
             }
 
-            const session = await this.getSession(sessionId);
+            const session = await this.getSession(sessionId, {
+                useRealProfile: args.useRealProfile,
+                allowedDomains: args.allowedDomains,
+            });
             const page = session.page;
             let actionMessage = '';
             let extraData: Record<string, unknown> = {};
@@ -262,16 +272,45 @@ export class PlaywrightActionTool implements IZavorthTool {
         };
     }
 
-    private async getSession(sessionId: string): Promise<BrowserSessionState> {
+    private async getSession(
+        sessionId: string,
+        options?: { useRealProfile?: boolean; allowedDomains?: string[] },
+    ): Promise<BrowserSessionState> {
         let session = PlaywrightActionTool.sessions.get(sessionId);
 
         if (!session) {
             const { chromium } = await import('playwright');
-            const browser = await chromium.launch({
-                headless: true,
-                args: ['--no-sandbox', '--disable-setuid-sandbox'],
-            });
-            const page = await browser.newPage();
+            let browser: Browser | BrowserContext;
+            let page: Page;
+            let snapshotDir: string | null = null;
+
+            if (options?.useRealProfile) {
+                const resolver = new BrowserProfileResolverService();
+                const resolution = resolver.resolveProfile();
+                if (!resolution.success || !resolution.selectedCandidate) {
+                    throw new Error(`Real browser profile requested but no existing profile could be resolved: ${resolution.error || 'unknown'}`);
+                }
+
+                const vault = new DomainScopedBrowserProfileService();
+                const snapshot = await vault.createDomainScopedSnapshot(resolution.selectedCandidate, {
+                    allowedDomains: options.allowedDomains,
+                });
+                snapshotDir = snapshot.snapshotDir;
+
+                const persistentContext = await chromium.launchPersistentContext(snapshotDir, {
+                    headless: true,
+                    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+                });
+                browser = persistentContext;
+                page = persistentContext.pages()[0] || await persistentContext.newPage();
+            } else {
+                const standardBrowser = await chromium.launch({
+                    headless: true,
+                    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+                });
+                browser = standardBrowser;
+                page = await standardBrowser.newPage();
+            }
 
             await page.setExtraHTTPHeaders({
                 'Accept-Language': 'en-US,pt;q=0.9,en-US;q=0.8,en;q=0.7',
@@ -290,6 +329,7 @@ export class PlaywrightActionTool implements IZavorthTool {
                 lastKnownUrl: this.readCurrentUrl(page),
                 lastTargetPolicy: null,
                 lastSelfHealing: null,
+                snapshotDir,
             };
             PlaywrightActionTool.sessions.set(sessionId, session);
         }
@@ -346,6 +386,14 @@ export class PlaywrightActionTool implements IZavorthTool {
 
         await session.page.close().catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
         await session.browser.close().catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+
+        if (session.snapshotDir) {
+            const vault = new DomainScopedBrowserProfileService();
+            await vault.disposeSnapshot(session.snapshotDir).catch((err) => {
+                logger.warn(`Failed to dispose snapshot dir ${session.snapshotDir}`, err);
+            });
+        }
+
         PlaywrightActionTool.sessions.delete(sessionId);
         return lifecycle;
     }
