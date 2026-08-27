@@ -8,6 +8,10 @@ import type { ProviderCompatibilityKind } from '../services/providers/catalog/Pr
 import path from 'path';
 import { logger } from '../logger.js';
 
+function envPrefix(providerId: string): string {
+  return providerId.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+}
+
 type ConfigureLlmProfileToolRuntime = {
   envFilePath?: string;
   envFileService?: EnvFileService;
@@ -19,7 +23,13 @@ type ConfigureLlmProfileToolRuntime = {
 interface MutableConfigProxy {
   llmProvider: string;
   geminiDefaultModel: string;
-  [key: string]: string;
+  openCodeModel: string;
+  openaiModel: string;
+  deepseekModel: string;
+  openRouterModel: string;
+  qwenModel: string;
+  minimaxModel: string;
+  AIGatewayModel: string;
 }
 
 export class ConfigureLlmProfileTool extends BaseTool {
@@ -293,7 +303,7 @@ Use "set" to save the change.`,
       envUpdates.push({ key: result.env.apiKeyRef, value: '', overwrite: false });
     }
     if (modelName) {
-      const modelKey = `${result.providerId.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '')}_MODEL`;
+      const modelKey = `${envPrefix(result.providerId)}_MODEL`;
       envUpdates.push({ key: modelKey, value: modelName, overwrite: true });
     }
     envService.upsertEntries(envFilePath, envUpdates);
@@ -303,7 +313,7 @@ Use "set" to save the change.`,
       id: result.providerId,
       name: result.label,
       baseUrl,
-      apiKeyEnv: apiKeyRef || `${result.providerId.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '')}_API_KEY`,
+      apiKeyEnv: apiKeyRef || `${envPrefix(result.providerId)}_API_KEY`,
       defaultModel: modelName || null,
       models,
     });
@@ -410,20 +420,25 @@ Use "set" to save the change.`,
     ProviderFactory.unregisterCustomProvider(providerName);
     (this.runtime.clearProviderCache || (() => ProviderFactory.clearCache()))();
 
+    const mutableConfig = config as unknown as MutableConfigProxy;
+    const wasActiveDefault = mutableConfig.llmProvider === providerName;
+    if (wasActiveDefault) {
+      mutableConfig.llmProvider = '';
+    }
+
     return {
       status: 'success',
       provider: providerName,
       removed_env_keys: keysToRemove,
-      message: `Provider "${providerName}" removed.`,
+      cleared_active_default: wasActiveDefault,
+      message: wasActiveDefault
+        ? `Provider "${providerName}" removed and active default cleared.`
+        : `Provider "${providerName}" removed.`,
     };
   }
 
   private normalizeProvider(providerName: string): string {
-    const normalized = ProviderFactory.normalizeProviderName(providerName);
-    if (normalized === 'puter') {
-      return 'qwen';
-    }
-    return normalized;
+    return ProviderFactory.normalizeProviderName(providerName);
   }
 
   private resolveProviderDefinition(provider: string): {
@@ -538,7 +553,11 @@ Use "set" to save the change.`,
         enabled: missing.length === 0,
         requirement: missing.join(' + ') || 'ok',
       };
-    } catch (error: unknown) {logger.warn('[ure Llm Profile] module import failed', error); return null; }
+    } catch (error: unknown) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      logger.warn('[ConfigureLlmProfile] Provider resolution failed', { provider, error: err.message });
+      return null;
+    }
   }
 
   private buildShortNotice(provider: string, status: 'ready' | 'prepared' | 'blocked', requirement: string): string {

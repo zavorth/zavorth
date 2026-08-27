@@ -111,7 +111,11 @@ function parseYamlConfig(content: string): ExternalProviderConfig[] {
       return [normalizeConfig(data as RawProviderConfig)];
     }
     return [];
-  } catch (error: unknown) {logger.warn('[External Import] YAML parse failed', error); return []; }
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    logger.warn('[External Import] YAML parse failed', { error: err.message });
+    return [];
+  }
 }
 
 function parseEnvConfig(content: string): ExternalProviderConfig[] {
@@ -255,12 +259,12 @@ export class ProviderExternalImportService {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[External Import] filesystem operation failed', error);
-    return {
+      return {
         success: false,
         providers: [],
         manifests: [],
         warnings,
-        errors: [`Failed to read source: ${error instanceof Error ? err.message : 'Unknown error'}`],
+        errors: [`Failed to read source: ${err.message}`],
       };
   }
 
@@ -319,7 +323,7 @@ export class ProviderExternalImportService {
       }
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      errors.push(`Directory scan error: ${error instanceof Error ? err.message : 'Unknown error'}`);
+      errors.push(`Directory scan error: ${err.message}`);
     }
 
     const manifests = allProviders.map(configToManifest);
