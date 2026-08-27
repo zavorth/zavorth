@@ -30,6 +30,7 @@ interface MutableConfigProxy {
   qwenModel: string;
   minimaxModel: string;
   AIGatewayModel: string;
+  [key: string]: string | undefined;
 }
 
 export class ConfigureLlmProfileTool extends BaseTool {

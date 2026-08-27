@@ -94,17 +94,10 @@ function buildQuotaEntry(
       quotaUsed = 100;
       percentRemaining = 0;
     } else {
-      // Fallback synthetic signal from queue pressure when limit headers are unavailable.
-      const queued = typeof rateStatus?.queued === "number" ? rateStatus.queued : 0;
-      const running = typeof rateStatus?.running === "number" ? rateStatus.running : 0;
-      const executing = typeof rateStatus?.executing === "number" ? rateStatus.executing : 0;
-
-      const syntheticUsage = Math.min(95, queued * 10 + running * 5 + executing * 3);
-      if (syntheticUsage > 0) {
-        quotaTotal = 100;
-        quotaUsed = syntheticUsage;
-        percentRemaining = 100 - syntheticUsage;
-      }
+      // Limit headers unavailable from provider; report exact telemetry without synthesizing fake quota percentages.
+      quotaTotal = null;
+      quotaUsed = null;
+      percentRemaining = null;
     }
   }
 

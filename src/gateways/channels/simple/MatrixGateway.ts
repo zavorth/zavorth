@@ -22,7 +22,8 @@ export class MatrixGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/matrix',
       doctorCommand: '/channels doctor matrix',
-      operatorNextStep: this.resolveConfigured() ? 'Matrix configured. Send messages through the native HTTP API.'
+      operatorNextStep: this.resolveConfigured()
+        ? 'Matrix configured. Send messages through the native HTTP API.'
         : 'set MATRIX_BASE_URL and MATRIX_ACCESS_TOKEN to activate.',
     };
   }
@@ -45,7 +46,8 @@ export class MatrixGateway extends WebhookGateway {
     const base = super.doctorSnapshot();
     return {
       ...base,
-      installHint: this.resolveConfigured() ? 'Matrix Client-Server API ready for room send (m.room.message).'
+      installHint: this.resolveConfigured()
+        ? 'Matrix Client-Server API ready for room send (m.room.message).'
         : 'Set MATRIX_BASE_URL + MATRIX_ACCESS_TOKEN (+ MATRIX_DEFAULT_ROOM_ID).',
       allowlist: {
         ...base.allowlist,
@@ -84,7 +86,7 @@ export class MatrixGateway extends WebhookGateway {
       || '',
     ).trim();
     const content = webhookPayload.content && typeof webhookPayload.content === 'object'
-      ? webhookPayload.content as Record<string, unknown>
+      ? (webhookPayload.content as Record<string, unknown>)
       : null;
     const rawText = String(
       (content?.body as string)
@@ -119,7 +121,7 @@ export class MatrixGateway extends WebhookGateway {
 
   public async sendToRoom(roomId: string, text: string): Promise<void> {
     if (!this.resolveConfigured() || !this.fetchImpl) {
-      this.writeStubOutbound(roomId, text);
+      this.recordError('Matrix channel is not configured with matrixBaseUrl and matrixAccessToken.');
       return;
     }
 
@@ -153,13 +155,5 @@ export class MatrixGateway extends WebhookGateway {
       const err = asErrorLike(error);
       this.recordError(`Matrix send failed: ${error instanceof Error ? err.message : String(error)}`);
     }
-  }
-
-  private writeStubOutbound(roomId: string, text: string): void {
-    this.sendMessage({
-      recipients: [roomId],
-      text,
-      chatId: roomId,
-    });
   }
 }

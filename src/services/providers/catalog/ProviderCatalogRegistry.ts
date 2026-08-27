@@ -210,8 +210,11 @@ export class ProviderCatalogRegistry {
   async probeReadiness(
     id: string,
     options?: { fetchImpl?: typeof globalThis.fetch; timeoutMs?: number },
-  ): Promise<ProviderReadiness & { endpointReachable: boolean; probeMs: number; probeError?: string }> {
+  ): Promise<(ProviderReadiness & { endpointReachable: boolean; probeMs: number; probeError?: string }) | null> {
     const base = this.readiness(id);
+    if (!base) {
+      return null;
+    }
     if (base.kind === 'unsupported' || base.kind === 'missing_configuration') {
       return { ...base, endpointReachable: false, probeMs: 0 };
     }
