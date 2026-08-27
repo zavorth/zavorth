@@ -9,7 +9,7 @@ import type {
   ProviderIntegrationManifest,
   ProviderIntegrationRouteManifest,
 } from './ProviderIntegrationManifest.js';
-import { findCatalogProvider } from './UniversalProviderCatalog.js';
+import { providerCatalogRegistry } from './ProviderCatalogRegistry.js';
 import { getFirstClassProvidersSet, getAnthropicRouteIdsSet, getOpenAiCompatibleRouteIdsSet } from '../../../config/index.js';
 
 export type ProviderCompatibilityKind =
@@ -117,7 +117,7 @@ export class ProviderCompatibilityClassifier {
       if (getAnthropicRouteIdsSet().has(token)) {
         return true;
       }
-      const catalogEntry = findCatalogProvider(token);
+      const catalogEntry = providerCatalogRegistry.get(token);
       return catalogEntry !== null && (catalogEntry.protocol === 'claude_native' || catalogEntry.protocol === 'anthropic');
     });
     const isOpenAiCompatible = routeKind === 'custom_compatible'

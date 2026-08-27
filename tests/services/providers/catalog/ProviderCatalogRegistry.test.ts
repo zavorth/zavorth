@@ -189,4 +189,50 @@ describe('ProviderCatalogRegistry', () => {
     expect(registry.readiness('openai')?.kind).toBe('ready');
     expect(registry.readiness('missing-provider')).toBeNull();
   });
+
+  it('probeReadiness returns endpointReachable true for reachable URL', async () => {
+    const registry = new ProviderCatalogRegistry({ filePath: registryPath });
+    registry.register({ id: 'probe-ok', name: 'Probe OK', baseUrl: 'https://httpbin.org/status/200' });
+
+    const fakeFetch = jest.fn().mockResolvedValue({ status: 200 });
+    const result = await registry.probeReadiness('probe-ok', { fetchImpl: fakeFetch as typeof fetch, timeoutMs: 2000 });
+
+    expect(result.kind).toBe('ready');
+    expect(result.endpointReachable).toBe(true);
+    expect(result.probeMs).toBeGreaterThanOrEqual(0);
+    expect(fakeFetch).toHaveBeenCalledWith('https://httpbin.org/status/200', expect.objectContaining({ method: 'HEAD' }));
+  });
+
+  it('probeReadiness returns endpointReachable false on network error', async () => {
+    const registry = new ProviderCatalogRegistry({ filePath: registryPath });
+    registry.register({ id: 'probe-fail', name: 'Probe Fail', baseUrl: 'https://unreachable.example/v1' });
+
+    const fakeFetch = jest.fn().mockRejectedValue(new Error('DNS resolution failed'));
+    const result = await registry.probeReadiness('probe-fail', { fetchImpl: fakeFetch as typeof fetch, timeoutMs: 2000 });
+
+    expect(result.kind).toBe('ready');
+    expect(result.endpointReachable).toBe(false);
+    expect(result.probeError).toBe('DNS resolution failed');
+  });
+
+  it('probeReadiness returns endpointReachable false for unsupported provider', async () => {
+    const registry = new ProviderCatalogRegistry({ filePath: registryPath });
+    registry.register({ id: 'probe-unsup', name: 'Unsupported', baseUrl: 'https://x.example/v1', runtimeSupported: false });
+
+    const result = await registry.probeReadiness('probe-unsup');
+
+    expect(result.kind).toBe('unsupported');
+    expect(result.endpointReachable).toBe(false);
+    expect(result.probeMs).toBe(0);
+  });
+
+  it('probeReadiness returns endpointReachable false for missing configuration', async () => {
+    const registry = new ProviderCatalogRegistry({ filePath: registryPath });
+    registry.register({ id: 'probe-no-url', name: 'No URL' });
+
+    const result = await registry.probeReadiness('probe-no-url');
+
+    expect(result.kind).toBe('missing_configuration');
+    expect(result.endpointReachable).toBe(false);
+  });
 });

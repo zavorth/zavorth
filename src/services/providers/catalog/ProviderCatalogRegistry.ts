@@ -207,6 +207,49 @@ export class ProviderCatalogRegistry {
     return { providerId: entry.id, kind: 'ready', reasons: [] };
   }
 
+  async probeReadiness(
+    id: string,
+    options?: { fetchImpl?: typeof globalThis.fetch; timeoutMs?: number },
+  ): Promise<ProviderReadiness & { endpointReachable: boolean; probeMs: number; probeError?: string }> {
+    const base = this.readiness(id);
+    if (base.kind === 'unsupported' || base.kind === 'missing_configuration') {
+      return { ...base, endpointReachable: false, probeMs: 0 };
+    }
+    const entry = this.get(id);
+    if (!entry?.baseUrl) {
+      return { ...base, endpointReachable: false, probeMs: 0 };
+    }
+    const fetchFn = options?.fetchImpl ?? globalThis.fetch;
+    const timeoutMs = options?.timeoutMs ?? 5000;
+    const start = Date.now();
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      const res = await fetchFn(entry.baseUrl, {
+        method: 'HEAD',
+        signal: controller.signal,
+        redirect: 'follow',
+      });
+      clearTimeout(timer);
+      const probeMs = Date.now() - start;
+      return {
+        ...base,
+        endpointReachable: res.status < 500,
+        probeMs,
+        probeError: res.status >= 500 ? `HTTP ${res.status}` : undefined,
+      };
+    } catch (error: unknown) {
+      const probeMs = Date.now() - start;
+      const err = asErrorLike(error);
+      return {
+        ...base,
+        endpointReachable: false,
+        probeMs,
+        probeError: err.message || 'Network error',
+      };
+    }
+  }
+
   reload(): void {
     this.loadPersisted();
   }
