@@ -154,7 +154,7 @@ export async function GET(request: Request) {
     }
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[ExportAll] Error:", error);
+    logger.error("[ExportAll] Error:", error);
     return NextResponse.json(
       {
         error: "Failed to create full export",

@@ -64,7 +64,7 @@ export class ZavorthTrajectoryCompressorService {
     const summaryItems: string[] = [];
     const filesTouched = new Set<string>();
     const executedTools = new Set<string>();
-    
+
 
     for (const turn of middleTurns) {
       if (turn.toolCalls && turn.toolCalls.length > 0) {

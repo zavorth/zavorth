@@ -87,7 +87,7 @@ export async function POST(request: unknown) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Cursor import token error:", error);
+    logger.info("Cursor import token error:", error);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
@@ -134,6 +134,6 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: unknown) {console.log("Error syncing to cloud after Cursor import:", error);
+  } catch (error: unknown) {logger.info("Error syncing to cloud after Cursor import:", error);
   }
 }

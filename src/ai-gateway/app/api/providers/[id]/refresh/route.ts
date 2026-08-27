@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getProviderConnectionById } from "@/models";
 import { getAccessToken, updateProviderCredentials } from "@/sse/services/tokenRefresh";
-import { requireManagementAuth } from "@/lib/api/requireManagementAuth";/**
+import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from "@/shared/utils/logger";/**
  * POST /api/providers/[id]/refresh
  * Manually trigger an OAuth token refresh for a provider connection.
  * Useful when the zavorthControl shows a stale/expired token and the user
@@ -71,7 +72,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       expiresAt,
       refreshedAt: new Date().toISOString(),
     });
-  } catch (error: unknown) {console.error("[T12] Token refresh failed:", error);
+  } catch (error: unknown) {logger.error("[T12] Token refresh failed:", error);
     return NextResponse.json(
       { error: "Token refresh failed", details: (error as Error).message },
       { status: 500 }

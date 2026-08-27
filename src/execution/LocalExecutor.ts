@@ -377,7 +377,7 @@ export class LocalExecutor implements IExecutor {
               success = true;
             } catch (execErr: unknown) {
               const err = asErrorLike(execErr);
-              
+
               const errMsg = execErr instanceof Error ? err.message : String(execErr || '');
 
               const missingModuleMatchPy = errMsg.match(/ModuleNotFoundError: No module named '([^']+)'/);

@@ -77,7 +77,7 @@ export async function GET(request: Request) {
         error: `Failed to read database: ${(error as unknown as Record<string, unknown>).message}`,
       });
     }
-  } catch (error: unknown) {console.log("Cursor auto-import error:", error);
+  } catch (error: unknown) {logger.info("Cursor auto-import error:", error);
     return NextResponse.json({ found: false, error: (error as unknown as Record<string, unknown>).message }, { status: 500 });
   }
 }

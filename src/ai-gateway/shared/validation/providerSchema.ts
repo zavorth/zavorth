@@ -9,6 +9,7 @@
  */
 
 import { z } from "zod";
+import { logger } from "@/shared/utils/logger";
 
 export const ProviderSchema = z.object({
   id: z.string().min(1),
@@ -38,7 +39,7 @@ export function validateProviders(map: Record<string, unknown>, name: string): v
   const result = ProvidersMapSchema.safeParse(map);
   if (!result.success) {
     const issues = result.error.issues.map((i) => `  ${i.path.join(".")}: ${i.message}`).join("\n");
-    console.error(`[PROVIDER VALIDATION] ${name} has invalid entries:\n${issues}`);
+    logger.error(`[PROVIDER VALIDATION] ${name} has invalid entries:\n${issues}`);
     throw new Error(`Provider validation failed for ${name}`);
   }
 }

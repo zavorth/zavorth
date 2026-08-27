@@ -231,7 +231,7 @@ export class PluginOsBootstrapCatalogService {
           enable: true,
         });
         enabled.push(pluginId);
-      } catch (error) {
+      } catch (error: unknown) {
         skipped.push({
           pluginId,
           reason: `enable_failed: ${error instanceof Error ? error.message : String(error)}`,

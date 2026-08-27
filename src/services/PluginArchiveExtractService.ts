@@ -56,7 +56,7 @@ export class PluginArchiveExtractService {
 
     try {
       this.mkdirSync(resolvedExtract, { recursive: true });
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return { ok: false, error: `Unable to create extract dir: ${message}` };
     }
@@ -76,7 +76,7 @@ export class PluginArchiveExtractService {
       this.mkdirSync(extractDir, { recursive: true });
       const filesWritten = this.pureExtractZip(buffer, extractDir);
       return { ok: true, method: 'pure', filesWritten };
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return { ok: false, method: 'pure', error: message };
     }
@@ -91,7 +91,7 @@ export class PluginArchiveExtractService {
       } else {
         try {
           tarBuffer = zlib.gunzipSync(buffer, { maxOutputLength: MAX_ARCHIVE_TOTAL_BYTES });
-        } catch (gzipError) {
+        } catch (gzipError: unknown) {
           // Some tools write .tgz URLs that are not gzip; try plain tar.
           try {
             const filesWritten = this.pureExtractTar(buffer, extractDir);
@@ -107,7 +107,7 @@ export class PluginArchiveExtractService {
       }
       const filesWritten = this.pureExtractTar(tarBuffer, extractDir);
       return { ok: true, method: 'pure', filesWritten };
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return { ok: false, method: 'pure', error: `tgz extract failed: ${message}` };
     }
@@ -124,7 +124,7 @@ export class PluginArchiveExtractService {
       const buffer = this.readFileSync(archivePath);
       const filesWritten = this.pureExtractZip(buffer, extractDir);
       return { ok: true, method: 'pure', filesWritten };
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return { ok: false, method: 'pure', error: `zip extract failed: ${message}` };
     }
@@ -144,7 +144,7 @@ export class PluginArchiveExtractService {
         return { ok: true, method: 'pure', filesWritten };
       }
       return this.extractTgzBuffer(buffer, extractDir, false);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return { ok: false, method: 'pure', error: `tgz extract failed: ${message}` };
     }

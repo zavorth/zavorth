@@ -303,7 +303,7 @@ export class LiveUserProviderHarness {
       if (creds.family === 'gemini') return await this.probeGemini(creds);
       if (creds.family === 'openai') return await this.probeOpenAi(creds);
       return await this.probeAnthropic(creds);
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         status: 'fail',
         notes: error instanceof Error ? error.message : String(error),
@@ -360,7 +360,7 @@ export class LiveUserProviderHarness {
         return await this.multiStepOpenAi(creds, marker, toolResult);
       }
       return await this.multiStepAnthropic(creds, marker, toolResult);
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         status: 'fail',
         notes: error instanceof Error ? error.message : String(error),
@@ -403,7 +403,7 @@ export class LiveUserProviderHarness {
           : this.t('runtime_probe_token_mismatch', 'Provider {provider} replied, but did not return the exact certification token.', { provider: providerId }),
         evidence: this.runtimeEvidence(result, { exactToken: exact, runtimePath: true }),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       return this.runtimeFailure(selection, error, 'probe');
     }
   }
@@ -480,7 +480,7 @@ export class LiveUserProviderHarness {
           marker,
         }),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       return this.runtimeFailure(selection, error, 'multi-step');
     }
   }

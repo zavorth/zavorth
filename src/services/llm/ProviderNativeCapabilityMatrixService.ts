@@ -1,5 +1,5 @@
 import type { ProviderNativeToolRequest } from '../../providers/ILlmProvider.js';
-import { findCatalogProvider } from '../providers/catalog/UniversalProviderCatalog.js';
+import { providerCatalogRegistry } from '../providers/catalog/ProviderCatalogRegistry.js';
 import {
   PROVIDER_NATIVE_CAPABILITY_MATRIX_VERSION,
   type ProviderNativeCapability,
@@ -250,7 +250,7 @@ export class ProviderNativeCapabilityMatrixService {
   private resolveProviderFamily(providerName: string): string {
     const normalized = normalize(providerName);
     if (!normalized) return 'unknown';
-    const catalogEntry = findCatalogProvider(normalized);
+    const catalogEntry = providerCatalogRegistry.get(normalized);
     if (catalogEntry) {
       return catalogEntry.id;
     }

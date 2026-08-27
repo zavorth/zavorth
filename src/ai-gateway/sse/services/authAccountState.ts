@@ -18,6 +18,7 @@ import {
   type RecoverableConnectionState,
 } from "./authConnectionSupport";
 import { asErrorLike } from '../../../utils/errorLike';
+import { logger } from "@/shared/utils/logger";
 
 const markMutexes = new Map<string, Promise<void>>();
 
@@ -174,7 +175,7 @@ export async function markAccountUnavailable(
       }
 
       if (status && errorMsg) {
-        console.error(`X ${provider} [${status}] (${scope}): ${errorMsg}`);
+        logger.error(`X ${provider} [${status}] (${scope}): ${errorMsg}`);
       }
 
       return { shouldFallback: true, cooldownMs: scopeCooldownMs };
@@ -209,7 +210,7 @@ export async function markAccountUnavailable(
     }
 
     if (provider && status && errorMsg) {
-      console.error(`X ${provider} [${status}]: ${errorMsg}`);
+      logger.error(`X ${provider} [${status}]: ${errorMsg}`);
     }
 
     return { shouldFallback: true, cooldownMs };

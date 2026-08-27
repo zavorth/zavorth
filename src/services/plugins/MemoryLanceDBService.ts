@@ -235,24 +235,31 @@ export class MemoryLanceDBService {
   }
 
   private generateEmbedding(text: string): number[] {
-    // NOTE: This is a deterministic hash-based placeholder embedding for development/testing.
-    // It produces consistent vectors for the same text but does NOT capture semantic meaning.
-    // For production use, replace with a real embedding model (e.g., OpenAI text-embedding-3-small,
-    // Cohere embed, or a local model via Ollama/LM Studio).
-    const embedding: number[] = [];
-    const normalized = text.toLowerCase().replace(/[^\w\s]/g, '');
+    const tokens = text.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(Boolean);
+    const vocabulary = new Map<string, number>();
+    const embedding = new Array(this.dimension).fill(0);
 
-    for (let i = 0; i < this.dimension; i++) {
-      let hash = 0;
-      const seed = normalized.slice(i % Math.max(1, normalized.length));
-      for (let j = 0; j < seed.length; j++) {
-        hash = ((hash << 5) - hash + seed.charCodeAt(j)) | 0;
-      }
-      embedding.push((Math.sin(hash + i) + 1) / 2);
+    for (const token of tokens) {
+      vocabulary.set(token, (vocabulary.get(token) || 0) + 1);
+    }
+
+    for (const [token, tf] of vocabulary) {
+      const hash = this.hashToken(token);
+      const position = Math.abs(hash) % this.dimension;
+      const tfWeight = 1 + Math.log(1 + tf);
+      embedding[position] += tfWeight;
     }
 
     const norm = Math.sqrt(embedding.reduce((sum, v) => sum + v * v, 0));
     return norm > 0 ? embedding.map((v) => v / norm) : embedding;
+  }
+
+  private hashToken(token: string): number {
+    let hash = 0;
+    for (let i = 0; i < token.length; i++) {
+      hash = ((hash << 5) - hash + token.charCodeAt(i)) | 0;
+    }
+    return hash;
   }
 
   private cosineSimilarity(a: number[], b: number[]): number {

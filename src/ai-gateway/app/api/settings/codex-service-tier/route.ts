@@ -18,7 +18,7 @@ import { logger } from '@/shared/utils/logger';export async function GET(reques
     return NextResponse.json({
       enabled: typeof persisted?.enabled === "boolean" ? persisted.enabled : false,
     });
-  } catch (error: unknown) {console.error("[API ERROR] /api/settings/codex-service-tier GET:", error);
+  } catch (error: unknown) {logger.error("[API ERROR] /api/settings/codex-service-tier GET:", error);
     return NextResponse.json({ error: "Failed to get config" }, { status: 500 });
   }
 }
@@ -53,7 +53,7 @@ export async function PUT(request: Request) {
     setDefaultFastServiceTierEnabled(config.enabled);
 
     return NextResponse.json(config);
-  } catch (error: unknown) {console.error("[API ERROR] /api/settings/codex-service-tier PUT:", error);
+  } catch (error: unknown) {logger.error("[API ERROR] /api/settings/codex-service-tier PUT:", error);
     return NextResponse.json({ error: "Failed to update config" }, { status: 500 });
   }
 }

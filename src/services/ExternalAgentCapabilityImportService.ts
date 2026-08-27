@@ -112,7 +112,7 @@ export class ExternalAgentCapabilityImportService {
           if (cap && !byId.has(cap.id)) byId.set(cap.id, cap);
         }
         findings.push(`capabilities-file=${filePath} count=${list.length}`);
-      } catch (error) {
+      } catch (error: unknown) {
         findings.push(`capabilities-file parse failed: ${error instanceof Error ? error.message : String(error)}`);
       }
     } else if (input.capabilitiesFile) {
@@ -349,7 +349,7 @@ export class ExternalAgentCapabilityImportService {
       }
 
       return finishImport({ ok: true, consentRequired: false, receipt, list });
-    } catch (error) {
+    } catch (error: unknown) {
       const receipt = baseReceipt({
         id: receiptId,
         generatedAt,

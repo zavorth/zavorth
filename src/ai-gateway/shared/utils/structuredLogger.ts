@@ -148,21 +148,21 @@ export function createLogger(component: string) {
     debug(message: string, meta?: Record<string, unknown>) {
       if (currentLevel <= LOG_LEVELS.debug) {
         const entry = buildEntry("debug", component, message, meta);
-        console.debug(formatEntry("debug", component, message, meta));
+        logger.debug(formatEntry("debug", component, message, meta));
         writeToFile(entry);
       }
     },
     info(message: string, meta?: Record<string, unknown>) {
       if (currentLevel <= LOG_LEVELS.info) {
         const entry = buildEntry("info", component, message, meta);
-        console.info(formatEntry("info", component, message, meta));
+        logger.info(formatEntry("info", component, message, meta));
         writeToFile(entry);
       }
     },
     warn(message: string, meta?: Record<string, unknown>) {
       if (currentLevel <= LOG_LEVELS.warn) {
         const entry = buildEntry("warn", component, message, meta);
-        console.warn(formatEntry("warn", component, message, meta));
+        logger.warn(formatEntry("warn", component, message, meta));
         writeToFile(entry);
       }
     },

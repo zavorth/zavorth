@@ -1,6 +1,7 @@
 import figlet from "figlet";
 import gradient from "gradient-string";
 import chalkAnimation from "chalk-animation";
+import { logger } from "@/shared/utils/logger";
 
 /**
  * Display banner
@@ -12,8 +13,8 @@ export function showBanner() {
     verticalLayout: "default",
   });
 
-  console.log("\n" + gradient.pastel.multiline(banner));
-  console.log(gradient.cristal("  🚀 OAuth CLI for AI Providers\n"));
+  logger.info("\n" + gradient.pastel.multiline(banner));
+  logger.info(gradient.cristal("  🚀 OAuth CLI for AI Providers\n"));
 }
 
 /**
@@ -24,8 +25,8 @@ export function showSimpleBanner() {
     font: "Standard",
     horizontalLayout: "default",
   });
-  console.log(gradient.pastel.multiline(banner));
-  console.log(gradient.cristal("  OAuth CLI for AI Providers\n"));
+  logger.info(gradient.pastel.multiline(banner));
+  logger.info(gradient.cristal("  OAuth CLI for AI Providers\n"));
 }
 
 /**

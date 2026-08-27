@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { checkQuota } from "@/lib/db/registeredKeys";
 import { asErrorLike } from '../../../../../../utils/errorLike';
+import { logger } from "@/shared/utils/logger";
 
 /**
  * GET /api/v1/quotas/check...provider=&accountId=
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[quotas/check] error:", err);
+    logger.error("[quotas/check] error:", err);
     return NextResponse.json({ error: "Quota check failed" }, { status: 500 });
   }
 }

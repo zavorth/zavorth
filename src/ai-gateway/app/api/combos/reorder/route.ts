@@ -35,7 +35,7 @@ export async function POST(request) {
     await syncToCloudIfEnabled();
 
     return NextResponse.json({ combos });
-  } catch (error: unknown) {console.log("Error reordering combos:", error);
+  } catch (error: unknown) {logger.info("Error reordering combos:", error);
     return NextResponse.json({ error: "Failed to reorder combos" }, { status: 500 });
   }
 }
@@ -47,6 +47,6 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: unknown) {console.log("Error syncing to cloud:", error);
+  } catch (error: unknown) {logger.info("Error syncing to cloud:", error);
   }
 }

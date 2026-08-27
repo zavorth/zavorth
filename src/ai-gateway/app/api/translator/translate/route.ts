@@ -213,7 +213,7 @@ export async function POST(request) {
     }
 
     return NextResponse.json({ success: true, result });
-  } catch (error: unknown) {console.error("Error translating:", error);
+  } catch (error: unknown) {logger.error("Error translating:", error);
     return NextResponse.json(
       { success: false, error: "Failed to translate request" },
       { status: 500 }

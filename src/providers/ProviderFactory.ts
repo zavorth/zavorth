@@ -40,10 +40,6 @@ export const DEDICATED_OPENAI_COMPATIBLE_PROVIDERS: Record<string, DedicatedOpen
   },
 };
 
-interface LegacyAdapterShape {
-  chat?: (_messages: ChatMessage[], _tools?: ToolDefinition[], _options?: ProviderChatOptions) => Promise<LlmResponse>;
-}
-
 class DynamicAdapterProvider implements ILlmProvider {
   public readonly name: string;
   private readonly adapter: ZavorthUniversalDynamicAdapter;
@@ -54,11 +50,7 @@ class DynamicAdapterProvider implements ILlmProvider {
   }
 
   async chat(messages: ChatMessage[], tools?: ToolDefinition[], options?: ProviderChatOptions): Promise<LlmResponse> {
-    const target = this.adapter as unknown as LegacyAdapterShape;
-    if (typeof target.chat !== 'function') {
-      throw new Error(`Provider ${this.name} does not implement chat on the dynamic adapter`);
-    }
-    return target.chat.call(this.adapter, messages, tools, options);
+    return this.adapter.chat(messages, tools, options);
   }
 }
 

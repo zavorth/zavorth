@@ -112,11 +112,11 @@ export function initConsoleInterceptor(): void {
 
   // Save original methods
   const originalMethods = {
-    log: console.log.bind(console),
-    info: console.info.bind(console),
-    warn: console.warn.bind(console),
-    error: console.error.bind(console),
-    debug: console.debug.bind(console),
+    log: logger.info.bind(console),
+    info: logger.info.bind(console),
+    warn: logger.warn.bind(console),
+    error: logger.error.bind(console),
+    debug: logger.debug.bind(console),
   };
 
   // Patch each console method

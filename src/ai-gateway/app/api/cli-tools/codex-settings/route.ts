@@ -142,7 +142,7 @@ export async function GET(request: Request) {
       hasZavorthGateway: hasZavorthGatewayConfig(config),
       configPath: getCodexConfigPath(),
     });
-  } catch (error: unknown) {console.log("Error checking codex settings:", error);
+  } catch (error: unknown) {logger.info("Error checking codex settings:", error);
     return NextResponse.json({ error: "Failed to check codex settings" }, { status: 500 });
   }
 }
@@ -255,7 +255,7 @@ export async function POST(request: Request) {
       message: "Codex settings applied successfully!",
       configPath,
     });
-  } catch (error: unknown) {console.log("Error updating codex settings:", error);
+  } catch (error: unknown) {logger.info("Error updating codex settings:", error);
     return NextResponse.json({ error: "Failed to update codex settings" }, { status: 500 });
   }
 }
@@ -329,7 +329,7 @@ export async function DELETE(request: Request) {
       success: true,
       message: "ZavorthGateway settings removed successfully",
     });
-  } catch (error: unknown) {console.log("Error resetting codex settings:", error);
+  } catch (error: unknown) {logger.info("Error resetting codex settings:", error);
     return NextResponse.json({ error: "Failed to reset codex settings" }, { status: 500 });
   }
 }

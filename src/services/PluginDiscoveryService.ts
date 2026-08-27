@@ -491,7 +491,7 @@ export class PluginDiscoveryService {
         return { ok: false, error: 'manifest JSON must be an object' };
       }
       return { ok: true, value: parsed as Record<string, unknown> };
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return { ok: false, error: `manifest JSON parse failed: ${message}` };
     }

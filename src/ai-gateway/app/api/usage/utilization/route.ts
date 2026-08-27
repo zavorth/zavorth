@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { getAggregatedSnapshots } from "@/lib/db/quotaSnapshots";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import type { ProviderUtilizationResponse, UtilizationTimeRange } from "@/shared/types/utilization";
-import { BUCKET_SIZES } from "@/shared/types/utilization";const VALID_RANGES: UtilizationTimeRange[] = ["1h", "24h", "7d", "30d"];
+import { BUCKET_SIZES } from "@/shared/types/utilization";
+import { logger } from "@/shared/utils/logger";const VALID_RANGES: UtilizationTimeRange[] = ["1h", "24h", "7d", "30d"];
 
 function getRangeStartIso(range: UtilizationTimeRange): string {
   const end = new Date();
@@ -65,7 +66,7 @@ export async function GET(request: Request) {
     };
 
     return NextResponse.json(response);
-  } catch (error: unknown) {console.error("Error fetching utilization data:", error);
+  } catch (error: unknown) {logger.error("Error fetching utilization data:", error);
     return NextResponse.json({ error: "Failed to fetch utilization data" }, { status: 500 });
   }
 }

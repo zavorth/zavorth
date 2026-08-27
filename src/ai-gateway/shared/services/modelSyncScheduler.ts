@@ -84,7 +84,7 @@ async function getAutoSyncConnections(): Promise<
       }));
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.warn("[ModelSync] Failed to load connections:", (err as Error).message);
+    logger.warn("[ModelSync] Failed to load connections:", (err as Error).message);
     return [];
   }
 }
@@ -106,19 +106,19 @@ async function syncConnectionModels(
       },
     });
     if (!res.ok) {
-      console.warn(
+      logger.warn(
         `[ModelSync] ${provider} (${connectionId.slice(0, 8)}): sync returned ${res.status}`
       );
       return false;
     }
     const data = await res.json();
-    console.log(
+    logger.info(
       `[ModelSync] ${provider} (${connectionId.slice(0, 8)}): ✓ ${data.syncedModels || 0} models`
     );
     return true;
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.warn(
+    logger.warn(
       `[ModelSync] ${provider} (${connectionId.slice(0, 8)}): fetch failed —`,
       (err as Error).message
     );
@@ -131,7 +131,7 @@ async function syncConnectionModels(
  */
 async function runSyncCycle(apiBaseUrl: string): Promise<void> {
   if (isRunning) {
-    console.log("[ModelSync] Skipping cycle — previous run still in progress");
+    logger.info("[ModelSync] Skipping cycle — previous run still in progress");
     return;
   }
   isRunning = true;
@@ -141,11 +141,11 @@ async function runSyncCycle(apiBaseUrl: string): Promise<void> {
     const connections = await getAutoSyncConnections();
 
     if (connections.length === 0) {
-      console.log("[ModelSync] No connections with autoSync enabled — skipping cycle");
+      logger.info("[ModelSync] No connections with autoSync enabled — skipping cycle");
       return;
     }
 
-    console.log(`[ModelSync] Starting model sync cycle — ${connections.length} connection(s)`);
+    logger.info(`[ModelSync] Starting model sync cycle — ${connections.length} connection(s)`);
 
     const results = await Promise.allSettled(
       connections.map((conn) =>
@@ -154,7 +154,7 @@ async function runSyncCycle(apiBaseUrl: string): Promise<void> {
     );
 
     const succeeded = results.filter((r) => r.status === "fulfilled" && r.value === true).length;
-    console.log(
+    logger.info(
       `[ModelSync] Cycle complete: ${succeeded}/${connections.length} synced in ${Date.now() - start}ms`
     );
 
@@ -179,7 +179,7 @@ export function startModelSyncScheduler(
   intervalMs = DEFAULT_INTERVAL_MS
 ): void {
   if (schedulerTimer) {
-    console.log("[ModelSync] Scheduler already running — skipping start");
+    logger.info("[ModelSync] Scheduler already running — skipping start");
     return;
   }
 
@@ -188,7 +188,7 @@ export function startModelSyncScheduler(
   const effectiveIntervalMs =
     !isNaN(envHours) && envHours > 0 ? envHours * 60 * 60 * 1000 : intervalMs;
 
-  console.log(`[ModelSync] Scheduler started — interval: ${effectiveIntervalMs / 3_600_000}h`);
+  logger.info(`[ModelSync] Scheduler started — interval: ${effectiveIntervalMs / 3_600_000}h`);
 
   // Run immediately on startup (staggered by 5s to avoid startup congestion)
   const startupDelay = setTimeout(() => runSyncCycle(apiBaseUrl), 5_000);
@@ -206,7 +206,7 @@ export function stopModelSyncScheduler(): void {
   if (schedulerTimer) {
     clearInterval(schedulerTimer);
     schedulerTimer = null;
-    console.log("[ModelSync] Scheduler stopped");
+    logger.info("[ModelSync] Scheduler stopped");
   }
 }
 

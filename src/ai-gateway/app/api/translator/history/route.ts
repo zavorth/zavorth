@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getTranslationEvents } from "@/lib/translatorEvents";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { asErrorLike } from '../../../../../utils/errorLike.js';
+import { logger } from "@/shared/utils/logger";
 
 /**
  * GET /api/translator/history
@@ -20,7 +21,7 @@ export async function GET(request) {
     return NextResponse.json({ success: true, events, total });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("Error fetching history:", error);
+    logger.error("Error fetching history:", error);
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }

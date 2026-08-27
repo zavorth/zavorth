@@ -1,6 +1,7 @@
 import path from "path";
 import fs from "fs";
 import { resolveDataDir } from "@/lib/dataPaths";
+import { logger } from "@/shared/utils/logger";
 
 const TARGET_HOST = "daily-cloudcode-pa.googleapis.com";
 
@@ -13,7 +14,7 @@ export async function generateCert() {
   const certPath = path.join(certDir, "server.crt");
 
   if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
-    console.log("✅ SSL certificate already exists");
+    logger.info("✅ SSL certificate already exists");
     return { key: keyPath, cert: certPath };
   }
 
@@ -36,6 +37,6 @@ export async function generateCert() {
   fs.writeFileSync(keyPath, pems.private);
   fs.writeFileSync(certPath, pems.cert);
 
-  console.log(`✅ Generated SSL certificate for ${TARGET_HOST}`);
+  logger.info(`✅ Generated SSL certificate for ${TARGET_HOST}`);
   return { key: keyPath, cert: certPath };
 }

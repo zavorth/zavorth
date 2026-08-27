@@ -119,7 +119,7 @@ export class SessionCheckpoint {
     try {
       const content = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(content) as SessionCheckpointData;
-    } catch (error) {
+    } catch (error: unknown) {
       logger.warn('[SessionCheckpoint] Failed to load checkpoint', { error, filePath });
       return null;
     }
@@ -150,7 +150,7 @@ export class SessionCheckpoint {
         const filePath = path.join(this.basePath, sessionId, `${cp.id}.json`);
         try {
           fs.unlinkSync(filePath);
-        } catch (error) {
+        } catch (error: unknown) {
           logger.warn('[SessionCheckpoint] Failed to prune checkpoint', { error, filePath });
         }
       }
@@ -166,7 +166,7 @@ export class SessionCheckpoint {
     try {
       fs.unlinkSync(filePath);
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
       logger.warn('[SessionCheckpoint] Failed to delete checkpoint', { error, filePath });
       return false;
     }

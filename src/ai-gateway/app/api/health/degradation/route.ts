@@ -3,7 +3,8 @@ import {
   getDegradationReport,
   getDegradationSummary,
   hasAnyDegradation,
-} from "@/domain/degradation";export async function GET(req: Request) {
+} from "@/domain/degradation";
+import { logger } from "@/shared/utils/logger";export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const summaryStr = url.searchParams.get("summary");
@@ -21,7 +22,7 @@ import {
       summary: getDegradationSummary(),
       features: report,
     });
-  } catch (error: unknown) {console.error("[API ERROR] /api/health/degradation GET:", error);
+  } catch (error: unknown) {logger.error("[API ERROR] /api/health/degradation GET:", error);
     return NextResponse.json({ error: "Failed to fetch degradation report." }, { status: 500 });
   }
 }

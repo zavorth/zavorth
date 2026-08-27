@@ -1,6 +1,7 @@
 import { execFile } from 'child_process';
 import crypto from 'crypto';
 import { promisify } from 'util';
+import { logger } from '../logger.js';
 import { RuntimeEphemeralShellAdapter } from '../services/RuntimeEphemeralShellAdapter.js';
 import { RuntimeIsolatedShellSidecarService } from '../services/RuntimeIsolatedShellSidecarService.js';
 import { RuntimeIsolationGuardService } from '../services/RuntimeIsolationGuardService.js';
@@ -173,7 +174,7 @@ export class RemoteShellTool extends BaseTool {
         .update(`${isolationDecision.mode}:${command}`)
         .digest('hex')
         .slice(0, 16);
-      console.log(`[RemoteShell] executing allowlisted binary "${parsed.file}" (audit=${auditHash}, isolation=${isolationDecision.mode})`);
+      logger.debug(`[RemoteShell] executing allowlisted binary "${parsed.file}" (audit=${auditHash}, isolation=${isolationDecision.mode})`);
 
       const { stdout, stderr } =
         isolationDecision.mode === 'ephemeral'
@@ -291,7 +292,7 @@ export class RemoteShellTool extends BaseTool {
       timeoutMs,
       auditSeed: command,
     });
-    console.log(`[RemoteShell] ephemeral adapter completed (audit=${result.auditId}, cleanup=${result.workspaceRemoved ? 'completed' : 'unknown'})`);
+    logger.debug(`[RemoteShell] ephemeral adapter completed (audit=${result.auditId}, cleanup=${result.workspaceRemoved ? 'completed' : 'unknown'})`);
     return {
       stdout: result.stdout,
       stderr: result.stderr,
@@ -312,7 +313,7 @@ export class RemoteShellTool extends BaseTool {
       timeoutMs,
       requiredLevel: requiredLevel === 'container' || requiredLevel === 'microvm' ? requiredLevel : 'auto',
     });
-    console.log(`[RemoteShell] sidecar completed (audit=${result.auditId}, runtime=${result.runtime}, policy=${result.policyLevel})`);
+    logger.debug(`[RemoteShell] sidecar completed (audit=${result.auditId}, runtime=${result.runtime}, policy=${result.policyLevel})`);
 
     let output = `Sidecar ${result.policyLevel} (${result.runtime}) - exit code ${result.exitCode} - audit ${result.auditId}\n`;
     output += `Motivo da policy: ${result.policyReason}\n`;

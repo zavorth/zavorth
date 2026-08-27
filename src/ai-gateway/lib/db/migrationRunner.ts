@@ -106,17 +106,17 @@ export function runMigrations(db: Database.Database): number {
     try {
       applyMigration();
       count++;
-      console.log(`[Migration] Applied: ${migration.version}_${migration.name}`);
+      logger.info(`[Migration] Applied: ${migration.version}_${migration.name}`);
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const message = err instanceof Error ? err.message : String(err);
-      console.error(`[Migration] FAILED: ${migration.version}_${migration.name} — ${message}`);
+      logger.error(`[Migration] FAILED: ${migration.version}_${migration.name} — ${message}`);
       throw err; // Re-throw to prevent DB from starting in inconsistent state
     }
   }
 
   if (count > 0) {
-    console.log(`[Migration] ${count} migration(s) applied successfully.`);
+    logger.info(`[Migration] ${count} migration(s) applied successfully.`);
   }
 
   return count;

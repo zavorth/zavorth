@@ -59,10 +59,10 @@ export class GovernedLearningPipelineService {
   } = {}) {
     this.storePath = options.storePath ?? null;
     this.hasExplicitRuntimes = Boolean(options.simulate || options.evaluate);
-    this.simulateFn = options.simulate ?? (async () => ({ passed: true, summary: 'default' }));
-    this.evaluateFn = options.evaluate ?? (async () => ({ passed: true, score: 0.8, summary: 'default' }));
-    this.applyFn = options.apply ?? (async () => ({ receiptId: 'apply-default' }));
-    this.rollbackFn = options.rollback ?? (async () => ({ receiptId: 'rollback-default' }));
+    this.simulateFn = options.simulate ?? (async () => { throw new Error('simulate runtime not configured: provide a real simulate implementation'); });
+    this.evaluateFn = options.evaluate ?? (async () => { throw new Error('evaluate runtime not configured: provide a real evaluate implementation'); });
+    this.applyFn = options.apply ?? (async () => { throw new Error('apply runtime not configured: provide a real apply implementation'); });
+    this.rollbackFn = options.rollback ?? (async () => { throw new Error('rollback runtime not configured: provide a real rollback implementation'); });
     this.native = options.native ?? {};
     this.adaptive = options.adaptive ?? {};
     this.replay = options.replay ?? {};

@@ -1,6 +1,6 @@
 /**
  * Model Configuration
- * 
+ *
  * Centralized model defaults and provider classifications.
  * All model defaults and provider classifications are configurable via environment variables.
  */
@@ -32,7 +32,7 @@ function getEnv(key: string, fallback = ''): string {
  * Live Provider Default Models
  * Can be overridden via environment variables:
  * - ZAVORTH_LIVE_GEMINI_MODEL
- * - ZAVORTH_LIVE_OPENAI_MODEL  
+ * - ZAVORTH_LIVE_OPENAI_MODEL
  * - ZAVORTH_LIVE_ANTHROPIC_MODEL
  */
 export const LIVE_PROVIDER_DEFAULTS: Record<LiveProviderFamily, LiveProviderDefaults> = {
@@ -193,7 +193,7 @@ export const VISION_MODELS: Record<string, string> = {
  */
 export function getModelForProvider(providerId: string, modelType: 'default' | 'transcription' | 'voice' | 'vision' = 'default'): string {
   const normalized = providerId.toLowerCase().trim();
-  
+
   switch (modelType) {
     case 'transcription':
       return TRANSCRIPTION_MODELS[normalized] || TRANSCRIPTION_MODELS.openai || 'whisper-1';

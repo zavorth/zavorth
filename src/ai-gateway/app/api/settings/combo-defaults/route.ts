@@ -30,7 +30,7 @@ export async function GET(request: Request) {
       },
       providerOverrides: settings.providerOverrides || {},
     });
-  } catch (error: unknown) {console.log("Error fetching combo defaults:", error);
+  } catch (error: unknown) {logger.info("Error fetching combo defaults:", error);
     return NextResponse.json({ error: "Failed to fetch combo defaults" }, { status: 500 });
   }
 }
@@ -80,7 +80,7 @@ export async function PATCH(request) {
       comboDefaults: settings.comboDefaults || {},
       providerOverrides: settings.providerOverrides || {},
     });
-  } catch (error: unknown) {console.log("Error updating combo defaults:", error);
+  } catch (error: unknown) {logger.info("Error updating combo defaults:", error);
     return NextResponse.json({ error: "Failed to update combo defaults" }, { status: 500 });
   }
 }

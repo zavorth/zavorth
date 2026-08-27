@@ -64,7 +64,7 @@ export async function GET() {
       }
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      console.error("[v1beta/models] Error fetching synced Gemini models:", err);
+      logger.error("[v1beta/models] Error fetching synced Gemini models:", err);
     }
 
     // Custom models (use stored metadata from provider APIs)
@@ -97,7 +97,7 @@ export async function GET() {
     return Response.json({ models });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Error fetching models:", error);
+    logger.info("Error fetching models:", error);
     return Response.json({ error: { message: err.message } }, { status: 500 });
   }
 }

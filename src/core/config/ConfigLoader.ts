@@ -7,6 +7,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { parse as parseToml } from 'smol-toml';
+import { logger } from '../../logger.js';
 import { ConfigLayerEngine } from './ConfigLayers.js';
 import { ZavorthRootConfig } from './ConfigSchema.js';
 
@@ -38,8 +39,9 @@ export class ConfigLoader {
       const content = fs.readFileSync(filePath, 'utf8');
       const parsed = parseToml(content);
       return typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>) : {};
-    } catch (err) {
-      console.warn(`[ConfigLoader] Failed to parse TOML at ${filePath}:`, err);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.warn(`[ConfigLoader] Failed to parse TOML at ${filePath}: ${message}`);
       return {};
     }
   }

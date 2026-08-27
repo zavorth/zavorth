@@ -655,33 +655,14 @@ export class AcpLiveSessionService {
 export class MockAcpJsonRpcTransport implements AcpJsonRpcTransport {
   public readonly kind = 'local-jsonrpc' as const;
 
-  public async open(): Promise<void> {}
+  public async open(): Promise<void> {
+    throw new Error('ACP local-jsonrpc transport not configured: set ZAVORTH_ACPX_BRIDGE_STDIO_COMMAND to a real ACP server command');
+  }
 
   public async close(): Promise<void> {}
 
-  public async request(request: AcpJsonRpcRequest): Promise<AcpJsonRpcResponse> {
-    if (request.method === 'initialize') {
-      return { jsonrpc: '2.0', id: request.id, result: { protocol: 'ACP', serverInfo: { name: 'local-acp' } } };
-    }
-    if (request.method === 'session/start') {
-      return { jsonrpc: '2.0', id: request.id, result: { sessionId: request.params?.sessionId } };
-    }
-    if (request.method === 'message/send') {
-      return {
-        jsonrpc: '2.0',
-        id: request.id,
-        result: {
-          events: [
-            { type: 'message', text: 'Mock ACP response received by Zavorth.' },
-            { type: 'tool_request', requestId: 'tool-write-1', toolName: 'Write', input: { path: 'example.txt' } },
-          ],
-        },
-      };
-    }
-    if (request.method === 'session/end') {
-      return { jsonrpc: '2.0', id: request.id, result: { ended: true } };
-    }
-    return { jsonrpc: '2.0', id: request.id, result: {} };
+  public async request(_request: AcpJsonRpcRequest): Promise<AcpJsonRpcResponse> {
+    throw new Error('ACP local-jsonrpc transport not configured: set ZAVORTH_ACPX_BRIDGE_STDIO_COMMAND to a real ACP server command');
   }
 }
 

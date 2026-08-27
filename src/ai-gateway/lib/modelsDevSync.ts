@@ -22,6 +22,7 @@ import { getDbInstance } from "./db/core";
 import { invalidateDbCache } from "./db/readCache";
 import { backupDbFile } from "./db/backup";
 import { safeParseInt } from "../shared/utils/safeParseInt.js";
+import { logger } from "@/shared/utils/logger";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -355,7 +356,7 @@ export function getModelsDevPricing(): PricingByProvider {
     if (!key || rawValue === null) continue;
     try {
       synced[key] = JSON.parse(rawValue) as PricingModels;
-    } catch (error: unknown) {console.warn(`[MODELS_DEV] Corrupted pricing data for provider "${key}", skipping`);
+    } catch (error: unknown) {logger.warn(`[MODELS_DEV] Corrupted pricing data for provider "${key}", skipping`);
     }
   }
   return synced;
@@ -596,7 +597,7 @@ export async function syncModelsDev(opts?: {
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const message = err instanceof Error ? err.message : String(err);
-    console.warn("[MODELS_DEV] Sync failed:", message);
+    logger.warn("[MODELS_DEV] Sync failed:", message);
     return {
       success: false,
       modelCount: 0,
@@ -618,30 +619,30 @@ export function startPeriodicSync(intervalMs?: number): void {
 
   const interval = intervalMs ?? SYNC_INTERVAL_MS;
   activeSyncIntervalMs = interval;
-  console.log(`[MODELS_DEV] Starting periodic sync every ${interval / 1000}s`);
+  logger.info(`[MODELS_DEV] Starting periodic sync every ${interval / 1000}s`);
 
   // Initial sync (non-blocking)
   syncModelsDev()
     .then((result) => {
       if (result.success) {
-        console.log(
+        logger.info(
           `[MODELS_DEV] Initial sync complete: ${result.modelCount} pricing entries, ${result.capabilityCount} capabilities from ${result.providerCount} providers`
         );
       }
     })
     .catch((err) => {
-      console.warn("[MODELS_DEV] Initial sync error:", err instanceof Error ? err.message : err);
+      logger.warn("[MODELS_DEV] Initial sync error:", err instanceof Error ? err.message : err);
     });
 
   syncTimer = setInterval(() => {
     syncModelsDev()
       .then((result) => {
         if (result.success) {
-          console.log(`[MODELS_DEV] Periodic sync complete: ${result.modelCount} pricing entries`);
+          logger.info(`[MODELS_DEV] Periodic sync complete: ${result.modelCount} pricing entries`);
         }
       })
       .catch((err) => {
-        console.warn("[MODELS_DEV] Periodic sync error:", err instanceof Error ? err.message : err);
+        logger.warn("[MODELS_DEV] Periodic sync error:", err instanceof Error ? err.message : err);
       });
   }, interval);
 
@@ -657,7 +658,7 @@ export function stopPeriodicSync(): void {
   if (syncTimer) {
     clearInterval(syncTimer);
     syncTimer = null;
-    console.log("[MODELS_DEV] Periodic sync stopped");
+    logger.info("[MODELS_DEV] Periodic sync stopped");
   }
 }
 
@@ -690,7 +691,7 @@ export async function initModelsDevSync(): Promise<void> {
   const settings = await getSettings();
 
   if (settings.modelsDevSyncEnabled !== true) {
-    console.log("[MODELS_DEV] Disabled (enable via Settings > AI)");
+    logger.info("[MODELS_DEV] Disabled (enable via Settings > AI)");
     return;
   }
 

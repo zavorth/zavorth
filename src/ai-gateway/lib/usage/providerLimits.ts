@@ -84,7 +84,7 @@ async function syncToCloudIfEnabled() {
     const machineId = await getMachineId();
     if (!machineId) return;
     await syncToCloud(machineId);
-  } catch (error: unknown) {console.error("[ProviderLimits] Error syncing refreshed credentials to cloud:", error);
+  } catch (error: unknown) {logger.error("[ProviderLimits] Error syncing refreshed credentials to cloud:", error);
   }
 }
 
@@ -191,7 +191,7 @@ async function syncExpiredStatusIfNeeded(connection: ProviderConnectionLike, usa
   } catch (dbError: unknown) {
     asErrorLike(dbError);
     
-    console.error("[ProviderLimits] Failed to sync expired status to DB:", dbError);
+    logger.error("[ProviderLimits] Failed to sync expired status to DB:", dbError);
   }
 }
 
@@ -275,7 +275,7 @@ export async function fetchLiveProviderLimits(connectionId: string): Promise<{
       (errLike?.cause && typeof errLike.cause === "object" && (errLike.cause as { code?: unknown }).code === "ECONNREFUSED");
 
     if (proxyConfig && isThrownNetworkError) {
-      console.warn(
+      logger.warn(
         `[ProviderLimits] Proxy fetch threw for ${connectionId}, retrying without proxy:`,
         errLike?.message
       );
@@ -286,7 +286,7 @@ export async function fetchLiveProviderLimits(connectionId: string): Promise<{
   }
 
   if (proxyConfig && isNetworkFailureMessage(result.usage?.message)) {
-    console.warn(
+    logger.warn(
       `[ProviderLimits] Proxy usage returned network error for ${connectionId}, retrying without proxy:`,
       result.usage.message
     );

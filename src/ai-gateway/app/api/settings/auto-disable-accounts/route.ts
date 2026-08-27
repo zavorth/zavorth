@@ -13,7 +13,7 @@ import { logger } from '@/shared/utils/logger';export async function GET(reques
       enabled: settings.autoDisableBannedAccounts ?? false,
       threshold: settings.autoDisableBannedThreshold ?? 3,
     });
-  } catch (error: unknown) {console.error("Error reading auto-disable accounts config:", error);
+  } catch (error: unknown) {logger.error("Error reading auto-disable accounts config:", error);
     return NextResponse.json(
       { error: "Failed to read auto-disable accounts config" },
       { status: 500 }
@@ -57,7 +57,7 @@ export async function PUT(request: Request) {
       enabled: settings.autoDisableBannedAccounts ?? false,
       threshold: settings.autoDisableBannedThreshold ?? 3,
     });
-  } catch (error: unknown) {console.error("Error updating auto-disable accounts config:", error);
+  } catch (error: unknown) {logger.error("Error updating auto-disable accounts config:", error);
     return NextResponse.json(
       { error: "Failed to update auto-disable accounts config" },
       { status: 500 }

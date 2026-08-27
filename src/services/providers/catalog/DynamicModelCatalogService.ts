@@ -1,6 +1,8 @@
 /**
  * Dynamic Model Catalog Service.
- * Data-driven model registry loading schema definitions across 180+ providers.
+ * Data-driven model registry loading schema definitions from cache files.
+ * Falls back to a small built-in catalog of well-known providers.
+ * Dynamically registers custom providers at runtime via registerProvider/registerModel.
  */
 
 import * as fs from 'fs';
@@ -154,7 +156,6 @@ export class DynamicModelCatalogService {
 
   /**
    * Dynamically registers a new custom provider at runtime.
-   * Enables adding private, corporate, or external providers not present in the default 186 catalog.
    */
   static registerProvider(provider: ProviderDefinition): void {
     const catalog = this.loadCatalog();

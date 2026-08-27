@@ -1,4 +1,5 @@
-import { getDbInstance } from "../core";export async function getCacheMetrics() {
+import { getDbInstance } from "../core";
+import { logger } from "@/shared/utils/logger";export async function getCacheMetrics() {
   const db = getDbInstance();
 
   try {
@@ -133,7 +134,7 @@ import { getDbInstance } from "../core";export async function getCacheMetrics()
       byStrategy,
       lastUpdated: new Date().toISOString(),
     };
-  } catch (error: unknown) {console.error("Failed to fetch cache metrics from usage_history:", error);
+  } catch (error: unknown) {logger.error("Failed to fetch cache metrics from usage_history:", error);
     return {
       totalRequests: 0,
       requestsWithCacheControl: 0,
@@ -199,13 +200,13 @@ export async function getCacheTrend(hours = 24): Promise<CacheTrendPoint[]> {
       cachedTokens: r.cachedTokens || 0,
       cacheCreationTokens: r.cacheCreationTokens || 0,
     }));
-  } catch (error: unknown) {console.error("Failed to fetch cache trend:", error);
+  } catch (error: unknown) {logger.error("Failed to fetch cache trend:", error);
     return [];
   }
 }
 
 export async function resetCacheMetrics() {
-  console.warn(
+  logger.warn(
     "resetCacheMetrics is deprecated - cache metrics are now computed from usage_history"
   );
   return getCacheMetrics();

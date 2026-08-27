@@ -10,6 +10,7 @@ import { asErrorLike } from '../../utils/errorLike';
  */
 
 import { getSettings } from "@/lib/localDb";
+import { logger } from "@/shared/utils/logger";
 
 /** @type {{ data: object|null, lastFetch: number, ttl: number }} */
 const cache = {
@@ -40,7 +41,7 @@ export async function getCachedSettings() {
     const err = asErrorLike(error);
     // If fetch fails but we have stale data, return it
     if (cache.data) {
-      console.error("[SettingsCache] Failed to refresh, using stale data:", err.message);
+      logger.error("[SettingsCache] Failed to refresh, using stale data:", err.message);
       return cache.data;
     }
     throw err;

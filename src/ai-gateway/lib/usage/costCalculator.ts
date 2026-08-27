@@ -1,3 +1,5 @@
+import { logger } from "@/shared/utils/logger";
+
 /**
  * Cost Calculator — extracted from usageDb.js (T-15)
  *
@@ -128,7 +130,7 @@ export async function calculateCost(provider, model, tokens) {
     }
 
     return cost;
-  } catch (error: unknown) {console.error("Error calculating cost:", error);
+  } catch (error: unknown) {logger.error("Error calculating cost:", error);
     return 0;
   }
 }

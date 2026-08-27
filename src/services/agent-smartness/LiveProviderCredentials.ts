@@ -1,5 +1,5 @@
 import { resolveUserProviderSelection, type UserProviderSelection } from '../UserSelectionResolver.js';
-import { findCatalogProvider } from '../providers/catalog/UniversalProviderCatalog.js';
+import { providerCatalogRegistry } from '../providers/catalog/ProviderCatalogRegistry.js';
 import { getLiveProviderDefaults } from '../../config/index.js';
 
 export type LiveProviderFamily = 'gemini' | 'openai' | 'anthropic';
@@ -29,7 +29,7 @@ export function liveProviderFamilyFromId(
 ): LiveProviderFamily | null {
   const id = String(providerId || '').trim().toLowerCase();
   if (!id) return null;
-  const catalogEntry = findCatalogProvider(id);
+  const catalogEntry = providerCatalogRegistry.get(id);
   if (catalogEntry) {
     if (catalogEntry.protocol === 'gemini_native') return 'gemini';
     if (catalogEntry.protocol === 'claude_native' || catalogEntry.protocol === 'anthropic') return 'anthropic';

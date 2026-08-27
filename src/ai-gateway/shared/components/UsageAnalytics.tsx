@@ -24,9 +24,54 @@ import {
 
 // Main Component
 
+interface UsageAnalyticsSummary {
+  totalRequests: number;
+  totalTokens: number;
+  totalCost: number;
+  completionTokens: number;
+  promptTokens: number;
+  uniqueAccounts?: number;
+  uniqueApiKeys?: number;
+  uniqueModels?: number;
+  fallbackRatePct?: number;
+}
+
+interface UsageAnalyticsMetricProvider {
+  provider: string;
+  totalRequests?: number;
+  apiCalls?: number;
+}
+
+interface UsageAnalyticsWeekday {
+  day: string;
+  avgTokens: number;
+}
+
+interface UsageAnalyticsSnapshot {
+  [key: string]: unknown;
+  summary: UsageAnalyticsSummary;
+  byModel: Array<{ model: string }>;
+  byProvider: UsageAnalyticsMetricProvider[];
+  weeklyPattern: UsageAnalyticsWeekday[];
+  activityMap?: unknown;
+  dailyTrend?: unknown;
+  dailyByModel?: unknown[];
+  modelNames?: string[];
+  byAccount?: unknown[];
+  byApiKey?: unknown[];
+}
+
+const EMPTY_ANALYTICS_SUMMARY: UsageAnalyticsSummary = {
+  totalRequests: 0,
+  totalTokens: 0,
+  totalCost: 0,
+  completionTokens: 0,
+  promptTokens: 0,
+};
+
 export default function UsageAnalytics() {
   const [range, setRange] = useState("30d");
-  const [analytics, setAnalytics] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<UsageAnalyticsSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,7 +85,7 @@ export default function UsageAnalytics() {
       setError(null);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      setError((err as any).message);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -103,7 +148,7 @@ export default function UsageAnalytics() {
   if (loading && !analytics) return <CardSkeleton />;
   if (error) return <Card className="p-6 text-center text-red-500">Error: {error}</Card>;
 
-  const s = analytics?.summary || {};
+  const s = analytics?.summary ?? EMPTY_ANALYTICS_SUMMARY;
 
   // ── Derived insight values ──
   const avgTokensPerReq = s.totalRequests > 0 ? Math.round(s.totalTokens / s.totalRequests) : 0;

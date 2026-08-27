@@ -1,6 +1,7 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";
 import { handleChat } from "@/sse/handlers/chat";
 import { initTranslators } from "@zavorth/ai-gateway/open-sse/translator/index.ts";
+import { logger } from "@/shared/utils/logger";
 
 let initialized = false;
 
@@ -11,7 +12,7 @@ async function ensureInitialized() {
   if (!initialized) {
     await initTranslators();
     initialized = true;
-    console.log("[SSE] Translators initialized for /v1/messages");
+    logger.info("[SSE] Translators initialized for /v1/messages");
   }
 }
 

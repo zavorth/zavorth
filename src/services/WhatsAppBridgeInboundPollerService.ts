@@ -136,7 +136,7 @@ export class WhatsAppBridgeInboundPollerService {
         await this.pollOnce();
         if (!this.running) break;
         this.lastError = null;
-      } catch (error) {
+      } catch (error: unknown) {
         if (!this.running) break;
         const message = error instanceof Error ? error.message : String(error);
         if (/abort/i.test(message)) break;

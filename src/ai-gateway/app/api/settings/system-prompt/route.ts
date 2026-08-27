@@ -14,7 +14,7 @@ import { logger } from '@/shared/utils/logger';export async function GET(reques
 
   try {
     return NextResponse.json(getSystemPromptConfig());
-  } catch (error: unknown) {console.error("Error reading system prompt config:", error);
+  } catch (error: unknown) {logger.error("Error reading system prompt config:", error);
     return NextResponse.json({ error: "Failed to read system prompt config" }, { status: 500 });
   }
 }
@@ -49,7 +49,7 @@ export async function PUT(request) {
     await updateSettings({ systemPrompt: body });
 
     return NextResponse.json(getSystemPromptConfig());
-  } catch (error: unknown) {console.error("Error updating system prompt config:", error);
+  } catch (error: unknown) {logger.error("Error updating system prompt config:", error);
     return NextResponse.json({ error: "Failed to update system prompt config" }, { status: 500 });
   }
 }

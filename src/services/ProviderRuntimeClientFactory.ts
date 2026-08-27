@@ -56,27 +56,66 @@ export class ProviderRuntimeClientFactory {
     };
   }
 
-  private async executeSafeRequest(resolved: ResolvedProviderRuntime, apiKey: string | null, _request: SanitizedProviderInvocationRequest): Promise<ProviderInvocationResult> {
-    // Basic local implementation for the framework structure
-    // A real implementation would map `request.messages` to OpenAI/Anthropic spec and use node-fetch or native fetch
-
+  private async executeSafeRequest(resolved: ResolvedProviderRuntime, apiKey: string | null, request: SanitizedProviderInvocationRequest): Promise<ProviderInvocationResult> {
     if (resolved.providerType === 'openai-compatible' || resolved.providerType === 'openai') {
-       if (!apiKey && resolved.providerType === 'openai') {
-         throw new Error('missing_key'); // explicit openai needs key
-       }
-       // dryRun fetch...
-        if (apiKey === 'invalid_key') {
-          // dryRun API error
-          const err = new Error('HTTP 401 Unauthorized') as Error & { status?: number };
-          err.status = 401;
-          throw err;
-        }
+      if (!apiKey && resolved.providerType === 'openai') {
+        throw new Error('missing_key');
+      }
     }
 
-    return {
-      text: 'Mock response',
-      finishReason: 'stop'
+    const baseUrl = resolved.baseUrl;
+    if (!baseUrl) {
+      throw new Error('No base URL configured for this provider');
+    }
+
+    const model = resolved.modelId;
+    if (!model) {
+      throw new Error('No model specified for this provider');
+    }
+
+    const messages = (request.messages as Array<{ role: string; content: string }>) || [];
+
+    const body = {
+      model,
+      messages,
+      stream: false,
     };
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 60_000);
+
+    try {
+      const res = await fetch(`${baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => 'Unknown error');
+        const err = new Error(`HTTP ${res.status}: ${errorText}`) as Error & { status?: number };
+        err.status = res.status;
+        throw err;
+      }
+
+      const data = await res.json() as {
+        choices?: Array<{ message?: { content?: string }; finish_reason?: string }>;
+        usage?: { prompt_tokens?: number; completion_tokens?: number };
+      };
+
+      const choice = data.choices?.[0];
+
+      return {
+        text: choice?.message?.content ?? '',
+        finishReason: choice?.finish_reason ?? 'stop',
+      };
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   private sanitizeError(error: unknown): Error {

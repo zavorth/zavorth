@@ -195,7 +195,7 @@ export async function isAuthRequired(): Promise<boolean> {
   } catch (error: unknown) { const err = asErrorLike(error);
     // On error, require auth (secure by default)
     // Log the error so failures (e.g., SQLITE_BUSY) aren't silent 401s
-    console.error(
+    logger.error(
       "[API_AUTH_GUARD] isAuthRequired failed, defaulting to true:",
       err.message || error
     );

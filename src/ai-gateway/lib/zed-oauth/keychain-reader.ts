@@ -105,7 +105,7 @@ function extractProviderFromService(service: string): string {
 export async function discoverZedCredentials(): Promise<ZedCredential[]> {
   const keytar = await loadKeytar();
   if (!keytar) {
-    console.debug("[Zed keychain] keytar not available — skipping keychain read");
+    logger.debug("[Zed keychain] keytar not available — skipping keychain read");
     return [];
   }
 
@@ -119,7 +119,7 @@ export async function discoverZedCredentials(): Promise<ZedCredential[]> {
       for (const cred of creds) {
         // FIX #1: Add null check for cred.password
         if (!cred.password) {
-          console.debug(`Skipping credential with missing password: ${pattern}/${cred.account}`);
+          logger.debug(`Skipping credential with missing password: ${pattern}/${cred.account}`);
           continue;
         }
 
@@ -130,7 +130,7 @@ export async function discoverZedCredentials(): Promise<ZedCredential[]> {
           token: cred.password,
         });
       }
-    } catch (error: unknown) {console.debug(`No credentials found for ${pattern}:`, (error as Error).message || error);
+    } catch (error: unknown) {logger.debug(`No credentials found for ${pattern}:`, (error as Error).message || error);
       // Continue to next pattern
     }
   }
@@ -183,7 +183,7 @@ export async function getZedCredential(provider: string): Promise<ZedCredential 
           };
         }
       }
-    } catch (error: unknown) {console.debug(`Failed to get credential for ${pattern}:`, (error as Error).message || error);
+    } catch (error: unknown) {logger.debug(`Failed to get credential for ${pattern}:`, (error as Error).message || error);
     }
   }
 

@@ -12,9 +12,10 @@ import {
   extractClientIp,
   applyRateLimitHeaders,
 } from "@/lib/rateLimiter";
+import { logger } from "@/shared/utils/logger";
 // SECURITY: No hardcoded fallback — JWT_SECRET must be configured.
 if (!process.env.JWT_SECRET) {
-  console.error("[SECURITY] FATAL: JWT_SECRET is not set. Login authentication is disabled.");
+  logger.error("[SECURITY] FATAL: JWT_SECRET is not set. Login authentication is disabled.");
 }
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "");
 
@@ -65,7 +66,7 @@ export async function POST(request) {
     const rateLimitResult = checkRateLimit(RATE_LIMIT_NAMESPACE, clientIp);
 
     if (!rateLimitResult.allowed) {
-      console.warn(
+      logger.warn(
         `[AUTH] Rate limit hit for ${clientIp} — blocked for ${rateLimitResult.retryAfterSeconds}s`
       );
       const response = authJson(
@@ -147,7 +148,7 @@ export async function POST(request) {
     const failResponse = authJson({ error: "Invalid password" }, { status: 401 });
     applyRateLimitHeaders(failResponse.headers, rateLimitResult);
     return failResponse;
-  } catch (error: unknown) {console.error("[AUTH] Login failed:", error);
+  } catch (error: unknown) {logger.error("[AUTH] Login failed:", error);
     return authJson({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { join , resolve} from 'node:path';
+import { resolve } from 'node:path';
 import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
 import { buildZavorthControlAdapterInputFromZavorthControlRuntimeProjection } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthControlRuntimeProjection.js';
 
@@ -174,7 +174,7 @@ describe('ZavorthControl Provider Cockpit Visual Implementation', () => {
         summary: 'none',
         tools: [],
       },
-      providerCockpit: createProviderCockpitFixture() as any,
+      providerCockpit: createProviderCockpitFixture(),
       replyPorts: [],
       integrations: [],
       logs: [],
@@ -198,11 +198,11 @@ describe('ZavorthControl Provider Cockpit Visual Implementation', () => {
       'utf8',
     );
     const visualQaSource = readFileSync(
-      resolve(__dirname, '../../../scripts/zavorthControl-provider-cockpit-visual-qa.ts'),
+      resolve(__dirname, '../../../scripts/zavorthControl-provider-visual-qa.ts'),
       'utf8',
     );
     const liveSmokeSource = readFileSync(
-      resolve(__dirname, '../../../scripts/zavorthControl-provider-cockpit-live-smoke.ts'),
+      resolve(__dirname, '../../../scripts/zavorthControl-provider-live-smoke.ts'),
       'utf8',
     );
     const webStateRouteSource = readFileSync(
@@ -234,8 +234,8 @@ describe('ZavorthControl Provider Cockpit Visual Implementation', () => {
     expect(webStateRouteSource).toContain('attachProviderCockpit');
     expect(fixturesSource).toContain('providerCockpit');
     expect(fixturesSource).toContain('normalRenderMakesNoNetworkCalls: true');
-    expect(packageJson.scripts['qa:zavorthControl-provider-cockpit-visual']).toContain('zavorthControl-provider-cockpit-visual-qa.ts --require-pass');
-    expect(packageJson.scripts['qa:zavorthControl-provider-cockpit-live']).toContain('zavorthControl-provider-cockpit-live-smoke.ts --require-pass');
+    expect(packageJson.scripts['qa:zavorthControl-provider-cockpit-visual']).toContain('zavorthControl-provider-visual-qa.ts --require-pass');
+    expect(packageJson.scripts['qa:zavorthControl-provider-cockpit-live']).toContain('zavorthControl-provider-live-smoke.ts --require-pass');
     expect(packageJson.scripts['qa:zavorthControl']).toContain('qa:zavorthControl-provider-cockpit-visual');
     expect(packageJson.scripts['qa:zavorthControl']).toContain('qa:zavorthControl-provider-cockpit-live');
   });

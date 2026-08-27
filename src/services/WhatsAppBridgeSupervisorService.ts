@@ -168,7 +168,7 @@ export class WhatsAppBridgeSupervisorService {
           this.scheduleRestart();
         }
       });
-    } catch (error) {
+    } catch (error: unknown) {
       this.lastError = error instanceof Error ? error.message : String(error);
       this.child = null;
     }
@@ -273,7 +273,7 @@ export class WhatsAppBridgeSupervisorService {
         scriptHash: body.scriptHash == null ? null : String(body.scriptHash),
         detail: response.ok ? 'bridge health endpoint reachable' : `health HTTP ${response.status}`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         ok: false,
         connection: null,

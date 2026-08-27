@@ -106,7 +106,7 @@ export class ZavorthSnapshotRollbackService {
       try {
         fs.writeFileSync(filePath, entry.originalContent, 'utf8');
         restored.push(filePath);
-      } catch (err) {
+      } catch (err: unknown) {
         errors.push(`Failed to restore file ${filePath}: ${err instanceof Error ? err.message : String(err)}`);
       }
     }

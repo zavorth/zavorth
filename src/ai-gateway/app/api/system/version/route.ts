@@ -250,12 +250,12 @@ export async function POST(req: NextRequest) {
             to: latest,
             message: `Update to ${resolvedTargetTag} complete!`,
           });
-          console.log(`[AutoUpdate] Successfully updated to ${resolvedTargetTag} via source mode`);
+          logger.info(`[AutoUpdate] Successfully updated to ${resolvedTargetTag} via source mode`);
         } catch (error: unknown) {
           const err = asErrorLike(error);
           const errMsg = err?.stderr || err?.message || String(err);
           send({ step: "error", status: "failed", message: errMsg });
-          console.error("[AutoUpdate] Source update failed:", err);
+          logger.error("[AutoUpdate] Source update failed:", err);
         } finally {
           controller.close();
         }
@@ -327,12 +327,12 @@ export async function POST(req: NextRequest) {
           to: latest,
           message: `Update to v${latest} complete!`,
         });
-        console.log(`[AutoUpdate] Successfully updated to v${latest}`);
+        logger.info(`[AutoUpdate] Successfully updated to v${latest}`);
       } catch (error: unknown) {
         const err = asErrorLike(error);
         const errMsg = err?.stderr || err?.message || String(err);
         send({ step: "error", status: "failed", message: errMsg });
-        console.error(`[AutoUpdate] Update failed:`, err);
+        logger.error(`[AutoUpdate] Update failed:`, err);
       } finally {
         controller.close();
       }

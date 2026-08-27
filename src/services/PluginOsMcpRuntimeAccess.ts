@@ -116,7 +116,7 @@ export async function invokePluginOsMcp(
         'Upgrade runtime or enable the target MCP server',
       ],
     };
-  } catch (error) {
+  } catch (error: unknown) {
     return {
       ok: false,
       serverId: input.serverId,

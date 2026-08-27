@@ -130,7 +130,7 @@ export class PluginOsPermissionPreviewService {
           this.readFileSync(path.join(packageDir, 'manifest.json'), 'utf8'),
         ) as Record<string, unknown>;
         manifest = raw && typeof raw === 'object' ? raw : null;
-      } catch (error) {
+      } catch (error: unknown) {
         findings.push(
           `manifest read failed: ${error instanceof Error ? error.message : String(error)}`,
         );

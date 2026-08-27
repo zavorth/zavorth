@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const message = error instanceof Error ? err.message : "Failed to stop";
-    console.error("[version-manager] stop error:", message);
+    logger.error("[version-manager] stop error:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

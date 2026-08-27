@@ -202,7 +202,7 @@ export class CompanionBootstrapper {
     const stateFile = this.resolveStateFile(creds);
     const allowedCapabilities = this.resolveAllowedCapabilities(creds);
     let pendingResults = loadPendingResults(stateFile);
-    
+
 
     while (!abortSignal.aborted) {
       const payload = await this.apiPost(`${this.resolveBaseUrl(creds)}/api/node-mesh/heartbeat`, creds, {

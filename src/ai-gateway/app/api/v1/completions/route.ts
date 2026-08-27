@@ -1,13 +1,14 @@
 import { CORS_ORIGIN, CORS_HEADERS } from "@/shared/utils/cors";
 import { buildClientRawRequest, handleChat } from "@/sse/handlers/chat";
 import { initTranslators } from "@zavorth/ai-gateway/open-sse/translator/index.ts";
-import { createInjectionGuard } from "@/middleware/promptInjectionGuard";let initPromise = null;
+import { createInjectionGuard } from "@/middleware/promptInjectionGuard";
+import { logger } from "@/shared/utils/logger";let initPromise = null;
 const injectionGuard = createInjectionGuard();
 
 function ensureInitialized() {
   if (!initPromise) {
     initPromise = Promise.resolve(initTranslators()).then(() => {
-      console.log("[SSE] Translators initialized");
+      logger.info("[SSE] Translators initialized");
     });
   }
   return initPromise;
@@ -76,7 +77,7 @@ export async function POST(request: Request) {
         return await handleChat(newRequest, buildClientRawRequest(request, body));
       }
     }
-  } catch (error: unknown) {console.error("[SECURITY] Prompt injection guard failed:", error);
+  } catch (error: unknown) {logger.error("[SECURITY] Prompt injection guard failed:", error);
     return new Response(
       JSON.stringify({
         error: {

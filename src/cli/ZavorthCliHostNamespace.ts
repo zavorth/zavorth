@@ -174,7 +174,7 @@ export async function runServiceCommand(root: string, serviceName: 'daemon' | 'g
     let child: ReturnType<typeof spawn>;
     try {
       child = spawnCommandLine(command, { cwd: root, detached: true, stdio: 'ignore', windowsHide: true });
-    } catch (error) {
+    } catch (error: unknown) {
       return render(args, `Zavorth ${serviceName}`, [
         `Refused unsafe service command (S3): ${error instanceof Error ? error.message : String(error)}`,
       ], { ok: false });
@@ -204,7 +204,7 @@ export async function runServiceCommand(root: string, serviceName: 'daemon' | 'g
     let child: ReturnType<typeof spawn>;
     try {
       child = spawnCommandLine(command, { cwd: root, detached: true, stdio: 'ignore', windowsHide: true });
-    } catch (error) {
+    } catch (error: unknown) {
       return render(args, `Zavorth ${serviceName}`, [
         `Refused unsafe service command (S3): ${error instanceof Error ? error.message : String(error)}`,
       ], { ok: false });
@@ -244,7 +244,7 @@ export async function runNodeHost(root: string, args: string[]) {
     let child: ReturnType<typeof spawn>;
     try {
       child = spawnCommandLine(command, { cwd: root, detached: true, stdio: 'ignore', windowsHide: true });
-    } catch (error) {
+    } catch (error: unknown) {
       return render(args, 'Zavorth node', [
         `Refused unsafe node host command (S3): ${error instanceof Error ? error.message : String(error)}`,
       ], { ok: false });

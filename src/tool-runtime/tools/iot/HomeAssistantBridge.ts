@@ -166,7 +166,7 @@ export class HomeAssistantBridge implements IZavorthTool {
                     status: 'connecting',
                     lastError: null,
                 });
-                console.log('[HomeAssistantBridge] WebSocket connected to the Home Assistant physical hub.');
+                logger.info('[HomeAssistantBridge] WebSocket connected to the Home Assistant physical hub.');
             });
 
             this.ws.on('message', async (data: WebSocket.Data) => {
@@ -184,7 +184,7 @@ export class HomeAssistantBridge implements IZavorthTool {
                         lastConnectedAt: new Date().toISOString(),
                         lastError: null,
                     });
-                    console.log('[HomeAssistantBridge] Authenticated successfully. Subscribing to physical state changes...');
+                    logger.info('[HomeAssistantBridge] Authenticated successfully. Subscribing to physical state changes...');
                     this.ws?.send(JSON.stringify({
                         id: this.messageId++,
                         type: 'subscribe_events',
@@ -201,7 +201,7 @@ export class HomeAssistantBridge implements IZavorthTool {
                     status: this.listening ? 'degraded' : 'idle',
                     lastError: String(err?.message || 'unknown error'),
                 });
-                console.error('[HomeAssistantBridge] Physical event loop error:', err.message);
+                logger.error(`[HomeAssistantBridge] Physical event loop error: ${err.message}`);
             });
 
             this.ws.on('close', () => {
@@ -221,7 +221,7 @@ export class HomeAssistantBridge implements IZavorthTool {
                     reconnectAttempts: this.reconnectAttempts,
                     status: 'degraded',
                 });
-                console.warn(`[HomeAssistantBridge] Physical-world connection lost. Retrying in ${timeoutMs / 1000}s...`);
+                logger.warn(`[HomeAssistantBridge] Physical-world connection lost. Retrying in ${timeoutMs / 1000}s...`);
                 setTimeout(() => this.connectWithBackoff(haUrl, haToken), timeoutMs);
             });
         } catch (error: unknown) {
@@ -231,7 +231,7 @@ export class HomeAssistantBridge implements IZavorthTool {
                 status: this.listening ? 'degraded' : 'idle',
                 lastError: String((err as Error)?.message || err || 'unknown error'),
             });
-            console.error('[HomeAssistantBridge] System failure while creating WebSocket.', err);
+            logger.error(`[HomeAssistantBridge] System failure while creating WebSocket: ${err.message}`);
         }
     }
 
@@ -260,11 +260,11 @@ export class HomeAssistantBridge implements IZavorthTool {
             const insightKey = `iot_anomaly_${entityId}`;
             const insightValue = `Physical device ${entityId} changed its state to ${newState} now.`;
             await this.memoryService.remember('system', insightKey, insightValue, 'iot_feedback');
-            console.log(`[Physical IoT -> Echo Memory] Recording episodic event: ${insightValue}`);
+            logger.info(`[Physical IoT -> Echo Memory] Recording episodic event: ${insightValue}`);
         }
 
         if (physicalEvent) {
-            console.log(`[Physical IoT -> Echo Surface] ${physicalEvent.feedback}`);
+            logger.info(`[Physical IoT -> Echo Surface] ${physicalEvent.feedback}`);
         }
     }
 

@@ -11,6 +11,8 @@ export type DemoModeSnapshot = {
   autoPresentationEnabled: boolean;
 };
 
+const DEMO_MODE_BLOCKED_IN_PROD = process.env.NODE_ENV === 'production';
+
 export class DemoModeService {
   private snapshot: DemoModeSnapshot;
 
@@ -31,6 +33,9 @@ export class DemoModeService {
     note: string | null = null,
     autoPresentationEnabled = false,
   ): DemoModeSnapshot {
+    if (DEMO_MODE_BLOCKED_IN_PROD) {
+      throw new Error('Demo mode cannot be enabled in production (NODE_ENV=production).');
+    }
     return this.setState(true, updatedBy, note, autoPresentationEnabled);
   }
 

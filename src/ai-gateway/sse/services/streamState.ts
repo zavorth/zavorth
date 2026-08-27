@@ -1,4 +1,5 @@
 import { safeParseInt } from "@/shared/utils/safeParseInt";
+import { logger } from "@/shared/utils/logger";
 /**
  * Stream State Machine — E2E Flow Hardening
  *
@@ -91,7 +92,7 @@ export class StreamTracker {
   transition(newState, transitionMeta = {}) {
     const allowed = VALID_TRANSITIONS[this.state] || [];
     if (!allowed.includes(newState)) {
-      console.warn(
+      logger.warn(
         `[StreamTracker] Invalid transition: ${this.state} → ${newState} (request: ${this.requestId})`
       );
       return false;

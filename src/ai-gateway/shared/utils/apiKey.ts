@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { logger } from '@/shared/utils/logger';// No hardcoded fallback — enforced by secretsValidator at startup
 if (!process.env.API_KEY_SECRET) {
-  console.error("[SECURITY] API_KEY_SECRET is not set. API key CRC validation is disabled.");
+  logger.error("[SECURITY] API_KEY_SECRET is not set. API key CRC validation is disabled.");
 }
 
 function getApiKeySecret(): string {

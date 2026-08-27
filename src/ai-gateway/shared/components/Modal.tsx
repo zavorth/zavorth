@@ -191,6 +191,7 @@ export function ConfirmModal({
           <Button variant="ghost" onClick={onClose} disabled={loading}>
             {cancelText}
           </Button>
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           <Button variant={variant as any} onClick={onConfirm} loading={loading}>
             {confirmText}
           </Button>

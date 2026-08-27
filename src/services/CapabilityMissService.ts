@@ -166,7 +166,7 @@ export class CapabilityMissService {
         );
       }
       findings.push(`plugin_market_entries=${listed.entries?.length ?? 0}`);
-    } catch (error) {
+    } catch (error: unknown) {
       findings.push(`marketplace_error=${error instanceof Error ? error.message : String(error)}`);
     }
 

@@ -5,6 +5,7 @@ import { getServerCredentials } from "../config/index";
 import { startLocalServer } from "../utils/server";
 import { spinner as createSpinner } from "../utils/ui";
 import { asErrorLike } from '../../../../utils/errorLike.js';
+import { logger } from "@/shared/utils/logger";
 
 const CODE_ASSIST_FALLBACK_TIER_ID = "legacy-tier";
 
@@ -264,8 +265,8 @@ export class ZavorthBridgeService {
       // Build authorization URL
       const authUrl = this.buildAuthUrl(redirectUri, state);
 
-      console.log("\nOpening browser for ZavorthBridge authentication...");
-      console.log(`If browser doesn't open, visit:\n${authUrl}\n`);
+      logger.info("\nOpening browser for ZavorthBridge authentication...");
+      logger.info(`If browser doesn't open, visit:\n${authUrl}\n`);
 
       // Open browser
       await open(authUrl);

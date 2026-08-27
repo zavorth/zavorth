@@ -1,5 +1,6 @@
 import { getCloudSyncScheduler } from "@/shared/services/cloudSyncScheduler";
-import { cleanupProviderConnections } from "@/lib/localDb";/**
+import { cleanupProviderConnections } from "@/lib/localDb";
+import { logger } from "@/shared/utils/logger";/**
  * Initialize cloud sync scheduler
  * This should be called when the application starts
  */
@@ -15,14 +16,14 @@ export async function initializeCloudSync() {
     await scheduler.start();
 
     return scheduler;
-  } catch (error: unknown) {console.error("[CloudSync] Error initializing scheduler:", error);
+  } catch (error: unknown) {logger.error("[CloudSync] Error initializing scheduler:", error);
     throw error;
   }
 }
 
 // For development/testing purposes
 if (typeof require !== "undefined" && require.main === module) {
-  initializeCloudSync().catch((err) => console.error("[CloudSync] init failed:", err));
+  initializeCloudSync().catch((err) => logger.error("[CloudSync] init failed:", err));
 }
 
 export default initializeCloudSync;

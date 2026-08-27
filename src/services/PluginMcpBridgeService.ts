@@ -251,7 +251,7 @@ export class PluginMcpBridgeService {
         'utf8',
       );
       findings.push(`materialized ${relativeDir}`);
-    } catch (error) {
+    } catch (error: unknown) {
       return finishMaterialize({
         ok: false,
         pluginId,
@@ -289,7 +289,7 @@ export class PluginMcpBridgeService {
             findings.push('signature keys not present — package left unsigned');
           }
         }
-      } catch (error) {
+      } catch (error: unknown) {
         findings.push(
           `sign soft-failed: ${error instanceof Error ? error.message : String(error)}`,
         );

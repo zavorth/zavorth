@@ -474,7 +474,7 @@ export class PluginOsMarketplaceService {
           ].join('\n');
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       return failInstall(
         entry.id,
         error instanceof Error ? error.message : String(error),

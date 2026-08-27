@@ -29,6 +29,7 @@ import {
 import type { ProviderModel } from "@zavorth/ai-gateway/open-sse/config/providerModels.ts";
 import type { SyncedAvailableModel } from "@/lib/db/models";
 import { asErrorLike } from '../../../../../utils/errorLike';
+import { logger } from "@/shared/utils/logger";
 
 interface LocalRegistryModel {
   provider: string;
@@ -180,7 +181,7 @@ export async function getUnifiedModelsResponse(
     let settings: Record<string, unknown> = {};
     try {
       settings = await getSettings();
-    } catch (error: unknown) { const err = asErrorLike(error); console.warn('[catalog] Failed to fetch settings for auth check:', err); }
+    } catch (error: unknown) { const err = asErrorLike(error); logger.warn('[catalog] Failed to fetch settings for auth check:', err); }
     if (settings.requireAuthForModels === true) {
       if (!(await isAuthenticated(request))) {
         return Response.json(
@@ -211,14 +212,14 @@ export async function getUnifiedModelsResponse(
       // Filter to only active connections
       connections = connections.filter((c) => c.isActive !== false);
     } catch (error: unknown) { // If database not available, show no provider models (safe default)
-      console.log("[catalog] Could not fetch providers:", error);
+      logger.info("[catalog] Could not fetch providers:", error);
     }
 
     // Get provider nodes (for compatible providers with custom prefixes)
     let providerNodes = [];
     try {
       providerNodes = await getProviderNodes();
-    } catch (error: unknown) {console.log("Could not fetch provider nodes");
+    } catch (error: unknown) {logger.info("Could not fetch provider nodes");
     }
 
     // Build map of provider node ID to prefix and type for compatible providers
@@ -237,7 +238,7 @@ export async function getUnifiedModelsResponse(
     let combos = [];
     try {
       combos = await getCombos();
-    } catch (error: unknown) {console.log("Could not fetch combos");
+    } catch (error: unknown) {logger.info("Could not fetch combos");
     }
 
     // Build set of active provider aliases
@@ -330,7 +331,7 @@ export async function getUnifiedModelsResponse(
           });
         } catch (error: unknown) {
           const err = asErrorLike(error);
-          console.error("[catalog] Error fetching synced Gemini models:", err);
+          logger.error("[catalog] Error fetching synced Gemini models:", err);
         }
       }
 
@@ -458,7 +459,7 @@ export async function getUnifiedModelsResponse(
               }),
           });
         }
-      } catch (error: unknown) {console.log("Could not fetch custom models");
+      } catch (error: unknown) {logger.info("Could not fetch custom models");
       }
 
       const fallbackCatalogs: ModelCatalogProviderInput[] = connections.flatMap((conn) => {
@@ -615,7 +616,7 @@ export async function getUnifiedModelsResponse(
         }
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        console.error("[catalog] Error fetching synced Gemini models:", err);
+        logger.error("[catalog] Error fetching synced Gemini models:", err);
       }
     }
 
@@ -812,7 +813,7 @@ export async function getUnifiedModelsResponse(
           }
         }
       }
-    } catch (error: unknown) {console.log("Could not fetch custom models");
+    } catch (error: unknown) {logger.info("Could not fetch custom models");
     }
 
     // Add managed fallback models for compatible providers that don't import a model list.
@@ -891,7 +892,7 @@ export async function getUnifiedModelsResponse(
     );
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Error fetching models:", error);
+    logger.info("Error fetching models:", error);
     return Response.json(
       { error: { message: error instanceof Error ? err.message : "Unknown error", type: "server_error" } },
       { status: 500 }

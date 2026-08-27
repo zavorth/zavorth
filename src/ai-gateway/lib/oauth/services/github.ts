@@ -2,6 +2,7 @@ import { OAuthService } from "./oauth";
 import { GITHUB_CONFIG } from "../constants/oauth";
 import { spinner as createSpinner } from "../utils/ui";
 import { asErrorLike } from '../../../../utils/errorLike.js';
+import { logger } from "@/shared/utils/logger";
 
 /**
  * GitHub Copilot OAuth Service
@@ -43,14 +44,14 @@ export class GitHubService extends OAuthService {
     const spinner = createSpinner("Waiting for GitHub authentication...").start();
 
     // Show user code and verification URL
-    console.log(`\nPlease visit: ${verificationUri}`);
-    console.log(`Enter code: ${userCode}\n`);
+    logger.info(`\nPlease visit: ${verificationUri}`);
+    logger.info(`Enter code: ${userCode}\n`);
 
     // Open browser automatically
     try {
       const open = (await import("open")).default;
       await open(verificationUri);
-    } catch (error: unknown) {console.log("Could not open browser automatically. Please visit the URL above manually.");
+    } catch (error: unknown) {logger.info("Could not open browser automatically. Please visit the URL above manually.");
     }
 
     // Poll for access token
@@ -162,7 +163,7 @@ export class GitHubService extends OAuthService {
       // Get user info
       const userInfo = await this.getUserInfo(tokenResponse.access_token);
 
-      console.log(`\n✅ Successfully authenticated as ${userInfo.login}`);
+      logger.info(`\n✅ Successfully authenticated as ${userInfo.login}`);
 
       return {
         accessToken: tokenResponse.access_token,
@@ -218,7 +219,7 @@ export class GitHubService extends OAuthService {
       }
 
       spinner.succeed("GitHub Copilot connected successfully!");
-      console.log(`\nConnected as: ${authResult.userInfo.login}`);
+      logger.info(`\nConnected as: ${authResult.userInfo.login}`);
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const { error: showError } = await import("../utils/ui");

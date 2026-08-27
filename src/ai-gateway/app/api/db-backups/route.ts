@@ -21,7 +21,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ created: true, ...result });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[API] Error creating manual backup:", error);
+    logger.error("[API] Error creating manual backup:", error);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ backups });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[API] Error listing DB backups:", error);
+    logger.error("[API] Error listing DB backups:", error);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
@@ -77,7 +77,7 @@ export async function POST(request) {
     return NextResponse.json(result);
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[API] Error restoring DB backup:", error);
+    logger.error("[API] Error restoring DB backup:", error);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

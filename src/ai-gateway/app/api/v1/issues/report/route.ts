@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     .join("\n");
 
   // ── Log locally regardless ──
-  console.log(
+  logger.info(
     `[issues/report] title="${title}" errorCode=${errorCode ?? "—"} provider=${provider ?? "—"} accountId=${accountId ?? "—"}`
   );
 
@@ -109,7 +109,7 @@ export async function POST(request: Request) {
 
     if (!ghRes.ok) {
       const errText = await ghRes.text();
-      console.error(`[issues/report] GitHub API error ${ghRes.status}: ${errText}`);
+      logger.error(`[issues/report] GitHub API error ${ghRes.status}: ${errText}`);
       return NextResponse.json(
         { logged: true, githubIssueCreated: false, githubError: ghRes.status },
         { status: 207 }
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[issues/report] GitHub fetch failed:", err);
+    logger.error("[issues/report] GitHub fetch failed:", err);
     return NextResponse.json(
       { logged: true, githubIssueCreated: false, error: "GitHub request failed" },
       { status: 207 }

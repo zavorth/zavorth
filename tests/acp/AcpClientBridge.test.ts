@@ -1,6 +1,14 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { AcpClientBridge } from '../../src/acp/AcpClientBridge.js';
 import { SessionPersistenceService } from '../../src/storage/SessionPersistenceService.js';
+
+jest.mock('../../src/providers/ProviderFactory.js', () => ({
+  ProviderFactory: {
+    create: jest.fn().mockReturnValue({
+      chat: jest.fn().mockResolvedValue({ content: 'Test response from provider' }),
+    }),
+  },
+}));
 
 describe('AcpClientBridge (Desktop & Dashboard Coexistence)', () => {
   let bridge: AcpClientBridge;
@@ -38,7 +46,7 @@ describe('AcpClientBridge (Desktop & Dashboard Coexistence)', () => {
     });
 
     const result = await bridge.sendPrompt(session.id, 'Help me implement an agnostic router');
-    expect(result.response).toContain('Processed:');
+    expect(result.response).toBe('Test response from provider');
     expect(result.cost).toBeGreaterThanOrEqual(0);
     expect(events).toContain('thought');
     expect(events).toContain('chunk');

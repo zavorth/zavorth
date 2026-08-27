@@ -9,6 +9,7 @@ import { asErrorLike } from '../../utils/errorLike';
  */
 import { v4 as uuidv4 } from "uuid";
 import { getDbInstance, isCloud, isBuildPhase } from "./db/core";
+import { logger } from "@/shared/utils/logger";
 
 const shouldPersistToDisk = !isCloud && !isBuildPhase;
 
@@ -105,11 +106,11 @@ function loadFromDb() {
     }
 
     if (proxyLogs.length > 0) {
-      console.log(`[proxyLogger] Loaded ${proxyLogs.length} proxy logs from SQLite`);
+      logger.info(`[proxyLogger] Loaded ${proxyLogs.length} proxy logs from SQLite`);
     }
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.warn("[proxyLogger] Failed to load from DB:", err.message);
+    logger.warn("[proxyLogger] Failed to load from DB:", err.message);
   }
 }
 
@@ -175,7 +176,7 @@ export function logProxyEvent(entry: Partial<ProxyLogEntry>) {
       });
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      console.warn("[proxyLogger] Failed to persist:", err.message);
+      logger.warn("[proxyLogger] Failed to persist:", err.message);
     }
   }
 
@@ -240,7 +241,7 @@ export function clearProxyLogs() {
       db.prepare("DELETE FROM proxy_logs").run();
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      console.warn("[proxyLogger] Failed to clear DB:", err.message);
+      logger.warn("[proxyLogger] Failed to clear DB:", err.message);
     }
   }
 }

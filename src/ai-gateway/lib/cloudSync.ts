@@ -74,7 +74,7 @@ export async function syncToCloud(machineId, createdKey = null) {
   if (!response.ok) {
     const errorText = await response.text();
     const truncated = errorText.length > 200 ? errorText.slice(0, 200) + "…" : errorText;
-    console.log(`Cloud sync failed (${response.status}):`, truncated);
+    logger.info(`Cloud sync failed (${response.status}):`, truncated);
     return { error: "Cloud sync failed" };
   }
 

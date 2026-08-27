@@ -136,7 +136,7 @@ export class PluginUrlInstallService {
     let buffer: Buffer;
     try {
       buffer = await this.fetchBuffer(url);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return { ok: false, error: `Download failed: ${message}` };
     }
@@ -243,7 +243,7 @@ export class PluginUrlInstallService {
       const dest = path.join(extractDir, baseName);
       this.writeFileSync(dest, this.readFileSync(archivePath));
       return { error: null, method: 'raw' };
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return { error: `Unable to place downloaded file: ${message}`, method: 'raw' };
     }

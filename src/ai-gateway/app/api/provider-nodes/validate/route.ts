@@ -99,7 +99,7 @@ export async function POST(request) {
     });
 
     return NextResponse.json({ valid: res.ok, error: res.ok ? null : "Invalid API key" });
-  } catch (error: unknown) {console.log("Error validating provider node:", error);
+  } catch (error: unknown) {logger.info("Error validating provider node:", error);
     return NextResponse.json({ error: "Validation failed" }, { status: 500 });
   }
 }

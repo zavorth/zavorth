@@ -1,4 +1,5 @@
 import { asErrorLike } from '../../../utils/errorLike';
+import { logger } from '@/shared/utils/logger';
 /**
  * Plugin/Middleware Architecture — L-8
  *
@@ -97,7 +98,7 @@ export function registerPlugin(plugin: Plugin): void {
   _plugins.push(plugin);
   _plugins.sort((a, b) => (a.priority || 100) - (b.priority || 100));
 
-  console.log(
+  logger.info(
     `[Plugins] Registered "${plugin.name}" (priority: ${plugin.priority}, enabled: ${plugin.enabled})`
   );
 }
@@ -161,7 +162,7 @@ export async function runOnRequest(
       const result = await plugin.onRequest(currentCtx);
       if (result) {
         if (result.blocked) {
-          console.log(`[Plugins] Request blocked by "${plugin.name}"`);
+          logger.info(`[Plugins] Request blocked by "${plugin.name}"`);
           return { blocked: true, response: result.response, ctx: currentCtx };
         }
         if (result.body) currentCtx.body = result.body;
@@ -171,7 +172,7 @@ export async function runOnRequest(
       }
     } catch (error: unknown) { const err = asErrorLike(error);
       const message = err instanceof Error ? err.message : String(err);
-      console.error(`[Plugins] onRequest error in "${plugin.name}": ${message}`);
+      logger.error(`[Plugins] onRequest error in "${plugin.name}": ${message}`);
       // Plugin errors don't block the pipeline by default
     }
   }
@@ -195,7 +196,7 @@ export async function runOnResponse(ctx: PluginContext, response: ChatResponse):
       }
     } catch (error: unknown) { const err = asErrorLike(error);
       const message = err instanceof Error ? err.message : String(err);
-      console.error(`[Plugins] onResponse error in "${plugin.name}": ${message}`);
+      logger.error(`[Plugins] onResponse error in "${plugin.name}": ${message}`);
     }
   }
 
@@ -213,12 +214,12 @@ export async function runOnError(ctx: PluginContext, error: Error): Promise<Chat
     try {
       const recovery = await plugin.onError(ctx, error);
       if (recovery !== undefined && recovery !== null) {
-        console.log(`[Plugins] Error recovered by "${plugin.name}"`);
+        logger.info(`[Plugins] Error recovered by "${plugin.name}"`);
         return recovery as ChatResponse;
       }
     } catch (error: unknown) { const err = asErrorLike(error);
       const message = err instanceof Error ? err.message : String(err);
-      console.error(`[Plugins] onError error in "${plugin.name}": ${message}`);
+      logger.error(`[Plugins] onError error in "${plugin.name}": ${message}`);
     }
   }
 

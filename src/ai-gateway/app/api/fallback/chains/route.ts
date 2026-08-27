@@ -10,7 +10,7 @@ import { logger } from '@/shared/utils/logger';export async function GET(reques
   try {
     const chains = getAllFallbackChains();
     return NextResponse.json(chains);
-  } catch (error: unknown) {console.error("Error fetching fallback chains:", error);
+  } catch (error: unknown) {logger.error("Error fetching fallback chains:", error);
     return NextResponse.json({ error: "Failed to fetch fallback chains" }, { status: 500 });
   }
 }
@@ -43,7 +43,7 @@ export async function POST(request) {
 
     registerFallback(model, chain);
     return NextResponse.json({ success: true, model });
-  } catch (error: unknown) {console.error("Error registering fallback chain:", error);
+  } catch (error: unknown) {logger.error("Error registering fallback chain:", error);
     return NextResponse.json({ error: "Failed to register fallback chain" }, { status: 500 });
   }
 }
@@ -75,7 +75,7 @@ export async function DELETE(request) {
     const { model } = validation.data;
     const removed = removeFallback(model);
     return NextResponse.json({ success: true, removed });
-  } catch (error: unknown) {console.error("Error removing fallback chain:", error);
+  } catch (error: unknown) {logger.error("Error removing fallback chain:", error);
     return NextResponse.json({ error: "Failed to remove fallback chain" }, { status: 500 });
   }
 }

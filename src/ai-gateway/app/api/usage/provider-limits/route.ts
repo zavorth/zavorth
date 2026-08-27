@@ -6,6 +6,7 @@ import {
   syncAllProviderLimits,
 } from "@/lib/usage/providerLimits";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from "@/shared/utils/logger";
 /**
  * GET /api/usage/provider-limits
  * Returns cached Provider Limits data without triggering live refreshes.
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
       intervalMinutes: getProviderLimitsSyncIntervalMinutes(),
       lastAutoSyncAt: await getLastProviderLimitsAutoSyncTime(),
     });
-  } catch (error: unknown) {console.error("[API] GET /api/usage/provider-limits error:", error);
+  } catch (error: unknown) {logger.error("[API] GET /api/usage/provider-limits error:", error);
     return NextResponse.json({ error: "Failed to fetch cached provider limits" }, { status: 500 });
   }
 }
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
       intervalMinutes: getProviderLimitsSyncIntervalMinutes(),
       lastAutoSyncAt: await getLastProviderLimitsAutoSyncTime(),
     });
-  } catch (error: unknown) {console.error("[API] POST /api/usage/provider-limits error:", error);
+  } catch (error: unknown) {logger.error("[API] POST /api/usage/provider-limits error:", error);
     return NextResponse.json({ error: "Failed to refresh provider limits" }, { status: 500 });
   }
 }

@@ -121,7 +121,7 @@ export class PluginNewService {
             ? `Scaffolded generic bridge template at ${path.relative(root, targetDir).replace(/\\/gu, '/')}`
             : `Scaffolded ping template at ${path.relative(root, targetDir).replace(/\\/gu, '/')}`,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       steps.push({
         id: 'scaffold',
         ok: false,
@@ -164,7 +164,7 @@ export class PluginNewService {
           ok: enabled,
           summary: `Bridge installed + enabled (trust=${bridged.trust}, local dev preset)`,
         });
-      } catch (error) {
+      } catch (error: unknown) {
         steps.push({
           id: 'install-enable',
           ok: false,
@@ -200,7 +200,7 @@ export class PluginNewService {
           summary: bootstrapOk ? `PluginDev bootstrap ok (pluginId=${snapshot.pluginId || id})`
             : `PluginDev bootstrap soft-failed: ${snapshot.steps.map((s) => s.summary).join('; ')}`,
         });
-      } catch (error) {
+      } catch (error: unknown) {
         steps.push({
           id: 'dev-bootstrap',
           ok: false,
@@ -236,7 +236,7 @@ export class PluginNewService {
                 .join('; ')
                 .slice(0, 240)}`,
         });
-      } catch (error) {
+      } catch (error: unknown) {
         steps.push({
           id: 'smoke',
           ok: false,

@@ -90,7 +90,7 @@ export async function GET(request: Request) {
       hasZavorthGateway: hasZavorthGatewayConfig(settings),
       settingsPath: getDroidSettingsPath(),
     });
-  } catch (error: unknown) {console.log("Error checking droid settings:", error);
+  } catch (error: unknown) {logger.info("Error checking droid settings:", error);
     return NextResponse.json({ error: "Failed to check droid settings" }, { status: 500 });
   }
 }
@@ -196,7 +196,7 @@ export async function POST(request: Request) {
       message: "Factory Droid settings applied successfully!",
       settingsPath,
     });
-  } catch (error: unknown) {console.log("Error updating droid settings:", error);
+  } catch (error: unknown) {logger.info("Error updating droid settings:", error);
     return NextResponse.json({ error: "Failed to update droid settings" }, { status: 500 });
   }
 }
@@ -255,7 +255,7 @@ export async function DELETE(request: Request) {
       success: true,
       message: "ZavorthGateway settings removed successfully",
     });
-  } catch (error: unknown) {console.log("Error resetting droid settings:", error);
+  } catch (error: unknown) {logger.info("Error resetting droid settings:", error);
     return NextResponse.json({ error: "Failed to reset droid settings" }, { status: 500 });
   }
 }

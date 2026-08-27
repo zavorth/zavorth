@@ -9,6 +9,7 @@ import { asErrorLike } from '../../../../../../utils/errorLike';
 import { NextResponse } from "next/server";
 import { getDbInstance } from "@/lib/db/core";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
+import { logger } from "@/shared/utils/logger";
 
 export async function GET(req: Request) {
   const policy = await enforceApiKeyPolicy(req, "analytics");
@@ -90,7 +91,7 @@ export async function GET(req: Request) {
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const msg = err instanceof Error ? err.message : String(err);
-    console.error("[/api/v1/search/analytics]", msg);
+    logger.error("[/api/v1/search/analytics]", msg);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

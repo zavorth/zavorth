@@ -12,6 +12,7 @@ import {
   redactZavorthSettingsBackupSecrets,
 } from "@/lib/db/jsonBackupAdapters";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from "@/shared/utils/logger";
 
 /**
  * GET /api/settings/export-json
@@ -52,7 +53,7 @@ export async function GET(request: Request) {
         "X-Content-Type-Options": "nosniff",
       },
     });
-  } catch (error: unknown) {console.error("[API] Error exporting JSON backup:", error);
+  } catch (error: unknown) {logger.error("[API] Error exporting JSON backup:", error);
     return NextResponse.json({ error: "Failed to export JSON" }, { status: 500 });
   }
 }

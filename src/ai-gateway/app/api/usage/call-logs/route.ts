@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { getCallLogs } from "@/lib/usageDb";
 import { safeParseInt } from "@/shared/utils/safeParseInt";
+import { logger } from "@/shared/utils/logger";
 export async function GET(request: Request) {
   try {
     const authError = await requireManagementAuth(request);
@@ -21,7 +22,7 @@ export async function GET(request: Request) {
 
     const logs = await getCallLogs(filter);
     return NextResponse.json(logs);
-  } catch (error: unknown) {console.error("[API ERROR] /api/usage/call-logs failed:", error);
+  } catch (error: unknown) {logger.error("[API ERROR] /api/usage/call-logs failed:", error);
     return NextResponse.json({ error: "Failed to fetch call logs" }, { status: 500 });
   }
 }

@@ -264,7 +264,7 @@ export class PluginOsPromptInjectionService {
         health: surface.health,
         enabledCount: surface.enabledPluginIds.length,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         injected: false,
         reason: `soft_fail: ${error instanceof Error ? error.message : String(error)}`,

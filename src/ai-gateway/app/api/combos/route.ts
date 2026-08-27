@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   try {
     const combos = await getCombos();
     return NextResponse.json({ combos });
-  } catch (error: unknown) {console.log("Error fetching combos:", error);
+  } catch (error: unknown) {logger.info("Error fetching combos:", error);
     return NextResponse.json({ error: "Failed to fetch combos" }, { status: 500 });
   }
 }
@@ -59,7 +59,7 @@ export async function POST(request) {
     await syncToCloudIfEnabled();
 
     return NextResponse.json(combo, { status: 201 });
-  } catch (error: unknown) {console.log("Error creating combo:", error);
+  } catch (error: unknown) {logger.info("Error creating combo:", error);
     return NextResponse.json({ error: "Failed to create combo" }, { status: 500 });
   }
 }
@@ -74,7 +74,7 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: unknown) {console.log("Error syncing to cloud:", error);
+  } catch (error: unknown) {logger.info("Error syncing to cloud:", error);
   }
 }
 

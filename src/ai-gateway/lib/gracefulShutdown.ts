@@ -14,6 +14,7 @@ import { asErrorLike } from '../../utils/errorLike';
  */
 
 import { safeParseInt } from "../shared/utils/safeParseInt.js";
+import { logger } from "@/shared/utils/logger";
 
 /** Grace period before forced exit (default 30s, configurable) */
 const SHUTDOWN_TIMEOUT_MS = safeParseInt(process.env.SHUTDOWN_TIMEOUT_MS, 30000);
@@ -76,20 +77,20 @@ async function waitForDrain(): Promise<void> {
   return new Promise((resolve) => {
     const check = () => {
       if (state.activeRequests <= 0) {
-        console.log("[Shutdown] All in-flight requests drained.");
+        logger.info("[Shutdown] All in-flight requests drained.");
         resolve();
         return;
       }
 
       if (Date.now() - start > SHUTDOWN_TIMEOUT_MS) {
-        console.warn(
+        logger.warn(
           `[Shutdown] Timeout after ${SHUTDOWN_TIMEOUT_MS}ms with ${state.activeRequests} active requests. Forcing exit.`
         );
         resolve();
         return;
       }
 
-      console.log(`[Shutdown] Waiting for ${state.activeRequests} in-flight request(s)...`);
+      logger.info(`[Shutdown] Waiting for ${state.activeRequests} in-flight request(s)...`);
       setTimeout(check, CHECK_INTERVAL_MS);
     };
 
@@ -104,12 +105,12 @@ async function cleanup(): Promise<void> {
   try {
     const { closeDbInstance } = await import("@/lib/db/core");
     if (closeDbInstance()) {
-      console.log("[Shutdown] SQLite database checkpointed and closed.");
+      logger.info("[Shutdown] SQLite database checkpointed and closed.");
     }
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[Shutdown] Error during cleanup:", message);
+    logger.error("[Shutdown] Error during cleanup:", message);
   }
 }
 
@@ -126,17 +127,17 @@ export function initGracefulShutdown(): void {
     if (state.shuttingDown) return;
     state.shuttingDown = true;
 
-    console.log(`\n[Shutdown] Received ${signal}. Draining ${state.activeRequests} request(s)...`);
+    logger.info(`\n[Shutdown] Received ${signal}. Draining ${state.activeRequests} request(s)...`);
 
     await waitForDrain();
     await cleanup();
 
-    console.log("[Shutdown] Bye.");
+    logger.info("[Shutdown] Bye.");
     process.exit(0);
   };
 
   process.on("SIGTERM", () => shutdown("SIGTERM"));
   process.on("SIGINT", () => shutdown("SIGINT"));
 
-  console.log("[Shutdown] Graceful shutdown handlers registered.");
+  logger.info("[Shutdown] Graceful shutdown handlers registered.");
 }

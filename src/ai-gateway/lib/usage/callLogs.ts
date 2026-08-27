@@ -262,7 +262,7 @@ function writeCallArtifact(artifact: CallLogArtifact): string | null {
     fs.writeFileSync(absPath, JSON.stringify(artifact, null, 2));
     rotateCallLogs();
     return relPath;
-  } catch (error: unknown) {console.error("[callLogs] Failed to write request artifact:", (error as Error).message);
+  } catch (error: unknown) {logger.error("[callLogs] Failed to write request artifact:", (error as Error).message);
     return null;
   }
 }
@@ -274,7 +274,7 @@ function readArtifactFromDisk(relativePath: string | null) {
     const absPath = path.join(CALL_LOGS_DIR, relativePath);
     if (!fs.existsSync(absPath)) return null;
     return JSON.parse(fs.readFileSync(absPath, "utf8")) as CallLogArtifact;
-  } catch (error: unknown) {console.error("[callLogs] Failed to read request artifact:", (error as Error).message);
+  } catch (error: unknown) {logger.error("[callLogs] Failed to read request artifact:", (error as Error).message);
     return null;
   }
 }
@@ -315,7 +315,7 @@ function readLegacyLogFromDisk(entry: {
     if (files.length > 0) {
       return JSON.parse(fs.readFileSync(path.join(dir, files[0]), "utf8"));
     }
-  } catch (error: unknown) {console.error("[callLogs] Failed to read legacy disk log:", (error as Error).message);
+  } catch (error: unknown) {logger.error("[callLogs] Failed to read legacy disk log:", (error as Error).message);
   }
 
   return null;
@@ -374,7 +374,7 @@ export function cleanupOverflowCallLogFiles(baseDir = CALL_LOGS_DIR, maxEntries?
     }
 
     cleanupEmptyCallLogDirs();
-  } catch (error: unknown) {console.error(
+  } catch (error: unknown) {logger.error(
       "[callLogs] Failed to prune overflow request artifacts:",
       (error as Error).message
     );
@@ -467,7 +467,7 @@ export async function saveCallLog(entry: unknown) {
         ).run(artifactRelPath, protectedPipelinePayloads ? 1 : 0, logEntry.id);
       }
     }
-  } catch (error: unknown) {console.error("[callLogs] Failed to save call log:", (error as Error).message);
+  } catch (error: unknown) {logger.error("[callLogs] Failed to save call log:", (error as Error).message);
   }
 }
 
@@ -487,7 +487,7 @@ export function rotateCallLogs() {
       }
     }
     cleanupOverflowCallLogFiles(CALL_LOGS_DIR, getCallLogMaxEntries());
-  } catch (error: unknown) {console.error("[callLogs] Failed to rotate request artifacts:", (error as Error).message);
+  } catch (error: unknown) {logger.error("[callLogs] Failed to rotate request artifacts:", (error as Error).message);
   }
 }
 

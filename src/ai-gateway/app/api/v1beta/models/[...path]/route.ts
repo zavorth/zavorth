@@ -15,7 +15,7 @@ async function ensureInitialized() {
   if (!initialized) {
     await initTranslators();
     initialized = true;
-    console.log("[SSE] Translators initialized for /v1beta/models");
+    logger.info("[SSE] Translators initialized for /v1beta/models");
   }
 }
 
@@ -92,7 +92,7 @@ export async function POST(request, { params }) {
     return await handleChat(newRequest, buildClientRawRequest(request, rawBody));
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Error handling Gemini request:", error);
+    logger.info("Error handling Gemini request:", error);
     return Response.json({ error: { message: err.message, code: 500 } }, { status: 500 });
   }
 }

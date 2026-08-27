@@ -66,6 +66,8 @@ export interface LlmResponse {
   toolCalls: ToolCall[];
   finishReason: string;
   metadata?: Record<string, unknown>;
+  /** Optional token usage reported by the provider response. */
+  tokens?: { input: number; output: number };
 }
 
 export type LlmStreamToolCallDelta = {
@@ -91,6 +93,8 @@ export interface ProviderChatOptions {
   modelName?: string;
   providerNativeTools?: ProviderNativeToolRequest[];
   signal?: AbortSignal;
+  /** Optional request timeout in milliseconds. */
+  timeoutMs?: number;
   /** Optional provider reasoning_effort / thinking budget (when supported). */
   reasoningEffort?: 'none' | 'low' | 'medium' | 'high' | 'xhigh';
 }

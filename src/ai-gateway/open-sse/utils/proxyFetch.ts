@@ -1,3 +1,5 @@
+import { logger } from "@/shared/utils/logger";
+
 export function isTlsFingerprintActive(): boolean {
   return process.env.OPENSSE_TLS_FINGERPRINT === "1";
 }
@@ -29,13 +31,13 @@ export async function runWithTlsTracking<T>(url: string, fn: () => Promise<T>): 
   const tlsActive = isTlsFingerprintActive();
   if (tlsActive) {
     const marker = `[tls:${url}]`;
-    console.log(`${marker} start`);
+    logger.info(`${marker} start`);
     try {
       const result = await fn();
-      console.log(`${marker} success`);
+      logger.info(`${marker} success`);
       return result;
     } catch (error) {
-      console.log(`${marker} error`);
+      logger.info(`${marker} error`);
       throw error;
     }
   }

@@ -7,6 +7,8 @@ import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
+const MAX_GEMINI_AUDIO_BASE64_BYTES = 4 * 1024 * 1024;
+
 interface VoiceSession {
   id: string;
   status: 'idle' | 'listening' | 'processing' | 'speaking';
@@ -516,11 +518,11 @@ export class ZavorthVoiceModeTool extends BaseTool {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error('GEMINI_API_KEY not configured.');
         const audioBase64 = fs.readFileSync(audioPath).toString('base64');
-        const maxBase64 = 4 * 1024 * 1024;
+        const maxBase64 = MAX_GEMINI_AUDIO_BASE64_BYTES;
         const truncated = audioBase64.length > maxBase64;
         const audioData = truncated ? audioBase64.slice(0, maxBase64) : audioBase64;
         if (truncated) {
-          console.warn(`[VoiceMode] Audio truncated from ${audioBase64.length} to ${maxBase64} base64 characters.`);
+          logger.warn(`[VoiceMode] Audio truncated from ${audioBase64.length} to ${maxBase64} base64 characters.`);
         }
         const payload = JSON.stringify({
           contents: [{ parts: [

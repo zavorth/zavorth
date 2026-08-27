@@ -158,7 +158,7 @@ export class PluginSignatureService {
     let packageChecksum: string;
     try {
       packageChecksum = this.computePackageChecksum(root);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return {
         ok: false,
@@ -338,7 +338,7 @@ export class PluginSignatureService {
           lines.push(`public-key-id=${publicKeyId}`);
         }
         findings.push('ed25519 signature written');
-      } catch (error) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         findings.push(`ed25519 sign failed: ${message}`);
       }

@@ -99,15 +99,31 @@ export class MemorySemanticCacheService {
   }
 
   private generateEmbedding(text: string): number[] {
-    const vec: number[] = [];
-    const norm = text.toLowerCase().replace(/[^\w\s]/g, '');
-    for (let i = 0; i < this.dimension; i++) {
-      let h = 0;
-      for (let j = 0; j < norm.length; j++) h = ((h << 5) - h + norm.charCodeAt(j) + i) | 0;
-      vec.push((Math.sin(h) + 1) / 2);
+    const tokens = text.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(Boolean);
+    const vocabulary = new Map<string, number>();
+    const embedding = new Array(this.dimension).fill(0);
+
+    for (const token of tokens) {
+      vocabulary.set(token, (vocabulary.get(token) || 0) + 1);
     }
-    const n = Math.sqrt(vec.reduce((s, v) => s + v * v, 0));
-    return n > 0 ? vec.map((v) => v / n) : vec;
+
+    for (const [token, tf] of vocabulary) {
+      const hash = this.hashToken(token);
+      const position = Math.abs(hash) % this.dimension;
+      const tfWeight = 1 + Math.log(1 + tf);
+      embedding[position] += tfWeight;
+    }
+
+    const norm = Math.sqrt(embedding.reduce((sum, v) => sum + v * v, 0));
+    return norm > 0 ? embedding.map((v) => v / norm) : embedding;
+  }
+
+  private hashToken(token: string): number {
+    let hash = 0;
+    for (let i = 0; i < token.length; i++) {
+      hash = ((hash << 5) - hash + token.charCodeAt(i)) | 0;
+    }
+    return hash;
   }
 
   private cosineSimilarity(a: number[], b: number[]): number {

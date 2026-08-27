@@ -181,7 +181,7 @@ export class TelegramMediaController {
         transcript = transcriptionResult.text;
       } catch (transcriptionError: unknown) {
         asErrorLike(transcriptionError);
-        
+
         const message = getErrorMessage(transcriptionError);
         transcriptWarning = message
           ? t('media.transcription_unavailable_detail', { error: message })

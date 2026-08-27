@@ -111,7 +111,7 @@ export async function runZavorthSetupStudioCommand(input: RunZavorthSetupStudioI
   let answers: SetupStudioCliAnswers;
   try {
     answers = interactive ? await collectInteractiveAnswers(input.projectRoot) : collectArgsAnswers(args, setupSection);
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof SetupStudioCancelled) {
       const snapshot = buildZavorthSetupStudioSnapshot({
         projectRoot: input.projectRoot,
@@ -202,19 +202,19 @@ export async function runZavorthSetupStudioCommand(input: RunZavorthSetupStudioI
               mission: workspaceHint.suggestedMission,
             };
             res.output = `${JSON.stringify(parsedOutput, null, 2)}\n`;
-          } catch (err) {
+          } catch (err: unknown) {
             logger.warn('[auto-fix] Empty catch block', err);
           }
         } else {
           res.output += `\nConversational setup completed automatically with workspace mission: "${workspaceHint.suggestedMission}"\n`;
         }
-      } catch (e) {
+      } catch (e: unknown) {
         if (json) {
           try {
             const parsedOutput = JSON.parse(res.output);
             parsedOutput.conversationalSetupError = e instanceof Error ? e.message : String(e);
             res.output = `${JSON.stringify(parsedOutput, null, 2)}\n`;
-          } catch (err) {
+          } catch (err: unknown) {
             logger.warn('[auto-fix] Empty catch block', err);
           }
         } else {
@@ -410,7 +410,7 @@ async function runLiveHatchConversation(snapshot: ZavorthSetupStudioSnapshot): P
       ok: true,
       output: ['Zavorth live hatch', '', sanitizeOutput(response.content || 'Provider answered, but returned an empty message.', snapshot), ''].join('\n'),
     };
-  } catch (error) {
+  } catch (error: unknown) {
     logger.warn('[Zavorth Setup Studio Command] cache operation failed', error);
     return {
       ok: false,

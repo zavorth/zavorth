@@ -149,7 +149,7 @@ export async function runChangePreviewCli(rawArgs: string[] = []): Promise<numbe
     let raw: unknown;
     try {
       raw = JSON.parse(fs.readFileSync(abs, 'utf8'));
-    } catch (err) {
+    } catch (err: unknown) {
       console.log(`Failed to parse JSON: ${err instanceof Error ? err.message : String(err)}`);
       return 1;
     }

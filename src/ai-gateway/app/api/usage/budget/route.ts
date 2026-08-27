@@ -16,7 +16,7 @@ import { logger } from '@/shared/utils/logger';export async function GET(reques
     const summary = getCostSummary(apiKeyId);
     const budgetCheck = checkBudget(apiKeyId);
     return NextResponse.json({ ...summary, budgetCheck });
-  } catch (error: unknown) {console.error("Error fetching budget summary:", error);
+  } catch (error: unknown) {logger.error("Error fetching budget summary:", error);
     return NextResponse.json({ error: "Failed to fetch budget summary" }, { status: 500 });
   }
 }
@@ -49,7 +49,7 @@ export async function POST(request) {
 
     setBudget(apiKeyId, { dailyLimitUsd, monthlyLimitUsd, warningThreshold });
     return NextResponse.json({ success: true, apiKeyId, dailyLimitUsd });
-  } catch (error: unknown) {console.error("Error setting budget:", error);
+  } catch (error: unknown) {logger.error("Error setting budget:", error);
     return NextResponse.json({ error: "Failed to set budget" }, { status: 500 });
   }
 }

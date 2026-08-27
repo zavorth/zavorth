@@ -197,7 +197,7 @@ export class McpRuntimeService {
     // Collect all discovered tools BEFORE making any drift/policy decisions.
     // This is necessary so collision detection (for legacy allowlist migration)
     // can see tools from ALL servers simultaneously, regardless of connect order.
-    
+
     const perServerData = await Promise.all(
       enabledServers.map(async (server) => {
         const manager = this.managerFactory(server);
@@ -428,7 +428,7 @@ export class McpRuntimeService {
       this.logRepo.log(
         'warn',
         'MCP',
-        `Failed to (re)load server MCP ${serverId}: 
+        `Failed to (re)load server MCP ${serverId}:
 ${getErrorMessage(error)}`,
       );
 

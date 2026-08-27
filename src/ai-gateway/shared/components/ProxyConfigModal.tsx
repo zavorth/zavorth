@@ -43,15 +43,15 @@ export default function ProxyConfigModal({
   levelLabel,
   onSaved,
 }: {
-  isOpen: any;
-  onClose: any;
-  level: any;
-  levelId?: any;
-  levelLabel?: any;
-  onSaved?: any;
+  isOpen: boolean;
+  onClose: () => void;
+  level: "global" | "provider" | "combo" | "key";
+  levelId?: string;
+  levelLabel?: string;
+  onSaved?: () => void;
 }) {
   const [mode, setMode] = useState("saved");
-  const [savedProxies, setSavedProxies] = useState([]);
+  const [savedProxies, setSavedProxies] = useState<Array<{ id: string; name: string; type: string; host: string; port: string }>>([]);
   const [selectedProxyId, setSelectedProxyId] = useState("");
   const [proxyType, setProxyType] = useState(PROXY_TYPES[0]?.value || "http");
   const [host, setHost] = useState("");
@@ -313,6 +313,7 @@ export default function ProxyConfigModal({
           setTesting(false);
           return;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const found = (savedProxies as any[]).find((p: any) => p.id === selectedProxyId);
         if (!found) {
           setFormError("Selected proxy not found.");
@@ -426,7 +427,7 @@ export default function ProxyConfigModal({
                 className="w-full px-3 py-2.5 rounded-lg bg-bg-subtle border border-border text-sm text-text-primary"
               >
                 <option value="">Select saved proxy...</option>
-                {savedProxies.map((item: any) => (
+                {savedProxies.map((item) => (
                   <option key={item.id} value={item.id}>
                     {item.name} ({item.type}://{item.host}:{item.port})
                   </option>

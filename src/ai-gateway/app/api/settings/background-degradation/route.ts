@@ -19,7 +19,7 @@ export async function GET(request: Request) {
 
   try {
     return NextResponse.json(getBackgroundDegradationConfig());
-  } catch (error: unknown) {console.error("[API ERROR] /api/settings/background-degradation GET:", error);
+  } catch (error: unknown) {logger.error("[API ERROR] /api/settings/background-degradation GET:", error);
     return NextResponse.json({ error: "Failed to get config" }, { status: 500 });
   }
 }
@@ -62,7 +62,7 @@ export async function PUT(request) {
     await updateSettings({ backgroundDegradation: JSON.stringify(persistable) });
 
     return NextResponse.json({ success: true, ...getBackgroundDegradationConfig() });
-  } catch (error: unknown) {console.error("[API ERROR] /api/settings/background-degradation PUT:", error);
+  } catch (error: unknown) {logger.error("[API ERROR] /api/settings/background-degradation PUT:", error);
     return NextResponse.json({ error: "Failed to update config" }, { status: 500 });
   }
 }
@@ -103,7 +103,7 @@ export async function POST(request) {
       return NextResponse.json({ success: true, stats: getBackgroundDegradationConfig().stats });
     }
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
-  } catch (error: unknown) {console.error("[API ERROR] /api/settings/background-degradation POST:", error);
+  } catch (error: unknown) {logger.error("[API ERROR] /api/settings/background-degradation POST:", error);
     return NextResponse.json({ error: "Failed to execute action" }, { status: 500 });
   }
 }

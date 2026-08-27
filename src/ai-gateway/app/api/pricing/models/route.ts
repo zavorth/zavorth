@@ -132,7 +132,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(catalog);
-  } catch (error: unknown) {console.error("Error fetching model catalog:", error);
+  } catch (error: unknown) {logger.error("Error fetching model catalog:", error);
     return NextResponse.json({ error: "Failed to fetch model catalog" }, { status: 500 });
   }
 }

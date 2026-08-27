@@ -134,7 +134,7 @@ export function sanitizePII(text: string): SanitizeResult {
   }
 
   if (detections.length > 0 && mode === "warn") {
-    console.warn(
+    logger.warn(
       `[PII] Detected PII in response: ${detections.map((d) => `${d.pattern}(${d.count})`).join(", ")}`
     );
   }

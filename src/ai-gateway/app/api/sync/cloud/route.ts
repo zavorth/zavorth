@@ -123,7 +123,7 @@ export async function POST(request: unknown) {
     }
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Cloud sync error:", error);
+    logger.info("Cloud sync error:", error);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
@@ -227,7 +227,7 @@ async function handleDisable(machineId: string, request: unknown) {
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.log("Cloud disable failed:", errorText);
+    logger.info("Cloud disable failed:", errorText);
     return NextResponse.json({ error: "Failed to disable cloud" }, { status: 502 });
   }
 
@@ -272,9 +272,9 @@ async function updateClaudeSettingsToLocal(machineId: string, host: string) {
     // Update to local URL
     settings.env.ANTHROPIC_BASE_URL = localUrl;
     await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2));
-    console.log(`Updated Claude CLI settings: ${cloudUrl} → ${localUrl}`);
+    logger.info(`Updated Claude CLI settings: ${cloudUrl} → ${localUrl}`);
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Failed to update Claude CLI settings:", err.message);
+    logger.info("Failed to update Claude CLI settings:", err.message);
   }
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isDraining, getActiveRequestCount, STARTUP_EPOCH } from "@/lib/gracefulShutdown";
 import { asErrorLike } from '../../../../../utils/errorLike.js';
+import { logger } from "@/shared/utils/logger";
 
 export async function GET() {
   try {
@@ -11,7 +12,7 @@ export async function GET() {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[Status API] Error handling request:", err.message);
+    logger.error("[Status API] Error handling request:", err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

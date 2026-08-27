@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const message = error instanceof Error ? err.message : "Failed to restart";
-    console.error("[version-manager] restart error:", message);
+    logger.error("[version-manager] restart error:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

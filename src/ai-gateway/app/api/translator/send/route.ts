@@ -159,7 +159,7 @@ export async function POST(request) {
         Connection: "keep-alive",
       },
     });
-  } catch (error: unknown) {console.error("Error sending request:", error);
+  } catch (error: unknown) {logger.error("Error sending request:", error);
     return NextResponse.json({ success: false, error: "Failed to send request" }, { status: 500 });
   }
 }

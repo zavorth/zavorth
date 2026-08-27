@@ -126,7 +126,7 @@ export async function GET(request: Request) {
     } catch (error: unknown) {/* non-critical */ logger.warn('[route] operation failed', error); }
 
     return NextResponse.json(statuses);
-  } catch (error: unknown) {console.log("Error fetching CLI tool statuses:", error);
+  } catch (error: unknown) {logger.info("Error fetching CLI tool statuses:", error);
     return NextResponse.json({ error: "Failed to fetch statuses" }, { status: 500 });
   }
 }

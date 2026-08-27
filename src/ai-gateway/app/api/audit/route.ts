@@ -9,6 +9,7 @@ import {
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 
 import { safeParseInt } from "@/shared/utils/safeParseInt";
+import { logger } from "@/shared/utils/logger";
 export async function GET(req: Request) {
   const authError = await requireStrictManagementAuth(req);
   if (authError) return authError;
@@ -36,7 +37,7 @@ export async function GET(req: Request) {
 
     const result = getAuditLog(options);
     return NextResponse.json(result);
-  } catch (error: unknown) {console.error("[API ERROR] /api/audit GET:", error);
+  } catch (error: unknown) {logger.error("[API ERROR] /api/audit GET:", error);
     return NextResponse.json({ error: "Failed to fetch audit log." }, { status: 500 });
   }
 }

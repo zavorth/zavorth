@@ -85,7 +85,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ profiles });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Error listing codex profiles:", err.message);
+    logger.info("Error listing codex profiles:", err.message);
     return NextResponse.json({ error: "Failed to list profiles" }, { status: 500 });
   }
 }
@@ -175,7 +175,7 @@ export async function POST(request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Error saving codex profile:", err.message);
+    logger.info("Error saving codex profile:", err.message);
     return NextResponse.json({ error: "Failed to save profile" }, { status: 500 });
   }
 }
@@ -250,7 +250,7 @@ export async function PUT(request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Error activating codex profile:", err.message);
+    logger.info("Error activating codex profile:", err.message);
     return NextResponse.json({ error: "Failed to activate profile" }, { status: 500 });
   }
 }
@@ -299,7 +299,7 @@ export async function DELETE(request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Error deleting codex profile:", err.message);
+    logger.info("Error deleting codex profile:", err.message);
     return NextResponse.json({ error: "Failed to delete profile" }, { status: 500 });
   }
 }

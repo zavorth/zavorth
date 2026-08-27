@@ -22,7 +22,7 @@ export async function GET() {
     const hasPassword = !!settings.password || !!process.env.INITIAL_PASSWORD;
     const setupComplete = !!settings.setupComplete;
     return NextResponse.json({ requireLogin, hasPassword, setupComplete, ...nodeInfo });
-  } catch (error: unknown) {console.error("[API] Error fetching require-login settings:", error);
+  } catch (error: unknown) {logger.error("[API] Error fetching require-login settings:", error);
     return NextResponse.json(
       { requireLogin: true, hasPassword: true, setupComplete: true, ...nodeInfo },
       { status: 200 }
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[API] Error updating require-login settings:", error);
+    logger.error("[API] Error updating require-login settings:", error);
     return NextResponse.json(
       { error: error instanceof Error ? err.message : "Failed to update settings" },
       { status: 500 }

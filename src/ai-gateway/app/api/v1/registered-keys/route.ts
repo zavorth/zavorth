@@ -37,7 +37,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ keys, total: keys.length });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[registered-keys] GET failed:", err);
+    logger.error("[registered-keys] GET failed:", err);
     return NextResponse.json({ error: "Failed to list registered keys" }, { status: 500 });
   }
 }
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     }
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[registered-keys] quota check failed:", err);
+    logger.error("[registered-keys] quota check failed:", err);
     return NextResponse.json({ error: "Quota check failed" }, { status: 500 });
   }
 
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
     );
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[registered-keys] issue failed:", err);
+    logger.error("[registered-keys] issue failed:", err);
     return NextResponse.json({ error: "Failed to issue key" }, { status: 500 });
   }
 }

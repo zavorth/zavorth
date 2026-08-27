@@ -142,7 +142,7 @@ export async function runMcpJsonRpcSequence(command: string, methods: string[], 
     let child: ReturnType<typeof spawn>;
     try {
       child = spawnCommandLine(command, { cwd, windowsHide: true, stdio: 'pipe' });
-    } catch (error) {
+    } catch (error: unknown) {
       resolve({
         ok: false,
         responses: [],

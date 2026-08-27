@@ -442,7 +442,7 @@ export class LlmRoleRoutingService {
     userMessage: string;
   }> {
     const parse = await this.classifySetupWithLlm(userText, llm);
-    
+
 
     if (parse.intent === 'defer') {
       return {

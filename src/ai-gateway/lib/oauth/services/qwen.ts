@@ -4,6 +4,7 @@ import { getServerCredentials } from "../config/index";
 import { generatePKCE } from "../utils/pkce";
 import { spinner as createSpinner } from "../utils/ui";
 import { asErrorLike } from '../../../../utils/errorLike.js';
+import { logger } from "@/shared/utils/logger";
 
 /**
  * Qwen OAuth Service
@@ -137,9 +138,9 @@ export class QwenService {
 
       spinner.stop();
 
-      console.log("\n📋 Please visit the following URL and enter the code:\n");
-      console.log(`   ${deviceData.verification_uri}\n`);
-      console.log(`   Code: ${deviceData.user_code}\n`);
+      logger.info("\n📋 Please visit the following URL and enter the code:\n");
+      logger.info(`   ${deviceData.verification_uri}\n`);
+      logger.info(`   Code: ${deviceData.user_code}\n`);
 
       // Open browser
       if (deviceData.verification_uri_complete) {

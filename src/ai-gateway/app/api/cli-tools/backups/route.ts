@@ -70,7 +70,7 @@ export async function GET(request) {
     return NextResponse.json({ backups: result });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Error listing backups:", err.message);
+    logger.info("Error listing backups:", err.message);
     return NextResponse.json({ error: "Failed to list backups" }, { status: 500 });
   }
 }
@@ -122,7 +122,7 @@ export async function POST(request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Error restoring backup:", err.message);
+    logger.info("Error restoring backup:", err.message);
     return NextResponse.json(
       { error: err.message || "Failed to restore backup" },
       { status: 500 }
@@ -172,7 +172,7 @@ export async function DELETE(request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Error deleting backup:", err.message);
+    logger.info("Error deleting backup:", err.message);
     return NextResponse.json({ error: "Failed to delete backup" }, { status: 500 });
   }
 }

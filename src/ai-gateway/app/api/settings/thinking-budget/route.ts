@@ -41,7 +41,7 @@ function toThinkingBudgetConfig(body: ThinkingBudgetInput): ThinkingBudgetConfig
   try {
     const config = getThinkingBudgetConfig();
     return NextResponse.json(config);
-  } catch (error: unknown) {console.error("Error reading thinking budget config:", error);
+  } catch (error: unknown) {logger.error("Error reading thinking budget config:", error);
     return NextResponse.json({ error: "Failed to read thinking budget config" }, { status: 500 });
   }
 }
@@ -79,7 +79,7 @@ export async function PUT(request) {
     await updateSettings({ thinkingBudget: body });
 
     return NextResponse.json(getThinkingBudgetConfig());
-  } catch (error: unknown) {console.error("Error updating thinking budget config:", error);
+  } catch (error: unknown) {logger.error("Error updating thinking budget config:", error);
     return NextResponse.json({ error: "Failed to update thinking budget config" }, { status: 500 });
   }
 }

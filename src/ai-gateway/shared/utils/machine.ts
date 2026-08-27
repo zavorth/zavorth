@@ -1,4 +1,5 @@
 import { getConsistentMachineId } from "./machineId";
+import { logger } from "@/shared/utils/logger";
 
 // Get machine ID using node-machine-id with salt
 export async function getMachineId() {
@@ -8,11 +9,11 @@ export async function getMachineId() {
 // Keep sync functions for backward compatibility but make them no-ops
 // (Frontend sync is disabled - use backend sync instead)
 export async function syncProviderDataToCloud(_cloudUrl) {
-  console.log("Frontend sync is disabled. Use backend sync instead.");
+  logger.info("Frontend sync is disabled. Use backend sync instead.");
   return Promise.resolve(true);
 }
 
 export async function getProvidersNeedingRefresh() {
-  console.log("Frontend sync is disabled. Use backend sync instead.");
+  logger.info("Frontend sync is disabled. Use backend sync instead.");
   return Promise.resolve([]);
 }

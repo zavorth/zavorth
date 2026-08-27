@@ -153,7 +153,7 @@ export class KillerMissionExecuteService {
           : `Executed live but response missed expected signals (${mission.expectedSignals.join(', ')}).`,
         live: true,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const finished = now();
       const message = error instanceof Error ? error.message : String(error);
       const blocked = /api key|credential|not configured|no provider|unavailable/i.test(message);

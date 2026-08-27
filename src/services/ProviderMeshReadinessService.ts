@@ -10,7 +10,7 @@ import type {
 } from '../contracts/ProviderMeshReadinessContract.js';
 import { ZAVORTH_PROVIDER_MESH_READINESS_CONTRACT_VERSION } from '../contracts/ProviderMeshReadinessContract.js';
 import { ProviderIntegrationRegistry } from './providers/catalog/ProviderIntegrationRegistry.js';
-import { findCatalogProvider } from './providers/catalog/UniversalProviderCatalog.js';
+import { providerCatalogRegistry } from './providers/catalog/ProviderCatalogRegistry.js';
 
 const ANTHROPIC_SOURCE_IDS = new Set([
   'anthropic',
@@ -305,7 +305,7 @@ export class ProviderMeshReadinessService {
     if (ANTHROPIC_SOURCE_IDS.has(id)) {
       return true;
     }
-    const catalogEntry = findCatalogProvider(id);
+    const catalogEntry = providerCatalogRegistry.get(id);
     return catalogEntry !== null && (catalogEntry.protocol === 'claude_native' || catalogEntry.protocol === 'anthropic');
   }
 

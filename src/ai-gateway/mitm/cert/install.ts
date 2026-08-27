@@ -86,7 +86,7 @@ export async function installCert(sudoPassword, certPath) {
 
   const isInstalled = await checkCertInstalled(certPath);
   if (isInstalled) {
-    console.log("Certificate already installed");
+    logger.info("Certificate already installed");
     return;
   }
 
@@ -114,7 +114,7 @@ async function installCertMac(sudoPassword, certPath) {
       ],
       sudoPassword
     );
-    console.log(`Installed certificate to system keychain: ${certPath}`);
+    logger.info(`Installed certificate to system keychain: ${certPath}`);
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const msg = err.message?.includes("canceled") ? "User canceled authorization"
@@ -128,7 +128,7 @@ async function installCertWindows(certPath) {
   await execElevatedWindowsScript(`
 Import-Certificate -FilePath '${certFile}' -CertStoreLocation 'Cert:\\LocalMachine\\Root' | Out-Null
 `);
-  console.log("Installed certificate to Windows Root store");
+  logger.info("Installed certificate to Windows Root store");
 }
 
 /**
@@ -137,7 +137,7 @@ Import-Certificate -FilePath '${certFile}' -CertStoreLocation 'Cert:\\LocalMachi
 export async function uninstallCert(sudoPassword, certPath) {
   const isInstalled = await checkCertInstalled(certPath);
   if (!isInstalled) {
-    console.log("Certificate not found in system store");
+    logger.info("Certificate not found in system store");
     return;
   }
 
@@ -156,7 +156,7 @@ async function uninstallCertMac(sudoPassword, certPath) {
       ["-S", "security", "delete-certificate", "-Z", fingerprint, SYSTEM_KEYCHAIN],
       sudoPassword
     );
-    console.log("Uninstalled certificate from system keychain");
+    logger.info("Uninstalled certificate from system keychain");
   } catch (error: unknown) {throw new Error("Failed to uninstall certificate");
   }
 }
@@ -168,5 +168,5 @@ Get-ChildItem -Path 'Cert:\\LocalMachine\\Root' |
   Where-Object { $_.Subject -eq '${subject}' } |
   Remove-Item
 `);
-  console.log("Uninstalled certificate from Windows Root store");
+  logger.info("Uninstalled certificate from Windows Root store");
 }

@@ -27,7 +27,7 @@ describe('ZavorthControl mission and chat runtime API wiring', () => {
   it('submits chat from the ZavorthControl through chat-v1 instead of the legacy session send route', () => {
     const hook = read('src/ai-gateway/app/(zavorthControl)/control/useControlPageClient.ts');
 
-    expect(hook).toContain('fetchJson<Record<string, any>>(`/api/web/zavorthControl/chat-v1`');
+    expect(hook).toContain('fetchJson<Record<string, unknown>>(`/api/web/zavorthControl/chat-v1`');
     expect(hook).toContain('live: options.live === true');
     expect(hook).toContain('action: "mission.cancel"');
     expect(hook).toContain('handleMissionCancel');

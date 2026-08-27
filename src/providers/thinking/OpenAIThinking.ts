@@ -22,7 +22,7 @@ export class OpenAIThinking implements ThinkingAdapter {
   }
 
   getThinkingConfig(modelId: string, level: string): ThinkingLevelConfig {
-    
+
     return {
       level: level as ThinkingLevelConfig['level'],
       budgetTokens: level === 'none' ? undefined : this.getMaxThinkingBudget(modelId),

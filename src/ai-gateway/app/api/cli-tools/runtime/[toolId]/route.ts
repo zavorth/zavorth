@@ -8,6 +8,7 @@ import {
   getCliPrimaryConfigPath,
   getCliRuntimeStatus,
 } from "@/shared/services/cliRuntime";
+import { logger } from "@/shared/utils/logger";
 
 export async function GET(request, { params }) {
   const authError = await requireManagementAuth(request);
@@ -35,7 +36,7 @@ export async function GET(request, { params }) {
             : runtime.installed ? "CLI detected but not runnable"
               : "CLI not detected",
     });
-  } catch (error: unknown) {console.log("Error checking CLI runtime:", error);
+  } catch (error: unknown) {logger.info("Error checking CLI runtime:", error);
     return NextResponse.json({ error: "Failed to check CLI runtime" }, { status: 500 });
   }
 }

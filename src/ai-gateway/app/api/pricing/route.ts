@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   try {
     const pricing = await getPricing();
     return NextResponse.json(pricing);
-  } catch (error: unknown) {console.error("Error fetching pricing:", error);
+  } catch (error: unknown) {logger.error("Error fetching pricing:", error);
     return NextResponse.json({ error: "Failed to fetch pricing" }, { status: 500 });
   }
 }
@@ -52,7 +52,7 @@ export async function PATCH(request) {
 
     const updatedPricing = await updatePricing(body);
     return NextResponse.json(updatedPricing);
-  } catch (error: unknown) {console.error("Error updating pricing:", error);
+  } catch (error: unknown) {logger.error("Error updating pricing:", error);
     return NextResponse.json({ error: "Failed to update pricing" }, { status: 500 });
   }
 }
@@ -84,7 +84,7 @@ export async function DELETE(request) {
 
     const pricing = await getPricing();
     return NextResponse.json(pricing);
-  } catch (error: unknown) {console.error("Error resetting pricing:", error);
+  } catch (error: unknown) {logger.error("Error resetting pricing:", error);
     return NextResponse.json({ error: "Failed to reset pricing" }, { status: 500 });
   }
 }

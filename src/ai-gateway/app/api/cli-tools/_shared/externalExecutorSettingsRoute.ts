@@ -78,7 +78,7 @@ export async function GET(request: Request) {
       hasZavorthGateway: hasZavorthGatewayConfig(settings),
       settingsPath: getExternalExecutorSettingsPath(),
     });
-  } catch (error: unknown) {console.log("Error checking external executor settings:", error);
+  } catch (error: unknown) {logger.info("Error checking external executor settings:", error);
     return NextResponse.json(
       { error: "Failed to check external executor settings" },
       { status: 500 }
@@ -169,7 +169,7 @@ export async function POST(request: Request) {
       message: `${DISPLAY_NAME} settings applied successfully!`,
       settingsPath,
     });
-  } catch (error: unknown) {console.log("Error updating external executor settings:", error);
+  } catch (error: unknown) {logger.info("Error updating external executor settings:", error);
     return NextResponse.json(
       { error: "Failed to update external executor settings" },
       { status: 500 }
@@ -228,7 +228,7 @@ export async function DELETE(request: Request) {
       success: true,
       message: "ZavorthGateway settings removed successfully",
     });
-  } catch (error: unknown) {console.log("Error resetting external executor settings:", error);
+  } catch (error: unknown) {logger.info("Error resetting external executor settings:", error);
     return NextResponse.json(
       { error: "Failed to reset external executor settings" },
       { status: 500 }

@@ -28,7 +28,7 @@ export async function GET(request, { params }) {
     }
 
     return NextResponse.json(combo);
-  } catch (error: unknown) {console.log("Error fetching combo:", error);
+  } catch (error: unknown) {logger.info("Error fetching combo:", error);
     return NextResponse.json({ error: "Failed to fetch combo" }, { status: 500 });
   }
 }
@@ -101,7 +101,7 @@ export async function PUT(request, { params }) {
     await syncToCloudIfEnabled();
 
     return NextResponse.json(combo);
-  } catch (error: unknown) {console.log("Error updating combo:", error);
+  } catch (error: unknown) {logger.info("Error updating combo:", error);
     return NextResponse.json({ error: "Failed to update combo" }, { status: 500 });
   }
 }
@@ -123,7 +123,7 @@ export async function DELETE(request, { params }) {
     await syncToCloudIfEnabled();
 
     return NextResponse.json({ success: true });
-  } catch (error: unknown) {console.log("Error deleting combo:", error);
+  } catch (error: unknown) {logger.info("Error deleting combo:", error);
     return NextResponse.json({ error: "Failed to delete combo" }, { status: 500 });
   }
 }
@@ -138,7 +138,7 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: unknown) {console.log("Error syncing to cloud:", error);
+  } catch (error: unknown) {logger.info("Error syncing to cloud:", error);
   }
 }
 

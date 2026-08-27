@@ -92,7 +92,7 @@ export class PluginTestHarnessService {
             : findings.slice(0, 4).join('; '),
         });
       }
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       results.push({
         name: 'manifest-validates',
@@ -137,7 +137,7 @@ export class PluginTestHarnessService {
             : 'Module loaded but register/createZavorthModule export missing',
         });
       }
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       results.push({
         name: 'module-loads-register',
@@ -174,7 +174,7 @@ export class PluginTestHarnessService {
         detail: hit ? `loadEligible=${hit.loadEligible} selected=${hit.selected} valid=${hit.validation.ok}`
           : 'Plugin not discovered after bridge enable',
       });
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       results.push({
         name: 'load-eligible',
@@ -280,7 +280,7 @@ export class PluginTestHarnessService {
               detail: 'Loaded plugin record missing for invoke',
             });
           }
-        } catch (error) {
+        } catch (error: unknown) {
           const message = error instanceof Error ? error.message : String(error);
           results.push({
             name: 'invoke-capability',
@@ -306,7 +306,7 @@ export class PluginTestHarnessService {
       });
 
       runtime.dispose();
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       results.push({
         name: 'load-one',

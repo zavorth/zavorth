@@ -14,6 +14,7 @@ import { NextResponse } from "next/server";
 import { discoverZedCredentials, isZedInstalled } from "@/lib/zed-oauth/keychain-reader";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { createProviderConnection } from "@/lib/db/providers";
+import { logger } from "@/shared/utils/logger";
 
 interface ImportResponse {
   success: boolean;
@@ -50,7 +51,7 @@ export async function POST(request: Request): Promise<NextResponse<ImportRespons
     }
 
     // Discover credentials from keychain
-    console.log("[Zed Import] Discovering Zed credentials from keychain...");
+    logger.info("[Zed Import] Discovering Zed credentials from keychain...");
     const credentials = await discoverZedCredentials();
 
     if (credentials.length === 0) {
@@ -79,7 +80,7 @@ export async function POST(request: Request): Promise<NextResponse<ImportRespons
         savedCount++;
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        console.error(`[Zed Import] Failed to save credential for ${cred.provider}:`, err);
+        logger.error(`[Zed Import] Failed to save credential for ${cred.provider}:`, err);
       }
     }
 
@@ -93,7 +94,7 @@ export async function POST(request: Request): Promise<NextResponse<ImportRespons
     const importedProviders = credentials.map((c) => c.provider);
     const uniqueProviders = [...new Set(importedProviders)];
 
-    console.log(
+    logger.info(
       `[Zed Import] Discovered ${credentials.length} credentials and successfully saved ${savedCount} for ${uniqueProviders.length} providers`
     );
 
@@ -104,7 +105,7 @@ export async function POST(request: Request): Promise<NextResponse<ImportRespons
       credentials: credentialSummary,
       zedInstalled: true,
     });
-  } catch (error: unknown) {console.error("[Zed Import] Error importing credentials:", error);
+  } catch (error: unknown) {logger.error("[Zed Import] Error importing credentials:", error);
     const err = asErrorLike(error);
 
     if (err.message.includes("User canceled") || err.message.includes("denied")) {

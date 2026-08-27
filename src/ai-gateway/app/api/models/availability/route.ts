@@ -16,7 +16,7 @@ import { logger } from '@/shared/utils/logger';export async function GET(reques
     const report = getAvailabilityReport();
     const count = getUnavailableCount();
     return NextResponse.json({ unavailableCount: count, models: report });
-  } catch (error: unknown) {console.error("Error getting model availability:", error);
+  } catch (error: unknown) {logger.error("Error getting model availability:", error);
     return NextResponse.json({ error: "Failed to get model availability" }, { status: 500 });
   }
 }
@@ -49,7 +49,7 @@ export async function POST(request) {
 
     const removed = clearModelUnavailability(provider, model);
     return NextResponse.json({ success: true, removed });
-  } catch (error: unknown) {console.error("Error clearing model availability:", error);
+  } catch (error: unknown) {logger.error("Error clearing model availability:", error);
     return NextResponse.json({ error: "Failed to clear model availability" }, { status: 500 });
   }
 }

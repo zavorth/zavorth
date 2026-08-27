@@ -37,7 +37,7 @@ describe('ZavorthControlShellWiring', () => {
     expect(shell).toContain('viewModel.runObservatory');
     expect(shell).toContain('filterZavorthControlRunObservatory');
     expect(shell).toContain('readZavorthControlRunObservatoryUrlQuery');
-    expect(shell).toContain('useZavorthControlNexusWorkbench');
+    expect(shell).toContain('useZavorthControlOperatorWorkbench');
     expect(shell).toContain('nexusWorkbench');
     expect(shell).toContain('model.handleSend');
     expect(shell).toContain('model.handleSessionChange');
@@ -173,10 +173,10 @@ describe('ZavorthControlShellWiring', () => {
     expect(overview).toContain('humanOperatorWorkbenchStatus');
     expect(overview).toContain('nexusWorkbench.operatorExperience.statusLabel');
     expect(overview).toContain('nexusWorkbench.operatorExperience.cards');
-    expect(overview).toContain('Proximo passo: {nexusWorkbench.capabilities.nextAction}');
+    expect(overview).toContain('Next step: {nexusWorkbench.capabilities.nextAction}');
     expect(overview).toContain('onResolveNexusApproval');
     expect(overview).toContain('onRunNexusWorkbenchAction');
-    expect(overview).toContain('Abrir readiness completo');
+    expect(overview).toContain('Open full readiness');
     expect(nexusAdapter).toContain('function normalizeStatus');
     expect(nexusAdapter).toContain('function normalizeActionKind');
     expect(nexusAdapter).toContain('export function buildOperatorWorkbench');

@@ -90,6 +90,7 @@ export class ZavorthSessionRecallService {
   private readonly stateDbPath: string | null;
   private readonly now: () => Date;
   private legacySeeded = false;
+  private storeCache: Store | null = null;
 
   constructor(options: ServiceOptions) {
     this.storePath = path.resolve(options.storePath);
@@ -269,19 +270,27 @@ export class ZavorthSessionRecallService {
   }
 
   private readStore(): Store {
+    if (this.storeCache) {
+      return this.storeCache;
+    }
+    let parsed: Store;
     try {
-      const parsed = JSON.parse(fs.readFileSync(this.storePath, 'utf8')) as Partial<Store>;
-      return {
-        sessions: Array.isArray(parsed.sessions)
-          ? parsed.sessions.map(normalizeSession).filter((entry): entry is ZavorthSessionRecallSession => Boolean(entry))
+      const raw = JSON.parse(fs.readFileSync(this.storePath, 'utf8')) as Partial<Store>;
+      parsed = {
+        sessions: Array.isArray(raw.sessions)
+          ? raw.sessions.map(normalizeSession).filter((entry): entry is ZavorthSessionRecallSession => Boolean(entry))
           : [],
       };
-    } catch (error: unknown) {logger.warn('[Zavorth Session Recall] JSON parse failed', error);
-    return { sessions: [] };
-  }
+    } catch (error: unknown) {
+    logger.warn('[Zavorth Session Recall] JSON parse failed', error);
+      parsed = { sessions: [] };
+    }
+    this.storeCache = parsed;
+    return parsed;
   }
 
   private writeStore(store: Store): void {
+    this.storeCache = store;
     fs.mkdirSync(path.dirname(this.storePath), { recursive: true });
     const tempPath = `${this.storePath}.${process.pid}.${Date.now()}.tmp`;
     fs.writeFileSync(tempPath, `${JSON.stringify(store, null, 2)}\n`, 'utf8');

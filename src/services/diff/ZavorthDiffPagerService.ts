@@ -230,7 +230,7 @@ export class ZavorthDiffPagerService {
     }
 
     let deletionCount = 0;
-    
+
 
     for (const line of lines) {
       if (line.type === 'deletion') {

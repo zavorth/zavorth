@@ -550,7 +550,7 @@ export async function runPlugins(root: string, args: string[]) {
         result,
         autoEnable: false,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       return render(
         args,
         'Zavorth plugins promote-from-skill',
@@ -1013,7 +1013,7 @@ export async function runPlugins(root: string, args: string[]) {
       try {
         await fs.rm(packageDir, { recursive: true, force: true });
         deletedPackage = true;
-      } catch (error) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         return render(
           args,
@@ -1452,7 +1452,7 @@ export async function runPlugins(root: string, args: string[]) {
             })),
         },
       });
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return render(args, 'Zavorth plugin OS', [bridge.formatSnapshotText(), `Discovery unavailable: ${message}`], {
         bridged: bridge.list(),

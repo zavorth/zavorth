@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { validateApiKey, getProviderConnections, getModelAliases } from "@/models";// Verify API key and return provider credentials
+import { validateApiKey, getProviderConnections, getModelAliases } from "@/models";
+import { logger } from "@/shared/utils/logger";// Verify API key and return provider credentials
 export async function POST(request) {
   try {
     const authHeader = request.headers.get("Authorization");
@@ -52,7 +53,7 @@ export async function POST(request) {
       connections: mappedConnections,
       modelAliases,
     });
-  } catch (error: unknown) {console.log("Cloud auth error:", error);
+  } catch (error: unknown) {logger.info("Cloud auth error:", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

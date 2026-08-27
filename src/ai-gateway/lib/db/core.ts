@@ -18,6 +18,7 @@ import { checkpointDb, createDbInstance } from "./core/coreRuntime";
 import { getStoredDb, setStoredDb } from "./core/coreSingleton";
 import type { CheckpointMode, SqliteDatabase } from "./core/coreTypes";
 import { asErrorLike } from '../../../utils/errorLike.js';
+import { logger } from "@/shared/utils/logger";
 
 export { DATA_DIR, DB_BACKUPS_DIR, SQLITE_FILE, isBuildPhase, isCloud };
 export { cleanNulls, objToSnake, rowToCamel, toCamelCase, toSnakeCase };
@@ -45,12 +46,12 @@ export function closeDbInstance(options?: { checkpointMode?: CheckpointMode | nu
     if (checkpointMode) {
       try {
         if (checkpointDb(db, checkpointMode)) {
-          console.log(`[DB] SQLite WAL checkpoint completed (${checkpointMode}).`);
+          logger.info(`[DB] SQLite WAL checkpoint completed (${checkpointMode}).`);
         }
       } catch (error: unknown) {
         const err = asErrorLike(error);
         const message = error instanceof Error ? err.message : String(error);
-        console.warn(`[DB] WAL checkpoint failed during close (${checkpointMode}):`, message);
+        logger.warn(`[DB] WAL checkpoint failed during close (${checkpointMode}):`, message);
       }
     }
   } finally {

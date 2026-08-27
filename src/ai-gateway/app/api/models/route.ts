@@ -47,7 +47,7 @@ export async function GET(request: Request) {
     }).filter((m: unknown) => showAll || m.available);
 
     return NextResponse.json({ models });
-  } catch (error: unknown) {console.log("Error fetching models:", error);
+  } catch (error: unknown) {logger.info("Error fetching models:", error);
     return NextResponse.json({ error: "Failed to fetch models" }, { status: 500 });
   }
 }
@@ -94,7 +94,7 @@ export async function PUT(request) {
     await setModelAlias(model, alias);
 
     return NextResponse.json({ success: true, model, alias });
-  } catch (error: unknown) {console.log("Error updating alias:", error);
+  } catch (error: unknown) {logger.info("Error updating alias:", error);
     return NextResponse.json({ error: "Failed to update alias" }, { status: 500 });
   }
 }

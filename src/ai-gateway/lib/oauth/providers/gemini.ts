@@ -1,5 +1,6 @@
 import { GEMINI_CONFIG } from "../constants/oauth";
 import { asErrorLike } from '../../../../utils/errorLike';
+import { logger } from "@/shared/utils/logger";
 
 export const gemini = {
   config: GEMINI_CONFIG,
@@ -85,7 +86,7 @@ export const gemini = {
         const data = await projectRes.json();
         projectId = data.cloudaicompanionProject?.id || data.cloudaicompanionProject || "";
       }
-    } catch (error: unknown) { const err = asErrorLike(error); console.log("Failed to fetch project ID:", err);
+    } catch (error: unknown) { const err = asErrorLike(error); logger.info("Failed to fetch project ID:", err);
     }
 
     return { userInfo, projectId };

@@ -102,7 +102,7 @@ export async function POST(request) {
       supportedEndpoints
     );
     return Response.json({ model });
-  } catch (error: unknown) {console.error("Error adding provider model:", error);
+  } catch (error: unknown) {logger.error("Error adding provider model:", error);
     return Response.json(
       { error: { message: "Failed to add provider model", type: "server_error" } },
       { status: 500 }
@@ -232,7 +232,7 @@ export async function PUT(request) {
     }
 
     return Response.json({ model });
-  } catch (error: unknown) {console.error("Error updating provider model:", error);
+  } catch (error: unknown) {logger.error("Error updating provider model:", error);
     return Response.json(
       { error: { message: "Failed to update provider model", type: "server_error" } },
       { status: 500 }
@@ -310,7 +310,7 @@ export async function PATCH(request) {
       models: await getCustomModels(provider),
       modelCompatOverrides: getModelCompatOverrides(provider),
     });
-  } catch (error: unknown) {console.error("Error patching provider models:", error);
+  } catch (error: unknown) {logger.error("Error patching provider models:", error);
     return Response.json(
       { error: { message: "Failed to update provider models", type: "server_error" } },
       { status: 500 }
@@ -368,7 +368,7 @@ export async function DELETE(request) {
 
     const removed = await removeCustomModel(provider, modelId);
     return Response.json({ removed });
-  } catch (error: unknown) {console.error("Error removing provider model:", error);
+  } catch (error: unknown) {logger.error("Error removing provider model:", error);
     return Response.json(
       { error: { message: "Failed to remove provider model", type: "server_error" } },
       { status: 500 }

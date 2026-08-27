@@ -1,5 +1,6 @@
 import { asErrorLike } from '../utils/errorLike';
 import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 /**
  * Node.js-only instrumentation logic.
  *
@@ -113,7 +114,7 @@ export async function registerNodejs(): Promise<void> {
   initGracefulShutdown();
   initApiBridgeServer();
   if (!isBackgroundServicesDisabled()) {
-    console.log("[STARTUP] Gateway background refresh uses request-time health in this build");
+    logger.info("[STARTUP] Gateway background refresh uses request-time health in this build");
   }
 
   try {
@@ -135,7 +136,7 @@ export async function registerNodejs(): Promise<void> {
       if (aliases && typeof aliases === "object") {
         if (modelDeprecation?.setCustomAliases) {
           modelDeprecation.setCustomAliases(aliases);
-          console.log(
+          logger.info(
             `[STARTUP] Restored ${Object.keys(aliases).length} custom model alias(es) from settings`
           );
         }
@@ -150,7 +151,7 @@ export async function registerNodejs(): Promise<void> {
     if (typeof persisted?.enabled === "boolean") {
       if (codex?.setDefaultFastServiceTierEnabled) {
         codex.setDefaultFastServiceTierEnabled(persisted.enabled);
-        console.log(
+        logger.info(
           `[STARTUP] Restored Codex fast service tier: ${persisted.enabled ? "on" : "off"}`
         );
       }
@@ -158,13 +159,13 @@ export async function registerNodejs(): Promise<void> {
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const msg = err instanceof Error ? err.message : String(err);
-    console.warn("[STARTUP] Could not restore runtime settings:", msg);
+    logger.warn("[STARTUP] Could not restore runtime settings:", msg);
   }
 
   try {
     const { initAuditLog, cleanupExpiredLogs } = await import("@/lib/compliance/index");
     initAuditLog();
-    console.log("[COMPLIANCE] Audit log table initialized");
+    logger.info("[COMPLIANCE] Audit log table initialized");
 
     const cleanup = cleanupExpiredLogs();
     if (
@@ -175,11 +176,11 @@ export async function registerNodejs(): Promise<void> {
       cleanup.deletedAuditLogs ||
       cleanup.deletedMcpAuditLogs
     ) {
-      console.log("[COMPLIANCE] Expired log cleanup:", cleanup);
+      logger.info("[COMPLIANCE] Expired log cleanup:", cleanup);
     }
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const msg = err instanceof Error ? err.message : String(err);
-    console.warn("[COMPLIANCE] Could not initialize audit log:", msg);
+    logger.warn("[COMPLIANCE] Could not initialize audit log:", msg);
   }
 }

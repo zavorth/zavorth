@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDbInstance } from "@/lib/db/core";
-import { requireManagementAuth } from "@/lib/api/requireManagementAuth";type JsonRecord = Record<string, unknown>;
+import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from "@/shared/utils/logger";type JsonRecord = Record<string, unknown>;
 
 function toNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -60,7 +61,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({ metrics });
-  } catch (error: unknown) {console.error("[providers/metrics] Error:", error);
+  } catch (error: unknown) {logger.error("[providers/metrics] Error:", error);
     return NextResponse.json({ metrics: {} });
   }
 }

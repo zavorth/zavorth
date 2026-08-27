@@ -77,7 +77,7 @@ export class ZavorthSessionContinuumService {
         try {
           const content = fs.readFileSync(path.join(this.storageDir, file), 'utf8');
           snapshots.push(JSON.parse(content) as SessionContinuumSnapshot);
-        } catch {/* empty */}
+        } catch (error: unknown) { const err = error instanceof Error ? error : new Error(String(error)); logger.debug('[SessionContinuum] Failed to parse snapshot file', { file, error: err.message }); }
       }
 
       return snapshots.sort((a, b) => b.updatedAt - a.updatedAt);
@@ -109,6 +109,6 @@ export class ZavorthSessionContinuumService {
           this.deleteSnapshot(item.sessionId);
         }
       }
-    } catch {/* empty */}
+    } catch (error: unknown) { const err = error instanceof Error ? error : new Error(String(error)); logger.debug('[SessionContinuum] Failed to rotate snapshots', { error: err.message }); }
   }
 }

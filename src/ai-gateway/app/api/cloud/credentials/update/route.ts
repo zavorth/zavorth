@@ -77,7 +77,7 @@ export async function PUT(request: Request) {
       success: true,
       message: `Credentials updated for provider: ${provider}`,
     });
-  } catch (error: unknown) {console.log("Update credentials error:", error);
+  } catch (error: unknown) {logger.info("Update credentials error:", error);
     return NextResponse.json({ error: "Failed to update credentials" }, { status: 500 });
   }
 }

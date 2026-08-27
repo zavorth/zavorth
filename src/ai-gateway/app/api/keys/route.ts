@@ -5,7 +5,8 @@ import { syncToCloud } from "@/lib/cloudSync";
 import { createKeySchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { isApiKeyRevealEnabled, maskStoredApiKey } from "@/lib/apiKeyExposure";
-import { requireManagementAuth, requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";function parsePagination(request: Request) {
+import { requireManagementAuth, requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from "@/shared/utils/logger";function parsePagination(request: Request) {
   const url = new URL(request.url);
   const limitValue = url.searchParams.get("limit");
   const offsetValue = url.searchParams.get("offset");
@@ -40,7 +41,7 @@ export async function GET(request: Request) {
       total: maskedKeys.length,
       allowKeyReveal: isApiKeyRevealEnabled(),
     });
-  } catch (error: unknown) {console.log("Error fetching keys:", error);
+  } catch (error: unknown) {logger.info("Error fetching keys:", error);
     return NextResponse.json({ error: "Failed to fetch keys" }, { status: 500 });
   }
 }
@@ -80,7 +81,7 @@ export async function POST(request) {
       },
       { status: 201 }
     );
-  } catch (error: unknown) {console.log("Error creating key:", error);
+  } catch (error: unknown) {logger.info("Error creating key:", error);
     return NextResponse.json({ error: "Failed to create key" }, { status: 500 });
   }
 }
@@ -95,6 +96,6 @@ async function syncKeysToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: unknown) {console.log("Error syncing keys to cloud:", error);
+  } catch (error: unknown) {logger.info("Error syncing keys to cloud:", error);
   }
 }

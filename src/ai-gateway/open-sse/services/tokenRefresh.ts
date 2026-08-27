@@ -101,13 +101,13 @@ export async function getAllAccessTokens(): Promise<Record<string, TokenRefreshR
 }
 
 export async function refreshClaudeOAuthToken(credentials: Record<string, unknown>): Promise<TokenRefreshResult> {
-  if (!credentials.refreshToken) return { error: "No refresh token for Claude" };
-  return { error: "Claude token refresh not implemented in open-sse stub" };
+  if (!credentials.refreshToken) return { error: 'No refresh token for Claude' };
+  return { error: 'Claude OAuth token refresh requires Anthropic workspace credentials — not yet supported via open-sse' };
 }
 
 export async function refreshCodexToken(credentials: Record<string, unknown>): Promise<TokenRefreshResult> {
-  if (!credentials.refreshToken) return { error: "No refresh token for Codex" };
-  return { error: "Codex token refresh not implemented in open-sse stub" };
+  if (!credentials.refreshToken) return { error: 'No refresh token for Codex' };
+  return { error: 'Codex token refresh requires OpenAI session credentials — not yet supported via open-sse' };
 }
 
 export async function refreshCopilotToken(
@@ -119,21 +119,95 @@ export async function refreshCopilotToken(
 }
 
 export async function refreshGitHubToken(credentials: Record<string, unknown>): Promise<TokenRefreshResult> {
-  if (!credentials.refreshToken) return { error: "No refresh token for GitHub" };
-  return { error: "GitHub token refresh not implemented in open-sse stub" };
+  if (!credentials.refreshToken) return { error: 'No refresh token for GitHub' };
+
+  const clientId = credentials.clientId as string | undefined;
+  const clientSecret = credentials.clientSecret as string | undefined;
+  if (!clientId || !clientSecret) {
+    return { error: 'GitHub refresh requires client_id and client_secret' };
+  }
+
+  try {
+    const res = await fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: credentials.refreshToken,
+        grant_type: 'refresh_token',
+      }),
+    });
+
+    if (!res.ok) {
+      return { error: `GitHub token refresh failed: HTTP ${res.status}` };
+    }
+
+    const data = await res.json() as { access_token?: string; error?: string; error_description?: string };
+    if (data.error) {
+      return { error: data.error_description || data.error };
+    }
+    if (!data.access_token) {
+      return { error: 'GitHub returned no access_token' };
+    }
+
+    return {
+      token: data.access_token,
+      expiresAt: Date.now() + 3600_000,
+    };
+  } catch (err: unknown) {
+    return { error: err instanceof Error ? err.message : String(err) };
+  }
 }
 
 export async function refreshGoogleToken(credentials: Record<string, unknown>): Promise<TokenRefreshResult> {
-  if (!credentials.refreshToken) return { error: "No refresh token for Google" };
-  return { error: "Google token refresh not implemented in open-sse stub" };
+  if (!credentials.refreshToken) return { error: 'No refresh token for Google' };
+
+  const clientId = credentials.clientId as string | undefined;
+  const clientSecret = credentials.clientSecret as string | undefined;
+  if (!clientId || !clientSecret) {
+    return { error: 'Google refresh requires client_id and client_secret' };
+  }
+
+  try {
+    const res = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: credentials.refreshToken as string,
+        grant_type: 'refresh_token',
+      }),
+    });
+
+    if (!res.ok) {
+      return { error: `Google token refresh failed: HTTP ${res.status}` };
+    }
+
+    const data = await res.json() as { access_token?: string; error?: string; error_description?: string };
+    if (data.error) {
+      return { error: data.error_description || data.error };
+    }
+    if (!data.access_token) {
+      return { error: 'Google returned no access_token' };
+    }
+
+    return {
+      token: data.access_token,
+      expiresAt: Date.now() + 3600_000,
+    };
+  } catch (err: unknown) {
+    return { error: err instanceof Error ? err.message : String(err) };
+  }
 }
 
 export async function refreshIflowToken(credentials: Record<string, unknown>): Promise<TokenRefreshResult> {
-  if (!credentials.refreshToken) return { error: "No refresh token for iFlow" };
-  return { error: "iFlow token refresh not implemented in open-sse stub" };
+  if (!credentials.refreshToken) return { error: 'No refresh token for iFlow' };
+  return { error: 'iFlow token refresh not yet implemented' };
 }
 
 export async function refreshQwenToken(credentials: Record<string, unknown>): Promise<TokenRefreshResult> {
-  if (!credentials.refreshToken) return { error: "No refresh token for Qwen" };
-  return { error: "Qwen token refresh not implemented in open-sse stub" };
+  if (!credentials.refreshToken) return { error: 'No refresh token for Qwen' };
+  return { error: 'Qwen token refresh not yet implemented' };
 }

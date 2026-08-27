@@ -175,7 +175,7 @@ export async function handleWorkspaceApprovalsRequest(
         resolvedPath = pathGuard.resolveForWrite(relativePath);
       } catch (pathErr: unknown) {
         asErrorLike(pathErr);
-        
+
         deps.writeJson(res, { ok: false, error: `Unsafe relative path: ${getErrorMessage(pathErr)}` }, 403);
         return true;
       }
@@ -196,7 +196,7 @@ export async function handleWorkspaceApprovalsRequest(
         }
       } catch (readErr: unknown) {
         asErrorLike(readErr);
-        
+
         deps.writeJson(res, { ok: false, error: `Failed to read current file: ${getErrorMessage(readErr)}` }, 403);
         return true;
       }

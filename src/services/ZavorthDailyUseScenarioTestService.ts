@@ -301,7 +301,7 @@ export class ZavorthDailyUseScenarioTestService {
       sessionId: 'daily-use-telegram',
       workspace: this.projectRoot,
     });
-    
+
     const hasReceipt = Boolean(result.receipt.runId && result.receipt.receiptReturnedToTelegram);
     const hasPolicy = result.receipt.externalMutationBeforeApproval === false;
     const confusionSignals = [

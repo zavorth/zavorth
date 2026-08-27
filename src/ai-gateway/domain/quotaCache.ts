@@ -19,6 +19,7 @@ import { getProviderConnectionById, resolveProxyForConnection } from "@/lib/loca
 import { runWithProxyContext } from "@zavorth/ai-gateway/open-sse/utils/proxyFetch.ts";
 import { safePercentage } from "@/shared/utils/formatting";
 import { saveQuotaSnapshot, cleanupOldSnapshots } from "@/lib/db/quotaSnapshots";
+import { logger } from "@/shared/utils/logger";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -212,7 +213,7 @@ export function setQuotaCache(
           window_duration_ms: entry.windowDurationMs ?? null,
           raw_data: null,
         });
-      } catch (error: unknown) {console.error("[quotaCache] Failed to save snapshot:", error);
+      } catch (error: unknown) {logger.error("[quotaCache] Failed to save snapshot:", error);
       }
     }
   }
@@ -332,7 +333,7 @@ async function refreshEntry(entry: QuotaCacheEntry) {
     }
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.warn(
+    logger.warn(
       `[QuotaCache] Refresh failed for ${entry.connectionId.slice(0, 8)}:`,
       err.message || String(err)
     );

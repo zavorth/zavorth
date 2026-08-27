@@ -23,7 +23,7 @@ export async function GET(request: Request) {
       ...getTaskRoutingConfig(),
       defaultTaskModelMap: getDefaultTaskModelMap(),
     });
-  } catch (error: unknown) {console.error("[API ERROR] /api/settings/task-routing GET:", error);
+  } catch (error: unknown) {logger.error("[API ERROR] /api/settings/task-routing GET:", error);
     return NextResponse.json({ error: "Failed to get config" }, { status: 500 });
   }
 }
@@ -67,7 +67,7 @@ export async function PUT(request: Request) {
     await updateSettings({ taskRouting: JSON.stringify(persistable) });
 
     return NextResponse.json({ success: true, ...getTaskRoutingConfig() });
-  } catch (error: unknown) {console.error("[API ERROR] /api/settings/task-routing PUT:", error);
+  } catch (error: unknown) {logger.error("[API ERROR] /api/settings/task-routing PUT:", error);
     return NextResponse.json({ error: "Failed to update config" }, { status: 500 });
   }
 }
@@ -122,7 +122,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
-  } catch (error: unknown) {console.error("[API ERROR] /api/settings/task-routing POST:", error);
+  } catch (error: unknown) {logger.error("[API ERROR] /api/settings/task-routing POST:", error);
     return NextResponse.json({ error: "Failed to execute action" }, { status: 500 });
   }
 }

@@ -154,7 +154,7 @@ export class SkillRemoteCatalogService {
           count,
         });
         findings.push(`${kind} entries=${count}`);
-      } catch (error) {
+      } catch (error: unknown) {
         findings.push(`${kind} parse failed: ${error instanceof Error ? error.message : String(error)}`);
       }
     };
@@ -293,7 +293,7 @@ export class SkillRemoteCatalogService {
         url,
         findings,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         ok: false,
         entries: [],

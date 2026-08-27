@@ -234,7 +234,7 @@ export async function GET(
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("OAuth GET error:", error);
+    logger.info("OAuth GET error:", error);
     return NextResponse.json({ error: error instanceof Error ? err.message : "Unknown error" }, { status: 500 });
   }
 }
@@ -670,7 +670,7 @@ export async function POST(
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("OAuth POST error:", error);
+    logger.info("OAuth POST error:", error);
     return NextResponse.json({ error: error instanceof Error ? err.message : "Unknown error" }, { status: 500 });
   }
 }
@@ -685,6 +685,6 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: unknown) {console.log("Error syncing to cloud after OAuth:", error);
+  } catch (error: unknown) {logger.info("Error syncing to cloud after OAuth:", error);
   }
 }

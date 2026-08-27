@@ -191,7 +191,7 @@ export class PluginDevService {
             : requiredModule && typeof requiredModule.register === 'function' ? 'Loaded register export'
               : 'Module loaded without register/DefinedPlugin export',
         });
-      } catch (error) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         steps.push({
           id: 'load-module',
@@ -257,7 +257,7 @@ export class PluginDevService {
           ok: true,
           summary: `Wrote ${path.basename(sidecarPath)} (manifest.json left unchanged)`,
         });
-      } catch (error) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         steps.push({
           id: 'write-inferred-sidecar',
@@ -282,7 +282,7 @@ export class PluginDevService {
             ? `Merged ${missingCount} inferred capability(ies) into ${path.basename(targetManifestPath)}`
             : `Wrote ${path.basename(targetManifestPath)} (no capability drift)`,
         });
-      } catch (error) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         steps.push({
           id: 'write-manifest',
@@ -315,7 +315,7 @@ export class PluginDevService {
         ok: true,
         summary: `Bridge marked installed enable=${enable} trust=${trust}`,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       steps.push({
         id: 'bridge-install',
@@ -399,7 +399,7 @@ export class PluginDevService {
         summary: loadResult ? `Load status=${loadResult.status}; capabilities=${loadResult.capabilities.length}; hooks=${loadResult.hooks.length}`
           : `Bootstrap complete loaded=${bootstrap.summary.loaded} failed=${bootstrap.summary.failed}`,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       steps.push({
         id: 'runtime-bootstrap',
@@ -457,7 +457,7 @@ export class PluginDevService {
               ok,
               summary,
             });
-          } catch (error) {
+          } catch (error: unknown) {
             const message = error instanceof Error ? error.message : String(error);
             steps.push({
               id: 'hot-reload',

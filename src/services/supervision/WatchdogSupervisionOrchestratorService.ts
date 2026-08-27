@@ -93,7 +93,7 @@ export class WatchdogSupervisionOrchestratorService {
       }
 
       return evaluation;
-    } catch (err) {
+    } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : String(err);
       const evaluation: WatchdogEvaluationResult = {
         jobId: job.id,

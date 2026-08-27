@@ -12,7 +12,7 @@ import { logger } from '@/shared/utils/logger';export async function GET(reques
     const circuitBreakers = getAllCircuitBreakerStatuses();
     const lockedIdentifiers = getLockedIdentifiers();
     return NextResponse.json({ circuitBreakers, lockedIdentifiers });
-  } catch (error: unknown) {console.error("Error loading policies:", error);
+  } catch (error: unknown) {logger.error("Error loading policies:", error);
     return NextResponse.json({ error: "Failed to load policies" }, { status: 500 });
   }
 }
@@ -49,7 +49,7 @@ export async function POST(request) {
     }
 
     return NextResponse.json({ error: "Unknown action. Supported: unlock" }, { status: 400 });
-  } catch (error: unknown) {console.error("Error updating policies:", error);
+  } catch (error: unknown) {logger.error("Error updating policies:", error);
     return NextResponse.json({ error: "Failed to update policies" }, { status: 500 });
   }
 }

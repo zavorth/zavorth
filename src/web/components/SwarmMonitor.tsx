@@ -529,7 +529,7 @@ function ProfileItem({ label, value, detail }: { label: string; value: string; d
   );
 }
 
-const styles: Record<string, any> = {
+const styles: Record<string, React.CSSProperties> = {
   container: {
     display: 'flex',
     flexDirection: 'column',

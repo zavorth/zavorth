@@ -153,7 +153,7 @@ export async function POST(request: Request) {
     const comboCount = (db.prepare("SELECT COUNT(*) as cnt FROM combos").get() as unknown as Record<string, unknown>)?.cnt || 0;
     const keyCount = (db.prepare("SELECT COUNT(*) as cnt FROM api_keys").get() as unknown as Record<string, unknown>)?.cnt || 0;
 
-    console.log(
+    logger.info(
       `[DB] Imported database from upload: ${connCount} connections, ${nodeCount} nodes, ${comboCount} combos, ${keyCount} API keys`
     );
 
@@ -167,7 +167,7 @@ export async function POST(request: Request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[API] Error importing database:", error);
+    logger.error("[API] Error importing database:", error);
     return NextResponse.json({ error: err.message }, { status: 500 });
   } finally {
     // Cleanup temp file

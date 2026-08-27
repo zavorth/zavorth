@@ -62,7 +62,7 @@ export async function GET(request: Request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[API] Error exporting database:", error);
+    logger.error("[API] Error exporting database:", error);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

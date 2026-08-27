@@ -10,6 +10,7 @@ import { asErrorLike } from '../../../utils/errorLike';
  */
 
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from "crypto";
+import { logger } from "@/shared/utils/logger";
 
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 16;
@@ -82,7 +83,7 @@ export function decrypt(ciphertext: string | null | undefined): string | null | 
 
   const key = getKey();
   if (!key) {
-    console.warn(
+    logger.warn(
       "[Encryption] Found encrypted data but STORAGE_ENCRYPTION_KEY is not set. Cannot decrypt."
     );
     return ciphertext;
@@ -91,7 +92,7 @@ export function decrypt(ciphertext: string | null | undefined): string | null | 
   const body = ciphertext.slice(PREFIX.length);
   const parts = body.split(":");
   if (parts.length !== 3) {
-    console.error("[Encryption] Malformed encrypted value");
+    logger.error("[Encryption] Malformed encrypted value");
     return ciphertext;
   }
 
@@ -109,7 +110,7 @@ export function decrypt(ciphertext: string | null | undefined): string | null | 
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[Encryption] Decryption failed:", message);
+    logger.error("[Encryption] Decryption failed:", message);
     return ciphertext;
   }
 }

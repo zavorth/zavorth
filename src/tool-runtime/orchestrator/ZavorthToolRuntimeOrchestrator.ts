@@ -1,4 +1,5 @@
 import { IZavorthTool, ToolCategory, type ToolExecutionResult } from '../types/IZavorthTool';
+import { logger } from '../../logger.js';
 import { ToolSchemaHelper } from '../types/ToolSchemaHelper';
 import { SecurityEngine } from '../security/SecurityEngine';
 import { SystemOpenAppTool } from '../tools/os/SystemOpenAppTool';
@@ -69,8 +70,8 @@ export class ZavorthEchoOrchestrator {
                 this.registerTool(tool);
             }
         } catch (error: unknown) {
-          const err = asErrorLike(error);
-          console.warn('[EchoOrchestrator] Failed to register web Action Harness tools:', error instanceof Error ? err.message : String(error));
+          const message = error instanceof Error ? error.message : String(error);
+          logger.warn(`[EchoOrchestrator] Failed to register web Action Harness tools: ${message}`);
         }
     }
 

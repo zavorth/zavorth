@@ -90,7 +90,7 @@ export async function GET(request: Request) {
       hasZavorthGateway: hasZavorthGateway,
       settingsPath: getClaudeSettingsPath(),
     });
-  } catch (error: unknown) {console.log("Error checking claude settings:", error);
+  } catch (error: unknown) {logger.info("Error checking claude settings:", error);
     return NextResponse.json({ error: "Failed to check claude settings" }, { status: 500 });
   }
 }
@@ -192,7 +192,7 @@ export async function POST(request: Request) {
       success: true,
       message: "Settings updated successfully",
     });
-  } catch (error: unknown) {console.log("Error updating claude settings:", error);
+  } catch (error: unknown) {logger.info("Error updating claude settings:", error);
     return NextResponse.json({ error: "Failed to update claude settings" }, { status: 500 });
   }
 }
@@ -263,7 +263,7 @@ export async function DELETE(request: Request) {
       success: true,
       message: "Settings reset successfully",
     });
-  } catch (error: unknown) {console.log("Error resetting claude settings:", error);
+  } catch (error: unknown) {logger.info("Error resetting claude settings:", error);
     return NextResponse.json({ error: "Failed to reset claude settings" }, { status: 500 });
   }
 }

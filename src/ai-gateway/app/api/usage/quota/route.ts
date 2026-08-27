@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { getProviderConnections } from "@/lib/localDb";
 import {
   getLearnedLimits,
-  getRateLimitStatus,
-  type RateLimitStatus,
 } from "@zavorth/ai-gateway/open-sse/services/rateLimitManager.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 
@@ -12,7 +10,8 @@ import {
   sanitizeQuotaProvider,
   type QuotaProviderEntry,
   type QuotaTokenStatus,
-} from "@/shared/contracts/quota";type ProviderConnectionRecord = Record<string, unknown>;
+} from "@/shared/contracts/quota";
+import { logger } from "@/shared/utils/logger";type ProviderConnectionRecord = Record<string, unknown>;
 
 function toDateMs(value: unknown): number | null {
   if (typeof value !== "string" || !value.trim()) return null;
@@ -43,8 +42,7 @@ function deriveTokenStatus(connection: ProviderConnectionRecord): QuotaTokenStat
 
 function buildQuotaEntry(
   connection: ProviderConnectionRecord,
-  learnedLimit: unknown,
-  rateStatus: RateLimitStatus | Record<string, unknown> | undefined
+  learnedLimit: unknown
 ): QuotaProviderEntry {
   const provider =
     typeof connection.provider === "string" && connection.provider.trim()
@@ -144,8 +142,7 @@ export async function GET(request: Request) {
       const provider = typeof conn.provider === "string" ? conn.provider : "unknown";
       const connectionId = typeof conn.id === "string" ? conn.id : undefined;
       const learnedLimit = learnedLimits?.[`${provider}:${connectionId}`] || null;
-      const rateStatus = getRateLimitStatus(provider, connectionId);
-      return buildQuotaEntry(conn, learnedLimit, rateStatus);
+      return buildQuotaEntry(conn, learnedLimit);
     });
 
     const response = normalizeQuotaResponse(
@@ -166,7 +163,7 @@ export async function GET(request: Request) {
     );
 
     return NextResponse.json(response);
-  } catch (error: unknown) {console.error("[API] GET /api/usage/quota error:", error);
+  } catch (error: unknown) {logger.error("[API] GET /api/usage/quota error:", error);
     return NextResponse.json({ error: "Failed to fetch quota data" }, { status: 500 });
   }
 }

@@ -32,9 +32,9 @@ describe('ZavorthControl runtime API v1 action wiring', () => {
   it('routes approval buttons through the governed action endpoint instead of websocket-only legacy resolution', () => {
     const hook = read('src/ai-gateway/app/(zavorthControl)/control/useControlPageClient.ts');
 
-    expect(hook).toContain('fetchJson<Record<string, any>>("/api/web/zavorthControl/actions"');
+    expect(hook).toContain('fetchJson<Record<string, unknown>>("/api/web/zavorthControl/actions"');
     expect(hook).toContain('action: decision === "approve" ? "approval.approve" : "approval.deny"');
-    expect(hook).toContain('fetchJson<Record<string, any>>(`/api/web/zavorthControl/events-v1${query}`)');
+    expect(hook).toContain('fetchJson<Record<string, unknown>>(`/api/web/zavorthControl/events-v1${query}`)');
     expect(hook).not.toContain('sendGatewayRequest("approval.resolve"');
   });
 

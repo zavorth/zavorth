@@ -3,6 +3,7 @@ import { generatePKCE } from "@/lib/oauth/utils/pkce";
 import { KiroService } from "@/lib/oauth/services/kiro";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { asErrorLike } from '../../../../../../utils/errorLike.js';
+import { logger } from "@/shared/utils/logger";
 
 /**
  * GET /api/oauth/kiro/social-authorize
@@ -39,7 +40,7 @@ export async function GET(request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Kiro social authorize error:", error);
+    logger.info("Kiro social authorize error:", error);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

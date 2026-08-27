@@ -5,7 +5,7 @@
 
 import { ZavorthRootConfig, ZavorthRootConfigSchema } from './ConfigSchema.js';
 
-export type ConfigLayerPriority = 
+export type ConfigLayerPriority =
   | 'system_default'   // Base defaults
   | 'managed_default'  // Enterprise / managed defaults
   | 'user_config'      // ~/.zavorth/config.toml

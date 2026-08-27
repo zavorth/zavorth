@@ -992,7 +992,7 @@ export class ConversationalAgent {
         allowLearningWrite,
         chatId: chatId || null,
       });
-    } catch (error) { logger.debug('Product surface scheduling skipped', { error: asErrorLike(error) }); }
+    } catch (error: unknown) { logger.debug('Product surface scheduling skipped', { error: asErrorLike(error) }); }
   }
 
   public buildSystemInstruction(mode: ConversationalMode = 'default', styleHints?: string[]): string {

@@ -3,6 +3,7 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { getProviderConnections, getSettings } from "@/lib/localDb";
 import { APP_CONFIG } from "@/shared/constants/config";
 import { AI_PROVIDERS } from "@/shared/constants/providers";
+import { logger } from "@/shared/utils/logger";
 /**
  * GET /api/monitoring/health — System health overview
  *
@@ -76,7 +77,7 @@ export async function GET() {
       },
       setupComplete: settings?.setupComplete || false,
     });
-  } catch (error: unknown) {console.error("[API] GET /api/monitoring/health error:", error);
+  } catch (error: unknown) {logger.error("[API] GET /api/monitoring/health error:", error);
     return NextResponse.json({ status: "error", error: "Health check failed" }, { status: 500 });
   }
 }
@@ -100,14 +101,14 @@ export async function DELETE(request: Request) {
 
     resetAllCircuitBreakers();
 
-    console.log(`[API] DELETE /api/monitoring/health — Reset ${resetCount} circuit breakers`);
+    logger.info(`[API] DELETE /api/monitoring/health — Reset ${resetCount} circuit breakers`);
 
     return NextResponse.json({
       success: true,
       message: `Reset ${resetCount} circuit breaker(s) to healthy state`,
       resetCount,
     });
-  } catch (error: unknown) {console.error("[API] DELETE /api/monitoring/health error:", error);
+  } catch (error: unknown) {logger.error("[API] DELETE /api/monitoring/health error:", error);
     return NextResponse.json({ error: "Failed to reset circuit breakers" }, { status: 500 });
   }
 }

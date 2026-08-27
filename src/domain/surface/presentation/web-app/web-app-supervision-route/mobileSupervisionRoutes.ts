@@ -239,7 +239,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     fetch(BASE+'/api/web/mobile/status',{headers:{'X-Zavorth-Mobile-Token':token}})
       .then(function(r){return r.json()})
       .then(function(d){if(d.ok)renderSnapshot(d.snapshot);})
-      .catch(function(){});
+.catch(function(e){if(window.console)console.error('[mobile-supervision] status fetch failed',e);});
   }
 
   function renderSnapshot(s){
@@ -293,7 +293,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       body:JSON.stringify({actionId:actionId,targetId:targetId})
     }).then(function(r){return r.json()}).then(function(d){
       if(d.ok)fetchStatus();
-    }).catch(function(){});
+    }).catch(function(e){if(window.console)console.error('[mobile-supervision] action failed',e);});
   };
 
   window.onModelSwitch=function(){
@@ -343,7 +343,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       if(data.type==='status-change'&&data.data)setStatus(data.data.status);
       if(data.type==='approval-pending'||data.type==='approval-resolved')fetchStatus();
       prependEvent(data);
-    }catch(e){/* SSE parse error ignored — non-critical UI update */}
+    }catch(e){if(window.console)console.error('[mobile-supervision] SSE parse error',e);}
   }
 
   function prependEvent(e){

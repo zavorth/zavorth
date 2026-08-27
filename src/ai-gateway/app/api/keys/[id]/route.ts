@@ -30,7 +30,7 @@ export async function GET(request, { params }) {
       ...key,
       key: keyValue ? keyValue.slice(0, 8) + "****" + keyValue.slice(-4) : null,
     });
-  } catch (error: unknown) {console.log("Error fetching key:", error);
+  } catch (error: unknown) {logger.info("Error fetching key:", error);
     return NextResponse.json({ error: "Failed to fetch key" }, { status: 500 });
   }
 }
@@ -101,7 +101,7 @@ export async function PATCH(request, { params }) {
       ...(maxSessions !== undefined && { maxSessions }),
       ...(accessSchedule !== undefined && { accessSchedule }),
     });
-  } catch (error: unknown) {console.log("Error updating key permissions:", error);
+  } catch (error: unknown) {logger.info("Error updating key permissions:", error);
     return NextResponse.json({ error: "Failed to update permissions" }, { status: 500 });
   }
 }
@@ -123,7 +123,7 @@ export async function DELETE(request, { params }) {
     await syncKeysToCloudIfEnabled();
 
     return NextResponse.json({ message: "Key deleted successfully" });
-  } catch (error: unknown) {console.log("Error deleting key:", error);
+  } catch (error: unknown) {logger.info("Error deleting key:", error);
     return NextResponse.json({ error: "Failed to delete key" }, { status: 500 });
   }
 }
@@ -138,6 +138,6 @@ async function syncKeysToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: unknown) {console.log("Error syncing keys to cloud:", error);
+  } catch (error: unknown) {logger.info("Error syncing keys to cloud:", error);
   }
 }

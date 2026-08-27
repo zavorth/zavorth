@@ -3,6 +3,7 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import type { GatewayCatalogSection, LocalizationCatalog } from './localeContracts.js';
 import { en } from './catalogs/en.js';
+import { logger } from '../../logger.js';
 import { ZavorthJsonSchemaRepairService } from '../llm/repair/ZavorthJsonSchemaRepairService.js';
 
 export interface TranslationProviderBridge {
@@ -74,7 +75,7 @@ export class ZavorthOnDemandTranslationService {
         this.memoryCache.set(normalized, synthesized);
         try {
           fs.writeFileSync(diskPath, JSON.stringify(synthesized, null, 2), 'utf8');
-        } catch {/* empty */}
+        } catch (error: unknown) { const err = error instanceof Error ? error : new Error(String(error)); logger.debug('[OnDemandTranslation] Failed to persist synthesized translation', { path: diskPath, error: err.message }); }
         return synthesized;
       }
     }

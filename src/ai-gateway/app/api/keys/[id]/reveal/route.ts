@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getApiKeyById } from "@/lib/localDb";
 import { isApiKeyRevealEnabled } from "@/lib/apiKeyExposure";
-import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";// GET /api/keys/[id]/reveal - Reveal full API key for explicit copy actions
+import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from "@/shared/utils/logger";// GET /api/keys/[id]/reveal - Reveal full API key for explicit copy actions
 export async function GET(request, { params }) {
   const authError = await requireStrictManagementAuth(request);
   if (authError) return authError;
@@ -19,7 +20,7 @@ export async function GET(request, { params }) {
     }
 
     return NextResponse.json({ key: key.key });
-  } catch (error: unknown) {console.log("Error revealing key:", error);
+  } catch (error: unknown) {logger.info("Error revealing key:", error);
     return NextResponse.json({ error: "Failed to reveal key" }, { status: 500 });
   }
 }

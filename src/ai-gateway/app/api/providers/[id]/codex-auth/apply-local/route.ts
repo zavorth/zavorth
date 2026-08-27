@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { ensureCliConfigWriteAllowed } from "@/shared/services/cliRuntime";
 import { CodexAuthFileError, writeCodexAuthFileToLocalCli } from "@/lib/oauth/utils/codexAuthFile";
-import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";function toErrorResponse(error: unknown) {
+import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from "@/shared/utils/logger";function toErrorResponse(error: unknown) {
   if (error instanceof CodexAuthFileError) {
     return NextResponse.json(
       {
@@ -36,7 +37,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       authPath: result.authPath,
       writtenAt: new Date().toISOString(),
     });
-  } catch (error: unknown) {console.error("[Codex Auth Apply] Failed:", error);
+  } catch (error: unknown) {logger.error("[Codex Auth Apply] Failed:", error);
     return toErrorResponse(error);
   }
 }

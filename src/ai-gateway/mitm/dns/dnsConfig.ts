@@ -130,7 +130,7 @@ export function checkDNSEntry() {
  */
 export async function addDNSEntry(sudoPassword) {
   if (checkDNSEntry()) {
-    console.log(`DNS entry for ${TARGET_HOST} already exists`);
+    logger.info(`DNS entry for ${TARGET_HOST} already exists`);
     return;
   }
 
@@ -164,7 +164,7 @@ if (-not $exists) {
         sudoPassword
       );
     }
-    console.log(`Added DNS entry: ${entry}`);
+    logger.info(`Added DNS entry: ${entry}`);
   } catch (error: unknown) {
     const err = asErrorLike(error);
     throw new Error(`Failed to add DNS entry: ${err.message}`);
@@ -176,7 +176,7 @@ if (-not $exists) {
  */
 export async function removeDNSEntry(sudoPassword) {
   if (!checkDNSEntry()) {
-    console.log(`DNS entry for ${TARGET_HOST} does not exist`);
+    logger.info(`DNS entry for ${TARGET_HOST} does not exist`);
     return;
   }
 
@@ -201,7 +201,7 @@ Set-Content -LiteralPath $hostsPath -Value $next -Encoding ASCII
         sudoPassword
       );
     }
-    console.log(`Removed DNS entry for ${TARGET_HOST}`);
+    logger.info(`Removed DNS entry for ${TARGET_HOST}`);
   } catch (error: unknown) {
     const err = asErrorLike(error);
     throw new Error(`Failed to remove DNS entry: ${err.message}`);

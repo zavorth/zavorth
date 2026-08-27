@@ -54,7 +54,7 @@ import { logger } from '@/shared/utils/logger';export async function POST(reque
     fs.writeFileSync(filePath, content, "utf-8");
 
     return NextResponse.json({ success: true });
-  } catch (error: unknown) {console.error("Error saving file:", error);
+  } catch (error: unknown) {logger.error("Error saving file:", error);
     return NextResponse.json({ success: false, error: "Failed to save file" }, { status: 500 });
   }
 }

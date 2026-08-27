@@ -423,7 +423,7 @@ function runDecide(args: string[], json: boolean): number {
       console.log('Next: zavorth proof list --kind approval');
     }
     return 0;
-  } catch (err) {
+  } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     console.log(`Failed to record decision: ${message}`);
     return 1;

@@ -150,7 +150,7 @@ export async function POST(request) {
       results,
       testedAt: new Date().toISOString(),
     });
-  } catch (error: unknown) {console.log("Error testing combo:", error);
+  } catch (error: unknown) {logger.info("Error testing combo:", error);
     return NextResponse.json({ error: "Failed to test combo" }, { status: 500 });
   }
 }

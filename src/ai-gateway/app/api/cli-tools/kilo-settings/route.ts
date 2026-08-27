@@ -106,7 +106,7 @@ export async function GET(request: Request) {
       hasZavorthGateway: hasZavorthGatewayConfig(auth),
       authPath: AUTH_PATH,
     });
-  } catch (error: unknown) {console.log("Error checking kilo settings:", error);
+  } catch (error: unknown) {logger.info("Error checking kilo settings:", error);
     return NextResponse.json({ error: "Failed to check kilo settings" }, { status: 500 });
   }
 }
@@ -221,7 +221,7 @@ export async function POST(request) {
       message: "Kilo Code settings applied successfully!",
       authPath: AUTH_PATH,
     });
-  } catch (error: unknown) {console.log("Error updating kilo settings:", error);
+  } catch (error: unknown) {logger.info("Error updating kilo settings:", error);
     return NextResponse.json({ error: "Failed to update kilo settings" }, { status: 500 });
   }
 }
@@ -284,7 +284,7 @@ export async function DELETE(request: Request) {
       success: true,
       message: "ZavorthGateway settings removed from Kilo Code",
     });
-  } catch (error: unknown) {console.log("Error resetting kilo settings:", error);
+  } catch (error: unknown) {logger.info("Error resetting kilo settings:", error);
     return NextResponse.json({ error: "Failed to reset kilo settings" }, { status: 500 });
   }
 }

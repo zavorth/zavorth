@@ -133,7 +133,7 @@ export class PluginRecommendTool extends BaseTool {
           null,
           2,
         );
-      } catch (error) {
+      } catch (error: unknown) {
         return JSON.stringify(
           {
             ok: false,
@@ -215,7 +215,7 @@ export class PluginRecommendTool extends BaseTool {
         null,
         2,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       return JSON.stringify(
         {
           ok: false,

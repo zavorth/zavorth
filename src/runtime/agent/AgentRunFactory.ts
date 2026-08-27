@@ -1,4 +1,5 @@
 import { resolveAgentGatewayTraceId } from './AgentGatewayTelemetry.js';
+import { logger } from '../../logger.js';
 import type { ModelPickerContract, SelectedModelProfile } from '../../contracts/ModelPickerContract.js';
 import { decideNaturalFirstRuntimeEntrypoint } from '../../contracts/NaturalFirstAgentRuntimeContract.js';
 import { AgentRunCanonicalContextService } from './AgentRunCanonicalContextService.js';
@@ -688,9 +689,8 @@ export class AgentRunFactory {
       || this.profileManifestService.compileProfileById('developer');
     const fellBackTo = fallback?.id || null;
     // Explicit log + metadata — never silently substitute personal without a signal.
-    console.warn(
-      `[ProfileManifest] profileBundleMissing requested=${selectedId} source=${requested.source || 'default'} fellBackTo=${fellBackTo || 'none'}`,
-    );
+    const message = `[ProfileManifest] profileBundleMissing requested=${selectedId} source=${requested.source || 'default'} fellBackTo=${fellBackTo || 'none'}`;
+    logger.warn(message);
     return {
       profileId: fellBackTo || selectedId,
       source: fallback ? 'fallback' : (requested.source || 'default'),

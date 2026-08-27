@@ -45,7 +45,7 @@ export async function GET(request: Request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[API] GET /api/resilience error:", err);
+    logger.error("[API] GET /api/resilience error:", err);
     return NextResponse.json(
       { error: getErrorMessage(err, "Failed to load resilience status") },
       { status: 500 }
@@ -95,7 +95,7 @@ export async function PATCH(request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[API] PATCH /api/resilience error:", err);
+    logger.error("[API] PATCH /api/resilience error:", err);
     return NextResponse.json(
       { error: getErrorMessage(err, "Failed to save resilience settings") },
       { status: 500 }

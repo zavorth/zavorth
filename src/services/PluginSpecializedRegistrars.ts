@@ -76,7 +76,7 @@ export function createSpecializedRegistrars(host: SpecializedRegistrarHost) {
       try {
         const output = await normalized.handler!(input || {});
         return { output };
-      } catch (error) {
+      } catch (error: unknown) {
         return {
           output: {
             ok: false,

@@ -123,7 +123,7 @@ export class ZavorthAutonomyHarnessService {
       if (fs.existsSync(historyPath)) {
         try {
           history = JSON.parse(fs.readFileSync(historyPath, 'utf8')) as BenchmarkSuiteResult[];
-        } catch {/* empty */}
+        } catch (error: unknown) { const err = error instanceof Error ? error : new Error(String(error)); logger.debug('[AutonomyHarness] Failed to parse history file', { path: historyPath, error: err.message }); }
       }
 
       history.unshift(result);

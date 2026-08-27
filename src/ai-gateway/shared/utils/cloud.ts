@@ -1,4 +1,5 @@
 import { getMachineId } from "@/shared/utils/machine";
+import { logger } from "@/shared/utils/logger";
 
 // Function to get cloud URL with machine ID
 export function getCloudUrl(machineId) {
@@ -36,6 +37,6 @@ export async function callCloudWithMachineId(request) {
 // Function to periodically sync provider data to cloud (now a no-op)
 export function startProviderSync(cloudUrl, _intervalMs = 900000) {
   // Default 15 minutes
-  console.log("Frontend sync is disabled. Use backend sync instead.");
+  logger.info("Frontend sync is disabled. Use backend sync instead.");
   return null;
 }

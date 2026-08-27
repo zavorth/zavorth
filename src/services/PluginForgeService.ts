@@ -145,7 +145,7 @@ export class PluginForgeService {
         } else {
           findings.push('LLM assist unavailable — used template index.js');
         }
-      } catch (error) {
+      } catch (error: unknown) {
         findings.push(
           `LLM assist soft-failed: ${error instanceof Error ? error.message : String(error)}`,
         );
@@ -207,7 +207,7 @@ export class PluginForgeService {
         this.writeFileSync(destination, file.content, 'utf8');
       }
       findings.push(`preview written: ${relativePreview}`);
-    } catch (error) {
+    } catch (error: unknown) {
       findings.push(
         `preview write failed: ${error instanceof Error ? error.message : String(error)}`,
       );
@@ -287,7 +287,7 @@ export class PluginForgeService {
     try {
       const manifest = JSON.parse(this.readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
       pluginId = normalizePluginId(String(manifest.id || path.basename(previewDir)));
-    } catch (error) {
+    } catch (error: unknown) {
       return finishApply({
         ok: false,
         targetDir: '',
@@ -319,7 +319,7 @@ export class PluginForgeService {
       }
       this.cpSync(previewDir, targetDir, { recursive: true });
       findings.push(`package copied to ${path.relative(root, targetDir).replace(/\\/gu, '/')}`);
-    } catch (error) {
+    } catch (error: unknown) {
       return finishApply({
         ok: false,
         targetDir: path.relative(root, targetDir).replace(/\\/gu, '/'),
@@ -348,7 +348,7 @@ export class PluginForgeService {
         harnessResult.ok ? 'PluginTestHarness soft pass (manifest + module load)'
           : `PluginTestHarness soft findings: ${harnessResult.results.map((r) => r.detail).join('; ')}`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       testOk = false;
       findings.push(
         `PluginTestHarness soft-failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -370,7 +370,7 @@ export class PluginForgeService {
           enable: true,
         });
         findings.push('plugin enabled via bridge (explicit --enable)');
-      } catch (error) {
+      } catch (error: unknown) {
         findings.push(
           `enable soft-failed: ${error instanceof Error ? error.message : String(error)}`,
         );
@@ -429,7 +429,7 @@ export class PluginForgeService {
       } catch {
         /* ledger is best-effort */
       }
-    } catch (error) {
+    } catch (error: unknown) {
       findings.push(
         `receipt soft-failed: ${error instanceof Error ? error.message : String(error)}`,
       );

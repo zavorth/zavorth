@@ -86,7 +86,7 @@ export class ShadowCheckpointStoreService {
           byteSize: content.length,
           timestamp,
         });
-      } catch (error) {
+      } catch (error: unknown) {
         // Skip unreadable files gracefully without crashing
       }
     }
@@ -147,7 +147,7 @@ export class ShadowCheckpointStoreService {
         }
         fs.writeFileSync(absolutePath, blobContent);
         restoredFiles.push(entry.filePath);
-      } catch (err) {
+      } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
         errors.push(`Failed to restore '${entry.filePath}': ${message}`);
       }

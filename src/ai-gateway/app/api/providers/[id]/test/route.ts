@@ -408,7 +408,7 @@ async function refreshOAuthToken(connection: ConnectionRecord): Promise<Refreshe
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const errObj = err instanceof Error ? err : new Error(String(err));
-    console.log(`Error refreshing ${provider} token:`, errObj.message);
+    logger.info(`Error refreshing ${provider} token:`, errObj.message);
     return null;
   }
 }
@@ -434,7 +434,7 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: unknown) {console.log("Error syncing to cloud after token refresh:", error);
+  } catch (error: unknown) {logger.info("Error syncing to cloud after token refresh:", error);
   }
 }
 
@@ -704,7 +704,7 @@ export async function testSingleConnection(connectionId: string, validationModel
     proxyInfo = await resolveProxyForConnection(connectionId);
   } catch (proxyErr: unknown) {
   asErrorLike(proxyErr);const proxyErrObj = proxyErr instanceof Error ? proxyErr : new Error(String(proxyErr));
-    console.log(`[ConnectionTest] Failed to resolve proxy for ${connectionId}:`, proxyErrObj.message);
+    logger.info(`[ConnectionTest] Failed to resolve proxy for ${connectionId}:`, proxyErrObj.message);
   }
 
   let result;
@@ -865,7 +865,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     return NextResponse.json(data);
-  } catch (error: unknown) {console.log("Error testing connection:", error);
+  } catch (error: unknown) {logger.info("Error testing connection:", error);
     return NextResponse.json({ error: "Test failed" }, { status: 500 });
   }
 }

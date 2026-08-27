@@ -10,6 +10,8 @@ import * as os from 'os';
 export interface WorkflowMacroStep {
   command: string;
   recordedAt: string;
+  /** Optional working directory to run the command in; defaults to process.cwd(). */
+  cwd?: string;
 }
 
 export interface WorkflowMacro {
@@ -170,14 +172,19 @@ private static saveMacro(macro: WorkflowMacro): void {
       return { success: false, results: [], errors: [`Macro "${name}" not found.`] };
     }
 
+    const { execSync } = await import('child_process');
     const results: string[] = [];
     const errors: string[] = [];
 
     for (const step of macro.steps) {
       try {
-        // In a real implementation, this would execute through the CLI runtime
-        // For now, we simulate execution by returning the command as a result
-        results.push(`[EXEC] ${step.command}`);
+        const output = execSync(step.command, {
+          encoding: 'utf8',
+          timeout: 30_000,
+          windowsHide: true,
+          cwd: step.cwd || process.cwd(),
+        });
+        results.push(output.trim() || `[OK] ${step.command}`);
       } catch (err: unknown) {
         const error = err instanceof Error ? err.message : String(err);
         errors.push(`[ERROR] ${step.command}: ${error}`);

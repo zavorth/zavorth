@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     // Delegate the actual migration to the shared helper (avoids duplication with core.ts)
     const counts = runJsonMigration(db, data);
 
-    console.log(
+    logger.info(
       `[JSON Import] Imported ${counts.connections} connections, ${counts.nodes} nodes, ` +
         `${counts.combos} combos, ${counts.apiKeys} API keys`
     );
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[API] Error importing JSON backup:", err);
+    logger.error("[API] Error importing JSON backup:", err);
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
 }

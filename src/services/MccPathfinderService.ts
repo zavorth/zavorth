@@ -180,7 +180,7 @@ Respond with ONLY a JSON array of strings:
         `SELECT id, name, type, content FROM mcc_nodes WHERE id IN (${selectIds.map(() => '?').join(',')})`,
         selectIds
       );
-      
+
       let context = `[GRAPH RAG] Isolated Semantic Elements (No direct mutual dependency):\n`;
       for (const n of nodesData) {
         context += `\n--- [${n.name}] (${n.type} | ID: ${n.id}) ---\n${n.content}\n`;

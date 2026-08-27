@@ -139,8 +139,8 @@ export class ZavorthApiClientTool extends BaseTool {
     const isTrusted = this.trustedDomains.has(parsedUrl.hostname);
 
     if (!isTrusted) {
-      const warning = `⚠️ Domain "${parsedUrl.hostname}" is not on the trust list. Proceeding with caution.`;
-      console.warn(warning);
+      const warning = `Domain "${parsedUrl.hostname}" is not on the trust list. Proceeding with caution.`;
+      logger.warn(warning);
     }
 
     const timeoutMs = typeof args.timeout_ms === 'number' ? args.timeout_ms : 30000;

@@ -1,8 +1,10 @@
 /**
  * MCP Server Doctor & Health Inspector Service.
- * Inspired by MiMo-Code dialog-select-mcp and tool diagnostic monitors.
  * Provides live ping, protocol handshake verification, tool catalog discovery, and latency measurement across MCP servers.
+ * Servers are registered dynamically; no hardcoded fake data.
  */
+
+import { spawn } from 'child_process';
 
 export interface McpServerHealthReport {
   serverId: string;
@@ -24,119 +26,126 @@ export interface McpServerHealthReport {
 }
 
 export class McpServerDoctorService {
-  private static mockServers = new Map<string, McpServerHealthReport>([
-    [
-      'filesystem_mcp',
-      {
-        serverId: 'filesystem_mcp',
-        name: 'Local Filesystem MCP Server',
-        transport: 'stdio',
-        endpointOrCommand: 'npx -y @modelcontextprotocol/server-filesystem ./workspace',
-        status: 'online',
-        latencyMs: 1.2,
-        protocolVersion: '2024-11-05',
-        toolsCount: 4,
-        tools: [
-          { name: 'read_file', description: 'Read file contents', enabled: true, requiresApproval: false },
-          { name: 'write_file', description: 'Write file contents', enabled: true, requiresApproval: true },
-          { name: 'list_directory', description: 'List files in directory', enabled: true, requiresApproval: false },
-          { name: 'move_file', description: 'Move or rename files', enabled: true, requiresApproval: true },
-        ],
-        checkedAt: new Date().toISOString(),
-      },
-    ],
-    [
-      'postgres_mcp',
-      {
-        serverId: 'postgres_mcp',
-        name: 'PostgreSQL Database MCP Server',
-        transport: 'stdio',
-        endpointOrCommand: 'npx -y @modelcontextprotocol/server-postgres postgresql://localhost/db',
-        status: 'online',
-        latencyMs: 2.8,
-        protocolVersion: '2024-11-05',
-        toolsCount: 3,
-        tools: [
-          { name: 'query_db', description: 'Run read-only SQL queries', enabled: true, requiresApproval: false },
-          { name: 'list_tables', description: 'List database tables and schemas', enabled: true, requiresApproval: false },
-          { name: 'mutate_db', description: 'Run INSERT/UPDATE/DELETE queries', enabled: false, requiresApproval: true },
-        ],
-        checkedAt: new Date().toISOString(),
-      },
-    ],
-  ]);
+  private static servers = new Map<string, McpServerHealthReport>();
 
-  /**
-   * Discovers and inspects all registered MCP servers.
-   */
   static async inspectAll(): Promise<McpServerHealthReport[]> {
     const results: McpServerHealthReport[] = [];
-    for (const server of this.mockServers.values()) {
-      results.push({
-        ...server,
-        checkedAt: new Date().toISOString(),
-      });
+    for (const server of this.servers.values()) {
+      const updated = await this.pingServer(server.serverId);
+      if (updated) {
+        results.push(updated);
+      } else {
+        results.push({ ...server, status: 'offline', checkedAt: new Date().toISOString() });
+      }
     }
     return results;
   }
 
-  /**
-   * Pings a specific MCP server and tests handshake response latency.
-   */
   static async pingServer(serverId: string): Promise<McpServerHealthReport | null> {
     const cleanId = serverId.trim().toLowerCase();
-    const server = this.mockServers.get(cleanId);
+    const server = this.servers.get(cleanId);
     if (!server) {
       return null;
     }
 
     const start = Date.now();
-    // Simulate lightweight protocol ping handshake
-    const latencyMs = Math.round((Date.now() - start + Math.random() * 2 + 1) * 10) / 10;
+    let status: 'online' | 'degraded' | 'offline' = 'offline';
+    let error: string | undefined;
+    let toolsCount = server.toolsCount;
+    let tools = server.tools;
+
+    try {
+      if (server.transport === 'http' || server.transport === 'sse') {
+        const url = server.endpointOrCommand;
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 5000);
+        const res = await fetch(url, { method: 'HEAD', signal: controller.signal });
+        clearTimeout(timer);
+        status = res.status < 500 ? 'online' : 'degraded';
+      } else if (server.transport === 'stdio') {
+        const result = await this.pingStdioServer(server.endpointOrCommand);
+        status = result.success ? 'online' : 'offline';
+        error = result.error;
+        if (result.tools) {
+          tools = result.tools;
+          toolsCount = result.tools.length;
+        }
+      }
+    } catch (err: unknown) {
+      status = 'offline';
+      error = err instanceof Error ? err.message : String(err);
+    }
+
+    const latencyMs = Date.now() - start;
 
     const updated: McpServerHealthReport = {
       ...server,
+      status,
       latencyMs,
-      status: 'online',
+      toolsCount,
+      tools,
       checkedAt: new Date().toISOString(),
+      error,
     };
 
-    this.mockServers.set(cleanId, updated);
+    this.servers.set(cleanId, updated);
     return updated;
   }
 
-  /**
-   * Toggles the enabled state of a specific tool inside an MCP server.
-   */
-  static toggleTool(serverId: string, toolName: string, enabled: boolean): boolean {
-    const server = this.mockServers.get(serverId.trim().toLowerCase());
-    if (!server) return false;
+  private static pingStdioServer(command: string): Promise<{
+    success: boolean;
+    error?: string;
+    tools?: McpServerHealthReport['tools'];
+  }> {
+    return new Promise((resolve) => {
+      const parts = command.split(/\s+/);
+      const cmd = parts[0];
+      const args = parts.slice(1);
+      const child = spawn(cmd, args, { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
+      const timeout = setTimeout(() => {
+        child.kill();
+        resolve({ success: false, error: 'Timeout: server did not respond within 5s' });
+      }, 5000);
 
+      let stdout = '';
+      let stderr = '';
+      child.stdout.on('data', (chunk: Buffer) => { stdout += chunk.toString(); });
+      child.stderr.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
+
+      child.on('close', (code) => {
+        clearTimeout(timeout);
+        if (code === 0 || stdout.includes('tools/list')) {
+          resolve({ success: true });
+        } else {
+          resolve({ success: false, error: stderr || `Process exited with code ${code}` });
+        }
+      });
+
+      child.on('error', (err) => {
+        clearTimeout(timeout);
+        resolve({ success: false, error: err.message });
+      });
+    });
+  }
+
+  static toggleTool(serverId: string, toolName: string, enabled: boolean): boolean {
+    const server = this.servers.get(serverId.trim().toLowerCase());
+    if (!server) return false;
     const tool = server.tools.find((t) => t.name.toLowerCase() === toolName.trim().toLowerCase());
     if (!tool) return false;
-
     tool.enabled = enabled;
     return true;
   }
 
-  /**
-   * Registers a new custom MCP server dynamically.
-   */
   static registerServer(report: McpServerHealthReport): void {
-    this.mockServers.set(report.serverId.toLowerCase(), report);
+    this.servers.set(report.serverId.toLowerCase(), report);
   }
 
-  /**
-   * Removes an MCP server from the registry.
-   */
   static removeServer(serverId: string): boolean {
-    return this.mockServers.delete(serverId.toLowerCase());
+    return this.servers.delete(serverId.toLowerCase());
   }
 
-  /**
-   * Resets mock registry state (for testing).
-   */
   static reset(): void {
-    this.mockServers.clear();
+    this.servers.clear();
   }
 }

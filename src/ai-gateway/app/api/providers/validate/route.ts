@@ -138,7 +138,7 @@ export async function POST(request) {
         error,
       }),
     });
-  } catch (error: unknown) {console.log("Error validating API key:", error);
+  } catch (error: unknown) {logger.info("Error validating API key:", error);
     return NextResponse.json({ error: "Validation failed" }, { status: 500 });
   }
 }

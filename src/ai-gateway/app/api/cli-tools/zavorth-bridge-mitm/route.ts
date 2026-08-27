@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Error getting MITM status:", err.message);
+    logger.info("Error getting MITM status:", err.message);
     return NextResponse.json({ error: "Failed to get MITM status" }, { status: 500 });
   }
 }
@@ -79,7 +79,7 @@ export async function POST(request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Error starting MITM:", err.message);
+    logger.info("Error starting MITM:", err.message);
     return NextResponse.json(
       { error: err.message || "Failed to start MITM proxy" },
       { status: 500 }
@@ -127,7 +127,7 @@ export async function DELETE(request) {
     return NextResponse.json({ success: true, running: false });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Error stopping MITM:", err.message);
+    logger.info("Error stopping MITM:", err.message);
     return NextResponse.json(
       { error: err.message || "Failed to stop MITM proxy" },
       { status: 500 }

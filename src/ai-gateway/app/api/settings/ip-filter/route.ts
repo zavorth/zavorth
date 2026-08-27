@@ -19,7 +19,7 @@ import { logger } from '@/shared/utils/logger';export async function GET(reques
 
   try {
     return NextResponse.json(getIPFilterConfig());
-  } catch (error: unknown) {console.error("Error getting IP filter config:", error);
+  } catch (error: unknown) {logger.error("Error getting IP filter config:", error);
     return NextResponse.json({ error: "Failed to get IP filter config" }, { status: 500 });
   }
 }
@@ -72,7 +72,7 @@ export async function PUT(request) {
     if (body.removeBan) removeTempBan(body.removeBan);
 
     return NextResponse.json(getIPFilterConfig());
-  } catch (error: unknown) {console.error("Error updating IP filter config:", error);
+  } catch (error: unknown) {logger.error("Error updating IP filter config:", error);
     return NextResponse.json({ error: "Failed to update IP filter config" }, { status: 500 });
   }
 }

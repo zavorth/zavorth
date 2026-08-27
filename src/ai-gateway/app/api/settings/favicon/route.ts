@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSettings } from "@/lib/db/settings";
 import { assertPublicHttpTargetAllowed } from "@/lib/security/egressGuard";
 import { asErrorLike } from '../../../../../utils/errorLike.js';
+import { logger } from "@/shared/utils/logger";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -26,14 +27,14 @@ async function resolveAllowedFaviconUrl(url: string): Promise<string | null> {
     return parsedUrl.toString();
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("Blocked invalid favicon URL:", error instanceof Error ? err.message : String(error));
+    logger.error("Blocked invalid favicon URL:", error instanceof Error ? err.message : String(error));
     return null;
   }
 }
 
 function validateImageData(base64Data: string, contentType: string): boolean {
   if (!ALLOWED_IMAGE_TYPES.includes(contentType)) {
-    console.error("Invalid content type:", contentType);
+    logger.error("Invalid content type:", contentType);
     return false;
   }
   // Check for obvious image magic bytes
@@ -42,7 +43,7 @@ function validateImageData(base64Data: string, contentType: string): boolean {
 
   const binaryData = Buffer.from(matches[1], "base64");
   if (binaryData.length > MAX_FAVICON_SIZE) {
-    console.error("Favicon too large:", binaryData.length);
+    logger.error("Favicon too large:", binaryData.length);
     return false;
   }
 
@@ -90,7 +91,7 @@ export async function GET() {
 
             // Validate size before processing
             if (uint8Array.length > MAX_FAVICON_SIZE) {
-              console.error("Favicon exceeds max size:", uint8Array.length);
+              logger.error("Favicon exceeds max size:", uint8Array.length);
             } else {
               const base64 = Buffer.from(uint8Array).toString("base64");
               const fullData = `data:${contentType};base64,${base64}`;
@@ -100,7 +101,7 @@ export async function GET() {
               }
             }
           }
-        } catch (error: unknown) {console.error("Failed to fetch custom favicon:", error);
+        } catch (error: unknown) {logger.error("Failed to fetch custom favicon:", error);
         }
       }
     }
@@ -124,7 +125,7 @@ export async function GET() {
         "Cache-Control": `public, max-age=${CACHE_DURATION}`,
       },
     });
-  } catch (error: unknown) {console.error("Favicon API error:", error);
+  } catch (error: unknown) {logger.error("Favicon API error:", error);
     return NextResponse.redirect("/favicon.svg");
   }
 }

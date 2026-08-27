@@ -212,7 +212,7 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
   }
 
   public async *streamComplete(messages: ChatMessage[], options: CompletionOptions): AsyncIterable<StreamChunk> {
-    
+
     const body = this.buildRequestBody(messages, options, true);
 
     const headers: Record<string, string> = {

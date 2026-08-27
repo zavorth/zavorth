@@ -303,7 +303,7 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
   }
 
   private executeWSL(command: string, timeout: number): ExecuteResult {
-    
+
     const result = execFileSync('wsl', ['--', 'bash', '-c', command], { timeout, windowsHide: true, maxBuffer: 5 * 1024 * 1024, encoding: 'utf-8' });
     return { stdout: String(result), stderr: '', exitCode: 0, backend: 'wsl', duration_ms: 0 };
   }

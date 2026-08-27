@@ -35,7 +35,7 @@ import { logger } from '@/shared/utils/logger';export async function GET(reques
         custom: agents.filter((a) => a.isCustom).length,
       },
     });
-  } catch (error: unknown) {console.error("Error detecting agents:", error);
+  } catch (error: unknown) {logger.error("Error detecting agents:", error);
     return NextResponse.json({ error: "Failed to detect agents" }, { status: 500 });
   }
 }
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
     // Refresh cache to detect the new agent
     const agents = refreshAgentCache();
     return NextResponse.json({ agents, added: newAgent });
-  } catch (error: unknown) {console.error("Error adding custom agent:", error);
+  } catch (error: unknown) {logger.error("Error adding custom agent:", error);
     return NextResponse.json({ error: "Failed to add agent" }, { status: 500 });
   }
 }
@@ -135,7 +135,7 @@ export async function DELETE(request: Request) {
     const agents = refreshAgentCache();
 
     return NextResponse.json({ agents, removed: agentId });
-  } catch (error: unknown) {console.error("Error removing custom agent:", error);
+  } catch (error: unknown) {logger.error("Error removing custom agent:", error);
     return NextResponse.json({ error: "Failed to remove agent" }, { status: 500 });
   }
 }

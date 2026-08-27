@@ -262,7 +262,7 @@ export class EnhancedProviderFactory {
     try {
       const normalized = String(name || '').trim().toLowerCase();
       return ProviderBootstrap.resolveProvider(normalized);
-    } catch (error) {
+    } catch (error: unknown) {
       logger.debug(`ProviderBootstrap.resolveProvider failed for "${name}": ${error}`);
       return null;
     }

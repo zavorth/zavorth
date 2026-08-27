@@ -84,7 +84,7 @@ export async function GET(request: Request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.log("Kiro auto-import error:", error);
+    logger.info("Kiro auto-import error:", error);
     return NextResponse.json({ found: false, error: err.message }, { status: 500 });
   }
 }

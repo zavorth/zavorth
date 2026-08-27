@@ -395,7 +395,7 @@ export class PluginOsOnboardingService {
         } catch {
           /* soft */
         }
-      } catch (error) {
+      } catch (error: unknown) {
         skipped.push({
           pluginId,
           reason: `enable_failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -504,7 +504,7 @@ export class PluginOsOnboardingService {
         } catch {
           /* soft */
         }
-      } catch (error) {
+      } catch (error: unknown) {
         skipped.push({
           pluginId,
           reason: `disable_failed: ${error instanceof Error ? error.message : String(error)}`,

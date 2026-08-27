@@ -42,7 +42,7 @@ export async function POST(request) {
       success: true,
       format,
     });
-  } catch (error: unknown) {console.error("Error detecting format:", error);
+  } catch (error: unknown) {logger.error("Error detecting format:", error);
     return NextResponse.json({ success: false, error: "Failed to detect format" }, { status: 500 });
   }
 }

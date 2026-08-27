@@ -367,7 +367,7 @@ export class AgentChainBuilder {
 
         this.log.info(`[AgentChain] Step "${stepConfig.id}" completed (${stepResult.durationMs}ms)`);
         return true;
-      } catch (error: unknown) { const err = asErrorLike(error); 
+      } catch (error: unknown) { const err = asErrorLike(error);
         lastError = error instanceof Error ? err.message : String(error);
         stepResult.error = lastError;
         stepResult.finishedAt = this.now().toISOString();

@@ -161,7 +161,7 @@ export function parseJsonObject(raw: unknown): Record<string, unknown> | null {
   if (!text) return null;
   try {
     return JSON.parse(text);
-  } catch (error: unknown) { asErrorLike(error); 
+  } catch (error: unknown) { asErrorLike(error);
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) return null;
     try {

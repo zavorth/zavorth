@@ -1,5 +1,6 @@
 import { createMemory } from './store';
 import { MemoryType } from './types';
+import { logger } from '@/shared/utils/logger';
 
 const MAX_FACT_LENGTH = 500;
 const MIN_FACT_LENGTH = 3;
@@ -66,7 +67,7 @@ export function extractFacts(response: string, apiKeyId: string, sessionId: stri
         expiresAt: null,
       }).catch((err) => {
         if (process.env.NODE_ENV !== 'test') {
-          console.warn('[memory:extraction] Failed to store fact:', err?.message);
+          logger.warn('[memory:extraction] Failed to store fact:', err?.message);
         }
       });
     }

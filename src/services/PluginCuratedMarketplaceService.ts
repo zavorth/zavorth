@@ -136,7 +136,7 @@ export class PluginCuratedMarketplaceService {
           count,
         });
         findings.push(`local curated entries=${count}`);
-      } catch (error) {
+      } catch (error: unknown) {
         findings.push(
           `local parse failed: ${error instanceof Error ? error.message : String(error)}`,
         );
@@ -296,7 +296,7 @@ export class PluginCuratedMarketplaceService {
         cachePath: path.relative(root, cachePath).replace(/\\/gu, '/'),
         findings,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         ok: false,
         entries: [],
@@ -394,7 +394,7 @@ export class PluginCuratedMarketplaceService {
           ].join('\n');
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         ok: false,
         pluginId: id,

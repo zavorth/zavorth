@@ -113,7 +113,7 @@ export async function GET(request) {
     }
 
     return NextResponse.json(analytics);
-  } catch (error: unknown) {console.error("Error computing analytics:", error);
+  } catch (error: unknown) {logger.error("Error computing analytics:", error);
     return NextResponse.json({ error: "Failed to compute analytics" }, { status: 500 });
   }
 }

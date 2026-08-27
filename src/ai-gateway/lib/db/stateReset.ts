@@ -1,3 +1,5 @@
+import { logger } from "@/shared/utils/logger";
+
 /**
  * Central registry for DB module state resetters.
  * Used by restore flows to clear prepared statement caches without cross-module imports.
@@ -23,7 +25,7 @@ export function resetAllDbModuleState() {
   for (const resetter of resetters) {
     try {
       resetter();
-    } catch (error: unknown) {console.warn("[DB] Failed to reset module state:", error);
+    } catch (error: unknown) {logger.warn("[DB] Failed to reset module state:", error);
     }
   }
 }

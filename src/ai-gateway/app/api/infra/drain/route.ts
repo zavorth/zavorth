@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { STARTUP_EPOCH } from "@/lib/gracefulShutdown";
 import { asErrorLike } from '../../../../../utils/errorLike.js';
 import { requireStrictManagementAuth } from '@/lib/api/requireManagementAuth';
+import { logger } from "@/shared/utils/logger";
 
 export async function POST(request: Request) {
   const authError = await requireStrictManagementAuth(request);
@@ -19,14 +20,14 @@ export async function POST(request: Request) {
     }
 
     if (epoch !== STARTUP_EPOCH) {
-      console.warn(`[Drain API] Rejected drain request due to epoch mismatch. Expected: ${STARTUP_EPOCH}, received: ${epoch}`);
+      logger.warn(`[Drain API] Rejected drain request due to epoch mismatch. Expected: ${STARTUP_EPOCH}, received: ${epoch}`);
       return NextResponse.json(
         { error: "Epoch mismatch" },
         { status: 400 }
       );
     }
 
-    console.log(`[Drain API] Epoch ${epoch} matched STARTUP_EPOCH. Triggering graceful shutdown...`);
+    logger.info(`[Drain API] Epoch ${epoch} matched STARTUP_EPOCH. Triggering graceful shutdown...`);
 
     // Trigger process termination asynchronously to allow response completion
     setTimeout(() => {
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, message: "Draining shutdown initiated." });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[Drain API] Error processing request:", err.message);
+    logger.error("[Drain API] Error processing request:", err.message);
     return NextResponse.json({ error: err.message }, { status: 400 });
   }
 }

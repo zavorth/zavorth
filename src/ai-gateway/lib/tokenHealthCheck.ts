@@ -107,19 +107,19 @@ async function shouldHideLogs(): Promise<boolean> {
 
 function log(message: string, ...args: unknown[]) {
   shouldHideLogs().then((hide) => {
-    if (!hide) console.log(message, ...args);
+    if (!hide) logger.info(message, ...args);
   });
 }
 
 function logWarn(message: string, ...args: unknown[]) {
   shouldHideLogs().then((hide) => {
-    if (!hide) console.warn(message, ...args);
+    if (!hide) logger.warn(message, ...args);
   });
 }
 
 function logError(message: string, ...args: unknown[]) {
   shouldHideLogs().then((hide) => {
-    if (!hide) console.error(message, ...args);
+    if (!hide) logger.error(message, ...args);
   });
 }
 

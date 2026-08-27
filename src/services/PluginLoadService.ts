@@ -351,7 +351,7 @@ export class PluginLoadService {
         entrypointModule: entrypointPath,
         exportName,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(`[plugin-load] failed ${pluginId}: ${message}`);
       return this.finish(base, started, 'failed', plugin.manifest || null, [message]);

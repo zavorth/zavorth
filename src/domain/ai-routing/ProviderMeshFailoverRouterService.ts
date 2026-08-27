@@ -136,7 +136,7 @@ export class ProviderMeshFailoverRouterService {
           totalAttempts: history.length,
           attemptHistory: history,
         };
-      } catch (err) {
+      } catch (err: unknown) {
         const durationMs = Date.now() - start;
         const classification = this.classifyError(err);
 

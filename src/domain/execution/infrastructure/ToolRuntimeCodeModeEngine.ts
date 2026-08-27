@@ -114,7 +114,7 @@ export class ToolRuntimeCodeModeEngine {
         executedToolCallsCount,
         executionTimeMs,
       };
-    } catch (err) {
+    } catch (err: unknown) {
       const executionTimeMs = Date.now() - startTime;
       const message = err instanceof Error ? err.message : String(err);
       return {

@@ -2,6 +2,7 @@ import { SCHEMA_SQL } from "./coreSchema";
 import type { SqliteColumnInfo, SqliteDatabase } from "./coreTypes";
 import { ensureZavorthMigrationLedger, recordZavorthMigration } from "../storagePlane";
 import { asErrorLike } from '../../../../utils/errorLike.js';
+import { logger } from "@/shared/utils/logger";
 
 function getColumnNames(db: SqliteDatabase, tableName: string): Set<string> {
   const columns = db.prepare(`PRAGMA table_info(${tableName})`).all() as SqliteColumnInfo[];
@@ -15,20 +16,20 @@ function ensureProviderConnectionsColumns(db: SqliteDatabase): void {
       db.exec(
         "ALTER TABLE provider_connections ADD COLUMN rate_limit_protection INTEGER DEFAULT 0"
       );
-      console.log("[DB] Added provider_connections.rate_limit_protection column");
+      logger.info("[DB] Added provider_connections.rate_limit_protection column");
     }
     if (!columnNames.has("last_used_at")) {
       db.exec("ALTER TABLE provider_connections ADD COLUMN last_used_at TEXT");
-      console.log("[DB] Added provider_connections.last_used_at column");
+      logger.info("[DB] Added provider_connections.last_used_at column");
     }
     if (!columnNames.has("group")) {
       db.exec('ALTER TABLE provider_connections ADD COLUMN "group" TEXT');
-      console.log('[DB] Added provider_connections."group" column');
+      logger.info('[DB] Added provider_connections."group" column');
     }
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const message = error instanceof Error ? err.message : String(error);
-    console.warn("[DB] Failed to verify provider_connections schema:", message);
+    logger.warn("[DB] Failed to verify provider_connections schema:", message);
   }
 }
 
@@ -37,24 +38,24 @@ function ensureUsageHistoryColumns(db: SqliteDatabase): void {
     const columnNames = getColumnNames(db, "usage_history");
     if (!columnNames.has("success")) {
       db.exec("ALTER TABLE usage_history ADD COLUMN success INTEGER DEFAULT 1");
-      console.log("[DB] Added usage_history.success column");
+      logger.info("[DB] Added usage_history.success column");
     }
     if (!columnNames.has("latency_ms")) {
       db.exec("ALTER TABLE usage_history ADD COLUMN latency_ms INTEGER DEFAULT 0");
-      console.log("[DB] Added usage_history.latency_ms column");
+      logger.info("[DB] Added usage_history.latency_ms column");
     }
     if (!columnNames.has("ttft_ms")) {
       db.exec("ALTER TABLE usage_history ADD COLUMN ttft_ms INTEGER DEFAULT 0");
-      console.log("[DB] Added usage_history.ttft_ms column");
+      logger.info("[DB] Added usage_history.ttft_ms column");
     }
     if (!columnNames.has("error_code")) {
       db.exec("ALTER TABLE usage_history ADD COLUMN error_code TEXT");
-      console.log("[DB] Added usage_history.error_code column");
+      logger.info("[DB] Added usage_history.error_code column");
     }
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const message = error instanceof Error ? err.message : String(error);
-    console.warn("[DB] Failed to verify usage_history schema:", message);
+    logger.warn("[DB] Failed to verify usage_history schema:", message);
   }
 }
 
@@ -63,16 +64,16 @@ function ensureCallLogsColumns(db: SqliteDatabase): void {
     const columnNames = getColumnNames(db, "call_logs");
     if (!columnNames.has("artifact_relpath")) {
       db.exec("ALTER TABLE call_logs ADD COLUMN artifact_relpath TEXT");
-      console.log("[DB] Added call_logs.artifact_relpath column");
+      logger.info("[DB] Added call_logs.artifact_relpath column");
     }
     if (!columnNames.has("has_pipeline_details")) {
       db.exec("ALTER TABLE call_logs ADD COLUMN has_pipeline_details INTEGER DEFAULT 0");
-      console.log("[DB] Added call_logs.has_pipeline_details column");
+      logger.info("[DB] Added call_logs.has_pipeline_details column");
     }
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const message = error instanceof Error ? err.message : String(error);
-    console.warn("[DB] Failed to verify call_logs schema:", message);
+    logger.warn("[DB] Failed to verify call_logs schema:", message);
   }
 }
 

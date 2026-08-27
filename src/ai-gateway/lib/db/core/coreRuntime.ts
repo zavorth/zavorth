@@ -25,7 +25,7 @@ function getErrorMessage(error: unknown): string {
 
 function createMemoryDb(): SqliteDatabase {
   if (isBuildPhase) {
-          console.log("[DB] Build detected - using in-memory SQLite (read-only)");
+          logger.info("[DB] Build detected - using in-memory SQLite (read-only)");
   }
 
   const db = new Database(":memory:");
@@ -63,13 +63,13 @@ function prepareExistingSqliteFile(sqliteFile: string): void {
     probe.close();
 
     if (hasData) {
-      console.log("[DB] Old schema_migrations table found but data exists - preserving data (#146)");
+      logger.info("[DB] Old schema_migrations table found but data exists - preserving data (#146)");
       const fixDb = new Database(sqliteFile);
       try {
         fixDb.exec("DROP TABLE IF EXISTS schema_migrations");
         fixDb.pragma("wal_checkpoint(TRUNCATE)");
       } catch (error: unknown) {
-        console.warn("[DB] Could not clean up old schema table:", getErrorMessage(error));
+        logger.warn("[DB] Could not clean up old schema table:", getErrorMessage(error));
       } finally {
         fixDb.close();
       }
@@ -77,7 +77,7 @@ function prepareExistingSqliteFile(sqliteFile: string): void {
     }
 
     const oldPath = `${sqliteFile}.old-schema`;
-    console.log(
+    logger.info(
       `[DB] Old incompatible schema detected (empty) - renaming to ${path.basename(oldPath)}`
     );
     fs.renameSync(sqliteFile, oldPath);
@@ -92,7 +92,7 @@ function prepareExistingSqliteFile(sqliteFile: string): void {
     }
     }
   } catch (error: unknown) {
-    console.warn("[DB] Could not probe existing DB, will create fresh:", getErrorMessage(error));
+    logger.warn("[DB] Could not probe existing DB, will create fresh:", getErrorMessage(error));
     try {
       fs.unlinkSync(sqliteFile);
     } catch (error: unknown) {
@@ -119,7 +119,7 @@ function createLocalDb(sqliteFile: string, jsonDbFile: string | null): SqliteDat
   }
 
   persistSchemaVersion(db);
-  console.log(`[DB] SQLite database ready: ${sqliteFile}`);
+  logger.info(`[DB] SQLite database ready: ${sqliteFile}`);
   return db;
 }
 

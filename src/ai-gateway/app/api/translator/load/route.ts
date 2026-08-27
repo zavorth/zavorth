@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { asErrorLike } from '../../../../../utils/errorLike.js';
+import { logger } from "@/shared/utils/logger";
 
 export async function GET(request) {
   const authError = await requireManagementAuth(request);
@@ -44,7 +45,7 @@ export async function GET(request) {
     return NextResponse.json({ success: true, content });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("Error loading file:", error);
+    logger.error("Error loading file:", error);
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }

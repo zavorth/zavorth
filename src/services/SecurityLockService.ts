@@ -13,12 +13,12 @@ export type LockState = {
 
 /**
  * SecurityLockService — Tranca e destranca o Zavorth com senha.
- * 
+ *
  * Quando trancado:
  *   - All execution commands are blocked
  *   - Apenas /unlock e /status funcionam
  *   - O status mostra "🔒 Trancado" sem revelar detalhes
- * 
+ *
  * Security:
  *   - Senha armazenada como hash SHA-256 com salt fixo
  *   - Password messages are deleted automatically

@@ -51,7 +51,7 @@ function copyIfMissing(fromPath: string | null, toPath: string | null, label: st
   } else {
     fs.copyFileSync(fromPath, toPath);
   }
-  console.log(`[usageDb] Migrated ${label}: ${fromPath} -> ${toPath}`);
+  logger.info(`[usageDb] Migrated ${label}: ${fromPath} -> ${toPath}`);
 }
 
 function containsLegacyCallLogLayout(dirPath: string | null): boolean {
@@ -206,7 +206,7 @@ export function migrateLegacyUsageFiles() {
   try {
     copyIfMissing(LEGACY_DB_FILE, USAGE_JSON_FILE, "usage history");
     copyIfMissing(LEGACY_CALL_LOGS_DB_FILE, CALL_LOGS_JSON_FILE, "call log index");
-  } catch (error: unknown) {console.error("[usageDb] Legacy migration failed:", (error as Error).message);
+  } catch (error: unknown) {logger.error("[usageDb] Legacy migration failed:", (error as Error).message);
   }
 }
 
@@ -221,7 +221,7 @@ export async function archiveLegacyRequestLogs() {
   deleteArchivedTargets(targets);
   writeLegacyLayoutMarker(archiveFilename);
 
-  console.log(`[usageDb] Archived legacy request logs to ${archiveFilename}`);
+  logger.info(`[usageDb] Archived legacy request logs to ${archiveFilename}`);
   return archiveFilename;
 }
 
@@ -236,7 +236,7 @@ export function migrateUsageJsonToSqlite() {
       const history = data.history || [];
 
       if (history.length > 0) {
-        console.log(`[usageDb] Migrating ${history.length} usage entries from JSON → SQLite...`);
+        logger.info(`[usageDb] Migrating ${history.length} usage entries from JSON → SQLite...`);
 
         const insert = db.prepare(`
           INSERT INTO usage_history (provider, model, connection_id, api_key_id, api_key_name,
@@ -275,11 +275,11 @@ export function migrateUsageJsonToSqlite() {
           }
         });
         tx();
-        console.log(`[usageDb] ✓ Migrated ${history.length} usage entries`);
+        logger.info(`[usageDb] ✓ Migrated ${history.length} usage entries`);
       }
 
       fs.renameSync(USAGE_JSON_FILE, `${USAGE_JSON_FILE}.migrated`);
-    } catch (error: unknown) {console.error("[usageDb] Failed to migrate usage.json:", (error as Error).message);
+    } catch (error: unknown) {logger.error("[usageDb] Failed to migrate usage.json:", (error as Error).message);
     }
   }
 
@@ -290,7 +290,7 @@ export function migrateUsageJsonToSqlite() {
       const logs = data.logs || [];
 
       if (logs.length > 0) {
-        console.log(`[usageDb] Migrating ${logs.length} call log entries from JSON → SQLite...`);
+        logger.info(`[usageDb] Migrating ${logs.length} call log entries from JSON → SQLite...`);
 
         const insert = db.prepare(`
           INSERT OR IGNORE INTO call_logs (id, timestamp, method, path, status, model, provider,
@@ -330,11 +330,11 @@ export function migrateUsageJsonToSqlite() {
           }
         });
         tx();
-        console.log(`[usageDb] ✓ Migrated ${logs.length} call log entries`);
+        logger.info(`[usageDb] ✓ Migrated ${logs.length} call log entries`);
       }
 
       fs.renameSync(CALL_LOGS_JSON_FILE, `${CALL_LOGS_JSON_FILE}.migrated`);
-    } catch (error: unknown) {console.error("[usageDb] Failed to migrate call_logs.json:", (error as Error).message);
+    } catch (error: unknown) {logger.error("[usageDb] Failed to migrate call_logs.json:", (error as Error).message);
     }
   }
 }
@@ -344,7 +344,7 @@ migrateLegacyUsageFiles();
 if (shouldPersistToDisk) {
   try {
     await archiveLegacyRequestLogs();
-  } catch (error: unknown) {console.error("[usageDb] Failed to archive legacy request logs:", (error as Error).message);
+  } catch (error: unknown) {logger.error("[usageDb] Failed to archive legacy request logs:", (error as Error).message);
   }
 
   try {

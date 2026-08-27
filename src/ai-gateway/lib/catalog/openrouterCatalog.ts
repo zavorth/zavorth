@@ -79,7 +79,7 @@ function writeCache(data: CatalogEntry[]): void {
     fs.writeFileSync(filePath, JSON.stringify(cache, null, 2), "utf8");
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.warn("[OpenRouterCatalog] Failed to write cache:", err);
+    logger.warn("[OpenRouterCatalog] Failed to write cache:", err);
   }
 }
 
@@ -140,7 +140,7 @@ export async function getOpenRouterCatalog(): Promise<{
     return { data, stale: false, cachedAt: null, fromCache: false };
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.warn("[OpenRouterCatalog] Fetch failed, using stale cache:", err);
+    logger.warn("[OpenRouterCatalog] Fetch failed, using stale cache:", err);
 
     // Stale-if-error: return old cache if available
     if (cache) {

@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const message = error instanceof Error ? err.message : "Failed to start";
-    console.error("[version-manager] start error:", message);
+    logger.error("[version-manager] start error:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

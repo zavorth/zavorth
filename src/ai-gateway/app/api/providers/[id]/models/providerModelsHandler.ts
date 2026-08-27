@@ -32,6 +32,7 @@ import {
   fetchGlmModels,
   fetchOpenAiCompatibleModels,
 } from "./providerModelsFetchers";
+import { logger } from "@/shared/utils/logger";
 function buildModelsContext(
   request: Request,
   id: string,
@@ -141,7 +142,7 @@ export async function handleProviderModelsGet(
     }
 
     return fetchGenericProviderModels(modelsContext, config);
-  } catch (error: unknown) {console.log("Error fetching provider models:", error);
+  } catch (error: unknown) {logger.info("Error fetching provider models:", error);
     return jsonError("Failed to fetch models", 500);
   }
 }

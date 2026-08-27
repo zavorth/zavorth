@@ -6,6 +6,7 @@
 import { SessionPersistenceService, type SessionRecord } from '../storage/SessionPersistenceService.js';
 import { DynamicModelCatalogService } from '../services/providers/catalog/DynamicModelCatalogService.js';
 import { DynamicCostEstimator } from '../services/pricing/DynamicCostEstimator.js';
+import { ProviderFactory } from '../providers/ProviderFactory.js';
 
 export interface AcpClientStreamEvent {
   type: 'thought' | 'chunk' | 'tool_call' | 'tool_result' | 'done' | 'error';
@@ -129,16 +130,30 @@ export class AcpClientBridge {
 
     this.emitEvent({ type: 'thought', content: 'Analyzing request and inspecting project context...' });
 
-    // Emulate streaming turn response
-    const mockOutput = `Processed: ${prompt.trim()}`;
-    if (onChunk) {
-      onChunk(mockOutput);
-    }
-    this.emitEvent({ type: 'chunk', content: mockOutput });
+    let responseText: string;
+    let inputTokens = 0;
+    let outputTokens = 0;
 
-    // Calculate dynamic cost estimation
-    const inputTokens = Math.max(10, prompt.length);
-    const outputTokens = Math.max(20, mockOutput.length);
+    try {
+      const provider = ProviderFactory.create(session.model);
+      const result = await provider.chat([
+        { role: 'user', content: prompt },
+      ]);
+
+      responseText = result.content || '';
+      inputTokens = result.tokens?.input ?? Math.max(10, prompt.length);
+      outputTokens = result.tokens?.output ?? Math.max(20, responseText.length);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.emitEvent({ type: 'error', error: message });
+      throw new Error(`Provider invocation failed: ${message}`);
+    }
+
+    if (onChunk) {
+      onChunk(responseText);
+    }
+    this.emitEvent({ type: 'chunk', content: responseText });
+
     const cost = DynamicCostEstimator.estimateCost(session.model, {
       inputTokens,
       outputTokens,
@@ -165,7 +180,7 @@ export class AcpClientBridge {
 
     return {
       sessionId,
-      response: mockOutput,
+      response: responseText,
       cost,
       tokens: updatedTokens,
     };

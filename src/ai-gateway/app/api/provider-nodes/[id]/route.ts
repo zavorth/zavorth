@@ -129,7 +129,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     );
 
     return NextResponse.json({ node: updated });
-  } catch (error: unknown) {console.log("Error updating provider node:", error);
+  } catch (error: unknown) {logger.info("Error updating provider node:", error);
     return NextResponse.json({ error: "Failed to update provider node" }, { status: 500 });
   }
 }
@@ -151,7 +151,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     await deleteProviderNode(id);
 
     return NextResponse.json({ success: true });
-  } catch (error: unknown) {console.log("Error deleting provider node:", error);
+  } catch (error: unknown) {logger.info("Error deleting provider node:", error);
     return NextResponse.json({ error: "Failed to delete provider node" }, { status: 500 });
   }
 }

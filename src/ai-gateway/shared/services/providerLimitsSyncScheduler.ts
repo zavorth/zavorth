@@ -3,7 +3,8 @@ import {
   getProviderLimitsSyncIntervalMinutes,
   getProviderLimitsSyncIntervalMs,
   syncAllProviderLimits,
-} from "@/lib/usage/providerLimits";const STARTUP_DELAY_MS = 5_000;
+} from "@/lib/usage/providerLimits";
+import { logger } from "@/shared/utils/logger";const STARTUP_DELAY_MS = 5_000;
 
 let schedulerTimer: NodeJS.Timeout | null = null;
 let startupTimer: NodeJS.Timeout | null = null;
@@ -11,7 +12,7 @@ let isRunning = false;
 
 async function runProviderLimitsSyncCycle(): Promise<void> {
   if (isRunning) {
-    console.log("[ProviderLimitsSync] Skipping cycle — previous run still in progress");
+    logger.info("[ProviderLimitsSync] Skipping cycle — previous run still in progress");
     return;
   }
 
@@ -20,10 +21,10 @@ async function runProviderLimitsSyncCycle(): Promise<void> {
 
   try {
     const result = await syncAllProviderLimits({ source: "scheduled" });
-    console.log(
+    logger.info(
       `[ProviderLimitsSync] Cycle complete: ${result.succeeded}/${result.total} synced in ${Date.now() - start}ms`
     );
-  } catch (error: unknown) {console.warn("[ProviderLimitsSync] Cycle failed:", (error as Error).message);
+  } catch (error: unknown) {logger.warn("[ProviderLimitsSync] Cycle failed:", (error as Error).message);
   } finally {
     isRunning = false;
   }
@@ -31,14 +32,14 @@ async function runProviderLimitsSyncCycle(): Promise<void> {
 
 export function startProviderLimitsSyncScheduler(): void {
   if (schedulerTimer || startupTimer) {
-    console.log("[ProviderLimitsSync] Scheduler already running — skipping start");
+    logger.info("[ProviderLimitsSync] Scheduler already running — skipping start");
     return;
   }
 
   const intervalMs = getProviderLimitsSyncIntervalMs();
   const intervalMinutes = getProviderLimitsSyncIntervalMinutes();
 
-  console.log(`[ProviderLimitsSync] Scheduler started — interval: ${intervalMinutes}m`);
+  logger.info(`[ProviderLimitsSync] Scheduler started — interval: ${intervalMinutes}m`);
 
   void (async () => {
     let initialDelayMs = STARTUP_DELAY_MS;
@@ -77,6 +78,6 @@ export function stopProviderLimitsSyncScheduler(): void {
   if (schedulerTimer) {
     clearInterval(schedulerTimer);
     schedulerTimer = null;
-    console.log("[ProviderLimitsSync] Scheduler stopped");
+    logger.info("[ProviderLimitsSync] Scheduler stopped");
   }
 }

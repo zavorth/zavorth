@@ -62,7 +62,7 @@ export function assertSafeLocalStatePath(
         throw new Error(`${label} realpath escapes root (symlink?): ${realCandidate}`);
       }
       return realCandidate;
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof Error && error.message.includes('realpath escapes')) {
         throw error;
       }
@@ -90,7 +90,7 @@ export function safeWriteLocalTextFile(
       if (st.isSymbolicLink()) {
         throw new Error(`Refusing to overwrite symlink local state file: ${filePath}`);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof Error && error.message.includes('Refusing')) throw error;
     }
   }

@@ -10,7 +10,7 @@ export type ClearResult = {
 
 /**
  * ChatCleanupService - Tracks and deletes messages sent by the bot.
- * 
+ *
  * Telegram API limits:
  *   - Bots can delete messages less than 48 hours old in private chats.
  *   - Bots can delete messages in groups where they are admins.

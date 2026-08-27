@@ -405,7 +405,7 @@ export class AgentRunEvidencePipeline {
       });
     } catch (fallbackError: unknown) {
       asErrorLike(fallbackError);
-      
+
       this.appendWorkerReceipt(context, {
         jobId: job.id,
         stage: job.stage,

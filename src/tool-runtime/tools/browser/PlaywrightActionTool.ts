@@ -371,7 +371,7 @@ export class PlaywrightActionTool implements IZavorthTool {
             };
         } catch (directError: unknown) {
           const err = asErrorLike(directError);
-          
+
           const heuristicCandidates = await this.buildRepairCandidates(
                 input.page,
                 input.selector,

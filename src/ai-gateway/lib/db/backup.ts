@@ -81,7 +81,7 @@ export function backupDbFile(reason = "auto") {
 
     const stat = fs.statSync(SQLITE_FILE);
     if (stat.size < 4096) {
-      console.warn(`[DB] Backup SKIPPED — DB too small (${stat.size}B)`);
+      logger.warn(`[DB] Backup SKIPPED — DB too small (${stat.size}B)`);
       return null;
     }
 
@@ -103,7 +103,7 @@ export function backupDbFile(reason = "auto") {
       const latestBackup = existingBackups[existingBackups.length - 1];
       const latestStat = fs.statSync(path.join(backupDir, latestBackup));
       if (latestStat.size > 4096 && stat.size < latestStat.size * 0.5) {
-        console.warn(`[DB] Backup SKIPPED — DB shrank from ${latestStat.size}B to ${stat.size}B`);
+        logger.warn(`[DB] Backup SKIPPED — DB shrank from ${latestStat.size}B to ${stat.size}B`);
         return null;
       }
     }
@@ -115,11 +115,11 @@ export function backupDbFile(reason = "auto") {
     const db = getDbInstance();
     db.backup(backupFile)
       .then(() => {
-        console.log(`[DB] Backup created: ${backupFile} (${stat.size} bytes)`);
+        logger.info(`[DB] Backup created: ${backupFile} (${stat.size} bytes)`);
       })
       .catch((err: unknown) => {
         const message = err instanceof Error ? err.message : String(err);
-        console.error("[DB] Backup failed:", message);
+        logger.error("[DB] Backup failed:", message);
       });
 
     // Rotation — keep only last N, delete smallest first
@@ -151,7 +151,7 @@ export function backupDbFile(reason = "auto") {
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[DB] Backup failed:", message);
+    logger.error("[DB] Backup failed:", message);
     return null;
   }
 }
@@ -300,7 +300,7 @@ export async function restoreDbBackup(backupId: string) {
   const keyCount =
     (db.prepare("SELECT COUNT(*) as cnt FROM api_keys").get() as CountRow | undefined)?.cnt || 0;
 
-  console.log(`[DB] Restored backup: ${backupId} (${connCount} connections)`);
+  logger.info(`[DB] Restored backup: ${backupId} (${connCount} connections)`);
 
   return {
     restored: true,

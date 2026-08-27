@@ -10,6 +10,7 @@ import { asErrorLike } from '../../../utils/errorLike';
  */
 
 import { runSuite, listSuites, createScorecard, getSuite } from "./evalRunner";
+import { logger } from "@/shared/utils/logger";
 
 // ── Types ──
 
@@ -80,13 +81,13 @@ export function schedule(suiteId: string, intervalMs: number): ScheduledEval {
 
   const timer = setInterval(() => {
     executeScheduledRun(suiteId).catch((err) => {
-      console.error(`[EvalScheduler] Failed to run suite ${suiteId}:`, err.message);
+      logger.error(`[EvalScheduler] Failed to run suite ${suiteId}:`, err.message);
     });
   }, safeInterval);
 
   _timers.set(suiteId, timer);
 
-  console.log(`[EvalScheduler] Scheduled "${suiteId}" every ${Math.round(safeInterval / 1000)}s`);
+  logger.info(`[EvalScheduler] Scheduled "${suiteId}" every ${Math.round(safeInterval / 1000)}s`);
 
   return entry;
 }
@@ -138,18 +139,18 @@ async function executeScheduledRun(suiteId: string): Promise<EvalRunResult | nul
   if (!entry?.enabled) return null;
 
   if (!_outputProvider) {
-    console.warn(`[EvalScheduler] No output provider set — skipping ${suiteId}`);
+    logger.warn(`[EvalScheduler] No output provider set — skipping ${suiteId}`);
     return null;
   }
 
-  console.log(`[EvalScheduler] Running suite: ${suiteId}`);
+  logger.info(`[EvalScheduler] Running suite: ${suiteId}`);
 
   try {
     // Collect outputs for all cases in the suite
     const suites = listSuites();
     const suiteInfo = suites.find((s) => s.id === suiteId);
     if (!suiteInfo) {
-      console.warn(`[EvalScheduler] Suite not found: ${suiteId}`);
+      logger.warn(`[EvalScheduler] Suite not found: ${suiteId}`);
       return null;
     }
 
@@ -164,7 +165,7 @@ async function executeScheduledRun(suiteId: string): Promise<EvalRunResult | nul
         outputs[evalCase.id] = await _outputProvider(suiteId, evalCase.id);
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        console.warn(`[EvalScheduler] Failed to get output for ${evalCase.id}: ${err.message}`);
+        logger.warn(`[EvalScheduler] Failed to get output for ${evalCase.id}: ${err.message}`);
         outputs[evalCase.id] = `[ERROR] ${err.message}`;
       }
     }
@@ -193,14 +194,14 @@ async function executeScheduledRun(suiteId: string): Promise<EvalRunResult | nul
     // Keep last 100 runs
     if (_history.length > 100) _history.shift();
 
-    console.log(
+    logger.info(
       `[EvalScheduler] ${suiteId}: ${result.summary.passed}/${result.summary.total} passed (${(result.summary.passRate * 100).toFixed(1)}%)`
     );
 
     return runResult;
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error(`[EvalScheduler] Error running ${suiteId}:`, err.message);
+    logger.error(`[EvalScheduler] Error running ${suiteId}:`, err.message);
     return null;
   }
 }

@@ -88,7 +88,7 @@ export async function GET(request: Request) {
       globalStatePath: GLOBAL_STATE_PATH,
       secretsPath: SECRETS_PATH,
     });
-  } catch (error: unknown) {console.log("Error checking cline settings:", error);
+  } catch (error: unknown) {logger.info("Error checking cline settings:", error);
     return NextResponse.json({ error: "Failed to check cline settings" }, { status: 500 });
   }
 }
@@ -182,7 +182,7 @@ export async function POST(request: Request) {
       message: "Cline settings applied successfully!",
       globalStatePath: GLOBAL_STATE_PATH,
     });
-  } catch (error: unknown) {console.log("Error updating cline settings:", error);
+  } catch (error: unknown) {logger.info("Error updating cline settings:", error);
     return NextResponse.json({ error: "Failed to update cline settings" }, { status: 500 });
   }
 }
@@ -246,7 +246,7 @@ export async function DELETE(request: Request) {
       success: true,
       message: "ZavorthGateway settings removed from Cline",
     });
-  } catch (error: unknown) {console.log("Error resetting cline settings:", error);
+  } catch (error: unknown) {logger.info("Error resetting cline settings:", error);
     return NextResponse.json({ error: "Failed to reset cline settings" }, { status: 500 });
   }
 }

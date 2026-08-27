@@ -18,6 +18,7 @@ import { assertProviderValidationTargetAllowed } from "@/lib/security/egressGuar
 import { OpenAiCompatibleModelDiscoveryAdapter } from "../../../../../../services/providers/catalog/discovery/OpenAiCompatibleModelDiscoveryAdapter.js";
 import { AnthropicCompatibleModelDiscoveryAdapter } from "../../../../../../services/providers/catalog/discovery/AnthropicCompatibleModelDiscoveryAdapter.js";
 import { asErrorLike } from '../../../../../../utils/errorLike.js';
+import { logger } from "@/shared/utils/logger";
 export async function fetchOpenAiCompatibleModels(
   context: ProviderModelsHandlerContext
 ) {
@@ -46,7 +47,7 @@ export async function fetchOpenAiCompatibleModels(
     owned_by: provider,
   }));
   if (discovery.source !== "live_api") {
-    console.warn(`[models] All endpoints failed for ${provider}, using local catalog`);
+    logger.warn(`[models] All endpoints failed for ${provider}, using local catalog`);
     const localModels = getCatalogModels(provider);
     models = localModels.map((model: unknown) => ({
       id: model.id,
@@ -124,7 +125,7 @@ export async function fetchGeminiCliModels(context: ProviderModelsHandlerContext
 
     if (!quotaResponse.ok) {
       const errorText = await quotaResponse.text();
-      console.log(`[models] Gemini CLI quota fetch failed (${quotaResponse.status}):`, errorText);
+      logger.info(`[models] Gemini CLI quota fetch failed (${quotaResponse.status}):`, errorText);
       return jsonError(`Failed to fetch Gemini CLI models: ${quotaResponse.status}`, quotaResponse.status);
     }
 
@@ -142,7 +143,7 @@ export async function fetchGeminiCliModels(context: ProviderModelsHandlerContext
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const message = error instanceof Error ? err.message : String(error);
-    console.log("[models] Gemini CLI model fetch error:", message);
+    logger.info("[models] Gemini CLI model fetch error:", message);
     return jsonError("Failed to fetch Gemini CLI models", 500);
   }
 }
@@ -167,7 +168,7 @@ export async function fetchAnthropicCompatibleModels(
   });
 
   if (discovery.source !== "live_api") {
-    console.log(`Error fetching models from ${provider}:`, discovery.warning);
+    logger.info(`Error fetching models from ${provider}:`, discovery.warning);
     return jsonError(`Failed to fetch models: ${discovery.status}`, discovery.status || 500);
   }
 
@@ -232,7 +233,7 @@ export async function fetchGenericProviderModels(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.log(`Error fetching models from ${provider}:`, errorText);
+      logger.info(`Error fetching models from ${provider}:`, errorText);
       return jsonError(`Failed to fetch models: ${response.status}`, response.status);
     }
 
@@ -244,7 +245,7 @@ export async function fetchGenericProviderModels(
       break;
     }
     if (seenTokens.has(nextPageToken)) {
-      console.warn(`[models] ${provider}: duplicate nextPageToken detected, stopping pagetion`);
+      logger.warn(`[models] ${provider}: duplicate nextPageToken detected, stopping pagetion`);
       break;
     }
 
@@ -256,7 +257,7 @@ export async function fetchGenericProviderModels(
   }
 
   if (pageCount > 1) {
-    console.log(`[models] ${provider}: fetched ${allModels.length} models across ${pageCount} pages`);
+    logger.info(`[models] ${provider}: fetched ${allModels.length} models across ${pageCount} pages`);
   }
 
   return buildResponse({

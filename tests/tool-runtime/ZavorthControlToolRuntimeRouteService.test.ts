@@ -2,7 +2,7 @@ import * as http from 'http';
 import { PassThrough } from 'stream';
 import { EchoEdgeHardeningService } from '../../src/domain/trust-governance/infrastructure/EchoEdgeHardeningService.js';
 import { getDefaultEchoVoiceAssetStore } from '../../src/domain/surface/infrastructure/EchoVoiceAssetStoreService.js';
-import { ZavorthControlEchoRouteService } from '../../src/services/ZavorthControlEchoRouteService.js';
+import { ZavorthControlEchoRouteService } from '../../src/services/ZavorthControlToolRuntimeRouteService.js';
 
 type WriteCall = {
   body: unknown;

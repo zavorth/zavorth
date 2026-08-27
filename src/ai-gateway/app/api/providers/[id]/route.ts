@@ -99,7 +99,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     delete result.idToken;
 
     return NextResponse.json({ connection: result, accessRoute: resolveAccessRouteForConnection(connection) });
-  } catch (error: unknown) {console.log("Error fetching connection:", error);
+  } catch (error: unknown) {logger.info("Error fetching connection:", error);
     return NextResponse.json({ error: "Failed to fetch connection" }, { status: 500 });
   }
 }
@@ -207,7 +207,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     await syncToCloudIfEnabled();
 
     return NextResponse.json({ connection: result });
-  } catch (error: unknown) {console.log("Error updating connection:", error);
+  } catch (error: unknown) {logger.info("Error updating connection:", error);
     return NextResponse.json({ error: "Failed to update connection" }, { status: 500 });
   }
 }
@@ -236,7 +236,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       try {
         const { deleteSyncedAvailableModelsForConnection } = await import("@/lib/db/models");
         await deleteSyncedAvailableModelsForConnection("gemini", id);
-      } catch (error: unknown) { const err = asErrorLike(error); console.error("Failed to clean up synced models for deleted gemini connection:", err);
+      } catch (error: unknown) { const err = asErrorLike(error); logger.error("Failed to clean up synced models for deleted gemini connection:", err);
       }
     }
 
@@ -244,7 +244,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     await syncToCloudIfEnabled();
 
     return NextResponse.json({ message: "Connection deleted successfully" });
-  } catch (error: unknown) {console.log("Error deleting connection:", error);
+  } catch (error: unknown) {logger.info("Error deleting connection:", error);
     return NextResponse.json({ error: "Failed to delete connection" }, { status: 500 });
   }
 }
@@ -259,6 +259,6 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: unknown) {console.log("Error syncing providers to cloud:", error);
+  } catch (error: unknown) {logger.info("Error syncing providers to cloud:", error);
   }
 }

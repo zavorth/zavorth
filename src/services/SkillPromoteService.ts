@@ -225,7 +225,7 @@ export class SkillPromoteService {
         findings.push(`skill_pack=${skillPath}`);
         findings.push(`agents_skill=${agentsSkillPath}`);
         findings.push(`skillIrDigest=${skillIrDigest.slice(0, 16)}…`);
-      } catch (error) {
+      } catch (error: unknown) {
         findings.push(`skill_promote_failed=${error instanceof Error ? error.message : String(error)}`);
       }
     }
@@ -278,7 +278,7 @@ export class SkillPromoteService {
         pluginReady = true;
         findings.push(`plugin_pack=${pluginPath}`);
         findings.push(`plugin_moduleKind=${scaffolded.moduleKind}`);
-      } catch (error) {
+      } catch (error: unknown) {
         findings.push(`plugin_promote_failed=${error instanceof Error ? error.message : String(error)}`);
       }
     }
@@ -328,7 +328,7 @@ export class SkillPromoteService {
       receiptPath = path.join(receiptsDir, `${receiptId}.json`);
       atomicWrite(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
       findings.push(`receipt=${receiptPath}`);
-    } catch (error) {
+    } catch (error: unknown) {
       findings.push(`receipt_write_failed=${error instanceof Error ? error.message : String(error)}`);
     }
 

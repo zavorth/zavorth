@@ -19,13 +19,71 @@ import {
 import {
   zavorthControlApplyDraft,
   zavorthControlDemotePipeline,
-  zavorthControlDemoteFabric,
 } from './ZavorthControlDemotePipelineAction';
 import { ZavorthControlOverviewSector } from './ZavorthControlOverviewSector';
 
-
-import { useZavorthControlOperatorWorkbench, useZavorthControlNexusWorkbench } from './useZavorthControlOperatorWorkbench';
+import { useZavorthControlOperatorWorkbench } from './useZavorthControlOperatorWorkbench';
 import { useZavorthControlSalesPackBusinessMode } from './useZavorthControlSalesPackBusinessMode';
+import { logger } from '@/shared/utils/logger';
+import type { ZavorthControlRunObservatorySnapshot } from '../contracts/index';
+
+interface ZavorthControlModel {
+  [key: string]: unknown;
+  draft?: string;
+  sending?: boolean;
+  handleSend?: () => void;
+  setDraft?: (draft: string) => void;
+  handleSessionChange?: (sessionId: string) => void;
+  wsReconnectAttempt?: number;
+  activeRun?: unknown;
+  operator?: { userId?: string | null };
+  experienceProfile?: { id?: string | null };
+  state?: {
+    agentRuntime?: { activeRun?: unknown; runObservatory?: unknown };
+    operator?: { userId?: string | null };
+    experienceProfile?: { id?: string | null };
+  };
+}
+
+interface ZavorthControlAgentTeamRole {
+  id: string;
+  label: string;
+  approval: { required: boolean };
+  actions: { previewCommand: string; inspectCommand: string };
+}
+
+interface ZavorthControlFocusedSectorViewModel {
+  agentTeamCompiler?: {
+    status: string;
+    summary: { roleCount: number };
+    nextSafeAction: string;
+    launch: { launchCommand: string; directToolExecution: boolean };
+    roles: ZavorthControlAgentTeamRole[];
+  } | null;
+  dynamicWorkflow?: {
+    status: string;
+    scale?: { effectiveFanout: number; maxConcurrency?: number };
+    budget?: { maxCents?: number };
+  } | null;
+  effortControl?: {
+    effectiveLevel: string;
+    runtime?: { internalEffort?: string };
+    routing?: { routeReason?: string };
+  } | null;
+  runObservatory?: ZavorthControlRunObservatorySnapshot;
+}
+
+interface ZavorthControlDiffPreview {
+  planId?: string;
+  runId?: string | null;
+  sessionId?: string | null;
+}
+
+interface ZavorthControlFabricHealth {
+  status?: string | null;
+  recommendation?: string | null;
+  rollbackInstruction?: string | null;
+}
 
 export const ZAVORTH_CONTROL_BLOCKED_FIXTURE_QUERY_PARAM = 'blockedFixture';
 
@@ -76,7 +134,15 @@ export function renderZavorthControlFocusedSector({
   onApplyDiffPreview,
   onDemoteIntelligenceFabric,
   salesPackBusinessMode,
-}: any) {
+}: {
+  activeSectorId: string;
+  model: ZavorthControlModel;
+  viewModel: ZavorthControlFocusedSectorViewModel;
+  nexusWorkbench?: Record<string, unknown>;
+  onApplyDiffPreview: (preview: ZavorthControlDiffPreview) => unknown;
+  onDemoteIntelligenceFabric: (health: ZavorthControlFabricHealth) => unknown;
+  salesPackBusinessMode?: ReturnType<typeof useZavorthControlSalesPackBusinessMode>;
+}) {
   const agentTeamCompiler = viewModel.agentTeamCompiler;
   const dynamicWorkflow = viewModel.dynamicWorkflow;
   const effortControl = viewModel.effortControl;
@@ -138,7 +204,7 @@ export function renderZavorthControlFocusedSector({
                   direct tools: {agentTeamCompiler.launch.directToolExecution ? 'on' : 'off'}
                 </small>
                 <ul>
-                  {visibleAgentTeamRoles.map((role: any) => (
+                  {visibleAgentTeamRoles.map((role) => (
                     <li key={role.id}>
                       {role.label}: {role.approval.required ? role.actions.previewCommand : role.actions.inspectCommand}
                     </li>
@@ -172,7 +238,7 @@ export function renderZavorthControlFocusedSector({
   }
 }
 
-export function ZavorthControlControlShell({ model = {} }: any) {
+export function ZavorthControlControlShell({ model = {} }: { model?: ZavorthControlModel }) {
   const [activeSectorId, setActiveSectorId] = useState("chat");
   const handleSelectSector = (sectorId: string) => {
     setActiveSectorId(sectorId);
@@ -188,7 +254,7 @@ export function ZavorthControlControlShell({ model = {} }: any) {
     () => buildZavorthControlZavorthControlViewModel(model.state || model || {}),
     [model],
   );
-  const onApplyDiffPreview = (preview: any) => {
+  const onApplyDiffPreview = (preview: ZavorthControlDiffPreview) => {
     const planId = String(preview?.planId || '').trim();
     if (!planId) return null;
     return zavorthControlApplyDraft({
@@ -197,7 +263,7 @@ export function ZavorthControlControlShell({ model = {} }: any) {
       planId,
     });
   };
-  const onDemoteIntelligenceFabric = (fabricHealth: any) => {
+  const onDemoteIntelligenceFabric = (fabricHealth: ZavorthControlFabricHealth) => {
     return zavorthControlDemotePipeline({
       runId: viewModel?.agentRun?.id || null,
       sessionId: viewModel?.agentRun?.sessionId || null,
@@ -217,7 +283,7 @@ export function ZavorthControlControlShell({ model = {} }: any) {
     totalRuns: 0,
   };
   const filteredRunObservatory = filterZavorthControlRunObservatory(
-    runObservatorySource as any,
+    runObservatorySource as ZavorthControlRunObservatorySnapshot,
     readZavorthControlRunObservatoryUrlQuery(),
   );
 
@@ -226,7 +292,7 @@ export function ZavorthControlControlShell({ model = {} }: any) {
   };
 
   const runObservatory = () => {
-    console.log('Run Observatory', formatZavorthControlRunObservatoryQuery({ query: filteredRunObservatory?.query || {} } as any));
+    logger.info('Run Observatory', formatZavorthControlRunObservatoryQuery({ query: filteredRunObservatory?.query || {} }));
   };
 
   return (
@@ -234,7 +300,7 @@ export function ZavorthControlControlShell({ model = {} }: any) {
       {renderZavorthControlFocusedSector({
         activeSectorId,
         model,
-        viewModel,
+        viewModel: viewModel as unknown as ZavorthControlFocusedSectorViewModel,
         nexusWorkbench,
         onApplyDiffPreview,
         onDemoteIntelligenceFabric,

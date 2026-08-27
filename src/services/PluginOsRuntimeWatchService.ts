@@ -184,7 +184,7 @@ export class PluginOsRuntimeWatchService {
         ok,
         summary,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       await this.onReload?.({
         pluginId,

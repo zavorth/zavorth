@@ -258,7 +258,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           ...(m.supportsThinking === true ? { supportsThinking: true } : {}),
         }));
         await replaceSyncedAvailableModelsForConnection(logProvider, id, syncedModels);
-      } catch (error: unknown) { const err = asErrorLike(error); console.error("Failed to union synced available models for gemini:", err);
+      } catch (error: unknown) { const err = asErrorLike(error); logger.error("Failed to union synced available models for gemini:", err);
       }
     }
 

@@ -5,6 +5,7 @@ import type {
   JsonRecord,
 } from "./apiKeyTypes";
 import { asErrorLike } from '../../../../utils/errorLike.js';
+import { logger } from "@/shared/utils/logger";
 
 let schemaChecked = false;
 let stmtGetAllKeys: ApiKeysStatements["getAllKeys"] | null = null;
@@ -140,7 +141,7 @@ function ensureApiKeysColumns(db: ApiKeysDbLike) {
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const message = error instanceof Error ? err.message : String(error);
-    console.warn("[DB] Failed to verify api_keys schema:", message);
+    logger.warn("[DB] Failed to verify api_keys schema:", message);
   }
 }
 
@@ -152,5 +153,5 @@ function addColumnIfMissing(
 ) {
   if (columnNames.has(columnName)) return;
   db.exec(sql);
-  console.log(`[DB] Added api_keys.${columnName} column`);
+  logger.info(`[DB] Added api_keys.${columnName} column`);
 }

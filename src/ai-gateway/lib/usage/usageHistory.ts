@@ -18,6 +18,7 @@ import {
   getReasoningTokens,
 } from "./tokenAccounting";
 import { asErrorLike } from '../../../utils/errorLike.js';
+import { logger } from "@/shared/utils/logger";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -186,7 +187,7 @@ export async function saveRequestUsage(entry: unknown) {
       entry.errorCode || null,
       timestamp
     );
-  } catch (error: unknown) {console.error("Failed to save usage stats:", error);
+  } catch (error: unknown) {logger.error("Failed to save usage stats:", error);
   }
 }
 
@@ -436,7 +437,7 @@ export async function getRecentLogs(limit = 200) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[usageDb] Failed to read recent call logs:", err.message);
+    logger.error("[usageDb] Failed to read recent call logs:", err.message);
     return [];
   }
 }

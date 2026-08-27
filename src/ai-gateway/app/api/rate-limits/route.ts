@@ -62,7 +62,7 @@ export async function GET(request: Request) {
       lockouts,
       cacheStats,
     });
-  } catch (error: unknown) {console.error("[API ERROR] /api/rate-limits GET:", error);
+  } catch (error: unknown) {logger.error("[API ERROR] /api/rate-limits GET:", error);
     return NextResponse.json({ error: "Failed to get rate limit status" }, { status: 500 });
   }
 }
@@ -110,7 +110,7 @@ export async function POST(request) {
     });
 
     return NextResponse.json({ success: true, connectionId, enabled: !!enabled });
-  } catch (error: unknown) {console.error("[API ERROR] /api/rate-limits POST:", error);
+  } catch (error: unknown) {logger.error("[API ERROR] /api/rate-limits POST:", error);
     return NextResponse.json({ error: "Failed to toggle rate limit" }, { status: 500 });
   }
 }

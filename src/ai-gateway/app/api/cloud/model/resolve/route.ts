@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 
     // Not found
     return NextResponse.json({ error: "Alias not found" }, { status: 404 });
-  } catch (error: unknown) {console.log("Model resolve error:", error);
+  } catch (error: unknown) {logger.info("Model resolve error:", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

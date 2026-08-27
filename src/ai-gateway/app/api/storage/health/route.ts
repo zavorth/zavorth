@@ -75,7 +75,7 @@ export async function GET(request: Request) {
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    console.error("[API] Error getting storage health:", error);
+    logger.error("[API] Error getting storage health:", error);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

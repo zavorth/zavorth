@@ -2,9 +2,10 @@ import http from "http";
 import type { IncomingMessage, ServerResponse } from "http";
 import { getRuntimePorts } from "@/lib/runtime/ports";
 import { getApiBridgeTimeoutConfig } from "@/shared/utils/runtimeTimeouts";
+import { logger } from "@/shared/utils/logger";
 
 const API_BRIDGE_TIMEOUTS = getApiBridgeTimeoutConfig(process.env, (message) => {
-  console.warn(`[API Bridge] ${message}`);
+  logger.warn(`[API Bridge] ${message}`);
 });
 
 const OPENAI_COMPAT_PATHS = [
@@ -106,16 +107,16 @@ export function initApiBridgeServer(): void {
 
   server.on("error", (error: NodeJS.ErrnoException) => {
     if (error?.code === "EADDRINUSE") {
-      console.log(
+      logger.info(
         `[API Bridge] Port ${apiPort} is already in use; using the existing runtime. (zavorthControl: ${zavorthControlPort})`
       );
       return;
     }
-    console.warn("[API Bridge] Failed to start:", error?.message || error);
+    logger.warn("[API Bridge] Failed to start:", error?.message || error);
   });
 
   server.listen(apiPort, host, () => {
     globalThis.__ZavorthGatewayApiBridgeStarted = true;
-    console.log(`[API Bridge] Listening on ${host}:${apiPort} -> zavorthControl:${zavorthControlPort}`);
+    logger.info(`[API Bridge] Listening on ${host}:${apiPort} -> zavorthControl:${zavorthControlPort}`);
   });
 }

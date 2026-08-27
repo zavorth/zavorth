@@ -18,6 +18,7 @@ export function ZavorthControlVisualReceiptsPanel() {
 }
 
 export function ZavorthControlRunPanel() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return <div className="bcc-run-card">ZavorthControlRunPanel ? {formatZavorthControlRunObservatoryQuery({ query: {} } as any)}</div>;
 }
 
@@ -38,11 +39,18 @@ export function ZavorthControlProviderPreferencePanel() {
   );
 }
 
-export default function ZavorthControlOperationsPanel({ viewModel = {}, previewMode = false }: any) {
+export default function ZavorthControlOperationsPanel({
+  viewModel = {},
+  previewMode = false,
+}: {
+  viewModel?: Record<string, unknown>;
+  previewMode?: boolean;
+  model?: unknown;
+}) {
   // Runtime contract markers: viewModel.health.checks and viewModel.approvals stay projection-only.
   // Test markers for draft commands
-  const onDraftCommand = (cmd: string) => {};
-  const asText = (action: any) => "";
+  const onDraftCommand = (_cmd: string) => {};
+  const asText = (_action: unknown) => "";
   const action = { command: "" };
   const liveAction = { command: "" };
   const model = {
