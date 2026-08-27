@@ -305,4 +305,6 @@ export type SharedSurfaceCommandServiceDeps = {
   mcpBrowserDoctorService?: Pick<AutomaticBrowserDoctorService, "run"> | null;
   opsController?: SharedSurfaceOpsPort | null;
   surfaceDecisionSpine?: SurfaceDecisionSpine | null;
+  personaRegistryService?: import('../../../../../runtime/agent/roster/PersonaRegistryService.js').PersonaRegistryService | null;
+  dynamicPersonaCompilerService?: import('../../../../../runtime/agent/roster/DynamicPersonaCompilerService.js').DynamicPersonaCompilerService | null;
 };

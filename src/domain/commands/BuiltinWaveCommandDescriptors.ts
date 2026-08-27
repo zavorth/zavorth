@@ -391,6 +391,82 @@ function buildBuiltinWaveCommandDescriptors(): readonly UniversalCommandDescript
         };
       },
     },
+    {
+      id: 'bot.manage',
+      name: 'Autonomous Bot & Persona Manager',
+      description: 'Lists, creates, inspects, and manages specialized autonomous personas.',
+      toolName: 'bot_manage',
+      slashAliases: ['/bot', '/persona', '/bots'],
+      group: 'general',
+      riskLevel: 'read_only',
+      requiresApproval: false,
+      parameters: {
+        type: 'object',
+        properties: {
+          action: {
+            type: 'string',
+            description: 'Action to perform: list, create, inspect, or delete',
+            enum: ['list', 'create', 'inspect', 'delete'],
+          },
+          target: {
+            type: 'string',
+            description: 'Persona ID or description for creation',
+          },
+        },
+        required: ['action'],
+      },
+      execute: async (args) => {
+        const { PersonaRegistryService } = await import('../../runtime/agent/roster/PersonaRegistryService.js');
+        const { DynamicPersonaCompilerService } = await import('../../runtime/agent/roster/DynamicPersonaCompilerService.js');
+        const registry = new PersonaRegistryService();
+        await registry.initialize();
+        const action = String(args.action || 'list').toLowerCase();
+        const target = String(args.target || '').trim();
+
+        if (action === 'create') {
+          const compiler = new DynamicPersonaCompilerService();
+          const compiled = await compiler.compileFromIntent({ userIntent: target });
+          const persona = await registry.registerPersona(compiled);
+          return {
+            success: true,
+            message: `Created persona @${persona.id} (${persona.name}) with isolation: ${persona.isolationMode}`,
+            data: persona,
+            formattedOutput: `[Bot] Created persona @${persona.id} (${persona.name})\nRole: ${persona.role}\nMode: ${persona.isolationMode}`,
+          };
+        }
+
+        if (action === 'inspect') {
+          const persona = registry.getPersona(target);
+          if (!persona) {
+            return { success: false, message: `Persona @${target} not found.`, error: `Persona @${target} not found.` };
+          }
+          return {
+            success: true,
+            message: `Persona @${persona.id} details retrieved.`,
+            data: persona,
+            formattedOutput: `[Bot: @${persona.id}] ${persona.name}\nRole: ${persona.role}\nMode: ${persona.isolationMode}\nTools: ${persona.allowedTools?.join(', ') || 'all'}`,
+          };
+        }
+
+        if (action === 'delete') {
+          const deleted = await registry.deletePersona(target);
+          return {
+            success: deleted,
+            message: deleted ? `Deleted @${target}` : `Failed to delete @${target}`,
+            formattedOutput: deleted ? `[Bot] Deleted persona @${target}` : `[Bot] Failed to delete @${target}`,
+          };
+        }
+
+        const personas = registry.listPersonas();
+        const summary = personas.map((p) => `• @${p.id} (${p.name}) - ${p.role} [${p.isolationMode}]`).join('\n');
+        return {
+          success: true,
+          message: `Roster has ${personas.length} registered persona(s).`,
+          data: personas,
+          formattedOutput: `[Zavorth Personas Roster]\n${summary}`,
+        };
+      },
+    },
   ];
 }
 

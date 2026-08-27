@@ -20,6 +20,9 @@ import { SharedSurfaceTaskControlCommandPack } from '../SharedSurfaceTaskControl
 import { SharedSurfaceTenantGovernanceCommandPack } from '../SharedSurfaceTenantGovernanceCommandPack.js';
 import { SharedSurfaceWatchModeCommandPack } from '../SharedSurfaceWatchModeCommandPack.js';
 import { SharedSurfaceWorkflowGovernanceCommandPack } from '../SharedSurfaceWorkflowGovernanceCommandPack.js';
+import { SharedSurfaceBotCommandPack } from '../SharedSurfaceBotCommandPack.js';
+import { PersonaRegistryService } from '../../../../../runtime/agent/roster/PersonaRegistryService.js';
+import { DynamicPersonaCompilerService } from '../../../../../runtime/agent/roster/DynamicPersonaCompilerService.js';
 import type { IMessageContext } from '../../../../../contracts/IMessageBroker.js';
 import type { SurfaceControllerContext } from '../../../../../orchestrator/SurfaceRuntime.js';
 import type { SharedSurfaceCommandServiceDeps } from './SharedSurfaceCommandServiceDeps.js';
@@ -296,6 +299,10 @@ export function buildSharedSurfaceCommandServiceAssembly(
   const decisionCommandPack = new SharedSurfaceDecisionCommandPack({
     decisionSpine: deps.surfaceDecisionSpine || null,
   });
+  const botCommandPack = new SharedSurfaceBotCommandPack({
+    personaRegistryService: deps.personaRegistryService || new PersonaRegistryService(),
+    dynamicCompilerService: deps.dynamicPersonaCompilerService || new DynamicPersonaCompilerService(),
+  });
   return {
     ...deps,
     accessCommandPack,
@@ -314,6 +321,7 @@ export function buildSharedSurfaceCommandServiceAssembly(
     operationsCommandPack,
     opsCommandPack,
     decisionCommandPack,
+    botCommandPack,
     runtimeMaintenanceCommandPack,
     watchModeCommandPack,
     sessionNodeCommandPack,

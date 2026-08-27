@@ -23,6 +23,7 @@ import type { SharedSurfaceTenantGovernanceCommandPack } from './SharedSurfaceTe
 import type { SharedSurfaceWatchModeCommandPack } from './SharedSurfaceWatchModeCommandPack.js';
 import type { SharedSurfaceWorkflowGovernanceCommandPack } from './SharedSurfaceWorkflowGovernanceCommandPack.js';
 import type { SharedSurfaceSlashEnhancementCommandPack } from './SharedSurfaceSlashEnhancementCommandPack.js';
+import type { SharedSurfaceBotCommandPack } from './SharedSurfaceBotCommandPack.js';
 import { naturalizeSharedSurfaceArgs } from './NaturalSlashConvention.js';
 import {
   isSurfaceAgentFirstEnabled,
@@ -120,6 +121,7 @@ export type SharedSurfaceCommandPackDispatchContext = {
   sessionNodeCommandPack: Pick<SharedSurfaceSessionNodeCommandPack, 'maybeHandle'>;
   workflowGovernanceCommandPack: Pick<SharedSurfaceWorkflowGovernanceCommandPack, 'maybeHandleCommand'>;
   slashEnhancementCommandPack?: Pick<SharedSurfaceSlashEnhancementCommandPack, 'maybeHandle'> | null;
+  botCommandPack?: Pick<SharedSurfaceBotCommandPack, 'maybeHandle'> | null;
 };
 
 export async function dispatchSharedSurfaceCommandPacks(
@@ -134,6 +136,13 @@ export async function dispatchSharedSurfaceCommandPacks(
   if (
     deps.slashEnhancementCommandPack &&
     (await deps.slashEnhancementCommandPack.maybeHandle(ctx, command_type, command_args))
+  ) {
+    return true;
+  }
+
+  if (
+    deps.botCommandPack &&
+    (await deps.botCommandPack.maybeHandle(ctx, command_type, command_args))
   ) {
     return true;
   }
