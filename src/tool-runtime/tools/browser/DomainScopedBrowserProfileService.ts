@@ -43,7 +43,7 @@ export class DomainScopedBrowserProfileService {
     const targetNetworkDir = path.join(targetProfileDir, 'Network');
     fs.mkdirSync(targetNetworkDir, { recursive: true, mode: 0o700 });
 
-    if (fs.existsSync(candidate.localStatePath)) {
+    if (candidate.localStatePath && fs.existsSync(candidate.localStatePath)) {
       const targetLocalState = path.join(snapshotDir, 'Local State');
       this.copyFileWithSharedRead(candidate.localStatePath, targetLocalState);
     }
@@ -51,18 +51,24 @@ export class DomainScopedBrowserProfileService {
     let targetCookiesPath = path.join(targetNetworkDir, 'Cookies');
     let sourceCookiesPath = candidate.cookiesDbPath;
 
-    if (!fs.existsSync(sourceCookiesPath)) {
+    if (!sourceCookiesPath || !fs.existsSync(sourceCookiesPath)) {
       const altCookies = path.join(candidate.profileDir, 'Cookies');
       if (fs.existsSync(altCookies)) {
         sourceCookiesPath = altCookies;
         targetCookiesPath = path.join(targetProfileDir, 'Cookies');
+      } else {
+        const netCookies = path.join(candidate.profileDir, 'Network', 'Cookies');
+        if (fs.existsSync(netCookies)) {
+          sourceCookiesPath = netCookies;
+          targetCookiesPath = path.join(targetNetworkDir, 'Cookies');
+        }
       }
     }
 
     let purgedCookiesCount = 0;
     let retainedCookiesCount = 0;
 
-    if (fs.existsSync(sourceCookiesPath)) {
+    if (sourceCookiesPath && fs.existsSync(sourceCookiesPath)) {
       this.copySqliteDatabaseWithWal(sourceCookiesPath, targetCookiesPath);
       this.verifySqliteIntegrity(targetCookiesPath);
 
@@ -72,7 +78,7 @@ export class DomainScopedBrowserProfileService {
     }
 
     const targetLoginDataPath = path.join(targetProfileDir, 'Login Data');
-    if (options?.includeLoginData && fs.existsSync(candidate.loginDataDbPath)) {
+    if (options?.includeLoginData && candidate.loginDataDbPath && fs.existsSync(candidate.loginDataDbPath)) {
       this.copySqliteDatabaseWithWal(candidate.loginDataDbPath, targetLoginDataPath);
     }
 
@@ -115,7 +121,7 @@ export class DomainScopedBrowserProfileService {
     sqlitePath: string,
     allowedDomains: string[],
   ): { purged: number; retained: number } {
-    if (!fs.existsSync(sqlitePath)) {
+    if (!sqlitePath || !fs.existsSync(sqlitePath)) {
       return { purged: 0, retained: 0 };
     }
 
