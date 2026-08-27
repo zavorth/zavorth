@@ -1,3 +1,4 @@
+import { sanitizedProviderFetch } from '../security/SanitizedProviderFetch.js';
 import { LocalEncryptedProviderSecretStore } from './ProviderSecretStore.js';
 import { ResolvedProviderRuntime } from './ModelSelectionService.js';
 import type {
@@ -85,7 +86,7 @@ export class ProviderRuntimeClientFactory {
     const timer = setTimeout(() => controller.abort(), 60_000);
 
     try {
-      const res = await fetch(`${baseUrl}/chat/completions`, {
+      const res = await sanitizedProviderFetch(`${baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -17,6 +17,18 @@ class MockElement {
     this.ownerDocument = mockDocument;
   }
 
+  get children(): MockElement[] {
+    return this.childNodes.filter((n): n is MockElement => (n as MockElement).nodeType === 1);
+  }
+
+  get childElementCount(): number {
+    return this.children.length;
+  }
+
+  get options(): MockElement[] {
+    return this.children.filter(child => child.tagName === 'OPTION');
+  }
+
   appendChild(child: MockElement | MockTextNode) {
     if (child.parentNode) child.parentNode.removeChild(child);
     child.parentNode = this;
@@ -58,6 +70,13 @@ class MockElement {
   addEventListener(type: string, handler: (...args: unknown[]) => void) {
     this.listeners[type] = handler;
   }
+
+  value: string | number | string[] | null = null;
+  selected = false;
+  defaultSelected = false;
+  disabled = false;
+  multiple = false;
+  checked = false;
 
   removeEventListener(type: string) {
     delete this.listeners[type];

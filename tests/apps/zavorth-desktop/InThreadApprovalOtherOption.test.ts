@@ -43,7 +43,7 @@ describe('desktop approval card "other" free-text parity', () => {
     };
 
     const withoutSink = renderToStaticMarkup(React.createElement(InThreadApprovalCard, baseProps));
-    expect(withoutSink).not.toContain('Other…');
+    expect(withoutSink).not.toContain('Outra…');
 
     const withSink = renderToStaticMarkup(
       React.createElement(InThreadApprovalCard, {
@@ -51,8 +51,8 @@ describe('desktop approval card "other" free-text parity', () => {
         onDecideOther: () => undefined,
       }),
     );
-    expect(withSink).toContain('Other…');
-    expect(withSink).toContain('Zavorth denies the action and relays it to the agent');
+    expect(withSink).toContain('Outra…');
+    expect(withSink).toContain('Digite sua resposta; o Zavorth nega a ação e repassa ao agente');
   });
 
   it('relays the typed answer as a fail-closed deny with the reason attached', async () => {

@@ -4,7 +4,7 @@ import type { IMessageContext } from '../../../../../src/contracts/core/IMessage
 import {
   SharedSurfaceOpsCommandPack,
   type SharedSurfaceOpsPort,
-  type SurfaceOpsIO,
+  type SharedOpsContext,
 } from '../../../../../src/domain/surface/presentation/shared-surface/SharedSurfaceOpsCommandPack';
 
 function buildContext(rawText: string): IMessageContext & { reply: jest.Mock<void, [string]> } {
@@ -104,12 +104,12 @@ describe('SharedSurfaceOpsCommandPack', () => {
 
     await pack.handle({ context, parsedCommand });
 
-    const io = (opsController.handleStatus as jest.Mock).mock.calls[0][0] as SurfaceOpsIO;
-    expect(io.userId).toBe('telegram-user');
-    expect(io.chatId).toBe('telegram:chat-1');
+    const io = (opsController.handleStatus as jest.Mock).mock.calls[0][0] as SharedOpsContext;
+    expect(io.from?.id).toBe('telegram-user');
+    expect(io.chat?.id).toBe('telegram:chat-1');
 
     await io.reply('surface reply');
-    expect(context.reply).toHaveBeenCalledWith('surface reply');
+    expect(context.reply).toHaveBeenCalledWith('surface reply', undefined);
   });
 
   it('returns not-handled for unknown commands without touching the port or replying', async () => {

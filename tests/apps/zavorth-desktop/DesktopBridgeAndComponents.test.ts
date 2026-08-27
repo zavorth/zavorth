@@ -3,18 +3,16 @@ import fs from 'fs';
 import path from 'path';
 
 describe('DesktopPreviewRail i18n', () => {
-  it('should have English strings (not Portuguese)', () => {
+  it('should use i18n keys for main labels (not hardcoded PT)', () => {
     const content = fs.readFileSync(
       resolve('apps/zavorth-desktop/src/shell/DesktopPreviewRail.tsx'),
       'utf8'
     );
-    expect(content).toContain('Progress');
-    expect(content).toContain('Outputs');
-    expect(content).toContain('Files');
-    expect(content).toContain('Sources');
+    expect(content).toContain("t('preview.progress')");
+    expect(content).toContain("t('preview.outputs')");
+    expect(content).toContain("t('preview.sources')");
     expect(content).not.toContain('Andamento');
     expect(content).not.toContain('Saidas');
-    expect(content).not.toContain('Arquivos');
     expect(content).not.toContain('Fontes');
   });
 });

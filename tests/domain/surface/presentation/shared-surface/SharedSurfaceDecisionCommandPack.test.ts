@@ -68,7 +68,7 @@ type SpineOverrides = {
     action: 'approve' | 'deny';
     scope: string;
     actorId: string | null;
-  }) => Promise<string | null>;
+  }) => Promise<{ resolved: boolean; receiptText: string | null }>;
   permissionIsPending?: (ref: string) => boolean;
 };
 
@@ -233,7 +233,7 @@ describe('SharedSurfaceDecisionCommandPack', () => {
   });
 
   it('lets an optimistic port claim an unknown reference and speak through its own engine', async () => {
-    const decider = jest.fn().mockResolvedValue('Permission ghost-ref was not found.');
+    const decider = jest.fn().mockResolvedValue({ resolved: true, receiptText: 'Permission ghost-ref was not found.' });
     const spine = buildSpine({
       taskIsPending: () => false,
       permissionDecider: decider,
@@ -250,7 +250,7 @@ describe('SharedSurfaceDecisionCommandPack', () => {
   });
 
   it('answers the not-found receipt for references no registered port claims', async () => {
-    const decider = jest.fn().mockResolvedValue('perm receipt');
+    const decider = jest.fn().mockResolvedValue({ resolved: true, receiptText: 'perm receipt' });
     const engine = { handleApproval: jest.fn(), handleRejection: jest.fn() };
     const spine = buildSpine({
       engine,
@@ -269,7 +269,7 @@ describe('SharedSurfaceDecisionCommandPack', () => {
   });
 
   it('resolves a permission-owned reference through the permission registry port', async () => {
-    const decider = jest.fn().mockResolvedValue('Permission approved.');
+    const decider = jest.fn().mockResolvedValue({ resolved: true, receiptText: 'Permission approved.' });
     const spine = buildSpine({
       taskIsPending: () => false,
       permissionDecider: decider,

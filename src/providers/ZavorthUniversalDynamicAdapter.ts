@@ -1,3 +1,4 @@
+import { sanitizedProviderFetch } from '../security/SanitizedProviderFetch.js';
 import type { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefinition } from './ILlmProvider.js';
 
 export interface DynamicAdapterConfig {
@@ -95,7 +96,7 @@ export class ZavorthUniversalDynamicAdapter implements ILlmProvider {
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
-      const res = await fetch(endpoint, {
+      const res = await sanitizedProviderFetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -149,7 +150,7 @@ export class ZavorthUniversalDynamicAdapter implements ILlmProvider {
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
-      const res = await fetch(endpoint, {
+      const res = await sanitizedProviderFetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contents }),
@@ -200,7 +201,7 @@ export class ZavorthUniversalDynamicAdapter implements ILlmProvider {
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
-      const res = await fetch(endpoint, {
+      const res = await sanitizedProviderFetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

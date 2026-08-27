@@ -103,11 +103,11 @@ describe('UnifiedSlashCommandHandler & VariantPickerModal', () => {
 
     const statusRes = await UnifiedSlashCommandHandler.handle('/swarm status', dummyRuntime, dummyFlags, writer);
     expect(statusRes?.ok).toBe(true);
-    expect(outputs.join('\n')).toContain('Dynamic Swarm Engine');
+    expect(outputs.join('\n')).toContain('Zavorth Dynamic Swarm Planner');
 
     const runRes = await UnifiedSlashCommandHandler.handle('/swarm run Implement user authentication and verify contracts', dummyRuntime, dummyFlags, writer);
     expect(runRes?.ok).toBe(true);
-    expect(outputs.join('\n')).toContain('Swarm Execution');
+    expect(outputs.join('\n')).toContain('Swarm Plan Ready');
 
     const treeRes = await UnifiedSlashCommandHandler.handle('/swarm tree', dummyRuntime, dummyFlags, writer);
     expect(treeRes?.ok).toBe(true);

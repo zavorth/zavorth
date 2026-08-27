@@ -564,12 +564,23 @@ function inferIntent(normalized: string): IntentFlags {
     'write file',
     'create file',
     'modify file',
+    'editar arquivo',
+    'editar o arquivo',
+    'edite arquivo',
+    'criar arquivo',
+    'escrever arquivo',
+    'modificar arquivo',
+    'alterar arquivo',
   ]);
   const commandExec = hasAny(normalized, [
     'command',
     'powershell',
     'execute',
     'run command',
+    'comando',
+    'executar comando',
+    'rodar comando',
+    'execute comando',
   ]);
   const externalSend = hasAny(normalized, [
     'deploy',

@@ -5,6 +5,7 @@
  */
 
 import { spawn } from 'child_process';
+import { sanitizedProviderFetch } from '../../security/SanitizedProviderFetch.js';
 
 export interface McpServerHealthReport {
   serverId: string;
@@ -59,7 +60,7 @@ export class McpServerDoctorService {
         const url = server.endpointOrCommand;
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 5000);
-        const res = await fetch(url, { method: 'HEAD', signal: controller.signal });
+        const res = await sanitizedProviderFetch(url, { method: 'HEAD', signal: controller.signal });
         clearTimeout(timer);
         status = res.status < 500 ? 'online' : 'degraded';
       } else if (server.transport === 'stdio') {
