@@ -12,6 +12,7 @@ type ConfigureLlmProfileToolRuntime = {
   envFilePath?: string;
   envFileService?: EnvFileService;
   clearProviderCache?: () => void;
+  onboardingService?: ProviderOnboardingService;
 };
 
 /** Mutable access to config properties that the set handler mutates at runtime. */
@@ -63,6 +64,10 @@ export class ConfigureLlmProfileTool extends BaseTool {
       label: {
         type: 'string',
         description: 'Human-readable provider label for action=onboard.',
+      },
+      discoverModels: {
+        type: 'boolean',
+        description: 'When true, action=onboard probes the base URL to discover the model list before registering.',
       },
     },
     required: ['action'],
@@ -159,6 +164,14 @@ Use "set" to save the change.`,
           note: 'local/hybrid OpenAI-compatible route.'
         }
       },
+      onboarded_providers: ProviderFactory.listCustomProviders().map((provider) => ({
+        id: provider.id,
+        name: provider.name,
+        baseUrl: provider.baseUrl,
+        defaultModel: provider.defaultModel || null,
+        models: provider.models?.length ? provider.models : [],
+        readiness: ProviderFactory.getCustomProviderReadiness(provider.id)?.kind ?? 'unknown',
+      })),
       instructions_for_agent: 'Present providers and models in a friendly way if the user asked to see options. Remember that OpenCode, OpenRouter, and OpenAI accept other strings when the user asks.'
     };
   }
@@ -216,15 +229,16 @@ Use "set" to save the change.`,
     const providerName = String(args.providerName || '').toLowerCase().trim();
     const baseUrl = String(args.baseUrl || '').trim();
     const apiKeyEnv = args.apiKeyEnv ? String(args.apiKeyEnv).trim() : undefined;
-    const modelName = args.modelName ? String(args.modelName).trim() : undefined;
+    let modelName = args.modelName ? String(args.modelName).trim() : undefined;
     const label = args.label ? String(args.label).trim() : providerName;
     const compatibility = (args.compatibility as ProviderCompatibilityKind) || 'openai_compatible';
+    const discoverModels = args.discoverModels === true;
 
     if (!providerName || !baseUrl) {
       throw new Error('For action "onboard", "providerName" and "baseUrl" are required.');
     }
 
-    const onboarding = new ProviderOnboardingService();
+    const onboarding = this.runtime.onboardingService || new ProviderOnboardingService();
     const result = await onboarding.onboardCustom({
       id: providerName,
       label,
@@ -234,6 +248,21 @@ Use "set" to save the change.`,
       apiKeyEnv: apiKeyEnv || undefined,
       modelId: modelName,
     });
+
+    let models = result.models;
+    if (discoverModels) {
+      const discovered = await onboarding.discover({
+        providerId: result.providerId,
+        label: result.label,
+        baseUrl,
+        apiKey: apiKeyEnv ? process.env[apiKeyEnv] : undefined,
+        kind: compatibility === 'anthropic_compatible' ? 'anthropic_compatible' : 'openai_compatible',
+      });
+      models = discovered.models;
+      if (discovered.models.length > 0 && !modelName) {
+        modelName = discovered.models[0];
+      }
+    }
 
     const envService = this.runtime.envFileService || new EnvFileService();
     const projectRoot = path.resolve(__dirname, '../..');
@@ -260,13 +289,15 @@ Use "set" to save the change.`,
       baseUrl,
       apiKeyEnv: apiKeyRef || `${result.providerId.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '')}_API_KEY`,
       defaultModel: modelName || null,
+      models,
     });
 
     (this.runtime.clearProviderCache || (() => ProviderFactory.clearCache()))();
     const mutableConfig = config as unknown as MutableConfigProxy;
     mutableConfig.llmProvider = result.providerId;
 
-    const providerReady = result.runtime.supported && (apiKeyRef === null || Boolean(process.env[apiKeyRef]));
+    const readiness = ProviderFactory.getCustomProviderReadiness(result.providerId);
+    const providerReady = readiness?.kind === 'ready';
 
     return {
       status: 'success',
@@ -274,6 +305,8 @@ Use "set" to save the change.`,
       label: result.label,
       baseUrl,
       model: modelName || null,
+      models,
+      readiness: readiness?.kind ?? 'unknown',
       envFilePath,
       provider_ready: providerReady,
       provider_notice: providerReady

@@ -8,6 +8,7 @@ import { asErrorLike } from '../../../utils/errorLike.js';
 export type RegisteredProvider = ProviderCatalogEntry & {
   baseUrl?: string | null;
   apiKeyEnv?: string | null;
+  models?: string[];
   custom: boolean;
 };
 
@@ -17,10 +18,21 @@ export type ProviderCatalogRegistration = {
   baseUrl?: string | null;
   apiKeyEnv?: string | null;
   defaultModel?: string | null;
+  models?: string[];
   category?: ProviderCatalogEntry['category'];
   envKey?: string;
   protocol?: ProviderCatalogEntry['protocol'];
   runtimeSupported?: boolean;
+};
+
+export type ProviderCatalogUpdate = Partial<Omit<ProviderCatalogRegistration, 'id'>>;
+
+export type ProviderReadinessKind = 'ready' | 'awaiting_credentials' | 'missing_configuration' | 'unsupported';
+
+export type ProviderReadiness = {
+  providerId: string;
+  kind: ProviderReadinessKind;
+  reasons: string[];
 };
 
 type PersistedProvidersFile = {
@@ -41,6 +53,17 @@ function normalizeEnvKey(value: unknown): string {
     .toUpperCase()
     .replace(/[^A-Z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '');
+}
+
+function normalizeModels(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+  const models = value
+    .filter((model): model is string => typeof model === 'string')
+    .map((model) => model.trim())
+    .filter(Boolean);
+  return models.length > 0 ? models : undefined;
 }
 
 export class ProviderCatalogRegistry {
@@ -82,6 +105,7 @@ export class ProviderCatalogRegistry {
       category: input.category || DEFAULT_CATEGORY,
       envKey: apiKeyEnv || normalizeEnvKey(input.envKey || `${id}_API_KEY`),
       defaultModel: input.defaultModel || undefined,
+      models: normalizeModels(input.models),
       protocol: input.protocol || DEFAULT_PROTOCOL,
       runtimeSupported: input.runtimeSupported ?? true,
       baseUrl: input.baseUrl?.trim() || null,
@@ -91,6 +115,26 @@ export class ProviderCatalogRegistry {
     this.entries.set(id, entry);
     this.persist();
     return entry;
+  }
+
+  update(id: string, patch: ProviderCatalogUpdate): RegisteredProvider | null {
+    const existing = this.get(id);
+    if (!existing) {
+      return null;
+    }
+    const merged: ProviderCatalogRegistration = {
+      id: existing.id,
+      name: patch.name?.trim() || existing.name,
+      baseUrl: patch.baseUrl !== undefined ? patch.baseUrl?.trim() || null : existing.baseUrl,
+      apiKeyEnv: patch.apiKeyEnv !== undefined ? (patch.apiKeyEnv ? normalizeEnvKey(patch.apiKeyEnv) : null) : existing.apiKeyEnv,
+      defaultModel: patch.defaultModel !== undefined ? patch.defaultModel || null : existing.defaultModel || null,
+      models: patch.models !== undefined ? patch.models : existing.models,
+      category: patch.category || existing.category,
+      envKey: patch.envKey || existing.envKey,
+      protocol: patch.protocol || existing.protocol,
+      runtimeSupported: patch.runtimeSupported ?? existing.runtimeSupported,
+    };
+    return this.register(merged);
   }
 
   unregister(id: string): boolean {
@@ -127,6 +171,42 @@ export class ProviderCatalogRegistry {
     return keys;
   }
 
+  readiness(id: string): ProviderReadiness | null {
+    const entry = this.get(id);
+    if (!entry) {
+      return null;
+    }
+    if (!entry.runtimeSupported) {
+      return {
+        providerId: entry.id,
+        kind: 'unsupported',
+        reasons: ['Provider is not marked as runtime supported.'],
+      };
+    }
+    if (!entry.custom) {
+      return {
+        providerId: entry.id,
+        kind: 'ready',
+        reasons: ['Provider is registered in the curated catalog and runtime supported.'],
+      };
+    }
+    if (!entry.baseUrl) {
+      return {
+        providerId: entry.id,
+        kind: 'missing_configuration',
+        reasons: ['No base URL is configured for this provider.'],
+      };
+    }
+    if (entry.apiKeyEnv && !process.env[entry.apiKeyEnv]) {
+      return {
+        providerId: entry.id,
+        kind: 'awaiting_credentials',
+        reasons: [`Credential ${entry.apiKeyEnv} is not present in the environment.`],
+      };
+    }
+    return { providerId: entry.id, kind: 'ready', reasons: [] };
+  }
+
   reload(): void {
     this.loadPersisted();
   }
@@ -152,6 +232,7 @@ export class ProviderCatalogRegistry {
           category: provider.category || DEFAULT_CATEGORY,
           envKey: provider.envKey || apiKeyEnv || normalizeEnvKey(`${id}_API_KEY`),
           defaultModel: provider.defaultModel || undefined,
+          models: normalizeModels(provider.models),
           protocol: provider.protocol || DEFAULT_PROTOCOL,
           runtimeSupported: provider.runtimeSupported ?? true,
           baseUrl: provider.baseUrl || null,

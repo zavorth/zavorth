@@ -20,6 +20,7 @@ export type ProviderOnboardingResult = {
   label: string;
   source: ProviderOnboardingSource;
   manifest: ProviderIntegrationManifest;
+  models: string[];
   env: {
     baseUrlRef: string | null;
     apiKeyRef: string | null;
@@ -61,6 +62,7 @@ export class ProviderOnboardingService {
       label: draft.manifest.label,
       source: 'custom',
       manifest: draft.manifest,
+      models: input.modelId ? [input.modelId] : [],
       env: {
         baseUrlRef: draft.env.baseUrlRef,
         apiKeyRef: draft.env.apiKeyRef,
@@ -89,6 +91,7 @@ export class ProviderOnboardingService {
       label: manifest.label,
       source: 'import',
       manifest,
+      models: route?.models?.map((model) => model.modelId) ?? [],
       env: {
         baseUrlRef: null,
         apiKeyRef: route?.credentialRefs?.[0] ?? null,
@@ -114,6 +117,7 @@ export class ProviderOnboardingService {
       label: manifest.label,
       source: 'discovery',
       manifest,
+      models: result.models.map((model) => model.id),
       env: {
         baseUrlRef: `${prefix}_BASE_URL`,
         apiKeyRef: `${prefix}_API_KEY`,

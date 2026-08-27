@@ -6,6 +6,9 @@ import { config } from '../../src/config/index';
 import { ConfigureLlmProfileTool } from '../../src/tools/ConfigureLlmProfileTool';
 import { ProviderFactory } from '../../src/providers/ProviderFactory';
 import { providerCatalogRegistry } from '../../src/services/providers/catalog/ProviderCatalogRegistry';
+import { ProviderOnboardingService } from '../../src/services/providers/catalog/ProviderOnboardingService';
+import { createMinimalProviderIntegrationManifest } from '../../src/services/providers/catalog/ProviderIntegrationManifest';
+import type { ProviderAutoDiscoveryResult, ProviderAutoDiscoveryService } from '../../src/services/providers/catalog/ProviderAutoDiscoveryService';
 
 describe('ConfigureLlmProfileTool', () => {
   const originalProvider = config.llmProvider;
@@ -184,5 +187,48 @@ describe('ConfigureLlmProfileTool', () => {
     expect(ProviderFactory.normalizeProviderName('corp-gateway')).toBe('corp-gateway');
 
     delete process.env.CORP_API_KEY;
+  });
+
+  it('onboards with model discovery, sets defaultModel from first model, and reports readiness', async () => {
+    const fakeDiscovery = {
+      discover: async (input: { providerId: string; label?: string; baseUrl: string }): Promise<ProviderAutoDiscoveryResult> => ({
+        success: true,
+        providerId: input.providerId,
+        label: input.label || input.providerId,
+        baseUrl: input.baseUrl,
+        source: 'live_api' as const,
+        models: [{ id: 'discovered-a', name: 'A', type: 'chat' as const }, { id: 'discovered-b', name: 'B', type: 'chat' as const }],
+        manifest: createMinimalProviderIntegrationManifest({ id: input.providerId, label: input.label || input.providerId, defaultModelName: 'discovered-a' }),
+        warnings: [],
+        errors: [],
+      }),
+    };
+    const onboarding = new ProviderOnboardingService({
+      autoDiscovery: fakeDiscovery as unknown as ProviderAutoDiscoveryService,
+    });
+    process.env.DISCOVERY_API_KEY = 'test-key';
+    const tool = new ConfigureLlmProfileTool({ envFilePath, onboardingService: onboarding });
+
+    const result = JSON.parse(await tool.execute({
+      action: 'onboard',
+      providerName: 'discovery-demo',
+      label: 'Discovery Demo',
+      baseUrl: 'https://demo.example/v1',
+      apiKeyEnv: 'DISCOVERY_API_KEY',
+      discoverModels: true,
+    }));
+
+    delete process.env.DISCOVERY_API_KEY;
+
+    expect(result.status).toBe('success');
+    expect(result.provider).toBe('discovery-demo');
+    expect(result.model).toBe('discovered-a');
+    expect(result.models).toEqual(['discovered-a', 'discovered-b']);
+    expect(result.readiness).toBe('ready');
+    expect(result.provider_ready).toBe(true);
+    const envContent = fs.readFileSync(envFilePath, 'utf8');
+    expect(envContent).toContain('LLM_PROVIDER=discovery-demo');
+    expect(ProviderFactory.listCustomProviders().some((p) => p.id === 'discovery-demo' && p.models?.length === 2)).toBe(true);
+    ProviderFactory.unregisterCustomProvider('discovery-demo');
   });
 });

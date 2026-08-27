@@ -1,6 +1,6 @@
 import { type ProviderCatalogEntry } from '../services/providers/catalog/UniversalProviderCatalog.js';
 import { ZavorthProviderFuzzyResolver, ProviderMatch } from '../services/providers/catalog/ZavorthProviderFuzzyResolver.js';
-import { providerCatalogRegistry } from '../services/providers/catalog/ProviderCatalogRegistry.js';
+import { providerCatalogRegistry, type ProviderCatalogUpdate, type ProviderReadiness, type RegisteredProvider } from '../services/providers/catalog/ProviderCatalogRegistry.js';
 import { DynamicModelCatalogService } from '../services/providers/catalog/DynamicModelCatalogService.js';
 import { ZavorthUniversalDynamicAdapter, type DynamicAdapterConfig } from './ZavorthUniversalDynamicAdapter.js';
 import type { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefinition } from './ILlmProvider.js';
@@ -112,6 +112,7 @@ export type ProviderFactoryCustomRegistration = {
   baseUrl: string;
   apiKeyEnv: string;
   defaultModel?: string | null;
+  models?: string[];
 };
 
 export function providerFactoryInputName(input: string | ProviderFactoryCreateInput): string {
@@ -155,6 +156,17 @@ export class ProviderFactory {
     }
   }
 
+  static updateCustomProvider(id: string, patch: ProviderCatalogUpdate): ProviderFactoryCustomRegistration | null {
+    const entry = providerCatalogRegistry.update(id, patch);
+    if (!entry) {
+      return null;
+    }
+    ProviderFactory.resolver.reindex();
+    ProviderFactory.syncCatalogIndexes();
+    ProviderFactory.clearCache();
+    return ProviderFactory.toCustomRegistration(entry);
+  }
+
   static unregisterCustomProvider(id: string): void {
     if (providerCatalogRegistry.unregister(id)) {
       ProviderFactory.resolver.reindex();
@@ -163,14 +175,23 @@ export class ProviderFactory {
     }
   }
 
+  static getCustomProviderReadiness(id: string): ProviderReadiness | null {
+    return providerCatalogRegistry.readiness(id);
+  }
+
   static listCustomProviders(): ProviderFactoryCustomRegistration[] {
-    return providerCatalogRegistry.getCustomProviders().map((entry) => ({
+    return providerCatalogRegistry.getCustomProviders().map(ProviderFactory.toCustomRegistration);
+  }
+
+  private static toCustomRegistration(entry: RegisteredProvider): ProviderFactoryCustomRegistration {
+    return {
       id: entry.id,
       name: entry.name,
       baseUrl: entry.baseUrl || '',
-      apiKeyEnv: entry.apiKeyEnv || entry.envKey,
+      apiKeyEnv: entry.apiKeyEnv || entry.envKey || '',
       defaultModel: entry.defaultModel || null,
-    }));
+      models: entry.models?.length ? entry.models : undefined,
+    };
   }
 
   static create(input?: string | ProviderFactoryCreateInput): ILlmProvider {
