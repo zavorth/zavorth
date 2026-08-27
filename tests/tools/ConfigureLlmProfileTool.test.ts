@@ -5,6 +5,7 @@ import path from 'path';
 import { config } from '../../src/config/index';
 import { ConfigureLlmProfileTool } from '../../src/tools/ConfigureLlmProfileTool';
 import { ProviderFactory } from '../../src/providers/ProviderFactory';
+import { providerCatalogRegistry } from '../../src/services/providers/catalog/ProviderCatalogRegistry';
 
 describe('ConfigureLlmProfileTool', () => {
   const originalProvider = config.llmProvider;
@@ -12,12 +13,14 @@ describe('ConfigureLlmProfileTool', () => {
   const originalOpenCodeApiKey = config.openCodeApiKey;
   const originalDeepseekModel = config.deepseekModel;
   const originalDeepseekApiKey = config.deepseekApiKey;
+  const originalRegistryPath = providerCatalogRegistry.getProvidersFilePath();
   let tempDir: string;
   let envFilePath: string;
 
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-llm-profile-'));
     envFilePath = path.join(tempDir, '.env');
+    providerCatalogRegistry.configure({ filePath: path.join(tempDir, 'providers.json') });
   });
 
   afterEach(() => {
@@ -28,6 +31,7 @@ describe('ConfigureLlmProfileTool', () => {
     (config as Record<string, unknown>).deepseekApiKey = originalDeepseekApiKey;
     ProviderFactory.unregisterCustomProvider('acme-ai');
     ProviderFactory.unregisterCustomProvider('corp-gateway');
+    providerCatalogRegistry.configure({ filePath: originalRegistryPath });
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
@@ -142,6 +146,9 @@ describe('ConfigureLlmProfileTool', () => {
     expect(config.llmProvider).toBe('acme-ai');
     expect(clearProviderCache).toHaveBeenCalled();
     expect(ProviderFactory.listCustomProviders().some((p) => p.id === 'acme-ai')).toBe(true);
+    const providersFile = path.join(tempDir, 'providers.json');
+    expect(fs.existsSync(providersFile)).toBe(true);
+    expect(fs.readFileSync(providersFile, 'utf8')).toContain('"id": "acme-ai"');
   });
 
   it('rejects onboarding without a base URL before writing env state', async () => {

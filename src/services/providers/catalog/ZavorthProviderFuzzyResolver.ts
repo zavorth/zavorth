@@ -1,4 +1,10 @@
-import { UNIVERSAL_PROVIDER_CATALOG, ProviderCatalogEntry } from './UniversalProviderCatalog';
+import { UNIVERSAL_PROVIDER_CATALOG } from './UniversalProviderCatalog';
+import type { RegisteredProvider } from './ProviderCatalogRegistry';
+
+const CURATED_REGISTERED_PROVIDERS: readonly RegisteredProvider[] = UNIVERSAL_PROVIDER_CATALOG.map((entry) => ({
+  ...entry,
+  custom: false,
+}));
 
 export interface ProviderMatchSuggestion {
   id: string;
@@ -7,7 +13,7 @@ export interface ProviderMatchSuggestion {
 }
 
 export interface ProviderMatch {
-  provider: ProviderCatalogEntry | null;
+  provider: RegisteredProvider | null;
   requestedModel?: string;
   matchKind: 'exact_id' | 'slash_syntax' | 'fuzzy_alias' | 'not_found';
   matchScore?: number;
@@ -52,12 +58,25 @@ export function decideFuzzyResolution(
 }
 
 export class ZavorthProviderFuzzyResolver {
-  private readonly catalog = UNIVERSAL_PROVIDER_CATALOG;
-  private readonly idToProvider = new Map<string, ProviderCatalogEntry>();
+  private readonly source: () => readonly RegisteredProvider[];
+  private readonly idToProvider = new Map<string, RegisteredProvider>();
   private readonly fuzzyCandidates = new Map<string, string[]>();
 
-  constructor() {
-    this.indexCatalog();
+  constructor(source?: () => readonly RegisteredProvider[]) {
+    this.source = source || (() => CURATED_REGISTERED_PROVIDERS);
+    this.reindex();
+  }
+
+  reindex(): void {
+    this.idToProvider.clear();
+    this.fuzzyCandidates.clear();
+    for (const entry of this.source()) {
+      this.idToProvider.set(entry.id.toLowerCase(), entry);
+      this.addFuzzyCandidate(entry.id, entry.id);
+      if (entry.name) {
+        this.addFuzzyCandidate(entry.name.toLowerCase(), entry.id);
+      }
+    }
   }
 
   resolveProviderInput(input: string): ProviderMatch {
@@ -125,16 +144,6 @@ export class ZavorthProviderFuzzyResolver {
       ],
       suggestions,
     };
-  }
-
-  private indexCatalog(): void {
-    for (const entry of this.catalog) {
-      this.idToProvider.set(entry.id, entry);
-      this.addFuzzyCandidate(entry.id, entry.id);
-      if (entry.name) {
-        this.addFuzzyCandidate(entry.name.toLowerCase(), entry.id);
-      }
-    }
   }
 
   private addFuzzyCandidate(candidate: string, providerId: string): void {

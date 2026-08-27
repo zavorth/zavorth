@@ -95,6 +95,7 @@ const CATALOG_SERVICE_FILES = [
   'ProviderIntegrationRegistry.ts',
   'ProviderMeshOnboardingProductService.ts',
   'ProviderOnboardingService.ts',
+  'ProviderCatalogRegistry.ts',
   'UniversalProviderCatalog.ts',
   'ZavorthProviderFuzzyResolver.ts',
   'zavorthProviderCapabilityInventory.ts'
@@ -358,8 +359,8 @@ describe('ProviderFactory structure', () => {
     expect(content).toMatch(/DynamicModelCatalogService/);
   });
 
-  it('imports UNIVERSAL_PROVIDER_CATALOG', () => {
-    expect(content).toMatch(/UNIVERSAL_PROVIDER_CATALOG/);
+  it('imports ProviderCatalogRegistry as the runtime source of truth', () => {
+    expect(content).toMatch(/ProviderCatalogRegistry/);
   });
 
   it('imports ZavorthProviderFuzzyResolver', () => {

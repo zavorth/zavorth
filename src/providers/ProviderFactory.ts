@@ -1,10 +1,6 @@
-/**
- * Provider Factory — Central instantiation service for LLM providers.
- * Seamlessly resolves credentials, protocols, and endpoints using DynamicModelCatalogService.
- */
-
-import { UNIVERSAL_PROVIDER_CATALOG, type ProviderCatalogEntry } from '../services/providers/catalog/UniversalProviderCatalog.js';
+import { type ProviderCatalogEntry } from '../services/providers/catalog/UniversalProviderCatalog.js';
 import { ZavorthProviderFuzzyResolver, ProviderMatch } from '../services/providers/catalog/ZavorthProviderFuzzyResolver.js';
+import { providerCatalogRegistry } from '../services/providers/catalog/ProviderCatalogRegistry.js';
 import { DynamicModelCatalogService } from '../services/providers/catalog/DynamicModelCatalogService.js';
 import { ZavorthUniversalDynamicAdapter, type DynamicAdapterConfig } from './ZavorthUniversalDynamicAdapter.js';
 import type { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefinition } from './ILlmProvider.js';
@@ -124,8 +120,7 @@ export function providerFactoryInputName(input: string | ProviderFactoryCreateIn
 }
 
 export class ProviderFactory {
-  private static resolver = new ZavorthProviderFuzzyResolver();
-  private static catalog = UNIVERSAL_PROVIDER_CATALOG;
+  private static resolver = new ZavorthProviderFuzzyResolver(() => providerCatalogRegistry.getAll());
   private static idToEntry = new Map<string, ProviderCatalogEntry>();
   private static cache: Map<string, ILlmProvider> = new Map<string, ILlmProvider>();
 
@@ -134,50 +129,48 @@ export class ProviderFactory {
     'LLM_PROVIDER',
     'ZAVORTH_LLM_PROVIDER',
   ];
-  private static customProviders = new Map<string, ProviderFactoryCustomRegistration>();
+
+  private static knownProviderKeys = new Set<string>();
+
+  static {
+    ProviderFactory.syncCatalogIndexes();
+  }
+
+  private static syncCatalogIndexes(): void {
+    ProviderFactory.idToEntry.clear();
+    ProviderFactory.knownProviderKeys.clear();
+    for (const entry of providerCatalogRegistry.getAll()) {
+      ProviderFactory.idToEntry.set(entry.id, entry);
+      ProviderFactory.knownProviderKeys.add(entry.id.toLowerCase());
+      ProviderFactory.knownProviderKeys.add(entry.name.toLowerCase());
+    }
+  }
 
   static registerCustomProvider(registration: ProviderFactoryCustomRegistration): void {
-    const id = registration.id.trim().toLowerCase();
-    if (!id) {
-      return;
+    const entry = providerCatalogRegistry.register(registration);
+    if (entry) {
+      ProviderFactory.resolver.reindex();
+      ProviderFactory.syncCatalogIndexes();
+      ProviderFactory.clearCache();
     }
-    this.customProviders.set(id, {
-      id,
-      name: registration.name.trim() || id,
-      baseUrl: registration.baseUrl.trim(),
-      apiKeyEnv: registration.apiKeyEnv.trim(),
-      defaultModel: registration.defaultModel || null,
-    });
-    this.clearCache();
   }
 
   static unregisterCustomProvider(id: string): void {
-    const key = id.trim().toLowerCase();
-    if (this.customProviders.delete(key)) {
-      this.clearCache();
+    if (providerCatalogRegistry.unregister(id)) {
+      ProviderFactory.resolver.reindex();
+      ProviderFactory.syncCatalogIndexes();
+      ProviderFactory.clearCache();
     }
   }
 
   static listCustomProviders(): ProviderFactoryCustomRegistration[] {
-    return Array.from(this.customProviders.values());
-  }
-
-  private static lookupCustomProvider(input: string | ProviderFactoryCreateInput): ProviderFactoryCustomRegistration | null {
-    const name = providerFactoryInputName(input).trim().toLowerCase();
-    if (!name) {
-      return null;
-    }
-    return this.customProviders.get(name) || null;
-  }
-
-  private static readonly knownProviderKeys = new Set<string>(
-    UNIVERSAL_PROVIDER_CATALOG.flatMap((entry) => [entry.id.toLowerCase(), entry.name.toLowerCase()]),
-  );
-
-  static {
-    for (const entry of ProviderFactory.catalog) {
-      ProviderFactory.idToEntry.set(entry.id, entry);
-    }
+    return providerCatalogRegistry.getCustomProviders().map((entry) => ({
+      id: entry.id,
+      name: entry.name,
+      baseUrl: entry.baseUrl || '',
+      apiKeyEnv: entry.apiKeyEnv || entry.envKey,
+      defaultModel: entry.defaultModel || null,
+    }));
   }
 
   static create(input?: string | ProviderFactoryCreateInput): ILlmProvider {
@@ -201,9 +194,15 @@ export class ProviderFactory {
     for (const key of this.DEFAULT_PROVIDER_ENV_KEYS) {
       const value = process.env[key]?.trim();
       if (value) {
-        const custom = this.customProviders.get(value.toLowerCase());
-        if (custom) {
-          return this.customProviderCreateInput(custom);
+        const entry = providerCatalogRegistry.get(value.toLowerCase());
+        if (entry?.custom) {
+          return {
+            providerName: entry.id,
+            routeKind: 'custom_compatible',
+            baseUrl: entry.baseUrl || '',
+            apiKey: entry.apiKeyEnv ? process.env[entry.apiKeyEnv] : undefined,
+            modelName: entry.defaultModel || undefined,
+          };
         }
         return value;
       }
@@ -211,16 +210,6 @@ export class ProviderFactory {
     throw new Error(
       'No provider specified: set ZAVORTH_DEFAULT_PROVIDER (or LLM_PROVIDER / ZAVORTH_LLM_PROVIDER) or pass an explicit provider name.',
     );
-  }
-
-  private static customProviderCreateInput(custom: ProviderFactoryCustomRegistration): ProviderFactoryCreateInput {
-    return {
-      providerName: custom.id,
-      routeKind: 'custom_compatible',
-      baseUrl: custom.baseUrl,
-      apiKey: process.env[custom.apiKeyEnv],
-      modelName: custom.defaultModel || undefined,
-    };
   }
 
   static clearCache(): void {
@@ -231,10 +220,6 @@ export class ProviderFactory {
     const raw = String(input ?? '');
     if (!raw.trim()) {
       return '';
-    }
-    const custom = this.customProviders.get(raw.trim().toLowerCase());
-    if (custom) {
-      return custom.id;
     }
     const match = this.resolver.resolveProviderInput(raw);
     if (!match.provider) {
@@ -252,7 +237,6 @@ export class ProviderFactory {
   }
 
   static resolveRuntimeTarget(input: string | ProviderFactoryCreateInput): ProviderFactoryRuntimeTarget {
-    // Handle generic OpenAI-compatible providers from profile objects
     const inputObj = typeof input === 'string' ? null : input;
     const hasCustomBaseUrl = inputObj?.baseUrl && typeof inputObj.baseUrl === 'string';
     const providerNameFromInput = inputObj?.providerName || inputObj?.providerId || inputObj?.routeId;
@@ -273,30 +257,30 @@ export class ProviderFactory {
       };
     }
 
-    const custom = this.lookupCustomProvider(input);
-    if (custom) {
-      const modelName = (inputObj?.modelName || '').trim() || custom.defaultModel || undefined;
-      return {
-        providerName: custom.id,
-        modelName,
-        runtimeSupported: true,
-        adapterKind: 'openai_compatible',
-        apiKey: inputObj?.apiKey !== undefined ? inputObj.apiKey : process.env[custom.apiKeyEnv] || '',
-        baseUrl: inputObj?.baseUrl || custom.baseUrl,
-        firstClassProvider: false,
-        genericCompatible: true,
-      };
-    }
-
     const match = this.resolver.resolveProviderInput(providerFactoryInputName(input));
     if (match.matchKind === 'not_found' || !match.provider) {
       throw new Error(this.formatUnknownProviderMessage(providerFactoryInputName(input), match));
     }
     const provider = match.provider;
+
+    if (provider.custom) {
+      const modelName = match.requestedModel || provider.defaultModel || undefined;
+      return {
+        providerName: provider.id,
+        modelName,
+        runtimeSupported: true,
+        adapterKind: 'openai_compatible',
+        apiKey: inputObj?.apiKey !== undefined ? inputObj.apiKey : (provider.apiKeyEnv ? process.env[provider.apiKeyEnv] : '') || '',
+        baseUrl: inputObj?.baseUrl || provider.baseUrl || '',
+        firstClassProvider: false,
+        genericCompatible: true,
+        explanation: match.explanation,
+      };
+    }
+
     const isFirstClass = provider.runtimeSupported;
     const adapterKind = isFirstClass && provider.id !== 'ollama' ? (provider.id in DEDICATED_OPENAI_COMPATIBLE_PROVIDERS ? 'openai_compatible' : 'bespoke') : provider.protocol;
 
-    // Dynamic resolution from DynamicModelCatalogService when available
     const dynamicProvider = DynamicModelCatalogService.getProvider(provider.id);
     const envKey = dynamicProvider?.env?.[0] || provider.envKey;
     const apiKey = (envKey ? process.env[envKey] : undefined) || process.env[provider.envKey];
@@ -315,9 +299,7 @@ export class ProviderFactory {
   }
 
   static buildSingleProvider(target: ProviderFactoryRuntimeTarget): ZavorthUniversalDynamicAdapter {
-    // Handle generic OpenAI-compatible providers
     if (target.genericCompatible && target.adapterKind === 'openai_compatible') {
-      // Check runtimeSupported for generic compatible providers too
       const entry = this.idToEntry.get(target.providerName);
       if (entry && !entry.runtimeSupported) {
         throw new Error(`Provider ${target.providerName} cannot be used as a chat model`);
@@ -371,13 +353,11 @@ export class ProviderFactory {
       return dedicated.baseUrl;
     }
 
-    // Dynamic lookup from DynamicModelCatalogService
     const dynamicProvider = DynamicModelCatalogService.getProvider(entry.id);
     if (dynamicProvider?.api) {
       return dynamicProvider.api;
     }
 
-    // Clean fallback mapping
     const defaultUrls: Record<string, string> = {
       openai: 'https://api.openai.com/v1',
       anthropic: 'https://api.anthropic.com/v1',
