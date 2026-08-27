@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist-ops",
+    "rootDir": "."
+  },
+  "include": [
+    "scripts/setup-v3.ts",
+    "scripts/ops-go.ts",
+    "scripts/ops-doctor.ts",
+    "src/types.d.ts"
+  ]
+}

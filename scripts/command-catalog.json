@@ -122,7 +122,7 @@
     },
     "product:launchers:build": {
       "status": "canonical",
-      "command": "npx tsc --module NodeNext --moduleResolution NodeNext --target ES2022 --outDir dist-ops scripts/setup-v3.ts scripts/ops-go.ts scripts/ops-doctor.ts",
+      "command": "npx tsc -p tsconfig.ops.json",
       "description": "Canonical command: product:launchers:build"
     },
     "productization:check": {

@@ -139,7 +139,6 @@ export async function handleZavorthControlRoutes(
           safety: {
             projectionOnly: true,
             zavorthControlCanExecute: false,
-            zavorthControlCanExecute: false,
             policyBrokerRequiredForMutableActions: true,
             rawSecretsSerialized: false,
           },
@@ -168,7 +167,6 @@ export async function handleZavorthControlRoutes(
           }),
           safety: {
             projectionOnly: true,
-            zavorthControlCanExecute: false,
             zavorthControlCanExecute: false,
             desktopCanBypassRuntime: false,
             policyBrokerRequiredForMutableActions: true,

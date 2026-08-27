@@ -619,7 +619,7 @@
     "qa:zavorthControl-streaming-e2e": "npm run zavorth-control-vite:build --silent && npx tsx scripts/zavorth-control-streaming-e2e.ts --require-pass",
     "qa:zavorthControl-chat-visual": "npx tsx scripts/zavorthControl-chat-visual-qa.ts --require-pass",
     "qa:zavorthControl-composer-affordances": "npm run ai-gateway:check --silent",
-    "product:launchers:build": "npx tsc --skipLibCheck --module NodeNext --moduleResolution NodeNext --target ES2022 --outDir dist-ops scripts/setup-v3.ts scripts/ops-go.ts scripts/ops-doctor.ts",
+    "product:launchers:build": "npx tsc -p tsconfig.ops.json",
     "qa:capability-autopilot-canary-promotion": "npx tsx scripts/capability-autopilot-canary-promotion.ts --require-pass",
     "security:secrets": "node scripts/secret-guard-check.mjs",
     "security:ci": "node scripts/security-ci-check.mjs",

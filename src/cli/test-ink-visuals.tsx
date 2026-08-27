@@ -130,7 +130,7 @@ const ZavorthControl = () => {
         <Box>
           <Text color={theme.secondary}>[</Text>
           <Text color={theme.primary}>{'#'.repeat(Math.floor(loadingBar / 10))}</Text>
-          <Text color={theme.secondary}>{' '.repeat(10 ? Math.floor(loadingBar / 10))}</Text>
+          <Text color={theme.secondary}>{' '.repeat(10 - Math.floor(loadingBar / 10))}</Text>
           <Text color={theme.secondary}>] </Text>
           <Text color={theme.primary}>{loadingBar}%</Text>
           <Text color={theme.secondary}> | </Text>

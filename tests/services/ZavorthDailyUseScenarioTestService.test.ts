@@ -43,11 +43,11 @@ describe('ZavorthDailyUseScenarioTestService', () => {
       'faculdade-documentos',
       'provider-llm',
       'skill-curator',
-      'telegram-remoto',
+      'telegram-remote',
       'agent-review-swarm',
     ]);
     expect(snapshot.safety).toEqual(expect.objectContaining({
-      simulationOnly: true,
+      dryRunOnly: true,
       noLiveProviderProbeByDefault: true,
       noTelegramMessageSent: true,
       noRuntimeAdapterStarted: true,
@@ -95,7 +95,7 @@ describe('ZavorthDailyUseScenarioTestService', () => {
 
     expect(snapshot.status).toBe('attention');
     expect(snapshot.findings.length).toBeGreaterThan(0);
-    expect(snapshot.scenarios.find((scenario) => scenario.id === 'provider-llm')?.confusionSignals).toContain('Nenhum provider liberado como rota default.');
-    expect(snapshot.scenarios.find((scenario) => scenario.id === 'skill-curator')?.confusionSignals.some((signal) => signal.includes('reparos de metadata'))).toBe(true);
+    expect(snapshot.scenarios.find((scenario) => scenario.id === 'provider-llm')?.confusionSignals).toContain('No provider liberado como rota default.');
+    expect(snapshot.scenarios.find((scenario) => scenario.id === 'skill-curator')?.confusionSignals.some((signal) => signal.includes('safe metadata repairs'))).toBe(true);
   });
 });

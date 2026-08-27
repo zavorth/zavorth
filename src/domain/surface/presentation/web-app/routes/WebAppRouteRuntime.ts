@@ -11,7 +11,15 @@ import { ZavorthExternalAgentOnboardingService } from '../../../../../services/Z
 import { ZavorthExternalAgentGatewayService } from '../../../../../services/ZavorthExternalAgentGatewayService.js';
 import { ZavorthCapabilityMeshService } from '../../../../../services/ZavorthCapabilityMeshService.js';
 import type { WebAppRuntimeStateRouteService, WebAppRuntimeStateRouteHelpers } from '../WebAppRuntimeStateRouteService.js';
-import { asRecord, isExternalAgentApiApprovalRequested, isExternalAgentApiApprovalAccepted } from '../WebAppRuntimeStateRouteService.js';
+import {
+  asRecord,
+  isExternalAgentApiApprovalRequested,
+  isExternalAgentApiApprovalAccepted,
+  normalizeExternalAgentAdapter,
+  normalizeExternalAgentPromptMode,
+  normalizeExternalAgentIsolation,
+  normalizeExternalAgentNetwork,
+} from '../WebAppRuntimeStateRouteService.js';
 
 export async function handleRuntimeRoutes(
   service: WebAppRuntimeStateRouteService,
@@ -274,20 +282,20 @@ export async function handleRuntimeRoutes(
           const receipt = gateway.registerProfile({
             id: String(body?.id || '').trim() || null,
             label: String(body?.label || '').trim() || null,
-            adapter: body?.adapter,
+            adapter: normalizeExternalAgentAdapter(body?.adapter),
             root: String(body?.root || body?.cwd || '').trim() || null,
             command: String(body?.command || body?.cmd || '').trim() || null,
             args: Array.isArray(body?.args) ? body.args.map((entry: unknown) => String(entry)) : [],
             endpoint: String(body?.endpoint || body?.url || '').trim() || null,
-            promptMode: body?.promptMode,
+            promptMode: normalizeExternalAgentPromptMode(body?.promptMode),
             enableLive: body?.enableLive === true && apiApprovalAccepted,
             allowRemoteNetwork: body?.allowRemoteNetwork === true && apiApprovalAccepted,
-            isolation: body?.isolation || body?.sandbox || null,
+            isolation: normalizeExternalAgentIsolation(body?.isolation || body?.sandbox),
             dockerImage: String(body?.dockerImage || body?.sandboxImage || '').trim() || null,
             wslDistro: String(body?.wslDistro || '').trim() || null,
             workspaceMount: String(body?.workspaceMount || body?.mount || '').trim() || null,
             sandboxWorkdir: String(body?.sandboxWorkdir || body?.containerWorkdir || '').trim() || null,
-            network: body?.network || null,
+            network: normalizeExternalAgentNetwork(body?.network),
             readOnlyRoot: body?.readOnlyRoot === true,
             requireStrongIsolation: body?.requireStrongIsolation === true,
             approvalGranted: apiApprovalAccepted,

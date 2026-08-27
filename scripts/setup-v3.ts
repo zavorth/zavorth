@@ -425,6 +425,8 @@ class ZavorthFirstRunSetupWizard {
         return validation;
       }
     }
+
+    return null;
   }
 
   private async runProviderLiveValidation(input: {

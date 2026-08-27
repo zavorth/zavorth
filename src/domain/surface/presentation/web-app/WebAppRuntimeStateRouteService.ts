@@ -1960,7 +1960,7 @@ export class WebAppRuntimeStateRouteService {
   }
 }
 
-function asRecord(value: unknown): RuntimeRecord | null {
+export function asRecord(value: unknown): RuntimeRecord | null {
   return value && typeof value === 'object' && !Array.isArray(value) ? (value as RuntimeRecord) : null;
 }
 
@@ -1968,37 +1968,37 @@ function text(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-function normalizeExternalAgentAdapter(value: unknown): ZavorthExternalAgentAdapterKind | null {
+export function normalizeExternalAgentAdapter(value: unknown): ZavorthExternalAgentAdapterKind | null {
   const adapter = text(value);
   return EXTERNAL_AGENT_ADAPTERS.has(adapter as ZavorthExternalAgentAdapterKind)
     ? (adapter as ZavorthExternalAgentAdapterKind)
     : null;
 }
 
-function normalizeExternalAgentPromptMode(value: unknown): 'stdin' | 'arg' | 'json' | null {
+export function normalizeExternalAgentPromptMode(value: unknown): 'stdin' | 'arg' | 'json' | null {
   const promptMode = text(value);
   return EXTERNAL_AGENT_PROMPT_MODES.has(promptMode) ? (promptMode as 'stdin' | 'arg' | 'json') : null;
 }
 
-function normalizeExternalAgentIsolation(value: unknown): ZavorthExternalAgentIsolationKind | 'local' | null {
+export function normalizeExternalAgentIsolation(value: unknown): ZavorthExternalAgentIsolationKind | 'local' | null {
   const isolation = text(value);
   return EXTERNAL_AGENT_ISOLATION_KINDS.has(isolation as ZavorthExternalAgentIsolationKind | 'local')
     ? (isolation as ZavorthExternalAgentIsolationKind | 'local')
     : null;
 }
 
-function normalizeExternalAgentNetwork(value: unknown): ZavorthExternalAgentNetworkMode | null {
+export function normalizeExternalAgentNetwork(value: unknown): ZavorthExternalAgentNetworkMode | null {
   const network = text(value);
   return EXTERNAL_AGENT_NETWORK_MODES.has(network as ZavorthExternalAgentNetworkMode)
     ? (network as ZavorthExternalAgentNetworkMode)
     : null;
 }
 
-function isExternalAgentApiApprovalRequested(body: RuntimeRecord | null | undefined): boolean {
+export function isExternalAgentApiApprovalRequested(body: RuntimeRecord | null | undefined): boolean {
   return body?.approved === true || body?.approvalGranted === true;
 }
 
-function isExternalAgentApiApprovalAccepted(
+export function isExternalAgentApiApprovalAccepted(
   req: http.IncomingMessage,
   body: RuntimeRecord | null | undefined,
 ): boolean {

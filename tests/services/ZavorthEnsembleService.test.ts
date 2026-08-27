@@ -28,7 +28,7 @@ class FakeSwarmOrchestrator extends EventEmitter {
       this.emit('swarm:finished', this.getSnapshot());
     }, 10);
     return new Promise((resolve) => {
-      setTimeout(() => path.resolve(this.getSnapshot()), 20);
+      setTimeout(() => resolve(this.getSnapshot()), 20);
     });
   }
 
@@ -62,7 +62,7 @@ function waitFor(predicate: () => boolean, timeoutMs: number = 3000): Promise<vo
   return new Promise((resolve, reject) => {
     const tick = () => {
       if (predicate()) {
-        path.resolve();
+        resolve();
         return;
       }
       if (Date.now() - startedAt > timeoutMs) {
@@ -427,7 +427,7 @@ describe('ExperimentalZavorthEnsembleService', () => {
       roles: [{ id: 'operator', label: 'Operator', systemPrompt: 'Do it.' }],
       requireStrongIsolation: true,
       isolationMode: 'temp-worktree',
-    })).toThrow(/isolamento forte/i);
+    })).toThrow(/requires strong isolation/i);
   });
 
   it('wraps command roles with a Docker runner when strong Docker isolation is selected', async () => {

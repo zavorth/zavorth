@@ -539,7 +539,7 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
       .join(' ')
       .toLowerCase();
     const hasMnemos = /mnemos|memory|vault/.test(haystack);
-    const hasSwarm = /swarm|worker|subagent/.test(haystack) || Boolean(options.state.zavorthControl?.snapshot?.swarmV2);
+    const hasSwarm = /ensemble|swarm|worker|subagent/.test(haystack);
     const hasAcp =
       /\bacp\b|agent communication protocol/.test(haystack) || Boolean(options.state.zavorthControl?.snapshot?.acp);
     const backendCount = companions.length;

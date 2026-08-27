@@ -2131,7 +2131,7 @@
       ...companions.map((node) => `${node?.id || ''} ${node?.label || ''} ${node?.type || ''} ${node?.kind || ''} ${node?.summary || ''}`),
     ].join(' ').toLowerCase();
     const hasMnemos = /mnemos|memory|vault/.test(haystack);
-    const hasSwarm = /swarm|worker|subagent/.test(haystack) || Boolean(state.zavorthControl?.snapshot?.swarmV2);
+    const hasSwarm = /ensemble|swarm|worker|subagent/.test(haystack);
     const hasAcp = /\bacp\b|agent communication protocol/.test(haystack) || Boolean(state.zavorthControl?.snapshot?.acp);
     const backendCount = companions.length;
     setLiveStripValue('[data-memory-live-files]', hasMnemos ? 'ready' : state.zavorthControl?.authRequired ? 'protected' : 'configurable');

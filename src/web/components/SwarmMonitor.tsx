@@ -301,7 +301,7 @@ export function SwarmMonitor({
           <h2 style={styles.title}>Multi-agent execution</h2>
         </div>
         <div style={styles.headerActions}>
-          <span style={styles.badge(statusConfig.color)}>{statusConfig.label}</span>
+          <span style={dynamicStyles.badge(statusConfig.color)}>{statusConfig.label}</span>
           <span style={styles.subtleBadge}>{swarm?.official ? 'official' : 'legacy'}</span>
         </div>
       </div>
@@ -426,7 +426,7 @@ export function SwarmMonitor({
                       <p style={styles.roleLabel}>{role.label}</p>
                       <p style={styles.roleId}>{role.roleId}</p>
                     </div>
-                    <span style={styles.roleStatus(cfg.color)}>{cfg.label}</span>
+                    <span style={dynamicStyles.roleStatus(cfg.color)}>{cfg.label}</span>
                   </div>
                   <pre style={styles.rolePre}>
                     {role.output.join('').slice(-1200) || '(waiting for output?)'}
@@ -466,7 +466,7 @@ export function SwarmMonitor({
               <p style={styles.helpText}>{replayInsights.operatorSummary}</p>
               <div style={styles.replayTimeline}>
                 {replayInsights.timeline.map((item) => (
-                  <span key={item.id} style={styles.replayTimelineItem(item.status)}>
+                  <span key={item.id} style={dynamicStyles.replayTimelineItem(item.status)}>
                     {item.label}: {item.eventCount}
                   </span>
                 ))}
@@ -529,6 +529,28 @@ function ProfileItem({ label, value, detail }: { label: string; value: string; d
   );
 }
 
+const dynamicStyles = {
+  badge: (color: string): React.CSSProperties => ({
+    border: `1px solid ${color}33`,
+    borderRadius: 8,
+    color,
+    background: `${color}12`,
+    padding: '5px 8px',
+    fontSize: 12,
+    fontWeight: 700,
+  }),
+  roleStatus: (color: string): React.CSSProperties => ({ color, fontSize: 12, fontWeight: 750 }),
+  replayTimelineItem: (status: string): React.CSSProperties => ({
+    border: '1px solid #e5e7eb',
+    borderRadius: 8,
+    background: status === 'failed' ? '#fef2f2' : status === 'active' ? '#eff6ff' : '#ffffff',
+    color: status === 'failed' ? '#b91c1c' : status === 'active' ? '#2563eb' : '#475569',
+    padding: '5px 8px',
+    fontSize: 12,
+    fontWeight: 750,
+  }),
+};
+
 const styles: Record<string, React.CSSProperties> = {
   container: {
     display: 'flex',
@@ -550,15 +572,6 @@ const styles: Record<string, React.CSSProperties> = {
   headerActions: { display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'flex-end' },
   eyebrow: { margin: 0, color: '#64748b', fontSize: 11, fontWeight: 700, letterSpacing: 0, textTransform: 'uppercase' },
   title: { margin: '4px 0 0', color: '#0f172a', fontSize: 18, fontWeight: 750, letterSpacing: 0 },
-  badge: (color: string) => ({
-    border: `1px solid ${color}33`,
-    borderRadius: 8,
-    color,
-    background: `${color}12`,
-    padding: '5px 8px',
-    fontSize: 12,
-    fontWeight: 700,
-  }),
   subtleBadge: {
     border: '1px solid #e5e7eb',
     borderRadius: 8,
@@ -703,7 +716,6 @@ const styles: Record<string, React.CSSProperties> = {
   },
   roleLabel: { margin: 0, color: '#0f172a', fontSize: 13, fontWeight: 750 },
   roleId: { margin: '2px 0 0', color: '#64748b', fontSize: 11, fontWeight: 650 },
-  roleStatus: (color: string) => ({ color, fontSize: 12, fontWeight: 750 }),
   rolePre: {
     margin: 0,
     padding: 10,
@@ -740,15 +752,6 @@ const styles: Record<string, React.CSSProperties> = {
     border: '1px solid #e5e7eb',
   },
   replayTimeline: { display: 'flex', flexWrap: 'wrap', gap: 8 },
-  replayTimelineItem: (status: string) => ({
-    border: '1px solid #e5e7eb',
-    borderRadius: 8,
-    background: status === 'failed' ? '#fef2f2' : status === 'active' ? '#eff6ff' : '#ffffff',
-    color: status === 'failed' ? '#b91c1c' : status === 'active' ? '#2563eb' : '#475569',
-    padding: '5px 8px',
-    fontSize: 12,
-    fontWeight: 750,
-  }),
   replayItem: {
     display: 'grid',
     gridTemplateColumns: 'minmax(120px, 0.35fr) 1fr',
