@@ -51,9 +51,43 @@ describe('ProviderOnboardingService', () => {
     expect(result.source).toBe('import');
     expect(result.providerId).toBe('corp-gw');
     expect(result.manifest.id).toBe('corp-gw');
+    expect(result.baseUrl).toBe('https://gw.corp.example/v1');
     expect(result.env.apiKeyRef).toBe('CORP_API_KEY');
     expect(result.runtime.defaultModelName).toBe('corp-1');
     expect(result.warnings).toEqual([]);
+  });
+
+  it('imports multiple providers from a YAML source', async () => {
+    const service = new ProviderOnboardingService();
+
+    const { results, warnings, errors } = await service.importExternalMany({
+      format: 'yaml',
+      source: [
+        'providers:',
+        '  - id: alpha',
+        '    name: Alpha AI',
+        '    baseUrl: https://alpha.example/v1',
+        '    apiKeyEnv: ALPHA_API_KEY',
+        '    models:',
+        '      - alpha-1',
+        '  - id: beta',
+        '    name: Beta AI',
+        '    baseUrl: https://beta.example/v1',
+        '    apiKeyEnv: BETA_API_KEY',
+        '    models:',
+        '      - beta-1',
+      ].join('\n'),
+    });
+
+    expect(errors).toEqual([]);
+    expect(warnings).toEqual([]);
+    expect(results).toHaveLength(2);
+    expect(results[0].providerId).toBe('alpha');
+    expect(results[0].baseUrl).toBe('https://alpha.example/v1');
+    expect(results[0].models).toEqual(['alpha-1']);
+    expect(results[1].providerId).toBe('beta');
+    expect(results[1].baseUrl).toBe('https://beta.example/v1');
+    expect(results[1].models).toEqual(['beta-1']);
   });
 
   it('unifies auto-discovery into a single onboarding result', async () => {

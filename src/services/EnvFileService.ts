@@ -14,6 +14,12 @@ export type EnvFileWriteReport = {
   created: boolean;
 };
 
+export type EnvFileRemoveReport = {
+  filePath: string;
+  removedKeys: string[];
+  missingKeys: string[];
+};
+
 type EnvFileServiceOptions = {
   existsSync?: typeof fs.existsSync;
   mkdirSync?: typeof fs.mkdirSync;
@@ -111,6 +117,39 @@ export class EnvFileService {
       preservedKeys,
       created,
     };
+  }
+
+  public removeEntries(filePath: string, keys: string[]): EnvFileRemoveReport {
+    const targetPath = path.resolve(filePath);
+    if (!this.existsSync(targetPath)) {
+      return { filePath: targetPath, removedKeys: [], missingKeys: keys };
+    }
+
+    const wanted = new Set(keys.map((key) => String(key).trim().toUpperCase()).filter(Boolean));
+    const currentLines = String(this.readFileSync(targetPath, 'utf8') || '').split(/\r?\n/);
+    const remaining: string[] = [];
+    const removedKeys: string[] = [];
+    const missingKeys: string[] = Array.from(wanted);
+
+    for (const line of currentLines) {
+      const match = line.match(/^\s*([A-Z0-9_]+)\s*=/);
+      if (match && wanted.has(match[1])) {
+        removedKeys.push(match[1]);
+        const index = missingKeys.indexOf(match[1]);
+        if (index >= 0) {
+          missingKeys.splice(index, 1);
+        }
+        continue;
+      }
+      remaining.push(line);
+    }
+
+    if (removedKeys.length > 0) {
+      const finalContent = remaining.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
+      this.writeFileSync(targetPath, finalContent, 'utf8');
+    }
+
+    return { filePath: targetPath, removedKeys, missingKeys };
   }
 
   private renderValue(value: string): string {

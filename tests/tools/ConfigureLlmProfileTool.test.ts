@@ -231,4 +231,58 @@ describe('ConfigureLlmProfileTool', () => {
     expect(ProviderFactory.listCustomProviders().some((p) => p.id === 'discovery-demo' && p.models?.length === 2)).toBe(true);
     ProviderFactory.unregisterCustomProvider('discovery-demo');
   });
+
+  it('imports providers from a JSON file and registers them', async () => {
+    const sourcePath = path.join(tempDir, 'providers.json');
+    fs.writeFileSync(sourcePath, JSON.stringify({
+      providers: [
+        { id: 'imported-alpha', name: 'Imported Alpha', baseUrl: 'https://alpha.example/v1', apiKeyEnv: 'ALPHA_API_KEY', models: ['alpha-1'] },
+        { id: 'imported-beta', name: 'Imported Beta', baseUrl: 'https://beta.example/v1', apiKeyEnv: 'BETA_API_KEY', models: ['beta-1'] },
+      ],
+    }), 'utf8');
+    const tool = new ConfigureLlmProfileTool({ envFilePath });
+
+    const result = JSON.parse(await tool.execute({ action: 'import', source: sourcePath }));
+
+    expect(result.status).toBe('success');
+    expect(result.imported.map((p: { id: string }) => p.id)).toEqual(['imported-alpha', 'imported-beta']);
+    expect(ProviderFactory.listCustomProviders().some((p) => p.id === 'imported-alpha' && p.baseUrl === 'https://alpha.example/v1')).toBe(true);
+    expect(ProviderFactory.listCustomProviders().some((p) => p.id === 'imported-beta' && p.models?.includes('beta-1'))).toBe(true);
+    const envContent = fs.readFileSync(envFilePath, 'utf8');
+    expect(envContent).toContain('ALPHA_API_KEY=');
+
+    ProviderFactory.unregisterCustomProvider('imported-alpha');
+    ProviderFactory.unregisterCustomProvider('imported-beta');
+  });
+
+  it('removes an onboarded provider and cleans its env entries', async () => {
+    const tool = new ConfigureLlmProfileTool({ envFilePath });
+    await tool.execute({
+      action: 'onboard',
+      providerName: 'removable',
+      label: 'Removable',
+      baseUrl: 'https://removable.example/v1',
+      apiKeyEnv: 'REMOVABLE_API_KEY',
+      modelName: 'removable-1',
+    });
+    expect(fs.readFileSync(envFilePath, 'utf8')).toContain('LLM_PROVIDER=removable');
+
+    const result = JSON.parse(await tool.execute({ action: 'remove', providerName: 'removable' }));
+
+    expect(result.status).toBe('success');
+    expect(result.provider).toBe('removable');
+    expect(ProviderFactory.listCustomProviders().some((p) => p.id === 'removable')).toBe(false);
+    const envContent = fs.readFileSync(envFilePath, 'utf8');
+    expect(envContent).not.toContain('LLM_PROVIDER=removable');
+    expect(envContent).not.toContain('REMOVABLE_BASE_URL');
+    expect(envContent).not.toContain('REMOVABLE_API_KEY');
+    expect(envContent).not.toContain('REMOVABLE_MODEL');
+  });
+
+  it('rejects removing a provider that is not onboarded', async () => {
+    const tool = new ConfigureLlmProfileTool({ envFilePath });
+
+    await expect(tool.execute({ action: 'remove', providerName: 'never-onboarded' }))
+      .rejects.toThrow(/not a registered custom provider/i);
+  });
 });

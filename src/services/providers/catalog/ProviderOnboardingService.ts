@@ -4,6 +4,7 @@ import {
 } from './CustomCompatibleProviderOnboardingService.js';
 import {
   ExternalImportInput,
+  ExternalImportResult,
   ProviderExternalImportService,
 } from './ProviderExternalImportService.js';
 import {
@@ -20,6 +21,7 @@ export type ProviderOnboardingResult = {
   label: string;
   source: ProviderOnboardingSource;
   manifest: ProviderIntegrationManifest;
+  baseUrl?: string | null;
   models: string[];
   env: {
     baseUrlRef: string | null;
@@ -62,6 +64,7 @@ export class ProviderOnboardingService {
       label: draft.manifest.label,
       source: 'custom',
       manifest: draft.manifest,
+      baseUrl: input.baseUrl,
       models: input.modelId ? [input.modelId] : [],
       env: {
         baseUrlRef: draft.env.baseUrlRef,
@@ -83,7 +86,21 @@ export class ProviderOnboardingService {
     if (!result.success || result.manifests.length === 0) {
       throw new Error(result.errors.join('; ') || 'No providers found to import.');
     }
-    const manifest = result.manifests[0];
+    return this.toOnboardingResult(result, 0);
+  }
+
+  public async importExternalMany(input: ExternalImportInput): Promise<{
+    results: ProviderOnboardingResult[];
+    warnings: string[];
+    errors: string[];
+  }> {
+    const result = await this.externalImport.import(input);
+    const results = result.manifests.map((_manifest, index) => this.toOnboardingResult(result, index));
+    return { results, warnings: result.warnings, errors: result.errors };
+  }
+
+  private toOnboardingResult(result: ExternalImportResult, index: number): ProviderOnboardingResult {
+    const manifest = result.manifests[index];
     const route = manifest.routes[0];
     return {
       schemaVersion: 1,
@@ -91,6 +108,7 @@ export class ProviderOnboardingService {
       label: manifest.label,
       source: 'import',
       manifest,
+      baseUrl: result.providers[index]?.baseUrl ?? null,
       models: route?.models?.map((model) => model.modelId) ?? [],
       env: {
         baseUrlRef: null,
@@ -117,6 +135,7 @@ export class ProviderOnboardingService {
       label: manifest.label,
       source: 'discovery',
       manifest,
+      baseUrl: input.baseUrl,
       models: result.models.map((model) => model.id),
       env: {
         baseUrlRef: `${prefix}_BASE_URL`,

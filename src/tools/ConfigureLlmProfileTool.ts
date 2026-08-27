@@ -32,9 +32,9 @@ export class ConfigureLlmProfileTool extends BaseTool {
     properties: {
       action: {
         type: 'string',
-        enum: ['list', 'set', 'onboard'],
+        enum: ['list', 'set', 'onboard', 'import', 'remove'],
         description:
-          'Action to perform. list shows options; set configures a known provider/model; onboard registers a custom compatible provider.',
+          'Action to perform. list shows options; set configures a known provider/model; onboard registers a custom compatible provider; import registers providers from a JSON/YAML/ENV file; remove unregisters an onboarded provider and cleans its env entries.',
       },
       providerName: {
         type: 'string',
@@ -68,6 +68,14 @@ export class ConfigureLlmProfileTool extends BaseTool {
       discoverModels: {
         type: 'boolean',
         description: 'When true, action=onboard probes the base URL to discover the model list before registering.',
+      },
+      source: {
+        type: 'string',
+        description: 'For action=import: a file path or inline JSON/YAML/ENV config describing providers to register.',
+      },
+      filePath: {
+        type: 'string',
+        description: 'For action=import: the project root directory when source is a relative path.',
       },
     },
     required: ['action'],
@@ -110,7 +118,15 @@ Use "set" to save the change.`,
       return JSON.stringify(await this.handleOnboard(args), null, 2);
     }
 
-    throw new Error('Action is invalid. Use "list", "set" or "onboard".');
+    if (action === 'import') {
+      return JSON.stringify(await this.handleImport(args), null, 2);
+    }
+
+    if (action === 'remove') {
+      return JSON.stringify(this.handleRemove(args), null, 2);
+    }
+
+    throw new Error('Action is invalid. Use "list", "set", "onboard", "import" or "remove".');
   }
 
   private handleList(): Record<string, unknown> {
@@ -315,6 +331,90 @@ Use "set" to save the change.`,
       warnings: result.warnings,
       explanation: result.explanation,
       message: `Provider "${result.providerId}" onboarded as a custom compatible provider. Default provider updated.`,
+    };
+  }
+
+  private async handleImport(args: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const source = String(args.source || '').trim();
+    const projectRoot = args.filePath ? String(args.filePath).trim() : undefined;
+    if (!source) {
+      throw new Error('For action "import", "source" (file path or inline config) is required.');
+    }
+
+    const onboarding = this.runtime.onboardingService || new ProviderOnboardingService();
+    const { results, warnings, errors } = await onboarding.importExternalMany({ source, projectRoot });
+
+    if (results.length === 0) {
+      throw new Error(errors.join('; ') || 'No providers found in the import source.');
+    }
+
+    const envService = this.runtime.envFileService || new EnvFileService();
+    const root = path.resolve(__dirname, '../..');
+    const envFilePath = this.runtime.envFilePath || path.join(root, '.env');
+    const envUpdates: Array<{ key: string; value: string; overwrite: boolean }> = [];
+    const imported: Array<{ id: string; name: string; baseUrl: string | null; defaultModel: string | null; models: string[] }> = [];
+
+    for (const result of results) {
+      const apiKeyEnv = result.env.apiKeyRef || `${result.providerId.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '')}_API_KEY`;
+      envUpdates.push({ key: apiKeyEnv, value: '', overwrite: false });
+      ProviderFactory.registerCustomProvider({
+        id: result.providerId,
+        name: result.label,
+        baseUrl: result.baseUrl || '',
+        apiKeyEnv,
+        defaultModel: result.runtime.defaultModelName,
+        models: result.models,
+      });
+      imported.push({
+        id: result.providerId,
+        name: result.label,
+        baseUrl: result.baseUrl || null,
+        defaultModel: result.runtime.defaultModelName,
+        models: result.models,
+      });
+    }
+    envService.upsertEntries(envFilePath, envUpdates);
+
+    return {
+      status: 'success',
+      imported,
+      warnings,
+      errors,
+      envFilePath,
+      message: `Imported ${imported.length} provider(s) from the external source.`,
+    };
+  }
+
+  private handleRemove(args: Record<string, unknown>): Record<string, unknown> {
+    const providerName = String(args.providerName || '').toLowerCase().trim();
+    if (!providerName) {
+      throw new Error('For action "remove", "providerName" is required.');
+    }
+
+    const existing = ProviderFactory.listCustomProviders().some((provider) => provider.id === providerName);
+    if (!existing) {
+      throw new Error(`Provider "${providerName}" is not a registered custom provider. Use configure_llm_profile list to see onboarded providers.`);
+    }
+
+    const envService = this.runtime.envFileService || new EnvFileService();
+    const projectRoot = path.resolve(__dirname, '../..');
+    const envFilePath = this.runtime.envFilePath || path.join(projectRoot, '.env');
+    const prefix = providerName.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    const currentEnv = envService.readMap(envFilePath);
+    const keysToRemove = [`${prefix}_BASE_URL`, `${prefix}_API_KEY`, `${prefix}_MODEL`];
+    if (currentEnv.LLM_PROVIDER === providerName) {
+      keysToRemove.push('LLM_PROVIDER');
+    }
+    envService.removeEntries(envFilePath, keysToRemove);
+
+    ProviderFactory.unregisterCustomProvider(providerName);
+    (this.runtime.clearProviderCache || (() => ProviderFactory.clearCache()))();
+
+    return {
+      status: 'success',
+      provider: providerName,
+      removed_env_keys: keysToRemove,
+      message: `Provider "${providerName}" removed.`,
     };
   }
 

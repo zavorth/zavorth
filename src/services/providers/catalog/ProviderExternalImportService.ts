@@ -1,6 +1,7 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import yaml from 'js-yaml';
 import type { ProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { createMinimalProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { sanitizeModelId, sanitizeProviderId, sanitizeLabel } from './ModelIdSanitizer.js';
@@ -88,7 +89,29 @@ function parseJsonConfig(content: string): ExternalProviderConfig[] {
       return [normalizeConfig(data)];
     }
     return [];
-  } catch (error: unknown) {logger.warn('[External Import] JSON parse failed', error); return []; }
+  } catch (error: unknown) {
+    logger.warn('[External Import] JSON parse failed', error);
+    return [];
+  }
+}
+
+function parseYamlConfig(content: string): ExternalProviderConfig[] {
+  try {
+    const data = yaml.load(content) as RawProviderConfig[] | RawProviderConfig | { providers?: RawProviderConfig[] } | null;
+    if (data === null || typeof data !== 'object') {
+      return [];
+    }
+    if (Array.isArray(data)) {
+      return data.map(normalizeConfig);
+    }
+    if (Array.isArray((data as { providers?: RawProviderConfig[] }).providers)) {
+      return (data as { providers: RawProviderConfig[] }).providers.map(normalizeConfig);
+    }
+    if ((data as RawProviderConfig).id) {
+      return [normalizeConfig(data as RawProviderConfig)];
+    }
+    return [];
+  } catch (error: unknown) {logger.warn('[External Import] YAML parse failed', error); return []; }
 }
 
 function parseEnvConfig(content: string): ExternalProviderConfig[] {
@@ -205,24 +228,29 @@ export class ProviderExternalImportService {
     let content: string;
 
     try {
-      if (input.source.startsWith('{') || input.source.startsWith('[') || format === 'env' || input.source.includes('=')) {
+      const filePath = input.projectRoot
+        ? join(input.projectRoot, input.source)
+        : input.source;
+      const sourceIsFile = existsSync(filePath);
+      const sourceLooksInline =
+        input.source.startsWith('{') ||
+        input.source.startsWith('[') ||
+        input.source.includes('=') ||
+        format === 'env' ||
+        format === 'yaml';
+
+      if (sourceIsFile) {
+        content = readFileSync(filePath, 'utf-8');
+      } else if (sourceLooksInline) {
         content = input.source;
       } else {
-        const filePath = input.projectRoot
-          ? join(input.projectRoot, input.source)
-          : input.source;
-
-        if (!existsSync(filePath)) {
-          return {
-            success: false,
-            providers: [],
-            manifests: [],
-            warnings,
-            errors: [`File not found: ${filePath}`],
-          };
-        }
-
-        content = readFileSync(filePath, 'utf-8');
+        return {
+          success: false,
+          providers: [],
+          manifests: [],
+          warnings,
+          errors: [`File not found: ${filePath}`],
+        };
       }
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -247,7 +275,7 @@ export class ProviderExternalImportService {
           providers.push(...parseEnvConfig(content));
           break;
         case 'yaml':
-          warnings.push('YAML parsing not yet implemented. Convert to JSON first.');
+          providers.push(...parseYamlConfig(content));
           break;
         default:
           providers.push(...parseJsonConfig(content));
