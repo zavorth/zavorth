@@ -68,6 +68,7 @@ interface BrowserToolArgs {
 
 interface BrowserToolContext {
     sessionId?: string;
+    approvalId?: string | null;
 }
 
 interface CSSEscapeUtil {
@@ -114,7 +115,14 @@ export class PlaywrightActionTool implements IZavorthTool {
                 const verdict = await gate.requestProfileAccess({
                     sessionId,
                     allowedDomains: Array.isArray(args.allowedDomains) ? args.allowedDomains : [],
+                    approvalId: context?.approvalId || null,
                 });
+                if (verdict.approvalRequired === true) {
+                    return {
+                        success: false,
+                        error: `ApprovalRequired: ${verdict.reason || 'Real browser profile access requires explicit operator approval.'}`,
+                    };
+                }
                 if (!verdict.allowed) {
                     return {
                         success: false,

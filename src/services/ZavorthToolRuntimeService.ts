@@ -22,7 +22,11 @@ import { ZavorthEchoOrchestrator } from '../tool-runtime/orchestrator/ZavorthEch
 import { SmartDecisionAdvisor } from './approvals/SmartDecisionAdvisor.js';
 import { PeerReviewAdvisoryService } from '../runtime/agent/advisory/PeerReviewAdvisoryService.js';
 import { getAgentPermissionService } from './permission/AgentPermissionService.js';
-import type { ProfileAccessGate } from '../tool-runtime/tools/browser/ProfileAccessGateContract.js';
+import type {
+  ProfileAccessGate,
+  ProfileAccessGateInput,
+  ProfileAccessGateResult,
+} from '../tool-runtime/tools/browser/ProfileAccessGateContract.js';
 import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
 import {
   ZavorthProactivePermissionService,
@@ -96,11 +100,6 @@ export class ZavorthEchoService {
   private readonly executionLoop: EchoExecutionLoop;
 
   constructor(runtime: ZavorthEchoRuntime = {}) {
-    this.orchestrator = new ZavorthEchoOrchestrator({
-      capturePipelineHistory: false,
-      startBackgroundBridges: false,
-      profileAccessGate: buildProfileAccessGate(),
-    });
     this.llmRuntime = new LlmRuntimeService(runtime.llmProvider);
     this.llmFallbackOrder = this.normalizeLlmFallbackOrder(runtime.llmFallbackOrder || config.echoLlmFallbackOrder);
     this.permissions = runtime.permissionService || new ZavorthProactivePermissionService({
@@ -108,6 +107,17 @@ export class ZavorthEchoService {
     });
     this.pendingExecutions = runtime.pendingExecutionStore || new EchoPendingExecutionStoreService({
       filePath: this.resolveDefaultRuntimeFile('echo-pending-executions.json'),
+    });
+    const scopeMemory = getAgentPermissionService({ projectRoot: process.cwd() });
+    const profileAccessAdvisor = new SmartDecisionAdvisor({
+      permissionService: scopeMemory,
+      peerReviewService: new PeerReviewAdvisoryService(),
+      enabled: true,
+    });
+    this.orchestrator = new ZavorthEchoOrchestrator({
+      capturePipelineHistory: false,
+      startBackgroundBridges: false,
+      profileAccessGate: this.buildProfileAccessGate(profileAccessAdvisor),
     });
     this.executionBoundary = runtime.executionBoundary || new EchoExecutionBoundaryService();
     this.executionLedger = runtime.executionLedger || new EchoExecutionLedgerService({
@@ -684,35 +694,88 @@ export class ZavorthEchoService {
     };
   }
 
-}
+  private buildProfileAccessGate(advisor: Pick<SmartDecisionAdvisor, 'advise'>): ProfileAccessGate {
+    return {
+      requestProfileAccess: async (input) => {
+        if (input.approvalId && this.permissions.check(input.approvalId)?.status === 'approved') {
+          return { allowed: true };
+        }
+        try {
+          const advice = await advisor.advise({
+            toolName: 'playwright_browser',
+            pattern: `real-profile-access:${input.allowedDomains.length > 0 ? input.allowedDomains.join(',') : 'no-domains'}`,
+            risk: 'danger',
+            sessionId: input.sessionId || null,
+            requiresApproval: true,
+          });
+          if (advice.action === 'allow') {
+            return { allowed: true };
+          }
+          if (advice.action === 'deny') {
+            const reason = advice.dissentingOpinions && advice.dissentingOpinions.length > 0
+              ? advice.dissentingOpinions.join('; ')
+              : 'Denied by decision policy or peer review veto.';
+            return { allowed: false, reason };
+          }
+          return await this.requestProfileApproval(input);
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : String(error);
+          logger.warn(`[ProfileAccessGate] evaluation failed; refusing to mount the real browser profile: ${message}`);
+          return {
+            allowed: false,
+            reason: 'Profile access gate evaluation failed; refusing to mount the real browser profile.',
+          };
+        }
+      },
+    };
+  }
 
-function buildProfileAccessGate(): ProfileAccessGate {
-  const scopeMemory = getAgentPermissionService({ projectRoot: process.cwd() });
-  const advisor = new SmartDecisionAdvisor({
-    permissionService: scopeMemory,
-    peerReviewService: new PeerReviewAdvisoryService(),
-    enabled: true,
-  });
-  return {
-    requestProfileAccess: async (input) => {
-      const advice = await advisor.advise({
+  private async requestProfileApproval(input: ProfileAccessGateInput): Promise<ProfileAccessGateResult> {
+    const request = await this.permissions.request({
+      action: 'playwright_browser',
+      resource: JSON.stringify({ useRealProfile: true, allowedDomains: input.allowedDomains }),
+      reason: PROFILE_ACCESS_APPROVAL_REASON,
+      metadata: {
+        kind: 'tool',
+        prompt: PROFILE_ACCESS_APPROVAL_PROMPT,
         toolName: 'playwright_browser',
-        pattern: `real-profile-access:${input.allowedDomains.length > 0 ? input.allowedDomains.join(',') : 'no-domains'}`,
-        risk: 'danger',
+        args: { useRealProfile: true, allowedDomains: input.allowedDomains },
         sessionId: input.sessionId || null,
-        requiresApproval: true,
-      });
-      if (advice.action === 'allow') {
-        return { allowed: true };
-      }
-      const reason = advice.dissentingOpinions && advice.dissentingOpinions.length > 0
-        ? advice.dissentingOpinions.join('; ')
-        : advice.action === 'deny'
-          ? 'Denied by decision policy or peer review veto.'
-          : 'Requires explicit operator approval before mounting a real browser profile.';
-      return { allowed: false, reason };
-    },
-  };
+        correlation: {
+          approvalId: input.approvalId || null,
+          sessionId: input.sessionId || null,
+        },
+      },
+    });
+    this.pendingExecutions.put({
+      permissionId: request.id,
+      kind: 'tool',
+      prompt: PROFILE_ACCESS_APPROVAL_PROMPT,
+      toolName: 'playwright_browser',
+      args: { useRealProfile: true, allowedDomains: input.allowedDomains },
+      sessionId: input.sessionId || null,
+      requestedAt: request.requestedAt,
+      correlation: {
+        approvalId: request.id,
+        sessionId: input.sessionId || null,
+      },
+      intent: null,
+      metadata: {
+        requestedBy: 'echo',
+        surface: 'echo',
+      },
+    });
+    return {
+      allowed: false,
+      approvalRequired: true,
+      approvalId: request.id,
+      reason: PROFILE_ACCESS_APPROVAL_REASON,
+    };
+  }
+
 }
 
 export { ZavorthEchoService as ZavorthToolRuntimeService };
+
+const PROFILE_ACCESS_APPROVAL_REASON = 'Real browser profile access requires explicit operator approval.';
+const PROFILE_ACCESS_APPROVAL_PROMPT = 'Mount the real browser profile for autonomous navigation.';

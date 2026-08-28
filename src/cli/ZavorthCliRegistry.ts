@@ -74,6 +74,7 @@ import { handleZavorthCompletionsCommand } from './completions/ZavorthCompletion
 import { handleZavorthInspectCommand } from './inspect/ZavorthInspectCommand.js';
 import { handleZavorthManagedConfigCommand } from './managed-config/ZavorthManagedConfigCommand.js';
 import { handleZavorthLocalTaskCommand } from './local-task/ZavorthLocalTaskCommand.js';
+import { handleZavorthBotCliCommand } from './commands/ZavorthBotCliCommand.js';
 import { errorMessage } from '../utils/errorLike.js';
 import { UnifiedSlashCommandHandler } from './commands/UnifiedSlashCommandHandler.js';
 export type {
@@ -458,6 +459,16 @@ async function executeZavorthCliCommandInner(params: {
   });
   if (localTaskResult) {
     return localTaskResult;
+  }
+
+  const botResult = await handleZavorthBotCliCommand({
+    commandName,
+    args,
+    flags: effectiveFlags,
+    writer,
+  });
+  if (botResult) {
+    return botResult;
   }
 
   const kanbanResult = await handleZavorthCliRegistryKanbanCommand({

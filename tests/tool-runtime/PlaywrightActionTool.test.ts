@@ -167,6 +167,81 @@ describe('PlaywrightActionTool', () => {
     expect(sessionsMap.has('test-faulty-close-session')).toBe(false);
   });
 
+  it('returns an ApprovalRequired error when the gate requests operator approval', async () => {
+    const gate: ProfileAccessGate = {
+      requestProfileAccess: jest.fn(async () => ({
+        allowed: false,
+        approvalRequired: true,
+        approvalId: 'p1',
+        reason: 'Real browser profile access requires explicit operator approval.',
+      })),
+    };
+    const tool = new PlaywrightActionTool(undefined, gate);
+    const result = await tool.execute({
+      action: 'navigate',
+      url: 'https://github.com',
+      useRealProfile: true,
+      allowedDomains: ['*.github.com'],
+    }, {
+      sessionId: 'playwright-approval-required-test',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/^ApprovalRequired:/);
+    expect(result.error).toMatch(/explicit operator approval/);
+  });
+
+  it('forwards approvalId from context into the gate input', async () => {
+    const origEnv = process.env.ZAVORTH_PLAYWRIGHT_ALLOWED_HOSTS;
+    process.env.ZAVORTH_PLAYWRIGHT_ALLOWED_HOSTS = 'github.com';
+
+    try {
+      const gate: ProfileAccessGate = {
+        requestProfileAccess: jest.fn(async () => ({ allowed: true })),
+      };
+      const tool = new PlaywrightActionTool(undefined, gate);
+      jest.spyOn(tool as unknown as { getSession: jest.Mock }, 'getSession').mockResolvedValue({
+        browser: {},
+        page: {
+          goto: jest.fn(async () => undefined),
+          url: jest.fn(() => 'https://github.com'),
+          waitForTimeout: jest.fn(async () => undefined),
+          screenshot: jest.fn(async () => Buffer.from('fake')),
+          title: jest.fn(async () => 'GitHub'),
+        },
+        createdAt: new Date().toISOString(),
+        lastActionAt: new Date().toISOString(),
+        actionCount: 0,
+        lastKnownUrl: null,
+        lastTargetPolicy: null,
+        lastSelfHealing: null,
+      });
+
+      const result = await tool.execute({
+        action: 'navigate',
+        url: 'https://github.com',
+        useRealProfile: true,
+        allowedDomains: ['*.github.com'],
+      }, {
+        sessionId: 'playwright-gate-approval-id-test',
+        approvalId: 'perm_123',
+      });
+
+      expect(gate.requestProfileAccess).toHaveBeenCalledWith(expect.objectContaining({
+        sessionId: 'playwright-gate-approval-id-test',
+        allowedDomains: ['*.github.com'],
+        approvalId: 'perm_123',
+      }));
+      expect(result.success).toBe(true);
+    } finally {
+      if (origEnv === undefined) {
+        delete process.env.ZAVORTH_PLAYWRIGHT_ALLOWED_HOSTS;
+      } else {
+        process.env.ZAVORTH_PLAYWRIGHT_ALLOWED_HOSTS = origEnv;
+      }
+    }
+  });
+
   it('refuses useRealProfile when no approval gate is configured (fail closed)', async () => {
     const tool = new PlaywrightActionTool();
     const result = await tool.execute({
