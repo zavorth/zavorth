@@ -297,10 +297,20 @@ export class PlaywrightActionTool implements IZavorthTool {
                 });
                 snapshotDir = snapshot.snapshotDir;
 
-                const persistentContext = await chromium.launchPersistentContext(snapshotDir, {
-                    headless: true,
-                    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-                });
+                const persistentContext = await (async () => {
+                    try {
+                        return await chromium.launchPersistentContext(snapshotDir, {
+                            headless: true,
+                            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+                        });
+                    } catch (launchError: unknown) {
+                        if (snapshotDir) {
+                            await vault.disposeSnapshot(snapshotDir).catch(() => undefined);
+                        }
+                        const message = launchError instanceof Error ? launchError.message : String(launchError);
+                        throw new Error(`Failed to launch persistent browser context from snapshot: ${message}`);
+                    }
+                })();
                 browser = persistentContext;
                 page = persistentContext.pages()[0] || await persistentContext.newPage();
             } else {
@@ -384,17 +394,26 @@ export class PlaywrightActionTool implements IZavorthTool {
                 : null,
         };
 
-        await session.page.close().catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
-        await session.browser.close().catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
-
-        if (session.snapshotDir) {
-            const vault = new DomainScopedBrowserProfileService();
-            await vault.disposeSnapshot(session.snapshotDir).catch((err) => {
-                logger.warn(`Failed to dispose snapshot dir ${session.snapshotDir}`, err);
+        try {
+            await session.page.close().catch((err: unknown) => {
+                const message = err instanceof Error ? err.message : String(err);
+                logger.warn(`Failed to close browser page cleanly: ${message}`);
             });
+            await session.browser.close().catch((err: unknown) => {
+                const message = err instanceof Error ? err.message : String(err);
+                logger.warn(`Failed to close browser instance cleanly: ${message}`);
+            });
+        } finally {
+            if (session.snapshotDir) {
+                const vault = new DomainScopedBrowserProfileService();
+                await vault.disposeSnapshot(session.snapshotDir).catch((err: unknown) => {
+                    const message = err instanceof Error ? err.message : String(err);
+                    logger.warn(`Failed to dispose snapshot dir ${session.snapshotDir}: ${message}`);
+                });
+                session.snapshotDir = null;
+            }
+            PlaywrightActionTool.sessions.delete(sessionId);
         }
-
-        PlaywrightActionTool.sessions.delete(sessionId);
         return lifecycle;
     }
 

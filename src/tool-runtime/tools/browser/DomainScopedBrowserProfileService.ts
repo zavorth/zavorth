@@ -111,8 +111,9 @@ export class DomainScopedBrowserProfileService {
         fs.rmSync(resolved, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
       }
       return !fs.existsSync(resolved);
-    } catch (error) {
-      logger.warn(`Failed to cleanly dispose ephemeral browser vault: ${resolved}`, error);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.warn(`Failed to cleanly dispose ephemeral browser vault: ${resolved}: ${message}`);
       return false;
     }
   }
@@ -141,7 +142,12 @@ export class DomainScopedBrowserProfileService {
 
     const normalizedPatterns: string[] = [];
     for (const domain of allowedDomains) {
-      const clean = domain.trim().toLowerCase().replace(/^\*?\./, '');
+      let clean = domain.trim().toLowerCase();
+      if (clean.startsWith('*.')) {
+        clean = clean.slice(2);
+      } else if (clean.startsWith('.')) {
+        clean = clean.slice(1);
+      }
       if (clean) {
         normalizedPatterns.push(`%${clean}%`);
       }

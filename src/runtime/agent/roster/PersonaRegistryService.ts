@@ -61,8 +61,9 @@ export class PersonaRegistryService {
       }
 
       this.initialized = true;
-    } catch (err) {
-      logger.warn(`Failed to initialize PersonaRegistryService at ${this.storageDir}`, err);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.warn(`Failed to initialize PersonaRegistryService at ${this.storageDir}: ${message}`);
     }
   }
 
@@ -140,8 +141,9 @@ export class PersonaRegistryService {
       }
       this.personas.delete(id);
       return true;
-    } catch (err) {
-      logger.warn(`Failed to delete persona directory for @${id}`, err);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.warn(`Failed to delete persona directory for @${id}: ${message}`);
       return false;
     }
   }
@@ -177,18 +179,28 @@ export class PersonaRegistryService {
       return null;
     }
 
-    const match = trimmed.match(/^@([a-zA-Z0-9_-]+)(?::|\s+|$)([\s\S]*)$/);
-    if (!match) {
-      return null;
+    let separatorIndex = -1;
+    for (let i = 1; i < trimmed.length; i++) {
+      const char = trimmed[i];
+      if (char === ' ' || char === '\t' || char === '\n' || char === ':') {
+        separatorIndex = i;
+        break;
+      }
     }
 
-    const potentialId = sanitizePersonaId(match[1]);
+    const rawMention = separatorIndex === -1 ? trimmed.slice(1) : trimmed.slice(1, separatorIndex);
+    const potentialId = sanitizePersonaId(rawMention);
     const persona = this.personas.get(potentialId);
     if (!persona) {
       return null;
     }
 
-    const strippedPrompt = (match[2] || '').trim();
+    let strippedPrompt = separatorIndex === -1 ? '' : trimmed.slice(separatorIndex);
+    if (strippedPrompt.startsWith(':')) {
+      strippedPrompt = strippedPrompt.slice(1);
+    }
+    strippedPrompt = strippedPrompt.trim();
+
     return {
       persona,
       strippedPrompt,

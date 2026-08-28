@@ -81,5 +81,35 @@ describe('PeerReviewAdvisoryService', () => {
       expect(debate.synthesis.consensusPoints.length).toBeGreaterThan(0);
       expect(debate.synthesis.actionableRecommendation).toBeTruthy();
     });
+
+    it('delegates to semanticEvaluator when provided', async () => {
+      const mockSemanticEvaluator = {
+        evaluateSecurityAndInvariants: jest.fn(async () => [
+          {
+            evaluatorId: 'ai-guardrail',
+            evaluatorName: 'AI Architectural Evaluator',
+            category: 'security' as const,
+            argument: 'Potential SSRF vulnerability in user-supplied proxy endpoint.',
+            severity: 'high' as const,
+            suggestedRemedy: 'Validate domain against private IP blocklist.',
+          },
+        ]),
+        conductDialecticDebate: jest.fn(async () => null),
+      };
+
+      const semanticAdvisory = new PeerReviewAdvisoryService({
+        semanticEvaluator: mockSemanticEvaluator,
+      });
+
+      const assessment = await semanticAdvisory.evaluateAction({
+        toolName: 'read_url_content',
+        pattern: 'http://169.254.169.254/latest/meta-data',
+      });
+
+      expect(mockSemanticEvaluator.evaluateSecurityAndInvariants).toHaveBeenCalledTimes(1);
+      expect(assessment.approved).toBe(false);
+      expect(assessment.verdict).toBe('vetoed');
+      expect(assessment.dissentingOpinions.some((o) => o.argument.includes('SSRF'))).toBe(true);
+    });
   });
 });

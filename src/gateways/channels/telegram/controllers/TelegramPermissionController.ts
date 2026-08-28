@@ -34,7 +34,8 @@ import {
   HeadlessPermissionDecisionService,
   surfaceChoiceToPermissionScopeWord,
 } from '../../../../services/approvals/HeadlessPermissionDecisionService.js';
-import type { SmartDecisionAdvisor } from '../../../../services/approvals/SmartDecisionAdvisor.js';
+import { SmartDecisionAdvisor } from '../../../../services/approvals/SmartDecisionAdvisor.js';
+import { PeerReviewAdvisoryService } from '../../../../runtime/agent/advisory/PeerReviewAdvisoryService.js';
 import { TaskDecisionPort } from '../../../../services/approvals/ports/TaskDecisionPort.js';
 import { PermissionRegistryPort } from '../../../../services/approvals/ports/PermissionRegistryPort.js';
 import { getAgentPermissionService } from '../../../../services/permission/AgentPermissionService.js';
@@ -209,11 +210,20 @@ export class TelegramPermissionController {
   }
 
   private buildDefaultDecisionSpine(): SurfaceDecisionSpine {
+    const scopeMemory = getAgentPermissionService({ projectRoot: process.cwd() });
+    const smartAdvisor =
+      this.deps.smartAdvisor ??
+      new SmartDecisionAdvisor({
+        permissionService: scopeMemory,
+        peerReviewService: new PeerReviewAdvisoryService(),
+        enabled: true,
+      });
+
     const spine = new SurfaceDecisionSpine({
       coordinator: new ApprovalCoordinator(createPassiveApprovalGateway()),
-      scopeMemory: getAgentPermissionService({ projectRoot: process.cwd() }),
+      scopeMemory,
       accessGate: async ({ userId }) => this.checkTaskDecisionAccess(userId),
-      smartAdvisor: this.deps.smartAdvisor,
+      smartAdvisor,
     });
     spine.registerDecisionPort(
       'task',

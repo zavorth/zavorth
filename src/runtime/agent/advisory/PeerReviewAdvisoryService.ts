@@ -5,16 +5,28 @@ import type {
   PeerReviewAssessment,
 } from './PeerReviewContract.js';
 
+export interface SemanticReviewEvaluator {
+  evaluateSecurityAndInvariants(input: PeerReviewActionInput): Promise<DissentingOpinion[] | null>;
+  conductDialecticDebate?(
+    topic: string,
+    thesisName: string,
+    antithesisName: string,
+  ): Promise<DialecticDebate | null>;
+}
+
 export interface PeerReviewAdvisoryOptions {
+  semanticEvaluator?: SemanticReviewEvaluator | null;
   customSecurityRules?: Array<(input: PeerReviewActionInput) => DissentingOpinion | null>;
   customCleanCodeRules?: Array<(input: PeerReviewActionInput) => DissentingOpinion | null>;
 }
 
 export class PeerReviewAdvisoryService {
+  private readonly semanticEvaluator?: SemanticReviewEvaluator | null;
   private readonly customSecurityRules: Array<(input: PeerReviewActionInput) => DissentingOpinion | null>;
   private readonly customCleanCodeRules: Array<(input: PeerReviewActionInput) => DissentingOpinion | null>;
 
   constructor(options?: PeerReviewAdvisoryOptions) {
+    this.semanticEvaluator = options?.semanticEvaluator || null;
     this.customSecurityRules = options?.customSecurityRules || [];
     this.customCleanCodeRules = options?.customCleanCodeRules || [];
   }
@@ -22,12 +34,30 @@ export class PeerReviewAdvisoryService {
   public async evaluateAction(input: PeerReviewActionInput): Promise<PeerReviewAssessment> {
     const dissentingOpinions: DissentingOpinion[] = [];
 
-    const securityOpinions = this.evaluateSecurityInvariants(input);
-    dissentingOpinions.push(...securityOpinions);
+    // 1. LLM-Centered Semantic Evaluation if available
+    if (this.semanticEvaluator) {
+      try {
+        const semanticOpinions = await this.semanticEvaluator.evaluateSecurityAndInvariants(input);
+        if (semanticOpinions && Array.isArray(semanticOpinions)) {
+          dissentingOpinions.push(...semanticOpinions);
+        }
+      } catch {
+        // Fall back to deterministic structural invariant checks
+      }
+    }
 
-    const cleanCodeOpinions = this.evaluateCleanCodeInvariants(input);
-    dissentingOpinions.push(...cleanCodeOpinions);
+    // 2. Structural Invariant Checks
+    const structuralOpinions = this.evaluateStructuralInvariants(input);
+    for (const opinion of structuralOpinions) {
+      const isDuplicate = dissentingOpinions.some(
+        (existing) => existing.argument === opinion.argument && existing.category === opinion.category,
+      );
+      if (!isDuplicate) {
+        dissentingOpinions.push(opinion);
+      }
+    }
 
+    // 3. Custom rules
     for (const rule of this.customSecurityRules) {
       const opinion = rule(input);
       if (opinion) dissentingOpinions.push(opinion);
@@ -83,6 +113,21 @@ export class PeerReviewAdvisoryService {
 
     const topicClean = topic.trim();
 
+    if (this.semanticEvaluator?.conductDialecticDebate) {
+      try {
+        const debate = await this.semanticEvaluator.conductDialecticDebate(
+          topicClean,
+          thesisPersona.name,
+          antithesisPersona.name,
+        );
+        if (debate) {
+          return debate;
+        }
+      } catch {
+        // Fall back to deterministic dialectic debate framework
+      }
+    }
+
     return {
       topic: topicClean,
       thesis: {
@@ -120,16 +165,14 @@ export class PeerReviewAdvisoryService {
     };
   }
 
-  private evaluateSecurityInvariants(input: PeerReviewActionInput): DissentingOpinion[] {
+  private evaluateStructuralInvariants(input: PeerReviewActionInput): DissentingOpinion[] {
     const opinions: DissentingOpinion[] = [];
-    const patternLower = String(input.pattern || '').toLowerCase();
-    const toolLower = String(input.toolName || '').toLowerCase();
+    const pattern = String(input.pattern || '').trim().toLowerCase();
+    const toolName = String(input.toolName || '').trim().toLowerCase();
+    const code = String(input.proposedCode || '');
 
-    if (
-      patternLower.includes('rm -rf /') ||
-      patternLower.includes('rmdir /s /q c:\\') ||
-      patternLower.includes('remove-item -recurse c:\\')
-    ) {
+    // 1. Destructive system-wide root deletions
+    if (this.isDestructiveSystemDeletion(pattern)) {
       opinions.push({
         evaluatorId: 'security-evaluator',
         evaluatorName: 'Security Evaluator',
@@ -140,11 +183,8 @@ export class PeerReviewAdvisoryService {
       });
     }
 
-    if (
-      patternLower.includes('.ssh/id_rsa') ||
-      patternLower.includes('.aws/credentials') ||
-      patternLower.includes('windows/system32/config/sam')
-    ) {
+    // 2. Secret and credential boundary violations
+    if (this.isSensitiveHostPath(pattern)) {
       opinions.push({
         evaluatorId: 'security-evaluator',
         evaluatorName: 'Security Evaluator',
@@ -155,7 +195,8 @@ export class PeerReviewAdvisoryService {
       });
     }
 
-    if (toolLower === 'terminal_backends' && (patternLower.includes('| sh') || patternLower.includes('| bash') || patternLower.includes('iex(new-object'))) {
+    // 3. Unvetted piped remote script execution in terminal
+    if (toolName === 'terminal_backends' && this.isPipedRemoteScript(pattern)) {
       opinions.push({
         evaluatorId: 'security-evaluator',
         evaluatorName: 'Security Evaluator',
@@ -166,13 +207,7 @@ export class PeerReviewAdvisoryService {
       });
     }
 
-    return opinions;
-  }
-
-  private evaluateCleanCodeInvariants(input: PeerReviewActionInput): DissentingOpinion[] {
-    const opinions: DissentingOpinion[] = [];
-    const code = String(input.proposedCode || '');
-
+    // 4. Strict typing clean code invariants
     if (code.includes(': any') || code.includes('as any')) {
       opinions.push({
         evaluatorId: 'clean-code-evaluator',
@@ -185,5 +220,86 @@ export class PeerReviewAdvisoryService {
     }
 
     return opinions;
+  }
+
+  private isDestructiveSystemDeletion(command: string): boolean {
+    const tokens = this.tokenizeCommand(command);
+    const isRemoveCmd = tokens.some((t) => t === 'rm' || t === 'rmdir' || t === 'remove-item');
+    if (!isRemoveCmd) {
+      return false;
+    }
+
+    const hasRecursiveForce =
+      tokens.some((t) => t === '-rf' || t === '-fr' || t === '/s' || t === '-recurse' || t === '-r');
+
+    const targetsRoot = tokens.some(
+      (t) =>
+        t === '/' ||
+        t === '/*' ||
+        t === 'c:\\' ||
+        t === 'c:/' ||
+        t === 'c:\\windows' ||
+        t === 'c:\\windows\\system32' ||
+        t === 'c:/windows' ||
+        t === 'c:/windows/system32',
+    );
+
+    return hasRecursiveForce && targetsRoot;
+  }
+
+  private isSensitiveHostPath(pathOrCommand: string): boolean {
+    const sensitiveTokens = [
+      '.ssh/id_rsa',
+      '.ssh/id_ed25519',
+      '.aws/credentials',
+      '.aws/config',
+      'system32/config/sam',
+      '/etc/shadow',
+      '/etc/passwd',
+    ];
+
+    const normalized = pathOrCommand.replaceAll('\\', '/');
+    return sensitiveTokens.some((token) => normalized.includes(token));
+  }
+
+  private isPipedRemoteScript(command: string): boolean {
+    const normalized = command.toLowerCase();
+    const hasPipe = normalized.includes('|');
+    if (!hasPipe) {
+      return false;
+    }
+
+    const targetsShell =
+      normalized.includes('| sh') ||
+      normalized.includes('| bash') ||
+      normalized.includes('| zsh') ||
+      normalized.includes('| pwsh') ||
+      normalized.includes('| powershell') ||
+      normalized.includes('iex(new-object');
+
+    return targetsShell;
+  }
+
+  private tokenizeCommand(command: string): string[] {
+    const tokens: string[] = [];
+    let current = '';
+
+    for (let i = 0; i < command.length; i++) {
+      const char = command[i];
+      if (char === ' ' || char === '\t' || char === '"' || char === "'") {
+        if (current.length > 0) {
+          tokens.push(current.toLowerCase());
+          current = '';
+        }
+      } else {
+        current += char;
+      }
+    }
+
+    if (current.length > 0) {
+      tokens.push(current.toLowerCase());
+    }
+
+    return tokens;
   }
 }

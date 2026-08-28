@@ -59,12 +59,33 @@ export interface UpdatePersonaInput {
 }
 
 export function sanitizePersonaId(rawId: string): string {
-  return String(rawId || '')
-    .trim()
-    .toLowerCase()
-    .replace(/^@+/, '')
-    .replace(/[^a-z0-9_-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+  let cleaned = String(rawId || '').trim().toLowerCase();
+  while (cleaned.startsWith('@')) {
+    cleaned = cleaned.slice(1);
+  }
+  const allowedChars: string[] = [];
+  for (let i = 0; i < cleaned.length; i++) {
+    const char = cleaned[i];
+    const code = char.charCodeAt(0);
+    const isAlpha = (code >= 97 && code <= 122); // a-z
+    const isDigit = (code >= 48 && code <= 57);  // 0-9
+    const isSpecial = char === '_' || char === '-';
+    if (isAlpha || isDigit || isSpecial) {
+      allowedChars.push(char);
+    } else {
+      if (allowedChars.length > 0 && allowedChars[allowedChars.length - 1] !== '-') {
+        allowedChars.push('-');
+      }
+    }
+  }
+  let result = allowedChars.join('');
+  while (result.startsWith('-')) {
+    result = result.slice(1);
+  }
+  while (result.endsWith('-')) {
+    result = result.slice(0, -1);
+  }
+  return result;
 }
 
 export function validatePersonaInput(input: CreatePersonaInput): { valid: boolean; error?: string } {

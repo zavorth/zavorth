@@ -1,5 +1,6 @@
 import { SmartDecisionAdvisor } from '../../../src/services/approvals/SmartDecisionAdvisor.js';
 import { PeerReviewAdvisoryService } from '../../../src/runtime/agent/advisory/PeerReviewAdvisoryService.js';
+import { SurfaceDecisionSpine } from '../../../src/services/approvals/SurfaceDecisionSpine.js';
 import type { AgentPermissionService } from '../../../src/services/permission/AgentPermissionService.js';
 
 describe('SmartDecisionAdvisor with PeerReviewAdvisoryService', () => {
@@ -68,5 +69,41 @@ describe('SmartDecisionAdvisor with PeerReviewAdvisoryService', () => {
 
     expect(advice.action).toBe('allow');
     expect(advice.source).toBe('smart-model');
+  });
+
+  it('connects to SurfaceDecisionSpine and denies dangerous actions via advisePending', async () => {
+    const advisor = new SmartDecisionAdvisor({
+      permissionService: mockPermissionService,
+      peerReviewService,
+      enabled: true,
+    });
+
+    const spine = new SurfaceDecisionSpine({
+      coordinator: {
+        registerPendingApproval: jest.fn(),
+        collectPresenterDismissals: jest.fn(() => []),
+        getGatewayPort: jest.fn(() => ({
+          findPendingApproval: () => null,
+          approve: async () => null,
+          reject: async () => null,
+          listRuns: () => [],
+        })),
+      },
+      scopeMemory: {
+        respond: jest.fn(),
+        evaluate: jest.fn(() => ({ action: 'ask' as const, matchedRule: null, reason: 'unverified' })),
+      },
+      smartAdvisor: advisor,
+    });
+
+    const spineAdvice = await spine.advisePending({
+      toolName: 'terminal_backends',
+      pattern: 'rm -rf /',
+      risk: 'high',
+    });
+
+    expect(spineAdvice.action).toBe('deny');
+    expect(spineAdvice.source).toBe('peer-review-veto');
+    expect(spineAdvice.dissentingOpinions?.length).toBeGreaterThan(0);
   });
 });

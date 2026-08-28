@@ -133,4 +133,36 @@ describe('PlaywrightActionTool', () => {
     expect(closeResult.success).toBe(true);
     expect(fs.existsSync(mockSnapshotDir)).toBe(false);
   });
+
+  it('guarantees ephemeral snapshot disposal in finally block even when browser.close throws', async () => {
+    const tool = new PlaywrightActionTool();
+    const mockSnapshotDir = path.join(os.tmpdir(), `zavorth-vault-test-finally-${Date.now()}`);
+    fs.mkdirSync(mockSnapshotDir, { recursive: true });
+    fs.writeFileSync(path.join(mockSnapshotDir, 'test.txt'), 'ephemeral');
+
+    const sessionsMap = (PlaywrightActionTool as unknown as { sessions: Map<string, unknown> }).sessions;
+    sessionsMap.set('test-faulty-close-session', {
+      browser: { close: jest.fn(async () => { throw new Error('Browser process crashed'); }) },
+      page: { close: jest.fn(async () => undefined) },
+      createdAt: new Date().toISOString(),
+      lastActionAt: new Date().toISOString(),
+      actionCount: 1,
+      lastKnownUrl: null,
+      lastTargetPolicy: null,
+      lastSelfHealing: null,
+      snapshotDir: mockSnapshotDir,
+    });
+
+    expect(fs.existsSync(mockSnapshotDir)).toBe(true);
+
+    const closeResult = await tool.execute({
+      action: 'close',
+    }, {
+      sessionId: 'test-faulty-close-session',
+    });
+
+    expect(closeResult.success).toBe(true);
+    expect(fs.existsSync(mockSnapshotDir)).toBe(false);
+    expect(sessionsMap.has('test-faulty-close-session')).toBe(false);
+  });
 });
