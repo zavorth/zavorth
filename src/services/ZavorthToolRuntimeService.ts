@@ -19,6 +19,10 @@ import { DEFAULT_ECHO_LLM_FALLBACK_ORDER } from '../config/sections/providerConf
 import { getDefaultCapabilityRegistry, type CapabilityRegistry } from '../capabilities/CapabilityRegistry.js';
 import { InternalControlPlaneApiService } from '../api/internal/InternalControlPlaneApiService.js';
 import { ZavorthEchoOrchestrator } from '../tool-runtime/orchestrator/ZavorthEchoOrchestrator.js';
+import { SmartDecisionAdvisor } from './approvals/SmartDecisionAdvisor.js';
+import { PeerReviewAdvisoryService } from '../runtime/agent/advisory/PeerReviewAdvisoryService.js';
+import { getAgentPermissionService } from './permission/AgentPermissionService.js';
+import type { ProfileAccessGate } from '../tool-runtime/tools/browser/ProfileAccessGateContract.js';
 import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
 import {
   ZavorthProactivePermissionService,
@@ -95,6 +99,7 @@ export class ZavorthEchoService {
     this.orchestrator = new ZavorthEchoOrchestrator({
       capturePipelineHistory: false,
       startBackgroundBridges: false,
+      profileAccessGate: buildProfileAccessGate(),
     });
     this.llmRuntime = new LlmRuntimeService(runtime.llmProvider);
     this.llmFallbackOrder = this.normalizeLlmFallbackOrder(runtime.llmFallbackOrder || config.echoLlmFallbackOrder);
@@ -679,6 +684,35 @@ export class ZavorthEchoService {
     };
   }
 
+}
+
+function buildProfileAccessGate(): ProfileAccessGate {
+  const scopeMemory = getAgentPermissionService({ projectRoot: process.cwd() });
+  const advisor = new SmartDecisionAdvisor({
+    permissionService: scopeMemory,
+    peerReviewService: new PeerReviewAdvisoryService(),
+    enabled: true,
+  });
+  return {
+    requestProfileAccess: async (input) => {
+      const advice = await advisor.advise({
+        toolName: 'playwright_browser',
+        pattern: `real-profile-access:${input.allowedDomains.length > 0 ? input.allowedDomains.join(',') : 'no-domains'}`,
+        risk: 'danger',
+        sessionId: input.sessionId || null,
+        requiresApproval: true,
+      });
+      if (advice.action === 'allow') {
+        return { allowed: true };
+      }
+      const reason = advice.dissentingOpinions && advice.dissentingOpinions.length > 0
+        ? advice.dissentingOpinions.join('; ')
+        : advice.action === 'deny'
+          ? 'Denied by decision policy or peer review veto.'
+          : 'Requires explicit operator approval before mounting a real browser profile.';
+      return { allowed: false, reason };
+    },
+  };
 }
 
 export { ZavorthEchoService as ZavorthToolRuntimeService };

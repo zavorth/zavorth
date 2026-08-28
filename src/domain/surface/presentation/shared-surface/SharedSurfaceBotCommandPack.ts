@@ -2,22 +2,26 @@ import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import { PersonaRegistryService } from '../../../../runtime/agent/roster/PersonaRegistryService.js';
 import { DynamicPersonaCompilerService } from '../../../../runtime/agent/roster/DynamicPersonaCompilerService.js';
 import { PeerReviewAdvisoryService } from '../../../../runtime/agent/advisory/PeerReviewAdvisoryService.js';
+import type { PersonaTaskRunner } from '../../../../runtime/agent/roster/PersonaTaskRunnerContract.js';
 
 export interface SharedSurfaceBotCommandPackDeps {
   personaRegistryService: PersonaRegistryService;
   dynamicCompilerService?: DynamicPersonaCompilerService;
   peerReviewService?: PeerReviewAdvisoryService;
+  personaRunner?: PersonaTaskRunner | null;
 }
 
 export class SharedSurfaceBotCommandPack {
   private readonly registry: PersonaRegistryService;
   private readonly compiler: DynamicPersonaCompilerService;
   private readonly peerReviewService: PeerReviewAdvisoryService;
+  private readonly personaRunner: PersonaTaskRunner | null;
 
   constructor(deps: SharedSurfaceBotCommandPackDeps) {
     this.registry = deps.personaRegistryService;
     this.compiler = deps.dynamicCompilerService || new DynamicPersonaCompilerService();
     this.peerReviewService = deps.peerReviewService || new PeerReviewAdvisoryService();
+    this.personaRunner = deps.personaRunner || null;
   }
 
   public async maybeHandle(ctx: IMessageContext, commandType: string, args: string): Promise<boolean> {
@@ -182,7 +186,23 @@ export class SharedSurfaceBotCommandPack {
       return;
     }
 
-    await ctx.reply(`🤖 [Persona: **@${persona.id}** (${persona.role})]: Processing your request...\n> "${prompt}"`);
+    if (!this.personaRunner) {
+      await ctx.reply(`⚠️ Persona @${persona.id} exists, but no execution backend is configured on this surface. Use \`/bot inspect ${persona.id}\` to review it, or wire a persona task runner to enable dispatch.`);
+      return;
+    }
+
+    const result = await this.personaRunner.runPersonaTask({
+      persona,
+      prompt,
+      sessionId: ctx.chatId || null,
+    });
+
+    if (result.ok) {
+      await ctx.reply(`🤖 [Persona: **@${persona.id}** (${persona.role})]\n${result.output}`);
+      return;
+    }
+
+    await ctx.reply(`❌ Persona @${persona.id} failed to dispatch: ${result.error || 'unknown error'}`);
   }
 
   private async handleReview(ctx: IMessageContext, topic: string): Promise<void> {

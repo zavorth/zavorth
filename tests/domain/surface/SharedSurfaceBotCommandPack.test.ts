@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import { SharedSurfaceBotCommandPack } from '../../../src/domain/surface/presentation/shared-surface/SharedSurfaceBotCommandPack.js';
 import { PersonaRegistryService } from '../../../src/runtime/agent/roster/PersonaRegistryService.js';
 import { DynamicPersonaCompilerService } from '../../../src/runtime/agent/roster/DynamicPersonaCompilerService.js';
+import type { PersonaTaskRunner } from '../../../src/runtime/agent/roster/PersonaTaskRunnerContract.js';
 import type { IMessageContext } from '../../../src/contracts/IMessageBroker.js';
 
 describe('SharedSurfaceBotCommandPack', () => {
@@ -107,5 +108,61 @@ describe('SharedSurfaceBotCommandPack', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Peer Review Dialectic Deliberation: "Migrate to Bun runtime"'));
+  });
+
+  it('should report honestly when no execution backend is configured for /bot chat', async () => {
+    const ctx = createMockMessageContext();
+    const handled = await pack.maybeHandle(ctx, '/bot', 'chat executor write tests for auth module');
+
+    expect(handled).toBe(true);
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('no execution backend is configured'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/bot inspect executor'));
+  });
+
+  it('should delegate /bot chat to the persona task runner when configured', async () => {
+    const runner: PersonaTaskRunner = {
+      runPersonaTask: jest.fn(async () => ({
+        ok: true,
+        output: 'Swarm launched for executor: status=running',
+      })),
+    };
+    const runnerPack = new SharedSurfaceBotCommandPack({
+      personaRegistryService: registry,
+      dynamicCompilerService: new DynamicPersonaCompilerService(),
+      personaRunner: runner,
+    });
+
+    const ctx = createMockMessageContext();
+    const handled = await runnerPack.maybeHandle(ctx, '/bot', 'chat executor write tests for auth module');
+
+    expect(handled).toBe(true);
+    expect(runner.runPersonaTask).toHaveBeenCalledWith(expect.objectContaining({
+      prompt: 'write tests for auth module',
+      persona: expect.objectContaining({ id: 'executor' }),
+    }));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('@executor'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Swarm launched'));
+  });
+
+  it('should surface a typed failure when the persona task runner errors', async () => {
+    const runner: PersonaTaskRunner = {
+      runPersonaTask: jest.fn(async () => ({
+        ok: false,
+        output: '',
+        error: 'no roles configured',
+      })),
+    };
+    const runnerPack = new SharedSurfaceBotCommandPack({
+      personaRegistryService: registry,
+      dynamicCompilerService: new DynamicPersonaCompilerService(),
+      personaRunner: runner,
+    });
+
+    const ctx = createMockMessageContext();
+    const handled = await runnerPack.maybeHandle(ctx, '/bot', 'chat executor run heavy migration');
+
+    expect(handled).toBe(true);
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('failed to dispatch'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('no roles configured'));
   });
 });

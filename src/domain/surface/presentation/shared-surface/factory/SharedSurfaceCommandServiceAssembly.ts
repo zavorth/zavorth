@@ -23,6 +23,7 @@ import { SharedSurfaceWorkflowGovernanceCommandPack } from '../SharedSurfaceWork
 import { SharedSurfaceBotCommandPack } from '../SharedSurfaceBotCommandPack.js';
 import { PersonaRegistryService } from '../../../../../runtime/agent/roster/PersonaRegistryService.js';
 import { DynamicPersonaCompilerService } from '../../../../../runtime/agent/roster/DynamicPersonaCompilerService.js';
+import { EnsemblePersonaTaskRunner } from '../../../../../runtime/agent/roster/EnsemblePersonaTaskRunner.js';
 import { PeerReviewAdvisoryService } from '../../../../../runtime/agent/advisory/PeerReviewAdvisoryService.js';
 import type { IMessageContext } from '../../../../../contracts/IMessageBroker.js';
 import type { SurfaceControllerContext } from '../../../../../orchestrator/SurfaceRuntime.js';
@@ -304,6 +305,7 @@ export function buildSharedSurfaceCommandServiceAssembly(
     personaRegistryService: deps.personaRegistryService || new PersonaRegistryService(),
     dynamicCompilerService: deps.dynamicPersonaCompilerService || new DynamicPersonaCompilerService(),
     peerReviewService: new PeerReviewAdvisoryService(),
+    personaRunner: new EnsemblePersonaTaskRunner(),
   });
   return {
     ...deps,

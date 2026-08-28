@@ -10,6 +10,7 @@ import { SystemVisionAnalysisTool } from '../tools/os/SystemVisionAnalysisTool.j
 import { HomeAssistantBridge } from '../tools/iot/HomeAssistantBridge';
 import { MQTTPublisher } from '../tools/iot/MQTTPublisher';
 import { PlaywrightActionTool } from '../tools/browser/PlaywrightActionTool';
+import type { ProfileAccessGate } from '../tools/browser/ProfileAccessGateContract.js';
 import { buildVerifiedActionHarnessTools } from '../tools/web/ActionHarnessTools.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider';
 import type { EchoExecutionEntry, EchoToolCall } from '../types/EchoTypes';
@@ -31,6 +32,7 @@ type ZavorthEchoOrchestratorOptions = {
     startBackgroundBridges?: boolean;
     actionGateway?: ZavorthActionGateway;
     continuityKernel?: OperatorContinuityKernel;
+    profileAccessGate?: ProfileAccessGate | null;
 };
 
 export class ZavorthEchoOrchestrator {
@@ -60,7 +62,7 @@ export class ZavorthEchoOrchestrator {
         }
         this.registerTool(new MQTTPublisher());
 
-        this.registerTool(new PlaywrightActionTool());
+        this.registerTool(new PlaywrightActionTool(undefined, options.profileAccessGate ?? null));
 
         // Register web/browser Action Harness tools.
         // The LLM sees these as regular tools alongside OS/IOT and decides

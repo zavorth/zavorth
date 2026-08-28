@@ -3,6 +3,7 @@ import { logger } from '../../../logger.js';
 import type { Browser, BrowserContext, Page } from 'playwright-core';
 import { BrowserProfileResolverService } from './BrowserProfileResolverService.js';
 import { DomainScopedBrowserProfileService } from './DomainScopedBrowserProfileService.js';
+import type { ProfileAccessGate } from './ProfileAccessGateContract.js';
 import { IZavorthTool, ToolCategory, ToolDangerLevel, ToolExecutionResult } from '../../types/IZavorthTool.js';
 import { EchoVisionAnalysisService } from '../../../domain/platform-ecosystem/infrastructure/VisionAnalysisService.js';
 import {
@@ -94,6 +95,7 @@ export class PlaywrightActionTool implements IZavorthTool {
 
     constructor(
         private readonly visionAnalyzer: Pick<EchoVisionAnalysisService, 'suggestBrowserRepair'> = new EchoVisionAnalysisService(),
+        private readonly profileAccessGate?: ProfileAccessGate | null,
     ) {}
 
     public async execute(args: BrowserToolArgs, context?: BrowserToolContext): Promise<ToolExecutionResult> {
@@ -101,6 +103,26 @@ export class PlaywrightActionTool implements IZavorthTool {
         const action = String(args.action || '').trim().toLowerCase();
 
         try {
+            if (args.useRealProfile === true) {
+                const gate = this.profileAccessGate;
+                if (!gate) {
+                    return {
+                        success: false,
+                        error: 'Real browser profile access requires an explicit operator approval gate. Refusing to mount the profile without it.',
+                    };
+                }
+                const verdict = await gate.requestProfileAccess({
+                    sessionId,
+                    allowedDomains: Array.isArray(args.allowedDomains) ? args.allowedDomains : [],
+                });
+                if (!verdict.allowed) {
+                    return {
+                        success: false,
+                        error: `Real browser profile access refused by operator approval gate. ${verdict.reason || 'No reason provided.'}`,
+                    };
+                }
+            }
+
             if (action === 'close') {
                 const lifecycle = await this.closeBrowser(sessionId);
                 return {

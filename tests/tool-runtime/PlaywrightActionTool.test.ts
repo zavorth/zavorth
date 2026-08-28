@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { PlaywrightActionTool } from '../../src/tool-runtime/tools/browser/PlaywrightActionTool';
+import type { ProfileAccessGate } from '../../src/tool-runtime/tools/browser/ProfileAccessGateContract';
 
 describe('PlaywrightActionTool', () => {
   it('blocks external URLs inside the tool before launching the browser', async () => {
@@ -164,5 +165,90 @@ describe('PlaywrightActionTool', () => {
     expect(closeResult.success).toBe(true);
     expect(fs.existsSync(mockSnapshotDir)).toBe(false);
     expect(sessionsMap.has('test-faulty-close-session')).toBe(false);
+  });
+
+  it('refuses useRealProfile when no approval gate is configured (fail closed)', async () => {
+    const tool = new PlaywrightActionTool();
+    const result = await tool.execute({
+      action: 'navigate',
+      url: 'https://github.com',
+      useRealProfile: true,
+      allowedDomains: ['*.github.com'],
+    }, {
+      sessionId: 'playwright-no-gate-test',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/approval gate/);
+  });
+
+  it('refuses useRealProfile when the approval gate denies access', async () => {
+    const gate: ProfileAccessGate = {
+      requestProfileAccess: jest.fn(async () => ({
+        allowed: false,
+        reason: 'Profile access vetoed by security evaluator.',
+      })),
+    };
+    const tool = new PlaywrightActionTool(undefined, gate);
+    const result = await tool.execute({
+      action: 'navigate',
+      url: 'https://github.com',
+      useRealProfile: true,
+      allowedDomains: ['*.github.com'],
+    }, {
+      sessionId: 'playwright-gate-deny-test',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/refused by operator approval gate/);
+    expect(result.error).toMatch(/security evaluator/);
+  });
+
+  it('proceeds past the approval gate when access is allowed, without a real browser launch', async () => {
+    const origEnv = process.env.ZAVORTH_PLAYWRIGHT_ALLOWED_HOSTS;
+    process.env.ZAVORTH_PLAYWRIGHT_ALLOWED_HOSTS = 'github.com';
+
+    try {
+      const gate: ProfileAccessGate = {
+        requestProfileAccess: jest.fn(async () => ({ allowed: true })),
+      };
+      const tool = new PlaywrightActionTool(undefined, gate);
+      jest.spyOn(tool as unknown as { getSession: jest.Mock }, 'getSession').mockResolvedValue({
+        browser: {},
+        page: {
+          goto: jest.fn(async () => undefined),
+          url: jest.fn(() => 'https://github.com'),
+          waitForTimeout: jest.fn(async () => undefined),
+          screenshot: jest.fn(async () => Buffer.from('fake')),
+          title: jest.fn(async () => 'GitHub'),
+        },
+        createdAt: new Date().toISOString(),
+        lastActionAt: new Date().toISOString(),
+        actionCount: 0,
+        lastKnownUrl: null,
+        lastTargetPolicy: null,
+        lastSelfHealing: null,
+      });
+
+      const result = await tool.execute({
+        action: 'navigate',
+        url: 'https://github.com',
+        useRealProfile: true,
+        allowedDomains: ['*.github.com'],
+      }, {
+        sessionId: 'playwright-gate-allow-test',
+      });
+
+      expect(gate.requestProfileAccess).toHaveBeenCalledWith(expect.objectContaining({
+        allowedDomains: ['*.github.com'],
+      }));
+      expect(result.success).toBe(true);
+    } finally {
+      if (origEnv === undefined) {
+        delete process.env.ZAVORTH_PLAYWRIGHT_ALLOWED_HOSTS;
+      } else {
+        process.env.ZAVORTH_PLAYWRIGHT_ALLOWED_HOSTS = origEnv;
+      }
+    }
   });
 });
