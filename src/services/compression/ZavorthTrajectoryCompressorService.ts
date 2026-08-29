@@ -6,6 +6,7 @@ export interface TrajectoryToolCallRecord {
   readonly outputPayload: string;
   readonly exitCode?: number;
   readonly durationMs?: number;
+  readonly toolCallId?: string;
 }
 
 export interface TrajectoryTurn {
