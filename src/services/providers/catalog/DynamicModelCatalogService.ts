@@ -107,7 +107,7 @@ export class DynamicModelCatalogService {
         for (const [modelId, fallbackModel] of Object.entries(providerDef.models)) {
           const cachedModel = existing.models[modelId];
           if (cachedModel) {
-            if (fallbackModel.supportsImageCompression !== undefined) {
+            if (cachedModel.supportsImageCompression === undefined && fallbackModel.supportsImageCompression !== undefined) {
               cachedModel.supportsImageCompression = fallbackModel.supportsImageCompression;
             }
           } else {
@@ -206,6 +206,7 @@ export class DynamicModelCatalogService {
       reasoning: model.reasoning,
       reasoning_options: model.reasoning_options,
       tool_call: model.tool_call,
+      supportsImageCompression: model.supportsImageCompression,
       limit: model.limit,
       cost: model.cost,
     };
@@ -256,14 +257,14 @@ export class DynamicModelCatalogService {
           name: 'Claude 3.7 Sonnet',
           reasoning: true,
           reasoning_options: [{ type: 'effort', values: ['low', 'medium', 'high', 'xhigh'] }],
-          supportsImageCompression: true,
+          supportsImageCompression: false,
           cost: { input: 3.0, output: 15.0, cache_read: 0.3 },
           limit: { context: 200000, output: 64000 },
         },
         'claude-3-5-sonnet-20241022': {
           id: 'claude-3-5-sonnet-20241022',
           name: 'Claude 3.5 Sonnet',
-          supportsImageCompression: true,
+          supportsImageCompression: false,
           cost: { input: 3.0, output: 15.0, cache_read: 0.3 },
           limit: { context: 200000, output: 8192 },
         },
@@ -272,6 +273,19 @@ export class DynamicModelCatalogService {
           name: 'Claude Fable 5',
           supportsImageCompression: true,
           limit: { context: 200000, output: 8192 },
+        },
+      },
+    });
+
+    map.set('xpersona', {
+      id: 'xpersona',
+      name: 'Xpersona',
+      models: {
+        'claude-fable-5': {
+          id: 'claude-fable-5',
+          name: 'Claude Fable 5',
+          supportsImageCompression: true,
+          limit: { context: 1000000, output: 128000 },
         },
       },
     });

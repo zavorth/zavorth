@@ -14,6 +14,7 @@ export interface TrajectoryTurn {
   readonly role: TrajectoryTurnRole;
   readonly content: string;
   readonly toolCalls?: readonly TrajectoryToolCallRecord[];
+  readonly inlineData?: readonly { readonly mimeType: string; readonly data: string }[];
   readonly estimatedTokens: number;
   readonly isProtectedAnchor?: boolean;
 }

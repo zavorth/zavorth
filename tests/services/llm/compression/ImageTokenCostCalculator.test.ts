@@ -14,12 +14,13 @@ describe('ImageTokenCostCalculator', () => {
     });
   });
 
-  it('detects catalog models with certified image compression', () => {
-    expect(registry.isImageSupported('claude-3-7-sonnet-20250219')).toBe(true);
-    expect(registry.isImageSupported('claude-3-5-sonnet-20241022')).toBe(true);
+  it('detects catalog models with certified image compression (claude-fable-5)', () => {
+    expect(registry.isImageSupported('claude-fable-5')).toBe(true);
   });
 
   it('fails closed for models that do not certify visual compression', () => {
+    expect(registry.isImageSupported('claude-3-7-sonnet-20250219')).toBe(false);
+    expect(registry.isImageSupported('claude-3-5-sonnet-20241022')).toBe(false);
     expect(registry.isImageSupported('gemini-2.5-flash')).toBe(false);
     expect(registry.isImageSupported('gemini-2.5-pro')).toBe(false);
     expect(registry.isImageSupported('gpt-4o')).toBe(false);
@@ -37,7 +38,7 @@ describe('ImageTokenCostCalculator', () => {
   });
 
   it('allows compression for certified models when mathematical savings exist', () => {
-    const decision = shouldCompressToImage('x'.repeat(50000), 'claude-3-7-sonnet-20250219');
+    const decision = shouldCompressToImage('x'.repeat(50000), 'claude-fable-5');
     expect(decision.compress).toBe(true);
     expect(decision.modelSupported).toBe(true);
     expect(decision.savingsRatio).toBeGreaterThan(0.5);
@@ -51,7 +52,7 @@ describe('ImageTokenCostCalculator', () => {
   });
 
   it('computes image tokens using registered capabilities', () => {
-    const tokens = estimateImageTokens(1568, 728, 'claude-3-7-sonnet-20250219');
+    const tokens = estimateImageTokens(1568, 728, 'claude-fable-5');
     expect(tokens).toBeGreaterThan(0);
   });
 });

@@ -8,6 +8,11 @@ import type {
   ToolCall,
   ToolDefinition,
 } from '../../providers/ILlmProvider.js';
+import {
+  extractSystemPrompt,
+  toAnthropicMessages,
+  toAnthropicTool,
+} from '../../providers/utils/anthropicConversion.js';
 
 interface AnthropicMessageDeltaEvent {
   type: 'message_delta';
@@ -73,7 +78,7 @@ export class AnthropicDirectProviderAdapter implements ILlmProvider {
     const response = await this.client().messages.create({
       model: String(options?.modelName || this.defaultModelName),
       max_tokens: 1024,
-      system: systemPrompt(messages) || undefined,
+      system: extractSystemPrompt(messages) || undefined,
       messages: toAnthropicMessages(messages),
       tools: tools && tools.length > 0 ? tools.map(toAnthropicTool) : undefined,
     }, options?.signal ? { signal: options.signal } : undefined);
@@ -98,7 +103,7 @@ export class AnthropicDirectProviderAdapter implements ILlmProvider {
     const stream = await this.client().messages.create({
       model: modelName,
       max_tokens: 1024,
-      system: systemPrompt(messages) || undefined,
+      system: extractSystemPrompt(messages) || undefined,
       messages: toAnthropicMessages(messages),
       tools: tools && tools.length > 0 ? tools.map(toAnthropicTool) : undefined,
       stream: true,
@@ -194,48 +199,6 @@ export function parseAnthropicResponse(response: Record<string, unknown>): LlmRe
   };
 }
 
-function toAnthropicMessages(messages: ChatMessage[]): Array<Record<string, unknown>> {
-  return messages
-    .filter((message) => message.role !== 'system')
-    .map((message) => {
-      if (message.role === 'assistant') {
-        return {
-          role: 'assistant',
-          content: message.content || '',
-        };
-      }
-      if (message.role === 'tool') {
-        return {
-          role: 'user',
-          content: [{
-            type: 'tool_result',
-            tool_use_id: message.toolCallId || 'unknown',
-            content: message.content || '',
-          }],
-        };
-      }
-      return {
-        role: 'user',
-        content: message.content || '',
-      };
-    });
-}
-
-function toAnthropicTool(tool: ToolDefinition): Record<string, unknown> {
-  return {
-    name: tool.name,
-    description: tool.description,
-    input_schema: tool.parameters,
-  };
-}
-
-function systemPrompt(messages: ChatMessage[]): string {
-  return messages
-    .filter((message) => message.role === 'system')
-    .map((message) => String(message.content || '').trim())
-    .filter(Boolean)
-    .join('\n');
-}
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value)

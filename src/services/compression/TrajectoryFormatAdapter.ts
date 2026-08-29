@@ -76,6 +76,7 @@ export class TrajectoryFormatAdapter {
         id: `turn-${i}`,
         role,
         content,
+        inlineData: msg.inlineData ? [...msg.inlineData] : undefined,
         estimatedTokens,
         isProtectedAnchor: role === 'system',
       });
@@ -144,6 +145,7 @@ export class TrajectoryFormatAdapter {
           role: 'assistant',
           content: turn.content.length > 0 ? turn.content : null,
           toolCalls,
+          inlineData: turn.inlineData ? [...turn.inlineData] : undefined,
         });
 
         for (const tm of toolMessages) {
@@ -155,6 +157,7 @@ export class TrajectoryFormatAdapter {
       messages.push({
         role: turn.role,
         content: turn.content,
+        inlineData: turn.inlineData ? [...turn.inlineData] : undefined,
       });
     }
 

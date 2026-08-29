@@ -54,6 +54,19 @@ describe('ContextImageCompressor', () => {
     expect(result.compressedMessages[0].inlineData).toBeUndefined();
   });
 
+  it('does not compress blocks wrapped with ZAVORTH_TOOL_SPEC_IMMUNE_MARKER', async () => {
+    const immuneBlock = '<!-- zavorth:immune-tool-spec -->\n# TOOL SPECS\n' + 'tool definition content '.repeat(200) + '\n<!-- zavorth:immune-tool-spec -->';
+    const messages: ChatMessage[] = [
+      { role: 'system', content: immuneBlock },
+      { role: 'user', content: 'hello' },
+    ];
+
+    const result = await compressor.compress(messages, { modelName: 'claude-sonnet-4' });
+    expect(result.totalBlocksCompressed).toBe(0);
+    expect(result.compressedMessages[0].content).toContain('<!-- zavorth:immune-tool-spec -->');
+    expect(result.compressedMessages[0].inlineData).toBeUndefined();
+  });
+
   it('does not compress small blocks', async () => {
     const messages: ChatMessage[] = [
       { role: 'system', content: 'You are a helpful assistant.' },
@@ -83,13 +96,13 @@ describe('ContextImageCompressor', () => {
     expect(result.compressedMessages[0].inlineData).toBeDefined();
   });
 
-  it('works with certified catalog models like Claude 3.7 Sonnet', async () => {
+  it('works with certified catalog models like Claude Fable 5', async () => {
     const largeContent = 'word '.repeat(500);
     const messages: ChatMessage[] = [
       { role: 'system', content: largeContent },
     ];
 
-    const result = await compressor.compress(messages, { modelName: 'claude-3-7-sonnet-20250219' });
+    const result = await compressor.compress(messages, { modelName: 'claude-fable-5' });
     expect(result.totalBlocksFound).toBeGreaterThanOrEqual(1);
     expect(result.modelSupported).toBe(true);
   });

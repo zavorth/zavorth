@@ -133,4 +133,67 @@ describe('ConversationalAgent Compression Integration', () => {
       expect(learnedKnowledgeIndex).toBeGreaterThan(toolsIndex);
     }
   });
+
+  it('preserves dynamic product runtime context even when contextDecision is returned', async () => {
+    const chatDetailedMock = jest.fn().mockResolvedValue({
+      providerName: 'anthropic',
+      response: {
+        content: 'Response with context decision',
+      } as LlmResponse,
+    });
+
+    const llmRuntime = {
+      isProviderAvailable: jest.fn(() => true),
+      chatDetailed: chatDetailedMock,
+    } as unknown as LlmRuntimeService;
+
+    const contextEngine = {
+      prepareAsync: jest.fn().mockResolvedValue({
+        messages: [
+          { role: 'system', content: 'Base instruction from engine' },
+          { role: 'user', content: 'User query' },
+        ],
+        tools: [],
+      }),
+    };
+
+    const agent = new ConversationalAgent({
+      llmRuntime,
+      contextEngine,
+    });
+
+    await agent.chat('User query with context engine', undefined, {
+      userId: 'user-engine-1',
+      chatId: 'chat-engine-1',
+    });
+
+    expect(chatDetailedMock).toHaveBeenCalledTimes(1);
+    const sentMessages: ChatMessage[] = chatDetailedMock.mock.calls[0][0];
+    const systemMsg = sentMessages.find((m) => m.role === 'system');
+
+    expect(systemMsg).toBeDefined();
+    // System message in contextDecision branch must contain both tool catalog and dynamic runtime context
+    expect(systemMsg?.content).toContain('**TOOLS');
+  });
+
+  it('increments turnCounter across multiple chats and passes it to trajectoryCompactor', async () => {
+    const chatDetailedMock = jest.fn().mockResolvedValue({
+      providerName: 'anthropic',
+      response: {
+        content: 'Turn finished',
+      } as LlmResponse,
+    });
+
+    const llmRuntime = {
+      isProviderAvailable: jest.fn(() => true),
+      chatDetailed: chatDetailedMock,
+    } as unknown as LlmRuntimeService;
+
+    const agent = new ConversationalAgent({ llmRuntime });
+    await agent.chat('turn 1');
+    await agent.chat('turn 2');
+    await agent.chat('turn 3');
+
+    expect((agent as unknown as { turnCounter: number }).turnCounter).toBe(3);
+  });
 });

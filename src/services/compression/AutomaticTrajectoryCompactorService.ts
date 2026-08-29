@@ -44,6 +44,7 @@ export class AutomaticTrajectoryCompactorService {
   private readonly adapter = new TrajectoryFormatAdapter();
   private lastCompactionTurnIndex = -100;
   private consecutiveIneffectiveCount = 0;
+  private internalTurnCounter = 0;
 
   constructor(compressor = new ZavorthTrajectoryCompressorService()) {
     this.compressor = compressor;
@@ -63,8 +64,9 @@ export class AutomaticTrajectoryCompactorService {
       0,
     );
 
-    // Anti-thrash cooldown check
-    const currentTurn = options.currentTurnIndex ?? 0;
+    // Anti-thrash cooldown check: use provided turn index or auto-incrementing internal turn counter
+    this.internalTurnCounter += 1;
+    const currentTurn = options.currentTurnIndex !== undefined ? options.currentTurnIndex : this.internalTurnCounter;
     const cooldownTurns = options.compactionCooldownTurns ?? 3;
     if (
       this.consecutiveIneffectiveCount >= 2 &&

@@ -195,7 +195,7 @@ export class ProviderFactory {
     const guarded = wrapLlmProviderWithEgressGuard(new DynamicAdapterProvider(target.providerName, adapter));
     const provider = new EmulatedToolCallingProviderDecorator(guarded, {
       providerType: target.providerName,
-      compressContext: process.env.ZAVORTH_COMPRESS_CONTEXT !== '0',
+      compressContext: process.env.ZAVORTH_COMPRESS_CONTEXT === '1',
       modelResolver: (modelName?: string) => DynamicModelCatalogService.getModel(modelName || '', target.providerName),
     });
     this.cache.set(target.providerName, provider);

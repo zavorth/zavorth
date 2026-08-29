@@ -87,4 +87,27 @@ describe('TrajectoryFormatAdapter', () => {
     expect(messages[1].content).toContain('### [Zavorth Trajectory Semantic Compression Digest]');
     expect(messages[1].toolCalls).toBeUndefined();
   });
+
+  it('preserves inlineData across roundtrip conversions', () => {
+    const messages: ChatMessage[] = [
+      {
+        role: 'user',
+        content: 'Check screenshot',
+        inlineData: [{ mimeType: 'image/png', data: 'screenshotBase64' }],
+      },
+      {
+        role: 'assistant',
+        content: 'I see the image.',
+      },
+    ];
+
+    const turns = adapter.toTrajectoryTurns(messages);
+    expect(turns[0].inlineData).toBeDefined();
+    expect(turns[0].inlineData?.[0].data).toBe('screenshotBase64');
+
+    const roundtrip = adapter.toChatMessages(turns);
+    expect(roundtrip[0].inlineData).toBeDefined();
+    expect(roundtrip[0].inlineData?.[0].mimeType).toBe('image/png');
+    expect(roundtrip[0].inlineData?.[0].data).toBe('screenshotBase64');
+  });
 });

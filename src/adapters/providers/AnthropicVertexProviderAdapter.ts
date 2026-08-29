@@ -7,6 +7,11 @@ import type {
   ToolDefinition,
 } from '../../providers/ILlmProvider.js';
 import { parseAnthropicResponse } from './AnthropicDirectProviderAdapter.js';
+import {
+  extractSystemPrompt,
+  toAnthropicMessages,
+  toAnthropicTool,
+} from '../../providers/utils/anthropicConversion.js';
 
 export type AnthropicVertexProviderAdapterOptions = {
   projectId?: string | null;
@@ -65,14 +70,10 @@ export class AnthropicVertexProviderAdapter implements ILlmProvider {
     const response = await this.client().messages.create({
       model: String(options?.modelName || this.defaultModelName),
       max_tokens: 1024,
-      system: systemPrompt(messages) || undefined,
-      messages: toVertexMessages(messages),
+      system: extractSystemPrompt(messages) || undefined,
+      messages: toAnthropicMessages(messages),
       tools: tools && tools.length > 0
-        ? tools.map((tool) => ({
-            name: tool.name,
-            description: tool.description,
-            input_schema: tool.parameters,
-          }))
+        ? tools.map(toAnthropicTool)
         : undefined,
     }, options?.signal ? { signal: options.signal } : undefined);
 
@@ -89,21 +90,4 @@ export class AnthropicVertexProviderAdapter implements ILlmProvider {
       region: this.region,
     }) as unknown as AnthropicVertexLikeClient;
   }
-}
-
-function toVertexMessages(messages: ChatMessage[]): Array<Record<string, unknown>> {
-  return messages
-    .filter((message) => message.role !== 'system')
-    .map((message) => ({
-      role: message.role === 'assistant' ? 'assistant' : 'user',
-      content: message.content || '',
-    }));
-}
-
-function systemPrompt(messages: ChatMessage[]): string {
-  return messages
-    .filter((message) => message.role === 'system')
-    .map((message) => String(message.content || '').trim())
-    .filter(Boolean)
-    .join('\n');
 }

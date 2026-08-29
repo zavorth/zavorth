@@ -51,15 +51,49 @@ export class ModelCapabilityRegistry {
     BUILTIN_CAPABILITIES.set(name.toLowerCase(), capabilities);
   }
 
-  getCapabilities(modelName: string): ModelCapabilities {
+  getCapabilities(modelName: string, providerId?: string): ModelCapabilities {
     const model = (modelName ?? '').toLowerCase().trim();
     const direct = BUILTIN_CAPABILITIES.get(model);
     if (direct) {
       return direct;
     }
 
-    const catalogDef = DynamicModelCatalogService.getModel(model);
+    const catalogDef = DynamicModelCatalogService.getModel(model, providerId);
     if (catalogDef?.supportsImageCompression) {
+      if (catalogDef.providerId === 'google' || catalogDef.family === 'gemini') {
+        return {
+          supportsImages: true,
+          billing: {
+            type: 'fixed',
+            fixedTokens: 258,
+          },
+          pageGeometry: {
+            cols: 250,
+            widthPx: 1024,
+            heightPx: 768,
+            linesPerPage: 80,
+          },
+        };
+      }
+      if (catalogDef.providerId === 'openai' || catalogDef.family === 'gpt') {
+        return {
+          supportsImages: true,
+          billing: {
+            type: 'tile',
+            fixedTokens: 85,
+            multiplier: 170,
+            tileSize: 512,
+          },
+          pageGeometry: {
+            cols: 250,
+            widthPx: 1024,
+            heightPx: 768,
+            linesPerPage: 80,
+          },
+        };
+      }
+
+      // Default certified geometry for Anthropic / Claude
       return {
         supportsImages: true,
         billing: {
@@ -84,8 +118,8 @@ export class ModelCapabilityRegistry {
     };
   }
 
-  isImageSupported(modelName: string): boolean {
-    return this.getCapabilities(modelName).supportsImages;
+  isImageSupported(modelName: string, providerId?: string): boolean {
+    return this.getCapabilities(modelName, providerId).supportsImages;
   }
 }
 

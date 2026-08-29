@@ -193,6 +193,7 @@ export class ConversationalAgent {
   private readonly toolPruner = new ToolResultPruningService();
   private readonly trajectoryCompactor = new AutomaticTrajectoryCompactorService();
   private sessionId = '';
+  private turnCounter = 0;
 
   constructor(runtime: LlmRuntimeService | ConversationalAgentRuntime = {}) {
     if (runtime instanceof LlmRuntimeService || (typeof runtime === 'object' && runtime !== null && 'chatDetailed' in runtime && typeof (runtime as { chatDetailed?: unknown }).chatDetailed === 'function')) {
@@ -212,6 +213,7 @@ export class ConversationalAgent {
     inlineData?: InlineData,
     options?: ConversationalChatOptions,
   ): Promise<ConversationalResponse> {
+    this.turnCounter += 1;
     const userMessage = this.stripInternalVoicePreamble(message);
     const primaryProvider = String(config.llmProvider || '').trim();
     if (!primaryProvider) {
@@ -305,12 +307,16 @@ export class ConversationalAgent {
       userMessage,
     );
 
-    const messages: ChatMessage[] = contextDecision
-      ? this.injectToolCatalogIntoMessages(contextDecision.messages, activeTools, catalogNames)
-      : [
-          { role: 'system', content: finalSystemPrompt },
-          { role: 'user', content: userMessage, inlineData },
-        ];
+    let messages: ChatMessage[];
+    if (contextDecision) {
+      const withCatalog = this.injectToolCatalogIntoMessages(contextDecision.messages, activeTools, catalogNames);
+      messages = this.appendProductRuntimeContextToMessages(withCatalog, options, userMessage);
+    } else {
+      messages = [
+        { role: 'system', content: finalSystemPrompt },
+        { role: 'user', content: userMessage, inlineData },
+      ];
+    }
 
     const groundingEvidenceTexts: string[] = [];
     let toolReceiptCount = 0;
@@ -343,6 +349,7 @@ export class ConversationalAgent {
       const contextLimitTokens = modelDef?.limit?.context || 128_000;
       const compactionResult = await this.trajectoryCompactor.compactMessagesIfNeeded(messages, {
         contextLimitTokens,
+        currentTurnIndex: this.turnCounter,
         onPreCompress: async (middleTurns) => {
           try {
             logger.info(`[ConversationalAgent] Pre-compressing ${middleTurns.length} turns for durable continuum.`);
@@ -782,6 +789,27 @@ export class ConversationalAgent {
       return cloned;
     }
     return [{ role: 'system', content: this.appendToolCatalogBrain('', tools, catalogNames) }, ...cloned];
+  }
+
+  private appendProductRuntimeContextToMessages(
+    messages: ChatMessage[],
+    options?: ConversationalChatOptions | null,
+    userMessage?: string | null,
+  ): ChatMessage[] {
+    const cloned = messages.map((entry) => ({ ...entry }));
+    const firstSystem = cloned.findIndex((entry) => entry.role === 'system');
+    if (firstSystem >= 0) {
+      cloned[firstSystem] = {
+        ...cloned[firstSystem],
+        content: this.appendProductRuntimeContext(
+          String(cloned[firstSystem].content || ''),
+          options,
+          userMessage,
+        ),
+      };
+      return cloned;
+    }
+    return cloned;
   }
 
   private buildFullToolRegistry(

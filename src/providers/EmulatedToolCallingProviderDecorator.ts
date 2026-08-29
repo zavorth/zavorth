@@ -12,6 +12,7 @@ import { ContextImageCompressor } from '../services/llm/compression/ContextImage
 
 import { DynamicModelCatalogService, type ModelDefinition } from '../services/providers/catalog/DynamicModelCatalogService.js';
 
+export const ZAVORTH_TOOL_SPEC_IMMUNE_MARKER = '<!-- zavorth:immune-tool-spec -->';
 const EMULATION_FORMAT_HINT = '__zavorth_emulated_tools__';
 
 function buildMinimalHint(tools: ToolDefinition[]): string {
@@ -112,12 +113,13 @@ export class EmulatedToolCallingProviderDecorator implements ILlmProvider {
     if (!injectFull && !injectMinimal) {
       return messages;
     }
-    const spec = injectFull
+    const rawSpec = injectFull
       ? this.emulationAdapter.buildPromptToolSpecifications(tools, 'XML_TAGS')
       : buildMinimalHint(tools);
-    if (!spec) {
+    if (!rawSpec) {
       return messages;
     }
+    const spec = `${ZAVORTH_TOOL_SPEC_IMMUNE_MARKER}\n${rawSpec}\n${ZAVORTH_TOOL_SPEC_IMMUNE_MARKER}`;
     const systemIndex = messages.findIndex((message) => message.role === 'system');
     if (systemIndex < 0) {
       return [{ role: 'system', content: spec }, ...messages];
@@ -126,7 +128,12 @@ export class EmulatedToolCallingProviderDecorator implements ILlmProvider {
     if (!system) {
       return messages;
     }
-    if (system.content !== null && system.content.includes(EMULATION_FORMAT_HINT)) {
+    if (
+      system.content !== null &&
+      (system.content.includes(ZAVORTH_TOOL_SPEC_IMMUNE_MARKER) ||
+        system.content.includes(EMULATION_FORMAT_HINT) ||
+        system.content.includes('<tool_call>'))
+    ) {
       return messages;
     }
     const updated = [...messages];
