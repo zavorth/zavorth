@@ -3,10 +3,9 @@ import os from 'os';
 import path from 'path';
 
 import { ZavorthLlmRuntimeService } from '../../src/services/ZavorthLlmRuntimeService.js';
-import { UserModelDialecticReasoningService } from '../../src/services/UserModelDialecticReasoningService.js';
+import { UserModelFactStore } from '../../src/services/user-model/UserModelFactStore.js';
+import { UserModelTrajectoryReflectionService } from '../../src/services/user-model/UserModelTrajectoryReflectionService.js';
 import { UserModelDialecticService } from '../../src/services/UserModelDialecticService.js';
-import { UserModelReviewDaemonService } from '../../src/services/UserModelReviewDaemonService.js';
-import { UserModelTurnCaptureService } from '../../src/services/UserModelTurnCaptureService.js';
 
 function makeTmpDir(): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-agent-comprehensive-'));
@@ -44,237 +43,6 @@ describe('ZavorthLlmRuntimeService — Comprehensive', () => {
   it('should have multiPassReasoning as async function', () => {
     const svc = new ZavorthLlmRuntimeService();
     expect(typeof svc.multiPassReasoning).toBe('function');
-  });
-});
-
-describe('UserModelDialecticReasoningService — Comprehensive', () => {
-  let tmpDir: string;
-  beforeEach(() => { tmpDir = makeTmpDir(); });
-  afterEach(() => { fs.rmSync(tmpDir, { recursive: true, force: true }); });
-
-  it('should create with defaults', () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    expect(svc).toBeDefined();
-  });
-
-  it('should create with custom config', () => {
-    const svc = new UserModelDialecticReasoningService({
-      homeRoot: tmpDir,
-      config: { depth: 3, maxInsights: 50, minConversationPairs: 1 },
-    });
-    expect(svc).toBeDefined();
-  });
-
-  it('should synthesize with empty conversations', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize([]);
-    expect(s.insights).toEqual([]);
-    expect(s.traits).toEqual({});
-    expect(s.patterns).toEqual([]);
-    expect(s.confidence).toBe(0);
-  });
-
-  it('should synthesize with single conversation', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize([{ user: 'I work with Python and Docker', assistant: 'Great!' }]);
-    expect(s.insights.length).toBeGreaterThan(0);
-    expect(s.depth).toBe(2);
-  });
-
-  it('should detect communication_style traits', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize([
-      { user: 'Give me direct and brief summaries please', assistant: 'Ok.' },
-      { user: 'I want quick short answers', assistant: 'Ok.' },
-    ]);
-    const hasCommStyle = s.insights.some(i => i.category === 'communication_style');
-    expect(hasCommStyle).toBe(true);
-  });
-
-  it('should detect domain_expertise traits', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize([
-      { user: 'I need help with TypeScript and JavaScript', assistant: 'Sure!' },
-      { user: 'How do I deploy with Docker?', assistant: 'Use docker-compose.' },
-    ]);
-    const hasDomain = s.insights.some(i => i.category === 'domain_expertise');
-    expect(hasDomain).toBe(true);
-  });
-
-  it('should detect tool_preferences traits', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize([
-      { user: 'I need to review this code', assistant: 'I will analyze it.' },
-      { user: 'I want to create a new feature', assistant: 'I will implement it.' },
-    ]);
-    const hasTool = s.insights.some(i => i.category === 'tool_preferences');
-    expect(hasTool).toBe(true);
-  });
-
-  it('should detect personality traits', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize([
-      { user: 'Be serious and professional', assistant: 'Understood.' },
-      { user: 'I prefer a formal tone', assistant: 'Ok.' },
-    ]);
-    const hasPersonality = s.insights.some(i => i.category === 'personality');
-    expect(hasPersonality).toBe(true);
-  });
-
-  it('should detect schedule traits', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize([
-      { user: 'I work early in the morning', assistant: 'Ok.' },
-      { user: 'I usually code at night', assistant: 'Understood.' },
-    ]);
-    const hasSchedule = s.insights.some(i => i.category === 'schedule');
-    expect(hasSchedule).toBe(true);
-  });
-
-  it('should detect inquiry patterns at depth >= 2', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir, config: { depth: 2 } });
-    const s = await svc.synthesize([
-      { user: 'How do I do X?', assistant: '...' },
-      { user: 'How do I do Y?', assistant: '...' },
-      { user: 'How do I do Z?', assistant: '...' },
-      { user: 'I need help with W', assistant: '...' },
-    ]);
-    expect(s.patterns.some(p => p.includes('inquiry-heavy'))).toBe(true);
-  });
-
-  it('should detect command patterns', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir, config: { depth: 2 } });
-    const s = await svc.synthesize([
-      { user: 'Create a summary', assistant: 'Ok.' },
-      { user: 'Execute the script', assistant: 'Ok.' },
-      { user: 'Run the tests', assistant: 'Ok.' },
-      { user: 'Create a new file', assistant: 'Ok.' },
-    ]);
-    expect(s.patterns.some(p => p.includes('command-heavy'))).toBe(true);
-  });
-
-  it('should generate recommendations based on traits', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize([
-      { user: 'Give me a quick answer please', assistant: 'Ok.' },
-      { user: 'Execute the test now', assistant: 'Ok.' },
-      { user: 'Run the complete build', assistant: 'Ok.' },
-      { user: 'Create the config file', assistant: 'Ok.' },
-      { user: 'I work early in the morning', assistant: 'Ok.' },
-    ]);
-    expect(s.recommendations.length).toBeGreaterThan(0);
-  });
-
-  it('should respect maxInsights config', async () => {
-    const svc = new UserModelDialecticReasoningService({
-      homeRoot: tmpDir,
-      config: { maxInsights: 2 },
-    });
-    const conversations = Array.from({ length: 20 }, (_, i) => ({
-      user: `Message ${i} with Python and Docker details`,
-      assistant: `Response ${i}`,
-    }));
-    const s = await svc.synthesize(conversations);
-    expect(s.insights.length).toBeLessThanOrEqual(2);
-  });
-
-  it('should persist and load synthesis', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    await svc.synthesize([
-      { user: 'I work with Rust and Go', assistant: 'Nice!' },
-    ]);
-    const loaded = svc.loadSynthesis();
-    expect(loaded).not.toBeNull();
-    expect(loaded!.contractVersion).toBe('zavorth-dialectic-reasoning/1');
-    expect(loaded!.userId).toBeNull();
-  });
-
-  it('should include userId and sessionId when provided', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize(
-      [{ user: 'test message with enough length', assistant: 'ok' }],
-      { userId: 'user-123', sessionId: 'sess-456' },
-    );
-    expect(s.userId).toBe('user-123');
-    expect(s.sessionId).toBe('sess-456');
-  });
-
-  it('should return null when no synthesis file exists', () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: makeTmpDir() });
-    expect(svc.loadSynthesis()).toBeNull();
-  });
-
-  it('should handle corrupted synthesis file gracefully', () => {
-    const dir = makeTmpDir();
-    const fp = path.join(dir, 'data', 'runtime', 'user-dialectic-synthesis.json');
-    fs.mkdirSync(path.dirname(fp), { recursive: true });
-    fs.writeFileSync(fp, '{corrupted json', 'utf-8');
-    const svc = new UserModelDialecticReasoningService({ homeRoot: dir });
-    expect(svc.loadSynthesis()).toBeNull();
-    fs.rmSync(dir, { recursive: true, force: true });
-  });
-
-  it('should calculate confidence based on conversation count', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s1 = await svc.synthesize([{ user: 'test message here', assistant: 'ok' }]);
-    const tmpDir2 = makeTmpDir();
-    const svc2 = new UserModelDialecticReasoningService({ homeRoot: tmpDir2 });
-    const many = Array.from({ length: 15 }, (_, i) => ({
-      user: `Message ${i} about Python and Docker`,
-      assistant: `Response ${i}`,
-    }));
-    const s2 = await svc2.synthesize(many);
-    expect(s2.confidence).toBeGreaterThanOrEqual(s1.confidence);
-    fs.rmSync(tmpDir2, { recursive: true, force: true });
-  });
-
-  it('should handle depth 1 (regex only)', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir, config: { depth: 1 } });
-    const s = await svc.synthesize([{ user: 'test message', assistant: 'ok' }]);
-    expect(s.depth).toBe(1);
-    expect(s.patterns).toEqual([]);
-  });
-
-  it('should handle depth 3 (trait inference)', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir, config: { depth: 3 } });
-    const s = await svc.synthesize([
-      { user: 'how do i do x?', assistant: '...' },
-      { user: 'how do i do y?', assistant: '...' },
-    ]);
-    expect(s.depth).toBe(3);
-  });
-
-  it('should produce valid ISO timestamps', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize([{ user: 'test message here', assistant: 'ok' }]);
-    expect(() => new Date(s.generatedAt)).not.toThrow();
-    expect(new Date(s.generatedAt).toISOString()).toBe(s.generatedAt);
-  });
-
-  it('should produce unique insight ids', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize([
-      { user: 'Python and Docker and JavaScript', assistant: 'Ok' },
-      { user: 'Review code and implement', assistant: 'Ok' },
-    ]);
-    const ids = s.insights.map(i => i.id);
-    expect(new Set(ids).size).toBe(ids.length);
-  });
-
-  it('should set insight source to conversation for user messages', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize([{ user: 'I work with Python', assistant: 'Ok' }]);
-    const conversationInsights = s.insights.filter(i => i.source === 'conversation');
-    expect(conversationInsights.length).toBeGreaterThan(0);
-  });
-
-  it('should include evidence in insights', async () => {
-    const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize([{ user: 'I work with Python', assistant: 'Ok' }]);
-    for (const insight of s.insights) {
-      expect(Array.isArray(insight.evidence)).toBe(true);
-      expect(insight.evidence.length).toBeGreaterThan(0);
-    }
   });
 });
 
@@ -400,267 +168,107 @@ describe('UserModelDialecticService — Comprehensive', () => {
   });
 });
 
-describe('UserModelTurnCaptureService — Comprehensive', () => {
+describe('UserModelFactStore — Comprehensive', () => {
   let tmpDir: string;
   beforeEach(() => { tmpDir = makeTmpDir(); });
   afterEach(() => { fs.rmSync(tmpDir, { recursive: true, force: true }); });
 
-  it('should capture many turns', () => {
-    const svc = new UserModelTurnCaptureService({ homeRoot: tmpDir });
-    for (let i = 0; i < 50; i++) {
-      svc.captureTurn({ kind: 'user_message', content: `Message ${i} with enough content to pass threshold` });
-    }
-    expect(svc.getRecentTurns().length).toBe(50);
-  });
-
-  it('should get conversation pairs correctly', () => {
-    const svc = new UserModelTurnCaptureService({ homeRoot: tmpDir });
-    svc.captureConversation('user msg 1 with enough content', 'assistant msg 1 with enough content');
-    svc.captureConversation('user msg 2 with enough content', 'assistant msg 2 with enough content');
-    svc.captureConversation('user msg 3 with enough content', 'assistant msg 3 with enough content');
-    const pairs = svc.getConversationPairs();
-    expect(pairs.length).toBe(3);
-    expect(pairs[0].user.kind).toBe('user_message');
-    expect(pairs[0].assistant.kind).toBe('assistant_response');
-  });
-
-  it('should get recent turns with limit', () => {
-    const svc = new UserModelTurnCaptureService({ homeRoot: tmpDir });
-    for (let i = 0; i < 10; i++) {
-      svc.captureTurn({ kind: 'user_message', content: `Message ${i} with enough content here` });
-    }
-    expect(svc.getRecentTurns(5).length).toBe(5);
-    expect(svc.getRecentTurns(3).length).toBe(3);
-  });
-
-  it('should track surface statistics', () => {
-    const svc = new UserModelTurnCaptureService({ homeRoot: tmpDir });
-    svc.captureTurn({ kind: 'user_message', content: 'msg from telegram', surface: 'telegram' });
-    svc.captureTurn({ kind: 'user_message', content: 'msg from telegram 2', surface: 'telegram' });
-    svc.captureTurn({ kind: 'user_message', content: 'msg from discord', surface: 'discord' });
-    const stats = svc.getSurfaceStats();
-    expect(stats.find(s => s.name === 'telegram')!.turnCount).toBe(2);
-    expect(stats.find(s => s.name === 'discord')!.turnCount).toBe(1);
-  });
-
-  it('should filter by allowedSurfaces', () => {
-    const svc = new UserModelTurnCaptureService({
-      homeRoot: tmpDir,
-      config: { allowedSurfaces: ['telegram'] },
+  it('should initialize cleanly and save facts', async () => {
+    const store = new UserModelFactStore({ dataDir: path.join(tmpDir, 'user-model') });
+    await store.initialize();
+    const fact = await store.saveFact({
+      id: 'fact-c1',
+      userId: 'test-user',
+      content: 'Uses dark mode in editor',
+      kind: 'preference',
+      category: 'ui_theme',
+      status: 'active',
+      version: 1,
+      confidence: 0.9,
+      evidence: [{ citation: 'User said dark mode please', timestamp: new Date().toISOString() }],
+      source: 'explicit',
+      language: 'en',
+      surface: null,
+      lastObservedAt: new Date().toISOString(),
+      occurrences: 1,
     });
-    expect(svc.captureTurn({ kind: 'user_message', content: 'telegram msg', surface: 'telegram' })).not.toBeNull();
-    expect(svc.captureTurn({ kind: 'user_message', content: 'discord msg', surface: 'discord' })).toBeNull();
+    expect(fact.id).toBe('fact-c1');
+    const retrieved = await store.getFactById('fact-c1');
+    expect(retrieved?.content).toBe('Uses dark mode in editor');
   });
 
-  it('should prune old turns based on retention', () => {
-    const oldDate = new Date('2026-01-01');
-    const svc = new UserModelTurnCaptureService({ homeRoot: tmpDir, now: () => oldDate });
-    svc.captureTurn({ kind: 'user_message', content: 'Old message with enough content' });
-    const svc2 = new UserModelTurnCaptureService({
-      homeRoot: tmpDir,
-      now: () => new Date('2026-07-01'),
-      config: { retentionDays: 7 },
-    });
-    expect(svc2.pruneOldTurns()).toBe(1);
-  });
-
-  it('should return stats', () => {
-    const svc = new UserModelTurnCaptureService({ homeRoot: tmpDir });
-    svc.captureTurn({ kind: 'user_message', content: 'Test message with enough content' });
-    const stats = svc.getStats();
-    expect(stats.totalTurns).toBe(1);
-    expect(stats.fileExists).toBe(true);
-  });
-
-  it('should respect enabled=false', () => {
-    const svc = new UserModelTurnCaptureService({ homeRoot: tmpDir, config: { enabled: false } });
-    expect(svc.captureTurn({ kind: 'user_message', content: 'Should not capture' })).toBeNull();
-  });
-
-  it('should get turns by surface', () => {
-    const svc = new UserModelTurnCaptureService({ homeRoot: tmpDir });
-    svc.captureTurn({ kind: 'user_message', content: 'Telegram msg 1', surface: 'telegram' });
-    svc.captureTurn({ kind: 'user_message', content: 'Discord msg 1', surface: 'discord' });
-    svc.captureTurn({ kind: 'user_message', content: 'Telegram msg 2', surface: 'telegram' });
-    expect(svc.getTurnsBySurface('telegram').length).toBe(2);
-    expect(svc.getTurnsBySurface('discord').length).toBe(1);
-  });
-
-  it('should get active surfaces', () => {
-    const svc = new UserModelTurnCaptureService({ homeRoot: tmpDir });
-    svc.captureTurn({ kind: 'user_message', content: 'From whatsapp', surface: 'whatsapp' });
-    svc.captureTurn({ kind: 'user_message', content: 'From signal', surface: 'signal' });
-    const active = svc.getActiveSurfaces();
-    expect(active).toContain('whatsapp');
-    expect(active).toContain('signal');
-  });
-
-  it('should persist turns across instances', () => {
-    const svc1 = new UserModelTurnCaptureService({ homeRoot: tmpDir });
-    svc1.captureTurn({ kind: 'user_message', content: 'Persistent message' });
-    const svc2 = new UserModelTurnCaptureService({ homeRoot: tmpDir });
-    expect(svc2.getRecentTurns().length).toBe(1);
+  it('should deduplicate processed turns', async () => {
+    const store = new UserModelFactStore({ dataDir: path.join(tmpDir, 'user-model') });
+    await store.initialize();
+    expect(store.isTurnProcessed('turn-100')).toBe(false);
+    await store.markTurnProcessed('turn-100');
+    expect(store.isTurnProcessed('turn-100')).toBe(true);
   });
 });
 
-describe('UserModelReviewDaemonService — Comprehensive', () => {
+describe('UserModelTrajectoryReflectionService — Comprehensive', () => {
   let tmpDir: string;
   beforeEach(() => { tmpDir = makeTmpDir(); });
   afterEach(() => { fs.rmSync(tmpDir, { recursive: true, force: true }); });
 
-  it('should create with default config', () => {
-    const svc = new UserModelReviewDaemonService({ homeRoot: tmpDir });
-    const status = svc.getStatus();
-    expect(status.running).toBe(false);
-    expect(status.totalReviews).toBe(0);
-    expect(status.lastReviewAt).toBeNull();
-    expect(status.lastLlmReviewAt).toBeNull();
-    expect(status.totalLlmReviews).toBe(0);
-  });
+  it('should process turn and extract facts via llmInference mock', async () => {
+    const store = new UserModelFactStore({ dataDir: path.join(tmpDir, 'user-model') });
+    await store.initialize();
+    const mockLlm = {
+      synthesize: jest.fn().mockResolvedValue({
+        content: JSON.stringify({
+          facts: [
+            {
+              content: 'Prefers concise explanations',
+              kind: 'preference',
+              category: 'style',
+              citation: 'keep it short',
+              confidenceScore: 0.85,
+            },
+          ],
+          contradictions: [],
+        }),
+      }),
+    };
 
-  it('should start and stop cleanly', () => {
-    const svc = new UserModelReviewDaemonService({ homeRoot: tmpDir, config: { intervalMs: 60000 } });
-    svc.start();
-    expect(svc.getStatus().running).toBe(true);
-    svc.stop();
-    expect(svc.getStatus().running).toBe(false);
-  });
-
-  it('should not start twice', () => {
-    const svc = new UserModelReviewDaemonService({ homeRoot: tmpDir, config: { intervalMs: 60000 } });
-    svc.start();
-    svc.start();
-    expect(svc.getStatus().running).toBe(true);
-    svc.stop();
-  });
-
-  it('should not stop when not started', () => {
-    const svc = new UserModelReviewDaemonService({ homeRoot: tmpDir });
-    svc.stop();
-    expect(svc.getStatus().running).toBe(false);
-  });
-
-  it('should skip review when not enough turns', async () => {
-    const turnCapture = new UserModelTurnCaptureService({ homeRoot: tmpDir });
-    turnCapture.captureConversation('Short msg', 'Short reply');
-    const daemon = new UserModelReviewDaemonService({
-      homeRoot: tmpDir,
-      turnCapture,
-      config: { minTurnsForReview: 100 },
+    const service = new UserModelTrajectoryReflectionService({
+      factStore: store,
+      llmInference: mockLlm,
     });
-    const result = await daemon.runReviewCycle();
-    expect(result).toBeNull();
-  });
 
-  it('should run full review cycle with enough turns', async () => {
-    const turnCapture = new UserModelTurnCaptureService({ homeRoot: tmpDir });
-    const msgs = [
-      { user: 'I prefer direct and short answers', assistant: 'Understood.' },
-      { user: 'I work with Python and Docker', assistant: 'Nice!' },
-      { user: 'I want to review the code', assistant: 'I will analyze it.' },
-      { user: 'I need to create something new', assistant: 'I will implement it.' },
-      { user: 'How do I deploy?', assistant: 'Use Docker Compose.' },
-    ];
-    for (const m of msgs) turnCapture.captureConversation(m.user, m.assistant);
-
-    const daemon = new UserModelReviewDaemonService({
-      homeRoot: tmpDir,
-      turnCapture,
-      config: { minTurnsForReview: 3 },
+    const result = await service.processTurn({
+      turnId: 'turn-comprehensive-1',
+      userId: 'test-user',
+      userMessage: 'Please keep it short from now on',
+      assistantText: 'Understood, will be brief.',
     });
-    const synthesis = await daemon.runReviewCycle();
-    expect(synthesis).not.toBeNull();
-    expect(synthesis!.insights.length).toBeGreaterThan(0);
-    expect(daemon.getStatus().totalReviews).toBe(1);
-    expect(daemon.getStatus().lastReviewAt).not.toBeNull();
+
+    expect(result.extractedCount).toBe(1);
+    expect(store.isTurnProcessed('turn-comprehensive-1')).toBe(true);
+    const facts = await store.listFactsByUserId('test-user');
+    expect(facts).toHaveLength(1);
+    expect(facts[0].content).toBe('Prefers concise explanations');
   });
 
-  it('should force review', async () => {
-    const turnCapture = new UserModelTurnCaptureService({ homeRoot: tmpDir });
-    for (let i = 0; i < 10; i++) {
-      turnCapture.captureConversation(
-        `Message ${i} about Python and Docker tools`,
-        `Response ${i} with enough content`,
-      );
-    }
-    const daemon = new UserModelReviewDaemonService({
-      homeRoot: tmpDir,
-      turnCapture,
-      config: { minTurnsForReview: 5 },
+  it('should skip duplicate turns gracefully', async () => {
+    const store = new UserModelFactStore({ dataDir: path.join(tmpDir, 'user-model') });
+    await store.initialize();
+    await store.markTurnProcessed('turn-already-done');
+
+    const mockLlm = { synthesize: jest.fn() };
+    const service = new UserModelTrajectoryReflectionService({
+      factStore: store,
+      llmInference: mockLlm,
     });
-    const result = await daemon.forceReview();
-    expect(result).not.toBeNull();
-  });
 
-  it('should persist status across instances', () => {
-    const svc = new UserModelReviewDaemonService({ homeRoot: tmpDir });
-    svc.start();
-    svc.stop();
-    const svc2 = new UserModelReviewDaemonService({ homeRoot: tmpDir });
-    expect(svc2.getStatus().running).toBe(false);
-  });
-
-  it('should record LLM review stats when synthesis has llmSynthesis', async () => {
-    const turnCapture = new UserModelTurnCaptureService({ homeRoot: tmpDir });
-    for (let i = 0; i < 10; i++) {
-      turnCapture.captureConversation(
-        `User message ${i} about Python development`,
-        `Assistant response ${i} with details`,
-      );
-    }
-    const daemon = new UserModelReviewDaemonService({
-      homeRoot: tmpDir,
-      turnCapture,
-      config: { minTurnsForReview: 3, enableLlmReasoning: false },
+    const result = await service.processTurn({
+      turnId: 'turn-already-done',
+      userId: 'test-user',
+      userMessage: 'Hello world again',
+      assistantText: 'Hi!',
     });
-    await daemon.runReviewCycle();
-    const status = daemon.getStatus();
-    expect(status.totalReviews).toBe(1);
-    expect(status.turnsSinceLastReview).toBe(0);
-  });
 
-  it('should handle disabled daemon', () => {
-    const svc = new UserModelReviewDaemonService({
-      homeRoot: tmpDir,
-      config: { enabled: false },
-    });
-    svc.start();
-    expect(svc.getStatus().running).toBe(false);
-    svc.stop();
-  });
-
-  it('should return null from runLlmReview when LLM not enabled', async () => {
-    const turnCapture = new UserModelTurnCaptureService({ homeRoot: tmpDir });
-    for (let i = 0; i < 5; i++) {
-      turnCapture.captureConversation(
-        `Message ${i} with enough content about Python`,
-        `Response ${i} with enough content`,
-      );
-    }
-    const daemon = new UserModelReviewDaemonService({
-      homeRoot: tmpDir,
-      turnCapture,
-      config: { enableLlmReasoning: false },
-    });
-    const result = await daemon.runLlmReview();
-    expect(result).toBeNull();
-  });
-
-  it('should return status copy (not reference)', () => {
-    const svc = new UserModelReviewDaemonService({ homeRoot: tmpDir });
-    const s1 = svc.getStatus();
-    const s2 = svc.getStatus();
-    expect(s1).toEqual(s2);
-    expect(s1).not.toBe(s2);
-  });
-
-  it('should set nextReviewAt on start', () => {
-    const svc = new UserModelReviewDaemonService({
-      homeRoot: tmpDir,
-      config: { intervalMs: 60000 },
-    });
-    svc.start();
-    expect(svc.getStatus().nextReviewAt).not.toBeNull();
-    svc.stop();
+    expect(result.extractedCount).toBe(0);
+    expect(mockLlm.synthesize).not.toHaveBeenCalled();
   });
 });

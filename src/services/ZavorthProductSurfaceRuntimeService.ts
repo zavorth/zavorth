@@ -1,3 +1,5 @@
+import path from 'node:path';
+import { logger } from '../logger.js';
 import { resolveLearningRuntimePolicy } from './ZavorthLearningRuntimePolicy.js';
 import { ZavorthLearningRuntimeHubService } from './ZavorthLearningRuntimeHubService.js';
 import { ZavorthNativeAutonomySpineService } from './ZavorthNativeAutonomySpineService.js';
@@ -5,6 +7,8 @@ import { ZavorthHumanSuperpowersService } from './ZavorthHumanSuperpowersService
 import { ZavorthHumanReachService } from './ZavorthHumanReachService.js';
 import { canActorWriteLearning } from './ZavorthLearningWriteAuth.js';
 import { migrateLegacyLearningPreferencesToKnownUsers } from './ZavorthLearningLegacyMigration.js';
+import { UserModelFactStore } from './user-model/UserModelFactStore.js';
+import { UserModelTrajectoryReflectionService } from './user-model/UserModelTrajectoryReflectionService.js';
 
 export type ProductSurfaceId =
   | 'telegram'
@@ -17,12 +21,20 @@ export type ProductSurfaceId =
   | 'conversational'
   | string;
 
+export type ProductSurfaceToolExecution = {
+  toolName: string;
+  status: 'success' | 'error';
+  errorSnippet?: string;
+  paramsSummary?: string;
+};
+
 export type ProductSurfaceTurnInput = {
   userId?: string | null;
   surface?: ProductSurfaceId | null;
   userMessage: string;
   assistantText: string;
   toolCallCount?: number;
+  toolExecutions?: ProductSurfaceToolExecution[];
   projectRoot?: string | null;
   turnId?: string | null;
   sessionId?: string | null;
@@ -133,8 +145,41 @@ export class ZavorthProductSurfaceRuntimeService {
       return { ok: false, mode: 'skipped-no-write-permission', appliedPreferences: 0, draftedSkills: 0 };
     }
 
-    const toolCallCount = Math.max(0, Number(input.toolCallCount || 0) || 0);
+    const toolExecutions = input.toolExecutions || [];
+    const toolCallCount = Math.max(toolExecutions.length, Number(input.toolCallCount || 0) || 0);
     const policy = resolveLearningRuntimePolicy({ projectRoot: this.projectRoot, userId });
+
+    const toolReceipts = toolExecutions.length > 0
+      ? toolExecutions.map((exec, index) => ({
+        id: `tool-${index + 1}`,
+        kind: 'tool',
+        status: exec.status === 'error' ? 'failed' : 'done',
+        summary: exec.toolName,
+      }))
+      : toolCallCount > 0
+      ? Array.from({ length: Math.min(toolCallCount, 8) }, (_, index) => ({
+        id: `tool-${index + 1}`,
+        kind: 'tool',
+        status: 'done',
+        summary: 'tool',
+      }))
+      : [];
+
+    try {
+      const factStore = new UserModelFactStore({
+        dataDir: path.join(this.projectRoot, 'data', 'runtime', 'user-model'),
+      });
+      const reflection = new UserModelTrajectoryReflectionService({ factStore });
+      void reflection.processTurn(input).catch((err: unknown) => {
+        logger.warn('UserModelTrajectoryReflectionService failed in background', {
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
+    } catch (err: unknown) {
+      logger.warn('Failed to initiate UserModelTrajectoryReflectionService', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
 
     try {
       const spine = new ZavorthNativeAutonomySpineService({
@@ -149,14 +194,7 @@ export class ZavorthProductSurfaceRuntimeService {
           outcome: 'success',
           userMessage,
           assistantResponse: assistantText,
-          toolReceipts: toolCallCount > 0
-            ? Array.from({ length: Math.min(toolCallCount, 8) }, (_, index) => ({
-              id: `tool-${index + 1}`,
-              kind: 'tool',
-              status: 'done',
-              summary: 'tool',
-            }))
-            : [],
+          toolReceipts,
           toolCallCount,
           sourceSurface: surface,
         },

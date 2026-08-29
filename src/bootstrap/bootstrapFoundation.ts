@@ -25,8 +25,13 @@ import { RuntimeProfileService } from '../services/RuntimeProfileService.js';
 import { TerminalSidecarService } from '../services/TerminalSidecarService.js';
 import { ChannelProgressRuntimeBridgeService } from '../services/ChannelProgressRuntimeBridgeService.js';
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
-import { UserModelReviewDaemonService } from '../services/UserModelReviewDaemonService.js';
-import { UserModelTurnCaptureService } from '../services/UserModelTurnCaptureService.js';
+import path from 'node:path';
+import {
+  getProductSurfaceRuntime,
+  type ProductSurfaceToolExecution,
+} from '../services/ZavorthProductSurfaceRuntimeService.js';
+import { UserModelFactStore } from '../services/user-model/UserModelFactStore.js';
+import { UserModelLegacyMigrationService } from '../services/user-model/UserModelLegacyMigrationService.js';
 import { SessionContinuumService, resolveSessionContinuumStorePath } from '../services/SessionContinuumService.js';
 import { ModelPickerContractService } from '../domain/providers/index.js';
 import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
@@ -251,7 +256,6 @@ export async function initializeBootstrapFoundation(
   });
   agentGateway.addRuntimeEventBus(new ChannelProgressRuntimeBridgeService());
 
-  const turnCapture = new UserModelTurnCaptureService({ homeRoot: config.projectRoot });
   const sessionContinuum = new SessionContinuumService({
     storePath: resolveSessionContinuumStorePath(config.runtimeDir),
     stateDbPath: config.dbPath || null,
@@ -275,9 +279,25 @@ export async function initializeBootstrapFoundation(
     const surface = requestRecord.surface || requestRecord.channel || 'runtime';
     const sessionId = run?.sessionId || run?.id || undefined;
     if (userMessage) {
-      turnCapture.captureConversation(String(userMessage).slice(0, 5000), replyText.slice(0, 5000), {
+      const toolExecutions: ProductSurfaceToolExecution[] = (runRecord.events && Array.isArray(runRecord.events)
+        ? (runRecord.events as Array<{ kind?: string; title?: string; status?: string; detail?: string; metadata?: Record<string, unknown> }>)
+        : [])
+        .filter((e) => e.kind === 'tool' || String(e.title || '').toLowerCase().includes('tool'))
+        .map((e) => ({
+          toolName: String(e.metadata?.toolName || e.title || 'unknown'),
+          status: e.status === 'failed' ? 'error' as const : 'success' as const,
+          errorSnippet: e.detail || undefined,
+          paramsSummary: typeof e.metadata?.params === 'string' ? e.metadata.params : undefined,
+        }));
+
+      getProductSurfaceRuntime(config.projectRoot).scheduleSuccessfulTurn({
+        turnId: `turn-${String(run?.id || Date.now().toString(36))}`,
+        sessionId: sessionId || null,
+        userId: (runRecord.userId as string | undefined) || (requestRecord.userId as string | undefined) || undefined,
+        userMessage: String(userMessage).slice(0, 5000),
+        assistantText: replyText.slice(0, 5000),
+        toolExecutions,
         surface: String(surface),
-        sessionId,
       });
     }
     try {
@@ -367,33 +387,19 @@ export async function initializeBootstrapFoundation(
     );
   }
 
-  let userModelDaemon: UserModelReviewDaemonService | null = null;
-  if (config.userModelDaemonEnabled) {
-    userModelDaemon = new UserModelReviewDaemonService({
-      homeRoot: config.projectRoot,
-      turnCapture,
-      config: {
-        intervalMs: config.userModelDaemonIntervalMs,
-        minTurnsForReview: config.userModelDaemonMinTurns,
-        enableLlmReasoning: config.userModelDaemonEnableLlmReasoning,
-        llmProvider: config.userModelDaemonLlmProvider,
-        llmModel: config.userModelDaemonLlmModel,
-        llmMaxPasses: config.userModelDaemonLlmMaxPasses,
-      },
+  const factStore = new UserModelFactStore({
+    dataDir: path.join(config.projectRoot, 'data', 'runtime', 'user-model'),
+  });
+  const migrationService = new UserModelLegacyMigrationService({
+    projectRoot: config.projectRoot,
+    factStore,
+  });
+  void migrationService.runMigration().catch((err: unknown) => {
+    logger.warn('UserModelLegacyMigrationService startup migration skipped', {
+      error: err instanceof Error ? err.message : String(err),
     });
-    userModelDaemon.start();
-    logRepo.log(
-      'info',
-      'UserModelDaemon',
-      `User model review daemon active: interval=${config.userModelDaemonIntervalMs}ms minTurns=${config.userModelDaemonMinTurns} llmReasoning=${config.userModelDaemonEnableLlmReasoning}.`,
-    );
-  } else {
-    logRepo.log(
-      'info',
-      'UserModelDaemon',
-      'User model review daemon desativado por ZAVORTH_USER_MODEL_DAEMON_ENABLED=false.',
-    );
-  }
+  });
+  logRepo.log('info', 'UserModelCoreV2', 'User Model Core v2 active with real-time trajectory reflection.');
 
   return {
     ...preflight,
@@ -409,7 +415,6 @@ export async function initializeBootstrapFoundation(
     maintenanceAutomation,
     skillCuratorPlaneService,
     stopRuntimeMaintenance() {
-      userModelDaemon?.stop();
       goalLoopDaemon?.stop({ daemonId: 'bootstrap-goal-loop-daemon' });
       if (!runtimeMaintenanceTimer) {
         return;
