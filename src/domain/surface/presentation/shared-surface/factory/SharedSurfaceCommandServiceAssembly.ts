@@ -21,10 +21,13 @@ import { SharedSurfaceTenantGovernanceCommandPack } from '../SharedSurfaceTenant
 import { SharedSurfaceWatchModeCommandPack } from '../SharedSurfaceWatchModeCommandPack.js';
 import { SharedSurfaceWorkflowGovernanceCommandPack } from '../SharedSurfaceWorkflowGovernanceCommandPack.js';
 import { SharedSurfaceBotCommandPack } from '../SharedSurfaceBotCommandPack.js';
+import { z } from 'zod';
+import { logger } from '../../../../../logger.js';
 import { SharedSurfaceConnectCommandPack } from '../SharedSurfaceConnectCommandPack.js';
 import { ConnectionTargetResolver } from '../../../../../services/connection/ConnectionTargetResolver.js';
 import { ConnectionTokenRefreshService } from '../../../../../services/connection/ConnectionTokenRefreshService.js';
 import { ConnectionSemanticIntrospectionService } from '../../../../../services/connection/ConnectionSemanticIntrospectionService.js';
+import type { PluginConnectionDescriptor } from '../../../../../contracts/connection/PluginConnectionDescriptor.js';
 import { PersonaRegistryService } from '../../../../../runtime/agent/roster/PersonaRegistryService.js';
 import { DynamicPersonaCompilerService } from '../../../../../runtime/agent/roster/DynamicPersonaCompilerService.js';
 import { EnsemblePersonaTaskRunner } from '../../../../../runtime/agent/roster/EnsemblePersonaTaskRunner.js';
@@ -135,6 +138,21 @@ type SharedSurfaceCommandServiceAssemblyDeps = Omit<
     nodeCapabilities: NonNullable<SharedSurfaceCommandServiceDeps['nodeCapabilityService']>;
     nodeDeviceProfiles: NonNullable<SharedSurfaceCommandServiceDeps['nodeDeviceProfileService']>;
   };
+
+const semanticServiceClassificationSchema = z.object({
+  category: z.string().min(1),
+  authType: z.enum(['api_key', 'oauth2', 'local_path']),
+  summary: z.string().optional(),
+  guidance: z.string().optional(),
+});
+
+interface RegistryEntryWithManifestConnection {
+  manifest?: {
+    connection?: PluginConnectionDescriptor;
+  };
+}
+
+let activeProactiveRefreshService: ConnectionTokenRefreshService | null = null;
 
 export function buildSharedSurfaceCommandServiceAssembly(
   deps: SharedSurfaceCommandServiceAssemblyDeps,
@@ -319,14 +337,17 @@ export function buildSharedSurfaceCommandServiceAssembly(
           return [];
         }
         const snapshot = deps.pluginRegistryService.buildSnapshot();
-        return snapshot.entries.map((entry) => ({
-          manifest: {
-            id: entry.id,
-            label: entry.label,
-            description: entry.summary,
-            connection: (entry as unknown as { manifest?: { connection?: any } }).manifest?.connection,
-          },
-        }));
+        return snapshot.entries.map((entry) => {
+          const typedEntry = entry as unknown as RegistryEntryWithManifestConnection;
+          return {
+            manifest: {
+              id: entry.id,
+              label: entry.label,
+              description: entry.summary,
+              connection: typedEntry.manifest?.connection,
+            },
+          };
+        });
       },
     },
     mcpClient: {
@@ -336,8 +357,9 @@ export function buildSharedSurfaceCommandServiceAssembly(
           if (typeof gw?.listMcpServers === 'function') {
             return gw.listMcpServers();
           }
-        } catch {
-          // MCP fallback
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          logger.debug(`[SharedSurfaceCommandServiceAssembly] MCP server listing fallback: ${msg}`);
         }
         return [];
       },
@@ -345,8 +367,9 @@ export function buildSharedSurfaceCommandServiceAssembly(
   });
 
   const llmRuntimeForIntrospection = new LlmRuntimeService();
+  const isIntrospectionEnabled = process.env.ZAVORTH_ENABLE_SEMANTIC_INTROSPECTION !== 'false';
   const introspectionService = new ConnectionSemanticIntrospectionService({
-    enabled: true,
+    enabled: isIntrospectionEnabled,
     llmInferencePort: {
       classifyService: async (target: string) => {
         try {
@@ -358,24 +381,28 @@ export function buildSharedSurfaceCommandServiceAssembly(
           const firstBrace = text.indexOf('{');
           const lastBrace = text.lastIndexOf('}');
           if (firstBrace !== -1 && lastBrace > firstBrace) {
-            const parsed = JSON.parse(text.substring(firstBrace, lastBrace + 1)) as {
-              category: string;
-              authType: 'api_key' | 'oauth2' | 'local_path';
-              summary?: string;
-              guidance?: string;
-            };
-            return parsed;
+            const rawJson = JSON.parse(text.substring(firstBrace, lastBrace + 1)) as unknown;
+            const parsed = semanticServiceClassificationSchema.safeParse(rawJson);
+            if (parsed.success) {
+              return parsed.data;
+            }
+            logger.warn(
+              `[SharedSurfaceCommandServiceAssembly] Semantic classification schema validation failed: ${parsed.error.message}`
+            );
           }
-        } catch {
-          // LLM classification fallback
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          logger.debug(`[SharedSurfaceCommandServiceAssembly] Semantic LLM classification fallback: ${msg}`);
         }
         return null;
       },
     },
   });
 
-  const tokenRefreshService = new ConnectionTokenRefreshService({ resolver });
-  tokenRefreshService.startProactiveRefreshLoop(60000);
+  if (!activeProactiveRefreshService) {
+    activeProactiveRefreshService = new ConnectionTokenRefreshService({ resolver });
+    activeProactiveRefreshService.startProactiveRefreshLoop(60000);
+  }
 
   const connectCommandPack = new SharedSurfaceConnectCommandPack({
     resolver,

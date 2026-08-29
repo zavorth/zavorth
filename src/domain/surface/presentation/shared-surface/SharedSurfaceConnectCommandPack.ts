@@ -30,10 +30,7 @@ import {
 import {
   LocalEncryptedProviderSecretStore,
 } from '../../../../services/ProviderSecretStore.js';
-import {
-  getConnectStrings,
-  formatTemplate,
-} from './connection/SharedSurfaceConnectLocalization.js';
+import { ZavorthLocalizationService } from '../../../../services/localization/ZavorthLocalizationService.js';
 import { logger } from '../../../../logger.js';
 
 export interface SharedSurfaceConnectCommandPackDeps {
@@ -44,6 +41,7 @@ export interface SharedSurfaceConnectCommandPackDeps {
   handshakeService?: ConnectionOAuthHandshakeService;
   lockManager?: ConnectionLockManager;
   introspectionService?: ConnectionSemanticIntrospectionService;
+  localizationService?: ZavorthLocalizationService;
   rateLimitMaxPerMinute?: number;
 }
 
@@ -55,6 +53,7 @@ export class SharedSurfaceConnectCommandPack {
   private readonly handshakeService: ConnectionOAuthHandshakeService;
   private readonly lockManager: ConnectionLockManager;
   private readonly introspectionService: ConnectionSemanticIntrospectionService;
+  private readonly localizationService: ZavorthLocalizationService;
   private readonly rateLimitMaxPerMinute: number;
   private readonly userCallTimestamps = new Map<string, number[]>();
 
@@ -67,7 +66,16 @@ export class SharedSurfaceConnectCommandPack {
       deps.handshakeService || new ConnectionOAuthHandshakeService({ stateStore: this.stateStore });
     this.lockManager = deps.lockManager || ConnectionLockManager.getInstance();
     this.introspectionService = deps.introspectionService || new ConnectionSemanticIntrospectionService();
+    this.localizationService = deps.localizationService || new ZavorthLocalizationService();
     this.rateLimitMaxPerMinute = deps.rateLimitMaxPerMinute || 10;
+  }
+
+  private getLocale(ctx: IMessageContext): string {
+    return (ctx as unknown as { locale?: string }).locale || 'en';
+  }
+
+  private t(key: string, params: Record<string, string | number> = {}, locale: string = 'en'): string {
+    return this.localizationService.t(`connections.${key}`, params, locale);
   }
 
   public async maybeHandle(
@@ -111,50 +119,37 @@ export class SharedSurfaceConnectCommandPack {
 
   private async handleConnect(ctx: IMessageContext, rawArgs: string): Promise<void> {
     const userId = String(ctx.userId || 'default-user').trim() || 'default-user';
+    const locale = this.getLocale(ctx);
 
     if (this.isRateLimited(userId)) {
-      await ctx.reply(
-        'Rate limit exceeded: You can execute at most 10 connection commands per minute. Please wait.'
-      );
+      await ctx.reply(this.t('rateLimitExceeded', {}, locale));
       return;
     }
 
     const trimmed = String(rawArgs || '').trim();
     if (!trimmed) {
-      await ctx.reply(
-        [
-          '**Connect Command Usage:**',
-          '`/connect <target> [credential]`',
-          '',
-          '**Examples:**',
-          '• `/connect github`',
-          '• `/connect stripe sk_live_...`',
-          '• `/connect obsidian /path/to/vault`',
-          '',
-          'Use `/connections catalog` to view all available targets.',
-        ].join('\n')
-      );
+      await ctx.reply(this.t('usageConnect', {}, locale));
       return;
     }
 
-    const parts = trimmed.split(/\s+/);
-    const target = parts[0];
-    const credentialValue = parts.slice(1).join(' ').trim();
+    const firstSpaceIndex = trimmed.indexOf(' ');
+    const target = (firstSpaceIndex === -1 ? trimmed : trimmed.substring(0, firstSpaceIndex)).trim();
+    const credentialValue = (firstSpaceIndex === -1 ? '' : trimmed.substring(firstSpaceIndex + 1)).trim();
 
     const resolution: ConnectionResolution = await this.resolver.resolve(target);
     if (resolution.source === 'unknown' || !resolution.descriptor || !resolution.cardDescriptor) {
       const intro = await this.introspectionService.introspect(target);
       if (intro.enabled && intro.guidance) {
-        await ctx.reply(`${resolution.error || `Target '${target}' is not recognized.`}\n\n💡 **Guidance:** ${intro.guidance}`);
+        await ctx.reply(`${resolution.error || this.t('unrecognizedTarget', { target }, locale)}\n\n💡 **Guidance:** ${intro.guidance}`);
       } else {
-        await ctx.reply(resolution.error || `Target '${target}' is not recognized.`);
+        await ctx.reply(resolution.error || this.t('unrecognizedTarget', { target }, locale));
       }
       return;
     }
 
     const lock = await this.lockManager.acquireLock(userId, target);
     if (!lock.acquired) {
-      await ctx.reply(`⚠️ ${lock.error || 'A connection handshake is already in progress for this target.'}`);
+      await ctx.reply(`⚠️ ${lock.error || this.t('handshakeInProgress', {}, locale)}`);
       return;
     }
 
@@ -166,7 +161,7 @@ export class SharedSurfaceConnectCommandPack {
       if (existing && existing.status === 'connected' && !credentialValue) {
         await ctx.reply(
           [
-            `Target **${cardDescriptor.displayName}** is already connected (status: \`connected\`).`,
+            this.t('alreadyConnected', { target: cardDescriptor.displayName }, locale),
             '',
             `• To reconnect or upgrade credentials: \`/connect ${target} <new_credentials>\``,
             `• To disconnect: \`/disconnect ${target}\``,
@@ -175,200 +170,202 @@ export class SharedSurfaceConnectCommandPack {
         return;
       }
 
-    // AuthType: Local Path
-    if (descriptor.authType === 'local_path') {
-      if (!credentialValue) {
-        await ctx.reply(
-          `To connect **${cardDescriptor.displayName}**, specify the local directory path:\n\`/connect ${target} <path_to_directory>\``
-        );
-        return;
-      }
+      // AuthType: Local Path
+      if (descriptor.authType === 'local_path') {
+        if (!credentialValue) {
+          const kind = descriptor.localPath?.kind || 'directory';
+          await ctx.reply(this.t('localPathPrompt', { target: cardDescriptor.displayName, id: target, kind }, locale));
+          return;
+        }
 
-      const verifyRes = await this.verifier.verify(target, descriptor, { localPath: credentialValue });
-      if (!verifyRes.ok) {
-        await ctx.reply(
-          `❌ Failed to connect **${cardDescriptor.displayName}**: ${verifyRes.details} (${verifyRes.error || 'Check path'})`
-        );
-        return;
-      }
-
-      const now = new Date().toISOString();
-      await this.stateStore.saveConnection({
-        userId,
-        targetId: target,
-        displayName: cardDescriptor.displayName,
-        authType: 'local_path',
-        status: 'connected',
-        localPath: credentialValue,
-        connectedAt: existing ? existing.connectedAt : now,
-        updatedAt: now,
-      });
-
-      await ctx.reply(
-        `✅ Connected to **${cardDescriptor.displayName}** successfully!\nLocal directory verified at: \`${credentialValue}\``
-      );
-      return;
-    }
-
-    // AuthType: API Key
-    if (descriptor.authType === 'api_key') {
-      if (!credentialValue) {
-        const label = descriptor.apiKey?.label || 'API Key';
-        await ctx.reply(
-          `To connect **${cardDescriptor.displayName}**, provide your ${label}:\n\`/connect ${target} <your_key>\``
-        );
-        return;
-      }
-
-      const verifyRes = await this.verifier.verify(target, descriptor, { apiKey: credentialValue });
-      if (!verifyRes.ok) {
-        await ctx.reply(
-          `❌ Failed to connect **${cardDescriptor.displayName}**: ${verifyRes.details} (${verifyRes.error || 'Invalid key'})`
-        );
-        return;
-      }
-
-      let secretRef: string | undefined;
-      try {
-        secretRef = await this.stateStore.saveSecret(target, credentialValue);
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : String(err);
-        await ctx.reply(`❌ Failed to store encrypted credentials for **${cardDescriptor.displayName}**: ${msg}`);
-        return;
-      }
-
-      const now = new Date().toISOString();
-      await this.stateStore.saveConnection({
-        userId,
-        targetId: target,
-        displayName: cardDescriptor.displayName,
-        authType: 'api_key',
-        status: 'connected',
-        secretRef,
-        connectedAt: existing ? existing.connectedAt : now,
-        updatedAt: now,
-      });
-
-      await ctx.reply(
-        `✅ Connected to **${cardDescriptor.displayName}** successfully!\nCredentials encrypted and stored securely in vault.`
-      );
-      return;
-    }
-
-    // AuthType: OAuth2
-    if (descriptor.authType === 'oauth2') {
-      if (descriptor.oauth?.supportsDeviceCode) {
-        const verificationUrl = cardDescriptor.deviceCodeVerificationUrl || descriptor.oauth.deviceCodeUrl || 'https://github.com/login/device';
-        await ctx.reply(
-          [
-            `🔑 **Connect ${cardDescriptor.displayName} (Device Code Flow):**`,
-            `1. Open the authorization link: ${verificationUrl}`,
-            '2. Confirm authorization in your browser.',
-            '3. Zavorth will complete the handshake automatically.',
-          ].join('\n')
-        );
-        return;
-      }
-
-      if (descriptor.oauth?.authorizationUrl) {
-        try {
-          const clientId = descriptor.oauth.clientId || `${target}-client`;
-          const flow = await this.handshakeService.prepareAuthCodeFlow(
-            target,
-            descriptor,
-            clientId
+        const verifyRes = await this.verifier.verify(target, descriptor, { localPath: credentialValue });
+        if (!verifyRes.ok) {
+          await ctx.reply(
+            this.t('pathVerificationFailed', { target: cardDescriptor.displayName, details: `${verifyRes.details} (${verifyRes.error || 'Check path'})` }, locale)
           );
+          return;
+        }
+
+        const now = new Date().toISOString();
+        await this.stateStore.saveConnection({
+          userId,
+          targetId: target,
+          displayName: cardDescriptor.displayName,
+          authType: 'local_path',
+          status: 'connected',
+          localPath: credentialValue,
+          connectedAt: existing ? existing.connectedAt : now,
+          updatedAt: now,
+        });
+
+        await ctx.reply(
+          `✅ ${this.t('connectedSuccess', { target: cardDescriptor.displayName }, locale)}\nLocal directory verified at: \`${credentialValue}\``
+        );
+        return;
+      }
+
+      // AuthType: API Key
+      if (descriptor.authType === 'api_key') {
+        if (!credentialValue) {
+          const label = descriptor.apiKey?.label || 'API Key';
+          await ctx.reply(this.t('apiKeyPrompt', { target: cardDescriptor.displayName, id: target, label }, locale));
+          return;
+        }
+
+        const verifyRes = await this.verifier.verify(target, descriptor, { apiKey: credentialValue });
+        if (!verifyRes.ok) {
+          await ctx.reply(
+            this.t('apiKeyVerificationFailed', { target: cardDescriptor.displayName, details: `${verifyRes.details} (${verifyRes.error || 'Invalid key'})` }, locale)
+          );
+          return;
+        }
+
+        let secretRef: string | undefined;
+        try {
+          secretRef = await this.stateStore.saveSecret(target, credentialValue);
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          await ctx.reply(`❌ Failed to store encrypted credentials for **${cardDescriptor.displayName}**: ${msg}`);
+          return;
+        }
+
+        const now = new Date().toISOString();
+        await this.stateStore.saveConnection({
+          userId,
+          targetId: target,
+          displayName: cardDescriptor.displayName,
+          authType: 'api_key',
+          status: 'connected',
+          secretRef,
+          connectedAt: existing ? existing.connectedAt : now,
+          updatedAt: now,
+        });
+
+        await ctx.reply(
+          `✅ ${this.t('connectedSuccess', { target: cardDescriptor.displayName }, locale)}\nCredentials encrypted and stored securely in vault.`
+        );
+        return;
+      }
+
+      // AuthType: OAuth2
+      if (descriptor.authType === 'oauth2') {
+        if (descriptor.oauth?.supportsDeviceCode) {
+          const verificationUrl =
+            cardDescriptor.deviceCodeVerificationUrl ||
+            descriptor.oauth.verificationUri ||
+            descriptor.oauth.deviceCodeUrl;
+
+          if (!verificationUrl) {
+            await ctx.reply(
+              this.t('pathVerificationFailed', { target: cardDescriptor.displayName, details: 'Missing device verification URL' }, locale)
+            );
+            return;
+          }
 
           await ctx.reply(
             [
-              `🔗 **Connect ${cardDescriptor.displayName}:**`,
-              'Click the link below to authorize in your browser (ephemeral loopback listener active):',
-              `[Authorize ${cardDescriptor.displayName}](${flow.authorizationUrl})`,
+              `🔑 **Connect ${cardDescriptor.displayName} (Device Code Flow):**`,
+              `1. Open the authorization link: ${verificationUrl}`,
+              '2. Confirm authorization in your browser.',
+              '3. Zavorth will complete the handshake automatically.',
             ].join('\n')
           );
-
-          // Asynchronously listen for callback without blocking UI
-          void flow.serverInstance
-            .waitForCallback()
-            .then(async (callbackRes) => {
-              try {
-                const tokens = await this.handshakeService.exchangeAuthCode(
-                  target,
-                  descriptor,
-                  clientId,
-                  callbackRes.code,
-                  flow.serverInstance.redirectUri,
-                  flow.codeVerifier,
-                  descriptor.oauth?.clientSecret
-                );
-
-                const secretRef = await this.stateStore.saveSecret(target, tokens.accessToken);
-                const now = new Date().toISOString();
-
-                await this.stateStore.saveConnection({
-                  userId,
-                  targetId: target,
-                  displayName: cardDescriptor.displayName,
-                  authType: 'oauth2',
-                  status: 'connected',
-                  secretRef,
-                  connectedAt: existing ? existing.connectedAt : now,
-                  updatedAt: now,
-                });
-
-                await ctx.reply(`✅ Successfully connected to **${cardDescriptor.displayName}** via OAuth2!`);
-              } catch (exchangeErr: unknown) {
-                const errText = exchangeErr instanceof Error ? exchangeErr.message : String(exchangeErr);
-                await ctx.reply(`❌ OAuth token exchange failed for **${cardDescriptor.displayName}**: ${errText}`);
-              }
-            })
-            .catch(async (waitErr: unknown) => {
-              const errText = waitErr instanceof Error ? waitErr.message : String(waitErr);
-              await ctx.reply(`⚠️ OAuth authorization ended for **${cardDescriptor.displayName}**: ${errText}`);
-            })
-            .finally(async () => {
-              await this.lockManager.releaseLock(userId, target);
-            });
-
           return;
-        } catch (err: unknown) {
-          const msg = err instanceof Error ? err.message : String(err);
-          logger.warn(`[SharedSurfaceConnectCommandPack] Ephemeral loopback server failed to start: ${msg}`);
-          const authUrl = descriptor.oauth.authorizationUrl;
-          if (!authUrl) {
-            await ctx.reply(`⚠️ Failed to start OAuth callback listener: ${msg}`);
+        }
+
+        if (descriptor.oauth?.authorizationUrl) {
+          try {
+            const clientId = descriptor.oauth.clientId || `${target}-client`;
+            const flow = await this.handshakeService.prepareAuthCodeFlow(
+              target,
+              descriptor,
+              clientId
+            );
+
+            await ctx.reply(
+              [
+                `🔗 **Connect ${cardDescriptor.displayName}:**`,
+                'Click the link below to authorize in your browser (ephemeral loopback listener active):',
+                `[Authorize ${cardDescriptor.displayName}](${flow.authorizationUrl})`,
+              ].join('\n')
+            );
+
+            // Asynchronously listen for callback without blocking UI
+            void flow.serverInstance
+              .waitForCallback()
+              .then(async (callbackRes) => {
+                try {
+                  const tokens = await this.handshakeService.exchangeAuthCode(
+                    target,
+                    descriptor,
+                    clientId,
+                    callbackRes.code,
+                    flow.serverInstance.redirectUri,
+                    flow.codeVerifier,
+                    descriptor.oauth?.clientSecret
+                  );
+
+                  const secretRef = await this.stateStore.saveSecret(target, tokens.accessToken);
+                  const now = new Date().toISOString();
+
+                  await this.stateStore.saveConnection({
+                    userId,
+                    targetId: target,
+                    displayName: cardDescriptor.displayName,
+                    authType: 'oauth2',
+                    status: 'connected',
+                    secretRef,
+                    connectedAt: existing ? existing.connectedAt : now,
+                    updatedAt: now,
+                  });
+
+                  await ctx.reply(`✅ Successfully connected to **${cardDescriptor.displayName}** via OAuth2!`);
+                } catch (exchangeErr: unknown) {
+                  const errText = exchangeErr instanceof Error ? exchangeErr.message : String(exchangeErr);
+                  await ctx.reply(`❌ OAuth token exchange failed for **${cardDescriptor.displayName}**: ${errText}`);
+                }
+              })
+              .catch(async (waitErr: unknown) => {
+                const errText = waitErr instanceof Error ? waitErr.message : String(waitErr);
+                await ctx.reply(this.t('oauthEnded', { target: cardDescriptor.displayName, details: errText }, locale));
+              })
+              .finally(async () => {
+                await this.lockManager.releaseLock(userId, target);
+              });
+
+            return;
+          } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : String(err);
+            logger.warn(`[SharedSurfaceConnectCommandPack] Ephemeral loopback server failed to start: ${msg}`);
+            const authUrl = descriptor.oauth.authorizationUrl;
+            if (!authUrl) {
+              await ctx.reply(`⚠️ Failed to start OAuth callback listener: ${msg}`);
+              await this.lockManager.releaseLock(userId, target);
+              return;
+            }
+            await ctx.reply(this.t('oauthClickLink', { target: cardDescriptor.displayName, url: authUrl }, locale));
             await this.lockManager.releaseLock(userId, target);
             return;
           }
-          await ctx.reply(
-            [
-              `🔗 **Connect ${cardDescriptor.displayName}:**`,
-              `Click the link below to authorize Zavorth:`,
-              `[Authorize ${cardDescriptor.displayName}](${authUrl})`,
-            ].join('\n')
-          );
-          await this.lockManager.releaseLock(userId, target);
-          return;
         }
+
+        await ctx.reply(`OAuth configuration for **${cardDescriptor.displayName}** is active.`);
+        return;
       }
 
-      await ctx.reply(`OAuth configuration for **${cardDescriptor.displayName}** is active.`);
-      return;
-    }
+      // AuthType: Custom / MCP
+      const now = new Date().toISOString();
+      await this.stateStore.saveConnection({
+        userId,
+        targetId: target,
+        displayName: cardDescriptor.displayName,
+        authType: descriptor.authType,
+        status: 'connected',
+        connectedAt: existing ? existing.connectedAt : now,
+        updatedAt: now,
+      });
 
-    // AuthType: Custom / MCP
-    const now = new Date().toISOString();
-    await this.stateStore.saveConnection({
-      userId,
-      targetId: target,
-      displayName: cardDescriptor.displayName,
-      authType: descriptor.authType,
-      status: 'connected',
-      connectedAt: existing ? existing.connectedAt : now,
-      updatedAt: now,
-    });
-
-    await ctx.reply(`✅ Connection to **${cardDescriptor.displayName}** established.`);
+      await ctx.reply(`✅ ${this.t('connectedSuccess', { target: cardDescriptor.displayName }, locale)}`);
     } finally {
       if (resolution.descriptor?.authType !== 'oauth2') {
         await this.lockManager.releaseLock(userId, target);
@@ -379,9 +376,10 @@ export class SharedSurfaceConnectCommandPack {
   private async handleDisconnect(ctx: IMessageContext, rawArgs: string): Promise<void> {
     const userId = String(ctx.userId || 'default-user').trim() || 'default-user';
     const target = String(rawArgs || '').trim().toLowerCase();
+    const locale = this.getLocale(ctx);
 
     if (!target) {
-      await ctx.reply('Usage: `/disconnect <target>`\nExample: `/disconnect stripe`');
+      await ctx.reply(this.t('usageDisconnect', {}, locale));
       return;
     }
 
@@ -390,8 +388,7 @@ export class SharedSurfaceConnectCommandPack {
 
     const existing = await this.stateStore.getConnection(userId, target);
     if (!existing || existing.status === 'disconnected') {
-      // Idempotent clean response
-      await ctx.reply(`Not connected to '${target}'.`);
+      await ctx.reply(this.t('notConnected', { target }, locale));
       return;
     }
 
@@ -422,24 +419,25 @@ export class SharedSurfaceConnectCommandPack {
     // Delete connection from state store
     await this.stateStore.deleteConnection(userId, target);
 
-    await ctx.reply(`🔌 Disconnected from **${existing.displayName}**. Local secrets purged.`);
+    await ctx.reply(`🔌 ${this.t('disconnectedSuccess', { target: existing.displayName }, locale)}`);
   }
 
   private async handleConnections(ctx: IMessageContext, rawArgs: string): Promise<void> {
     const userId = String(ctx.userId || 'default-user').trim() || 'default-user';
     const subCommand = String(rawArgs || '').trim().toLowerCase();
+    const locale = this.getLocale(ctx);
 
     if (subCommand === 'catalog') {
       const targets = this.resolver.listSupportedTargets();
       if (targets.length === 0) {
-        await ctx.reply('No targets are currently available in the connection catalog.');
+        await ctx.reply(this.t('catalogEmpty', {}, locale));
         return;
       }
 
       const lines = targets.map(t => `• \`${t}\``).join('\n');
       await ctx.reply(
         [
-          '**Available Connection Catalog:**',
+          `**${this.t('catalogTitle', {}, locale)}:**`,
           lines,
           '',
           'To connect any target, type: `/connect <target>`',
@@ -450,24 +448,11 @@ export class SharedSurfaceConnectCommandPack {
 
     const connections = await this.stateStore.listConnections(userId);
     if (connections.length === 0) {
-      await ctx.reply(
-        [
-          'No active connections found.',
-          '',
-          '• Connect an integration: `/connect <target>`',
-          '• View available catalog: `/connections catalog`',
-        ].join('\n')
-      );
+      await ctx.reply(this.t('noActiveConnections', {}, locale));
       return;
     }
 
     if (subCommand === 'status') {
-      const connections = await this.stateStore.listConnections(userId);
-      if (connections.length === 0) {
-        await ctx.reply('No active connections to report status.');
-        return;
-      }
-
       const statusLines = connections
         .map(
           c =>
@@ -475,7 +460,7 @@ export class SharedSurfaceConnectCommandPack {
         )
         .join('\n\n');
 
-      await ctx.reply(`**Connection Health Status:**\n\n${statusLines}`);
+      await ctx.reply(`${this.t('statusHeader', {}, locale)}\n\n${statusLines}`);
       return;
     }
 
@@ -485,7 +470,7 @@ export class SharedSurfaceConnectCommandPack {
 
     await ctx.reply(
       [
-        `**Your Active Connections (${connections.length}):**`,
+        this.t('activeConnectionsHeader', { count: connections.length }, locale),
         formatted,
         '',
         '• Disconnect a service: `/disconnect <target>`',

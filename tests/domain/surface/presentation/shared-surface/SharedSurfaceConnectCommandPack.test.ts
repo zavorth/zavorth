@@ -255,4 +255,29 @@ describe('SharedSurfaceConnectCommandPack', () => {
     await commandPack.maybeHandle(ctx, '/connect', '');
     expect(replies[10]).toContain('Rate limit exceeded');
   });
+
+  it('dynamically adapts messages to Portuguese when context locale is pt', async () => {
+    const { ctx, replies } = createMockContext('user-pt');
+    (ctx as unknown as { locale: string }).locale = 'pt';
+
+    const handled = await commandPack.maybeHandle(ctx, '/connect', '');
+    expect(handled).toBe(true);
+    expect(replies[0]).toContain('**Uso do Comando Connect:**');
+    expect(replies[0]).toContain('`/connect <alvo> [credencial]`');
+
+    // Test Portuguese disconnect
+    await commandPack.maybeHandle(ctx, '/disconnect', 'stripe');
+    expect(replies[1]).toContain("Não conectado a 'stripe'");
+
+    // Test Portuguese catalog
+    await commandPack.maybeHandle(ctx, '/connections', 'catalog');
+    expect(replies[2]).toContain('**Catálogo de Conexões Disponíveis:**');
+  });
+
+  it('correctly parses target and credentials with multiple spaces without regex', async () => {
+    const { ctx, replies } = createMockContext('user-spaces');
+    const handled = await commandPack.maybeHandle(ctx, '/connect', 'stripe    sk_live_test999888   ');
+    expect(handled).toBe(true);
+    expect(replies[0]).toContain('Connected to **Stripe Payments** successfully');
+  });
 });

@@ -60,7 +60,9 @@ export class ConnectionManageTool implements IZavorthTool {
               description: entry.summary,
             },
           }));
-        } catch {
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          logger.debug(`[ConnectionManageTool] Failed to load plugin registry entries: ${msg}`);
           return [];
         }
       },
@@ -138,13 +140,15 @@ export class ConnectionManageTool implements IZavorthTool {
             if (secret) {
               await this.verifier.revoke(target, resolution.descriptor, secret);
             }
-          } catch {
-            // Continues local purge
+          } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : String(err);
+            logger.warn(`[ConnectionManageTool] Remote token revocation failed for '${target}': ${msg}`);
           }
           try {
             await this.stateStore.deleteSecret(existing.secretRef);
-          } catch {
-            // Soft cleanup
+          } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : String(err);
+            logger.error(`[ConnectionManageTool] Secret vault purge failed for '${target}': ${msg}`);
           }
         }
 

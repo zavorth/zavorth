@@ -333,6 +333,17 @@ export interface ConnectionTranslations {
   oauthDeviceCodePrompt: string;
   catalogTitle: string;
   noActiveConnections: string;
+  usageConnect: string;
+  usageDisconnect: string;
+  handshakeInProgress: string;
+  pathVerificationFailed: string;
+  apiKeyVerificationFailed: string;
+  oauthClickLink: string;
+  oauthEnded: string;
+  activeConnectionsHeader: string;
+  catalogEmpty: string;
+  statusHeader: string;
+  statusEmpty: string;
 }
 
 export interface LocalizationCatalog {
