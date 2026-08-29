@@ -21,9 +21,12 @@ import { SharedSurfaceTenantGovernanceCommandPack } from '../SharedSurfaceTenant
 import { SharedSurfaceWatchModeCommandPack } from '../SharedSurfaceWatchModeCommandPack.js';
 import { SharedSurfaceWorkflowGovernanceCommandPack } from '../SharedSurfaceWorkflowGovernanceCommandPack.js';
 import { SharedSurfaceBotCommandPack } from '../SharedSurfaceBotCommandPack.js';
+import { SharedSurfaceConnectCommandPack } from '../SharedSurfaceConnectCommandPack.js';
+import { ConnectionTargetResolver } from '../../../../../services/connection/ConnectionTargetResolver.js';
 import { PersonaRegistryService } from '../../../../../runtime/agent/roster/PersonaRegistryService.js';
 import { DynamicPersonaCompilerService } from '../../../../../runtime/agent/roster/DynamicPersonaCompilerService.js';
 import { EnsemblePersonaTaskRunner } from '../../../../../runtime/agent/roster/EnsemblePersonaTaskRunner.js';
+import { LlmRuntimeService } from '../../../../../services/llm/LlmRuntimeService.js';
 import { PeerReviewAdvisoryService } from '../../../../../runtime/agent/advisory/PeerReviewAdvisoryService.js';
 import type { IMessageContext } from '../../../../../contracts/IMessageBroker.js';
 import type { SurfaceControllerContext } from '../../../../../orchestrator/SurfaceRuntime.js';
@@ -305,7 +308,26 @@ export function buildSharedSurfaceCommandServiceAssembly(
     personaRegistryService: deps.personaRegistryService || new PersonaRegistryService(),
     dynamicCompilerService: deps.dynamicPersonaCompilerService || new DynamicPersonaCompilerService(),
     peerReviewService: new PeerReviewAdvisoryService(),
-    personaRunner: new EnsemblePersonaTaskRunner(),
+    personaRunner: new EnsemblePersonaTaskRunner(null, new LlmRuntimeService()),
+  });
+  const connectCommandPack = new SharedSurfaceConnectCommandPack({
+    resolver: new ConnectionTargetResolver({
+      pluginRegistry: {
+        listEntries: () => {
+          if (!deps.pluginRegistryService) {
+            return [];
+          }
+          const snapshot = deps.pluginRegistryService.buildSnapshot();
+          return snapshot.entries.map((entry) => ({
+            manifest: {
+              id: entry.id,
+              label: entry.label,
+              description: entry.summary,
+            },
+          }));
+        },
+      },
+    }),
   });
   return {
     ...deps,
@@ -326,6 +348,7 @@ export function buildSharedSurfaceCommandServiceAssembly(
     opsCommandPack,
     decisionCommandPack,
     botCommandPack,
+    connectCommandPack,
     runtimeMaintenanceCommandPack,
     watchModeCommandPack,
     sessionNodeCommandPack,

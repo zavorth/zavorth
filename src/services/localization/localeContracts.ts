@@ -320,6 +320,21 @@ export interface ChannelApprovalTranslations {
   other: ChannelApprovalOtherTranslations;
 }
 
+export interface ConnectionTranslations {
+  title: string;
+  connectedSuccess: string;
+  disconnectedSuccess: string;
+  alreadyConnected: string;
+  notConnected: string;
+  unrecognizedTarget: string;
+  rateLimitExceeded: string;
+  apiKeyPrompt: string;
+  localPathPrompt: string;
+  oauthDeviceCodePrompt: string;
+  catalogTitle: string;
+  noActiveConnections: string;
+}
+
 export interface LocalizationCatalog {
   common: CommonTranslations;
   app: AppTranslations;
@@ -333,6 +348,7 @@ export interface LocalizationCatalog {
   diffReview: DiffReviewTranslations;
   approvals: ApprovalTranslations;
   settings: SettingsTranslations;
+  connections?: ConnectionTranslations;
   /** Migrated surface catalogs served previously by src/i18n YAML catalogs. */
   legacy?: LegacyCatalogSection;
   /** Migrated plugin load tips served previously by src/services/plugin-i18n. */

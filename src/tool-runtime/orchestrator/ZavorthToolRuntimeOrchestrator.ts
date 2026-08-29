@@ -12,6 +12,7 @@ import { MQTTPublisher } from '../tools/iot/MQTTPublisher';
 import { PlaywrightActionTool } from '../tools/browser/PlaywrightActionTool';
 import type { ProfileAccessGate } from '../tools/browser/ProfileAccessGateContract.js';
 import { buildVerifiedActionHarnessTools } from '../tools/web/ActionHarnessTools.js';
+import { ConnectionManageTool } from '../tools/connection/ConnectionManageTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider';
 import type { EchoExecutionEntry, EchoToolCall } from '../types/EchoTypes';
 import { EchoCompatibilityExecutionLogService } from '../../domain/execution/infrastructure/EchoCompatibilityExecutionLogService.js';
@@ -54,6 +55,7 @@ export class ZavorthEchoOrchestrator {
         this.registerTool(new SystemInfoTool());
         this.registerTool(new SystemScreenshotTool());
         this.registerTool(new SystemVisionAnalysisTool());
+        this.registerTool(new ConnectionManageTool());
 
         const haBridge = new HomeAssistantBridge();
         this.registerTool(haBridge);

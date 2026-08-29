@@ -1,3 +1,5 @@
+import type { PluginConnectionDescriptor } from '../connection/index.js';
+
 export const ZAVORTH_PLUGIN_OS_CONTRACT_VERSION = '2026-05-04.gate-2';
 export const ZAVORTH_PLUGIN_OS_API_VERSION = 'zavorth.plugin-os.v1';
 
@@ -123,6 +125,8 @@ export type ZavorthPluginManifest = {
   policy: ZavorthPluginPolicy;
   artifactKinds: string[];
   receiptKinds: string[];
+  /** Optional connection descriptor for zero-friction onboarding via `/connect`. */
+  connection?: PluginConnectionDescriptor;
 };
 
 export type ZavorthPluginStateEntry = {

@@ -44,6 +44,7 @@ const READ_ONLY_ALLOWED_COMMANDS = new Set([
   '/access',
   '/bootstrap',
   '/doctor',
+  '/connections',
 ]);
 
 const GROUP_ADMIN_COMMANDS = new Set([
@@ -98,6 +99,8 @@ const NON_ADMIN_BLOCKED_COMMANDS = new Set([
   '/permallow',
   '/permrevoke',
   '/lock',
+  '/connect',
+  '/disconnect',
   '/unlock',
   '/hostauth',
   '/agfocus',

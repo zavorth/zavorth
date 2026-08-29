@@ -168,4 +168,18 @@ export const en: LocalizationCatalog = {
       referencedNotFound: 'No pending approval found for the referenced approvals.',
     },
   },
+  connections: {
+    title: 'Universal Connection Subsystem',
+    connectedSuccess: 'Connected to {target} successfully!',
+    disconnectedSuccess: 'Disconnected from {target}. Local secrets purged.',
+    alreadyConnected: 'Target {target} is already connected.',
+    notConnected: 'Not connected to {target}.',
+    unrecognizedTarget: "Target '{target}' is not recognized. Use /connections catalog to view supported targets.",
+    rateLimitExceeded: 'Rate limit exceeded: You can execute at most 10 connection commands per minute. Please wait.',
+    apiKeyPrompt: 'To connect {target}, provide your API Key:\n/connect {id} <your_key>',
+    localPathPrompt: 'To connect {target}, specify the local directory path:\n/connect {id} <path_to_directory>',
+    oauthDeviceCodePrompt: 'Open authorization link: {url} and confirm in browser.',
+    catalogTitle: 'Available Connection Catalog',
+    noActiveConnections: 'No active connections found.',
+  },
 };

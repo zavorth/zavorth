@@ -168,4 +168,18 @@ export const pt: LocalizationCatalog = {
       referencedNotFound: 'Nenhuma aprovação pendente encontrada para as referências informadas.',
     },
   },
+  connections: {
+    title: 'Subsistema de Conexão Universal',
+    connectedSuccess: 'Conectado a {target} com sucesso!',
+    disconnectedSuccess: 'Desconectado de {target}. Credenciais locais expurgadas.',
+    alreadyConnected: 'O alvo {target} já está conectado.',
+    notConnected: 'Não conectado a {target}.',
+    unrecognizedTarget: "Alvo '{target}' não reconhecido. Use /connections catalog para ver os alvos suportados.",
+    rateLimitExceeded: 'Limite de taxa excedido: Você pode executar no máximo 10 comandos de conexão por minuto. Por favor, aguarde.',
+    apiKeyPrompt: 'Para conectar {target}, informe sua chave de API:\n/connect {id} <sua_chave>',
+    localPathPrompt: 'Para conectar {target}, especifique o caminho do diretório local:\n/connect {id} <caminho_do_diretorio>',
+    oauthDeviceCodePrompt: 'Abra o link de autorização: {url} e confirme no navegador.',
+    catalogTitle: 'Catálogo de Conexões Disponíveis',
+    noActiveConnections: 'Nenhuma conexão ativa encontrada.',
+  },
 };

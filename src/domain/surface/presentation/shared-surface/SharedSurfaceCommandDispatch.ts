@@ -24,6 +24,7 @@ import type { SharedSurfaceWatchModeCommandPack } from './SharedSurfaceWatchMode
 import type { SharedSurfaceWorkflowGovernanceCommandPack } from './SharedSurfaceWorkflowGovernanceCommandPack.js';
 import type { SharedSurfaceSlashEnhancementCommandPack } from './SharedSurfaceSlashEnhancementCommandPack.js';
 import type { SharedSurfaceBotCommandPack } from './SharedSurfaceBotCommandPack.js';
+import type { SharedSurfaceConnectCommandPack } from './SharedSurfaceConnectCommandPack.js';
 import { naturalizeSharedSurfaceArgs } from './NaturalSlashConvention.js';
 import {
   isSurfaceAgentFirstEnabled,
@@ -122,6 +123,7 @@ export type SharedSurfaceCommandPackDispatchContext = {
   workflowGovernanceCommandPack: Pick<SharedSurfaceWorkflowGovernanceCommandPack, 'maybeHandleCommand'>;
   slashEnhancementCommandPack?: Pick<SharedSurfaceSlashEnhancementCommandPack, 'maybeHandle'> | null;
   botCommandPack?: Pick<SharedSurfaceBotCommandPack, 'maybeHandle'> | null;
+  connectCommandPack?: Pick<SharedSurfaceConnectCommandPack, 'maybeHandle'> | null;
 };
 
 export async function dispatchSharedSurfaceCommandPacks(
@@ -136,6 +138,13 @@ export async function dispatchSharedSurfaceCommandPacks(
   if (
     deps.slashEnhancementCommandPack &&
     (await deps.slashEnhancementCommandPack.maybeHandle(ctx, command_type, command_args))
+  ) {
+    return true;
+  }
+
+  if (
+    deps.connectCommandPack &&
+    (await deps.connectCommandPack.maybeHandle(ctx, command_type, command_args))
   ) {
     return true;
   }
