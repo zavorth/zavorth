@@ -1,5 +1,6 @@
 import type { AgentPermissionService } from '../permission/AgentPermissionService.js';
 import type { PeerReviewAdvisoryService } from '../../runtime/agent/advisory/PeerReviewAdvisoryService.js';
+import { ZAVORTH_AGENT_PERMISSION_CONTRACT_VERSION } from '../../contracts/permission/AgentPermissionContract.js';
 
 export type SmartDecisionInput = {
   toolName: string;
@@ -19,7 +20,7 @@ export type SmartDecisionAdvice = {
 };
 
 export type SmartDecisionAdvisorOptions = {
-  permissionService: Pick<AgentPermissionService, 'evaluate'>;
+  permissionService?: Pick<AgentPermissionService, 'evaluate'>;
   askModel?: (prompt: string) => Promise<'approve' | 'deny' | null>;
   peerReviewService?: Pick<PeerReviewAdvisoryService, 'evaluateAction'> | null;
   enabled?: boolean;
@@ -34,13 +35,21 @@ const SMART_BLOCKED_RISKS = new Set(['danger', 'high', 'critical']);
  * fail-closed — the advisor never widens an approval.
  */
 export class SmartDecisionAdvisor {
-  private readonly permissionService: SmartDecisionAdvisorOptions['permissionService'];
+  private readonly permissionService: Pick<AgentPermissionService, 'evaluate'>;
   private readonly askModel: SmartDecisionAdvisorOptions['askModel'];
   private readonly peerReviewService: SmartDecisionAdvisorOptions['peerReviewService'];
   private readonly enabled: boolean;
 
   constructor(options: SmartDecisionAdvisorOptions) {
-    this.permissionService = options.permissionService;
+    this.permissionService = options.permissionService ?? {
+      evaluate: () => ({
+        contractVersion: ZAVORTH_AGENT_PERMISSION_CONTRACT_VERSION,
+        action: 'ask' as const,
+        reason: 'No permission service configured.',
+        matchedRule: null,
+        satisfiedBy: null,
+      }),
+    };
     this.askModel = options.askModel;
     this.peerReviewService = options.peerReviewService ?? null;
     this.enabled = options.enabled === true;

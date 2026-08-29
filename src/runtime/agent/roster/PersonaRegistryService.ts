@@ -150,7 +150,16 @@ export class PersonaRegistryService {
 
   public getPersona(rawId: string): Persona | null {
     const id = sanitizePersonaId(rawId);
-    return this.personas.get(id) || null;
+    const exact = this.personas.get(id);
+    if (exact) return exact;
+    const lower = id.toLowerCase();
+    const all = Array.from(this.personas.values());
+    for (const persona of all) {
+      if (persona.id.toLowerCase().includes(lower) || persona.name.toLowerCase().includes(lower)) {
+        return persona;
+      }
+    }
+    return null;
   }
 
   public hasPersona(rawId: string): boolean {

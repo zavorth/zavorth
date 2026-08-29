@@ -28,6 +28,7 @@ const PROVIDER_FILES = [
   'AI21Provider.ts',
   'CerebrasProvider.ts',
   'DeepSeekProvider.ts',
+  'EmulatedToolCallingProviderDecorator.ts',
   'EnhancedProviderFactory.ts',
   'GatewayProvider.ts',
   'GeminiInteractionsProviderAdapter.ts',

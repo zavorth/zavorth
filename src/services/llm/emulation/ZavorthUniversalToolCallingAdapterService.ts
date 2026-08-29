@@ -19,6 +19,27 @@ export interface ProviderCapabilityProfile {
   readonly preferredEmulationFormat?: 'XML_TAGS' | 'JSON_BLOCKS';
 }
 
+export type EmulationFormat = 'XML_TAGS' | 'JSON_BLOCKS';
+
+function extractBalancedJson(text: string, startIndex: number): { json: string; endIndex: number } | null {
+  let depth = 0;
+  let inString = false;
+  let isEscaped = false;
+  for (let i = startIndex; i < text.length; i += 1) {
+    const char = text[i];
+    if (isEscaped) { isEscaped = false; continue; }
+    if (char === '\\' && inString) { isEscaped = true; continue; }
+    if (char === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (char === '{') depth += 1;
+    else if (char === '}') {
+      depth -= 1;
+      if (depth === 0) return { json: text.slice(startIndex, i + 1), endIndex: i + 1 };
+    }
+  }
+  return null;
+}
+
 export class ZavorthUniversalToolCallingAdapterService {
   private readonly jsonRepair = new ZavorthJsonSchemaRepairService();
 
@@ -81,11 +102,12 @@ export class ZavorthUniversalToolCallingAdapterService {
       };
     }
 
-    const toolCalls: ExtractedToolCall[] = [];
     const text = rawText;
+    const toolCalls: ExtractedToolCall[] = [];
+    const rawSnippets: string[] = [];
     let callCounter = 0;
 
-    // 1. Try Extracting XML <tool_call> blocks (token-based delimiter search)
+    // 1. Extract XML <tool_call> blocks (canonical emulation format).
     let searchStart = 0;
     while (searchStart < text.length) {
       const openTagIdx = text.indexOf('<tool_call>', searchStart);
@@ -121,12 +143,39 @@ export class ZavorthUniversalToolCallingAdapterService {
           parameters: repairRes.data || {},
           rawInvocationSnippet: blockSnippet,
         });
+        rawSnippets.push(blockSnippet);
       }
 
       searchStart = closeTagIdx + 12;
     }
 
-    // 2. If no XML tool calls found, try Extracting JSON Code Block tool calls
+    // 2. Extract DeepSeek-style <function>name</function>({...}) blocks.
+    let functionSearch = 0;
+    while (functionSearch < text.length) {
+      const openIdx = text.indexOf('<function>', functionSearch);
+      if (openIdx < 0) break;
+      const nameStart = openIdx + '<function>'.length;
+      const nameEnd = text.indexOf('</function>', nameStart);
+      if (nameEnd < 0) break;
+      const toolName = text.substring(nameStart, nameEnd).trim();
+      const jsonStart = text.indexOf('{', nameEnd);
+      if (jsonStart < 0) break;
+      const balanced = extractBalancedJson(text, jsonStart);
+      if (!balanced) break;
+      if (toolName) {
+        const repairRes = this.jsonRepair.parseSafe<Record<string, unknown>>(balanced.json, {});
+        toolCalls.push({
+          id: `call-emulated-${Date.now()}-${callCounter++}`,
+          name: toolName,
+          parameters: repairRes.data || {},
+          rawInvocationSnippet: text.substring(openIdx, balanced.endIndex),
+        });
+        rawSnippets.push(text.substring(openIdx, balanced.endIndex));
+      }
+      functionSearch = balanced.endIndex;
+    }
+
+    // 3. Extract ```json blocks with {"tool": ..., "parameters": {...}} (JSON_BLOCKS format).
     if (toolCalls.length === 0) {
       let codeSearch = 0;
       while (codeSearch < text.length) {
@@ -148,16 +197,49 @@ export class ZavorthUniversalToolCallingAdapterService {
             parameters: params,
             rawInvocationSnippet: snippet,
           });
+          rawSnippets.push(snippet);
         }
 
         codeSearch = fenceEnd + 3;
       }
     }
 
-    // Remove raw tool call snippets to produce clean conversational text
+    // 4. Extract inline JSON tool invocations (Nemotron-style {"tool": "...", "arguments": {...}}).
+    if (toolCalls.length === 0) {
+      let jsonSearch = 0;
+      while (jsonSearch < text.length) {
+        const jsonStart = text.indexOf('{', jsonSearch);
+        if (jsonStart < 0) break;
+        const balanced = extractBalancedJson(text, jsonStart);
+        if (!balanced) break;
+        const parsed = this.jsonRepair.parseSafe<Record<string, unknown>>(balanced.json);
+        const data = parsed.success ? parsed.data : null;
+        const name = data && (typeof data.tool === 'string'
+          ? data.tool
+          : typeof data.name === 'string' ? data.name : null);
+        if (name) {
+          const argumentsValue = data && (
+            (data.arguments && typeof data.arguments === 'object' ? data.arguments : null)
+            || (data.parameters && typeof data.parameters === 'object' ? data.parameters : null)
+            || (data.args && typeof data.args === 'object' ? data.args : null)
+            || {}
+          );
+          toolCalls.push({
+            id: `call-emulated-${Date.now()}-${callCounter++}`,
+            name,
+            parameters: argumentsValue as Record<string, unknown>,
+            rawInvocationSnippet: balanced.json,
+          });
+          rawSnippets.push(balanced.json);
+        }
+        jsonSearch = balanced.endIndex;
+      }
+    }
+
+    // Remove raw tool call snippets to produce clean conversational text.
     let cleanText = rawText;
-    for (const call of toolCalls) {
-      cleanText = cleanText.replace(call.rawInvocationSnippet, '');
+    for (const snippet of rawSnippets) {
+      cleanText = cleanText.replace(snippet, '');
     }
 
     return {
@@ -170,7 +252,7 @@ export class ZavorthUniversalToolCallingAdapterService {
   public formatToolResponse(
     toolName: string,
     resultPayload: string,
-    format: 'XML_TAGS' | 'JSON_BLOCKS' = 'XML_TAGS'
+    format: EmulationFormat = 'XML_TAGS'
   ): string {
     if (format === 'JSON_BLOCKS') {
       return [
@@ -183,10 +265,18 @@ export class ZavorthUniversalToolCallingAdapterService {
       ].join('\n');
     }
 
-    return `<tool_response>\n  <name>${toolName}</name>\n  <result>${resultPayload}</result>\n</tool_response>`;
+    return `<tool_response>\n  <name>${escapeXmlText(toolName)}</name>\n  <result>${escapeXmlText(resultPayload)}</result>\n</tool_response>`;
   }
 
   public resolveExecutionTrack(capability: ProviderCapabilityProfile): 'NATIVE' | 'EMULATED' {
     return capability.supportsNativeTools ? 'NATIVE' : 'EMULATED';
   }
+}
+
+function escapeXmlText(value: string): string {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
 }

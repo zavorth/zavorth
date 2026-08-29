@@ -79,10 +79,7 @@ describe('NaturalScheduleParser', () => {
 
   describe('LLM-centered natural resolution', () => {
     it('returns null for natural text when no resolver is registered', async () => {
-      let parseAsync: typeof parseNaturalScheduleAsync | null = null;
-      const fresh = await import('../../../src/services/scheduling/NaturalScheduleParser');
-      parseAsync = fresh.parseNaturalScheduleAsync;
-      expect(await parseAsync!('remind me every day at 09:30')).toBeNull();
+      expect(await parseNaturalScheduleAsync('remind me every day at 09:30')).toBeNull();
     });
 
     it('passes canonical JSON through without invoking the resolver', async () => {

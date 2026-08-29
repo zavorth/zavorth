@@ -74,11 +74,14 @@ export class SystemInfoTool implements IZavorthTool {
             .describe('Metrics to return, for example ["cpu", "memory", "battery"].')
     });
 
-    async execute(params: { metrics: string[] }): Promise<ToolExecutionResult> {
+    async execute(params: { metrics?: string[] }): Promise<ToolExecutionResult> {
         try {
             const data: SystemInfoData = {};
+            const metrics = Array.isArray(params?.metrics) && params.metrics.length > 0
+                ? params.metrics
+                : ['cpu', 'memory'];
 
-            for (const metric of params.metrics) {
+            for (const metric of metrics) {
                 switch (metric) {
                     case 'cpu':
                         data.cpu = await this.getCpuInfo();

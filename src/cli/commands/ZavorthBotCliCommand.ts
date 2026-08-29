@@ -1,6 +1,7 @@
 import { PersonaRegistryService } from '../../runtime/agent/roster/PersonaRegistryService.js';
 import { DynamicPersonaCompilerService } from '../../runtime/agent/roster/DynamicPersonaCompilerService.js';
 import { EnsemblePersonaTaskRunner } from '../../runtime/agent/roster/EnsemblePersonaTaskRunner.js';
+import { LlmRuntimeService } from '../../services/llm/LlmRuntimeService.js';
 import type { PersonaTaskRunner } from '../../runtime/agent/roster/PersonaTaskRunnerContract.js';
 import type { CliExecutionResult, CliWriter, ZavorthCliFlags } from '../ZavorthCliContract.js';
 import { logger } from '../../logger.js';
@@ -24,7 +25,7 @@ export async function handleZavorthBotCliCommand(input: {
 
   const registry = input.deps?.personaRegistryService || new PersonaRegistryService();
   const compiler = input.deps?.dynamicCompilerService || new DynamicPersonaCompilerService();
-  const runner = input.deps?.personaRunner || new EnsemblePersonaTaskRunner();
+  const runner = input.deps?.personaRunner || new EnsemblePersonaTaskRunner(null, new LlmRuntimeService());
 
   const tokens = String(input.args || '')
     .trim()

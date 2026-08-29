@@ -80,4 +80,76 @@ Let me check the diagnostics:
     expect(service.resolveExecutionTrack({ supportsNativeTools: true })).toBe('NATIVE');
     expect(service.resolveExecutionTrack({ supportsNativeTools: false })).toBe('EMULATED');
   });
+
+  it('should extract inline JSON tool invocations without XML fences (Nemotron-style)', () => {
+    const rawOutput = 'Let me check the system info for you. {"tool": "os_system_info", "arguments": {"metrics": ["cpu", "memory"]}}';
+
+    const result = service.extractToolInvocations(rawOutput);
+
+    expect(result.hasToolCalls).toBe(true);
+    expect(result.toolCalls.length).toBe(1);
+    expect(result.toolCalls[0].name).toBe('os_system_info');
+    expect(result.toolCalls[0].parameters.metrics).toEqual(['cpu', 'memory']);
+    expect(result.cleanConversationalText).toContain('Let me check the system info for you.');
+    expect(result.cleanConversationalText).not.toContain('"tool"');
+  });
+
+  it('should extract DeepSeek-style <function> blocks with JSON arguments', () => {
+    const rawOutput = 'Opening notepad now. <function>os_open_app</function>({"app": "notepad.exe"})';
+
+    const result = service.extractToolInvocations(rawOutput);
+
+    expect(result.hasToolCalls).toBe(true);
+    expect(result.toolCalls.length).toBe(1);
+    expect(result.toolCalls[0].name).toBe('os_open_app');
+    expect(result.toolCalls[0].parameters.app).toBe('notepad.exe');
+    expect(result.cleanConversationalText).toContain('Opening notepad now.');
+  });
+
+  it('should extract tool calls from pure JSON without surrounding prose', () => {
+    const rawOutput = '{"tool": "get_datetime", "parameters": {}}';
+
+    const result = service.extractToolInvocations(rawOutput);
+
+    expect(result.hasToolCalls).toBe(true);
+    expect(result.toolCalls[0].name).toBe('get_datetime');
+    expect(result.cleanConversationalText).toBe('');
+  });
+
+  it('should not extract plain conversational JSON as a tool call', () => {
+    const rawOutput = 'Here is the answer: {"status": "ok", "total": 42}';
+
+    const result = service.extractToolInvocations(rawOutput);
+
+    expect(result.hasToolCalls).toBe(false);
+    expect(result.toolCalls.length).toBe(0);
+  });
+
+  it('should escape XML special characters in tool responses', () => {
+    const xmlResp = service.formatToolResponse('workspace_read_file', 'line 1 <tag> & "quoted"');
+
+    expect(xmlResp).toContain('&lt;tag&gt;');
+    expect(xmlResp).toContain('&amp;');
+    expect(xmlResp).toContain('&quot;');
+  });
+
+  it('should extract multiple inline JSON tool invocations', () => {
+    const rawOutput = 'First {"tool": "read_file", "arguments": {"path": "a.txt"}} then {"tool": "list_directory", "arguments": {"path": "/tmp"}}';
+
+    const result = service.extractToolInvocations(rawOutput);
+
+    expect(result.hasToolCalls).toBe(true);
+    expect(result.toolCalls.length).toBe(2);
+    expect(result.toolCalls[0].name).toBe('read_file');
+    expect(result.toolCalls[1].name).toBe('list_directory');
+  });
+
+  it('should repair broken JSON arguments inside tool calls', () => {
+    const rawOutput = '<tool_call><name>zavorth_lsp_diagnostics</name><parameters>{"action": "check", "filePath": "src/app.ts",}</parameters></tool_call>';
+
+    const result = service.extractToolInvocations(rawOutput);
+
+    expect(result.hasToolCalls).toBe(true);
+    expect(result.toolCalls[0].parameters.filePath).toBe('src/app.ts');
+  });
 });

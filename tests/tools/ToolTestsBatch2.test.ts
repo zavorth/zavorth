@@ -1,7 +1,9 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { createRequire } from 'node:module';
 
+const requireFromTest = createRequire(__filename);
 const tmpDir = () => fs.mkdtempSync(path.join(os.tmpdir(), 'tool-batch2-'));
 
 type ToolModuleSpec = {
@@ -49,8 +51,8 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
 
   for (const spec of TOOL_SPECS) {
     describe(spec.toolName, () => {
-      it('loads and creates instance', async () => {
-        const mod = await import(spec.modulePath);
+      it('loads and creates instance', () => {
+        const mod = requireFromTest(spec.modulePath);
         const ToolConstructor = mod[spec.exportName];
         expect(ToolConstructor).toEqual(expect.any(Function));
         const tool = new ToolConstructor();

@@ -23,13 +23,13 @@ export class SystemOpenAppTool implements IZavorthTool {
         args: z.array(z.string().max(500)).max(8).optional().describe('Optional safe arguments, such as a URL or search term.'),
     });
 
-    async execute(params: { appName: string; args?: string[] }): Promise<ToolExecutionResult> {
-        const safeAppName = params.appName.trim();
+    async execute(params: { appName?: string; args?: string[] }): Promise<ToolExecutionResult> {
+        const safeAppName = String(params?.appName || '').trim();
 
         if (!safeAppName || UNSAFE_ARGUMENT_PATTERN.test(safeAppName)) {
             return {
                 success: false,
-                error: 'Application name contains disallowed characters.',
+                error: 'Application name is required or contains disallowed characters.',
             };
         }
         if (isBlockedSystemExecutable(safeAppName) || !isWhitelistedSystemExecutable(safeAppName)) {

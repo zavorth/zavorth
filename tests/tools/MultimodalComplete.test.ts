@@ -1,12 +1,15 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { createRequire } from 'node:module';
 import { ZavorthVisionService } from '../../src/services/plugins/ZavorthVisionService';
 import { ZavorthAudioAnalyzerService } from '../../src/services/plugins/ZavorthAudioAnalyzerService';
 import { ZavorthVideoAnalyzerService } from '../../src/services/plugins/ZavorthVideoAnalyzerService';
-import { MultimodalProviderSelector } from '../../src/services/plugins/MultimodalProviderSelector';
 import { DocumentIntelligenceService } from '../../src/services/plugins/DocumentIntelligenceService';
 import { CodeIntelligenceService } from '../../src/services/plugins/CodeIntelligenceService';
+
+const requireFromTest = createRequire(__filename);
+const multimodalModule = requireFromTest('../../src/services/plugins/MultimodalProviderSelector');
 
 const tmpDir = () => fs.mkdtempSync(path.join(os.tmpdir(), 'multimodal-'));
 
@@ -88,32 +91,32 @@ describe('Multimodal Services', () => {
 
   describe('MultimodalProviderSelector', () => {
     it('loads module', async () => {
-      const mod = await import('../../src/services/plugins/MultimodalProviderSelector');
+      const mod = multimodalModule;
       expect(mod).toBeDefined();
     });
 
     it('has listProviders function', async () => {
-      const mod = await import('../../src/services/plugins/MultimodalProviderSelector');
+      const mod = multimodalModule;
       expect(typeof mod.listProviders).toBe('function');
     });
 
     it('has getSetupInstructions function', async () => {
-      const mod = await import('../../src/services/plugins/MultimodalProviderSelector');
+      const mod = multimodalModule;
       expect(typeof mod.getSetupInstructions).toBe('function');
     });
 
     it('has getQuickSetup function', async () => {
-      const mod = await import('../../src/services/plugins/MultimodalProviderSelector');
+      const mod = multimodalModule;
       expect(typeof mod.getQuickSetup).toBe('function');
     });
 
     it('has getAvailableProviders function', async () => {
-      const mod = await import('../../src/services/plugins/MultimodalProviderSelector');
+      const mod = multimodalModule;
       expect(typeof mod.getAvailableProviders).toBe('function');
     });
 
     it('has getBestProvider function', async () => {
-      const mod = await import('../../src/services/plugins/MultimodalProviderSelector');
+      const mod = multimodalModule;
       expect(typeof mod.getBestProvider).toBe('function');
     });
   });

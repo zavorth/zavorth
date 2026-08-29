@@ -1,5 +1,6 @@
 import { EnsemblePersonaTaskRunner } from '../../../../src/runtime/agent/roster/EnsemblePersonaTaskRunner.js';
 import type { ZavorthEnsembleService } from '../../../../src/agents/ZavorthEnsembleService.js';
+import type { LlmRuntimeService } from '../../../../src/services/llm/LlmRuntimeService.js';
 import type { Persona } from '../../../../src/runtime/agent/roster/PersonaContract.js';
 
 describe('EnsemblePersonaTaskRunner', () => {
@@ -97,5 +98,79 @@ describe('EnsemblePersonaTaskRunner', () => {
 
     expect(result.ok).toBe(false);
     expect(result.error).toMatch(/no roles/);
+  });
+
+  describe('llm runtime path', () => {
+    function createMockLlmRuntime(overrides: Partial<Pick<LlmRuntimeService, 'chatDetailed'>> = {}): Pick<LlmRuntimeService, 'chatDetailed'> {
+      return {
+        chatDetailed: jest.fn().mockResolvedValue({
+          providerName: 'test-provider',
+          modelName: 'test-model',
+          response: { content: 'Optimized query plan delivered.', toolCalls: [], finishReason: 'stop' },
+          route: { source: 'LlmRuntimeService' },
+        }),
+        ...overrides,
+      };
+    }
+
+    it('dispatches through chatDetailed with the persona system prompt and telemetry', async () => {
+      const llmRuntime = createMockLlmRuntime();
+      const ensemble = createMockEnsemble();
+      const runner = new EnsemblePersonaTaskRunner(ensemble, llmRuntime);
+      const result = await runner.runPersonaTask({
+        persona: basePersona,
+        prompt: 'Optimize the slow join in users table',
+        sessionId: 'session-1',
+      });
+
+      expect(result.ok).toBe(true);
+      expect(result.output).toBe('Optimized query plan delivered.');
+      expect(ensemble.launchSwarm).not.toHaveBeenCalled();
+      const [messages, tools, options] = (llmRuntime.chatDetailed as jest.Mock).mock.calls[0];
+      expect(messages[0]).toEqual({ role: 'system', content: basePersona.systemPrompt });
+      expect(messages[1]).toEqual({ role: 'user', content: 'Optimize the slow join in users table' });
+      expect(tools).toEqual([]);
+      expect(options.telemetry).toMatchObject({
+        surface: 'persona-task-runner',
+        runId: 'persona:sql-guru',
+        sessionId: 'session-1',
+      });
+    });
+
+    it('returns an honest typed error when the LLM dispatch fails without falling back to the swarm', async () => {
+      const llmRuntime = createMockLlmRuntime({
+        chatDetailed: jest.fn().mockRejectedValue(new Error('No provider selected.')),
+      });
+      const ensemble = createMockEnsemble();
+      const runner = new EnsemblePersonaTaskRunner(ensemble, llmRuntime);
+      const result = await runner.runPersonaTask({
+        persona: basePersona,
+        prompt: 'Optimize the slow join',
+      });
+
+      expect(result.ok).toBe(false);
+      expect(result.error).toContain('LLM dispatch failed');
+      expect(result.error).toContain('No provider selected.');
+      expect(ensemble.launchSwarm).not.toHaveBeenCalled();
+    });
+
+    it('returns a typed failure when the LLM returns an empty response', async () => {
+      const llmRuntime = createMockLlmRuntime({
+        chatDetailed: jest.fn().mockResolvedValue({
+          providerName: 'test-provider',
+          modelName: 'test-model',
+          response: { content: null, toolCalls: [], finishReason: 'stop' },
+          route: { source: 'LlmRuntimeService' },
+        }),
+      });
+      const runner = new EnsemblePersonaTaskRunner(createMockEnsemble(), llmRuntime);
+      const result = await runner.runPersonaTask({
+        persona: basePersona,
+        prompt: 'Optimize the slow join',
+      });
+
+      expect(result.ok).toBe(false);
+      expect(result.error).toMatch(/empty LLM response/);
+    });
   });
 });

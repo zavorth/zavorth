@@ -196,9 +196,9 @@ export class SwarmOrchestrator extends EventEmitter {
   private executeRole(role: SwarmRole): Promise<void> {
     return new Promise<void>((resolve) => {
       const ownership = this.buildRoleOwnership(role);
-      const nonInteractiveCommand = Boolean(role.command && role.stdinMode !== 'prompt');
+      const useNodePty = Boolean(role.command);
       const session = this.options.sessionFactory?.(role) || new SessionManager(role.id, normalizeText(role.cwd, process.cwd()), {
-        ...(nonInteractiveCommand ? { loadNodePty: () => null } : {}),
+        ...(useNodePty ? {} : { loadNodePty: () => null }),
         sessionRegistry: this.options.sessionRegistry,
         ownership,
       });

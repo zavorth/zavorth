@@ -44,6 +44,8 @@ export type LlmRunOptions = {
   providerNativeTools?: ProviderChatOptions['providerNativeTools'];
   /** Provider-facing reasoning effort parameter. */
   reasoningEffort?: 'none' | 'low' | 'medium' | 'high' | 'xhigh';
+  /** Optional request timeout in milliseconds (propagated to the provider). */
+  timeoutMs?: number;
   /** Cost route classification applied by AgentRunCostEffortRouting. */
   costRouteClass?: 'premium' | 'standard' | 'background';
   costRouteReason?: string;
@@ -800,6 +802,7 @@ export class LlmRuntimeService {
       modelName,
       ...(options?.providerNativeTools?.length ? { providerNativeTools: options.providerNativeTools } : {}),
       ...(options?.signal ? { signal: options.signal } : {}),
+      ...(options?.timeoutMs ? { timeoutMs: options.timeoutMs } : {}),
       ...(options?.reasoningEffort ? { reasoningEffort: options.reasoningEffort } : {}),
     };
   }

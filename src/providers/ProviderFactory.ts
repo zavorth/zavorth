@@ -5,6 +5,7 @@ import { DynamicModelCatalogService } from '../services/providers/catalog/Dynami
 import { ZavorthUniversalDynamicAdapter, type DynamicAdapterConfig } from './ZavorthUniversalDynamicAdapter.js';
 import type { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefinition } from './ILlmProvider.js';
 import { wrapLlmProviderWithEgressGuard } from '../security/LlmEgressGuard.js';
+import { EmulatedToolCallingProviderDecorator } from './EmulatedToolCallingProviderDecorator.js';
 
 export interface DedicatedOpenAiCompatibleProviderConfig {
   modelEnv: string;
@@ -191,7 +192,10 @@ export class ProviderFactory {
     const cached = this.cache.get(target.providerName);
     if (cached) return cached;
     const adapter = this.buildSingleProvider(target);
-    const provider = wrapLlmProviderWithEgressGuard(new DynamicAdapterProvider(target.providerName, adapter));
+    const guarded = wrapLlmProviderWithEgressGuard(new DynamicAdapterProvider(target.providerName, adapter));
+    const provider = new EmulatedToolCallingProviderDecorator(guarded, {
+      providerType: target.providerName,
+    });
     this.cache.set(target.providerName, provider);
     return provider;
   }

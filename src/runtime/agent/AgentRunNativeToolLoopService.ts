@@ -80,6 +80,7 @@ import {
   resolveTerminalBackend,
   resolveToolAliases,
 } from './AgentRunNativeToolLoopHelpers.js';
+import { ZavorthUniversalToolCallingAdapterService } from '../../services/llm/emulation/ZavorthUniversalToolCallingAdapterService.js';
 
 export type NativeToolLoopStats = {
   requested: number;
@@ -101,6 +102,8 @@ export type NativeToolLoopStats = {
   retriedToolCalls: number;
   successfulRetries: number;
   stopReasonRecoveries: number;
+  emulatedExtracted: number;
+  emulatedExecuted: number;
 };
 
 export type NativeToolLoopResult = {
@@ -122,6 +125,7 @@ type Runtime = {
   canvasSessionService?: CanvasSpeculativeAutonomySyncService | null;
   terminalBackendsService?: Pick<ZavorthTerminalBackendsService, 'execute'> | null;
   continuityKernel?: OperatorContinuityKernel;
+  emulationAdapter?: ZavorthUniversalToolCallingAdapterService | null;
 };
 
 const MAX_NATIVE_TOOL_ROUNDS = 5;
@@ -161,6 +165,7 @@ export class AgentRunNativeToolLoopService {
   private readonly profileReceipts = new ProfileEnforcementReceiptService();
   private readonly toolCatalogByRun = new Map<string, ToolCatalogState>();
   private readonly compactionService = new ContextCompactionService();
+  private readonly emulationAdapter: ZavorthUniversalToolCallingAdapterService | null;
   constructor(runtime: Runtime) {
     this.llmRuntime = runtime.llmRuntime;
     this.toolRuntime = runtime.toolRuntime;
@@ -180,6 +185,9 @@ export class AgentRunNativeToolLoopService {
         ? null
         : runtime.terminalBackendsService || new ZavorthTerminalBackendsService();
     this.continuityKernel = runtime.continuityKernel || new OperatorContinuityKernel();
+    this.emulationAdapter = runtime.emulationAdapter === null
+      ? null
+      : runtime.emulationAdapter || new ZavorthUniversalToolCallingAdapterService();
   }
   public maxRounds(): number {
     return MAX_NATIVE_TOOL_ROUNDS;
@@ -304,6 +312,8 @@ export class AgentRunNativeToolLoopService {
       retriedToolCalls: 0,
       successfulRetries: 0,
       stopReasonRecoveries: 0,
+      emulatedExtracted: 0,
+      emulatedExecuted: 0,
     };
     const evidenceTexts: string[] = [];
     const events: NativeToolLoopResult['events'] = [];
@@ -353,15 +363,48 @@ export class AgentRunNativeToolLoopService {
                 knownToolNames,
               })
             : [];
-        const rawToolCalls = declaredToolCalls.length > 0 ? declaredToolCalls : fallbackToolCalls;
+        let emulatedToolCalls: ToolCall[] = [];
+        let emulatedCleanContent = result.response.content || '';
+        if (declaredToolCalls.length === 0 && fallbackToolCalls.length === 0 && this.emulationAdapter) {
+          const parsed = this.emulationAdapter.extractToolInvocations(result.response.content || '');
+          if (parsed.hasToolCalls) {
+            emulatedToolCalls = parsed.toolCalls.map((invocation) => ({
+              id: invocation.id,
+              name: invocation.name,
+              arguments: invocation.parameters,
+            }));
+            emulatedCleanContent = parsed.cleanConversationalText || emulatedCleanContent;
+            stats.emulatedExtracted += emulatedToolCalls.length;
+            events.push(
+              buildToolEvent(
+                input.run,
+                'llm.emulated_tool_extraction',
+                `Extracted ${emulatedToolCalls.length} emulated tool invocation(s) from model text output.`,
+                'done',
+                {
+                  reason: 'emulated-tool-calling',
+                  toolNames: emulatedToolCalls.map((call) => call.name),
+                },
+              ),
+            );
+          }
+        }
+        const rawToolCalls = declaredToolCalls.length > 0
+          ? declaredToolCalls
+          : fallbackToolCalls.length > 0
+            ? fallbackToolCalls
+            : emulatedToolCalls;
         const repairs = rawToolCalls.map((toolCall) => this.repairToolCall(toolCall, knownToolNames));
         const toolCalls = repairs.map((repair) => repair.toolCall);
         stats.repairedToolCalls += repairs.filter((repair) => repair.repaired).length;
         if (toolCalls.length === 0) break;
         stats.rounds += 1;
+        if (emulatedToolCalls.length > 0) {
+          stats.emulatedExecuted += toolCalls.length;
+        }
         input.messages.push({
           role: 'assistant',
-          content: result.response.content || '',
+          content: emulatedCleanContent,
           toolCalls,
         });
 

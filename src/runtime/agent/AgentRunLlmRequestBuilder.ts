@@ -18,6 +18,8 @@ import { softInjectPluginOsPrompt } from '../../services/PluginOsPromptInjection
 import { formatCredentialReadinessBlock } from '../../services/AgentHarnessCredentialHints.js';
 import { formatAgentToolModelGuidance } from '../../services/AgentToolModelGuidance.js';
 import { getProductSurfaceRuntime } from '../../services/ZavorthProductSurfaceRuntimeService.js';
+import { ZavorthUniversalToolCallingAdapterService } from '../../services/llm/emulation/ZavorthUniversalToolCallingAdapterService.js';
+import { ModelToolCallingCapabilityTracker } from '../../services/llm/ModelToolCallingCapabilityTracker.js';
 
 export type AgentRunLlmRequestBuilderRuntime = {
   hallucinationInstruction: () => string;
@@ -127,11 +129,69 @@ export class AgentRunLlmRequestBuilder {
     } catch {
       /* soft */
     }
+    // P3: when the active model has no native tool calling, teach it the
+    // emulated invocation format so it can still request governed tools.
+    try {
+      const emulationSpec = this.buildEmulatedToolSpecification(run, request);
+      if (emulationSpec) {
+        systemPrompt = `${systemPrompt}\n\n${emulationSpec}`;
+      }
+    } catch {
+      /* soft */
+    }
 
     return [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: request.text },
     ];
+  }
+
+  private buildEmulatedToolSpecification(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): string {
+    const tools = run.toolExposure.tools;
+    if (tools.length === 0) {
+      return '';
+    }
+    const providerName = normalizeText(
+      run.modelProfile?.providerLabel
+      || request.modelProfile?.providerLabel
+      || run.metadata?.providerName,
+    );
+    const modelId = normalizeText(
+      run.modelProfile?.modelLabel
+      || request.modelProfile?.modelLabel
+      || run.metadata?.modelName,
+    );
+    const tracker = ModelToolCallingCapabilityTracker.getInstance();
+    const track = tracker.getTrack(providerName, modelId || null);
+    const injectFull = track === 'emulated';
+    const injectMinimal = track === 'unknown';
+    if (!injectFull && !injectMinimal) {
+      return '';
+    }
+    if (injectMinimal) {
+      const toolNames = tools.map((tool) => tool.id).join(', ');
+      return [
+        '__zavorth_emulated_tools__',
+        `Available tools: ${toolNames}`,
+        'To invoke a tool, output: {"tool": "tool_name", "arguments": {...}}',
+        'You may call several tools in sequence.',
+      ].join('\n');
+    }
+    const toolDefinitions = tools.map((tool) => ({
+      name: tool.id,
+      description: tool.description || tool.label || tool.id,
+      parameters: {
+        type: 'object' as const,
+        properties: {},
+      },
+    }));
+    return new ZavorthUniversalToolCallingAdapterService().buildPromptToolSpecifications(
+      toolDefinitions,
+      'XML_TAGS',
+    );
   }
 
   private buildDesktopProfilePrompt(metadata: Record<string, unknown>): string {

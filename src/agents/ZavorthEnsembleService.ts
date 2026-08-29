@@ -500,6 +500,13 @@ export class ZavorthEnsembleService {
     if (!entry) {
       throw new Error('Zavorth Ensemble not found.');
     }
+    if (entry.officialState?.queueStatus === 'cancelled') {
+      return {
+        ...entry.lastSnapshot,
+        swarmId: entry.swarmId,
+        createdAt: entry.createdAt,
+      };
+    }
     if (entry.officialState) {
       entry.orchestrator?.killAll();
       entry.officialState.queueStatus = 'cancelled';
@@ -566,6 +573,9 @@ export class ZavorthEnsembleService {
   private async executeOfficialBatches(entry: ManagedSwarm, input: ZavorthEnsembleCreateInput): Promise<SwarmSnapshot> {
     const state = entry.officialState;
     if (!state) {
+      return entry.lastSnapshot;
+    }
+    if (state.queueStatus === 'cancelled') {
       return entry.lastSnapshot;
     }
     state.queueStatus = 'running';
