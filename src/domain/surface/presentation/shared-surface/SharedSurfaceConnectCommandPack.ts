@@ -71,7 +71,11 @@ export class SharedSurfaceConnectCommandPack {
   }
 
   private getLocale(ctx: IMessageContext): string {
-    return (ctx as unknown as { locale?: string }).locale || 'en';
+    const requested = String(ctx.locale || '').trim();
+    if (!requested) {
+      return 'en';
+    }
+    return this.localizationService.normalizeLocaleTag(requested) || 'en';
   }
 
   private t(key: string, params: Record<string, string | number> = {}, locale: string = 'en'): string {
@@ -140,7 +144,7 @@ export class SharedSurfaceConnectCommandPack {
     if (resolution.source === 'unknown' || !resolution.descriptor || !resolution.cardDescriptor) {
       const intro = await this.introspectionService.introspect(target);
       if (intro.enabled && intro.guidance) {
-        await ctx.reply(`${resolution.error || this.t('unrecognizedTarget', { target }, locale)}\n\n💡 **Guidance:** ${intro.guidance}`);
+        await ctx.reply(`${resolution.error || this.t('unrecognizedTarget', { target }, locale)}\n\n${this.t('guidanceLabel', {}, locale)} ${intro.guidance}`);
       } else {
         await ctx.reply(resolution.error || this.t('unrecognizedTarget', { target }, locale));
       }
@@ -163,8 +167,8 @@ export class SharedSurfaceConnectCommandPack {
           [
             this.t('alreadyConnected', { target: cardDescriptor.displayName }, locale),
             '',
-            `• To reconnect or upgrade credentials: \`/connect ${target} <new_credentials>\``,
-            `• To disconnect: \`/disconnect ${target}\``,
+            this.t('reconnectHint', { target }, locale),
+            this.t('disconnectHint', { target }, locale),
           ].join('\n')
         );
         return;
@@ -199,7 +203,7 @@ export class SharedSurfaceConnectCommandPack {
         });
 
         await ctx.reply(
-          `✅ ${this.t('connectedSuccess', { target: cardDescriptor.displayName }, locale)}\nLocal directory verified at: \`${credentialValue}\``
+          `✅ ${this.t('connectedSuccess', { target: cardDescriptor.displayName }, locale)}\n${this.t('localPathVerifiedSuffix', { path: credentialValue }, locale)}`
         );
         return;
       }
@@ -225,7 +229,7 @@ export class SharedSurfaceConnectCommandPack {
           secretRef = await this.stateStore.saveSecret(target, credentialValue);
         } catch (err: unknown) {
           const msg = err instanceof Error ? err.message : String(err);
-          await ctx.reply(`❌ Failed to store encrypted credentials for **${cardDescriptor.displayName}**: ${msg}`);
+          await ctx.reply(this.t('secretStoreFailed', { target: cardDescriptor.displayName, details: msg }, locale));
           return;
         }
 
@@ -242,7 +246,7 @@ export class SharedSurfaceConnectCommandPack {
         });
 
         await ctx.reply(
-          `✅ ${this.t('connectedSuccess', { target: cardDescriptor.displayName }, locale)}\nCredentials encrypted and stored securely in vault.`
+          `✅ ${this.t('connectedSuccess', { target: cardDescriptor.displayName }, locale)}\n${this.t('credentialsVaultSuffix', {}, locale)}`
         );
         return;
       }
@@ -257,18 +261,13 @@ export class SharedSurfaceConnectCommandPack {
 
           if (!verificationUrl) {
             await ctx.reply(
-              this.t('pathVerificationFailed', { target: cardDescriptor.displayName, details: 'Missing device verification URL' }, locale)
+              this.t('pathVerificationFailed', { target: cardDescriptor.displayName, details: this.t('missingDeviceVerificationUrl', {}, locale) }, locale)
             );
             return;
           }
 
           await ctx.reply(
-            [
-              `🔑 **Connect ${cardDescriptor.displayName} (Device Code Flow):**`,
-              `1. Open the authorization link: ${verificationUrl}`,
-              '2. Confirm authorization in your browser.',
-              '3. Zavorth will complete the handshake automatically.',
-            ].join('\n')
+            this.t('deviceCodeFlowInstructions', { target: cardDescriptor.displayName, url: verificationUrl }, locale)
           );
           return;
         }
@@ -283,11 +282,7 @@ export class SharedSurfaceConnectCommandPack {
             );
 
             await ctx.reply(
-              [
-                `🔗 **Connect ${cardDescriptor.displayName}:**`,
-                'Click the link below to authorize in your browser (ephemeral loopback listener active):',
-                `[Authorize ${cardDescriptor.displayName}](${flow.authorizationUrl})`,
-              ].join('\n')
+              this.t('oauthClickLink', { target: cardDescriptor.displayName, url: flow.authorizationUrl }, locale)
             );
 
             // Asynchronously listen for callback without blocking UI
@@ -319,10 +314,10 @@ export class SharedSurfaceConnectCommandPack {
                     updatedAt: now,
                   });
 
-                  await ctx.reply(`✅ Successfully connected to **${cardDescriptor.displayName}** via OAuth2!`);
+                  await ctx.reply(this.t('oauthConnectedSuccess', { target: cardDescriptor.displayName }, locale));
                 } catch (exchangeErr: unknown) {
                   const errText = exchangeErr instanceof Error ? exchangeErr.message : String(exchangeErr);
-                  await ctx.reply(`❌ OAuth token exchange failed for **${cardDescriptor.displayName}**: ${errText}`);
+                  await ctx.reply(this.t('oauthExchangeFailed', { target: cardDescriptor.displayName, details: errText }, locale));
                 }
               })
               .catch(async (waitErr: unknown) => {
@@ -339,7 +334,7 @@ export class SharedSurfaceConnectCommandPack {
             logger.warn(`[SharedSurfaceConnectCommandPack] Ephemeral loopback server failed to start: ${msg}`);
             const authUrl = descriptor.oauth.authorizationUrl;
             if (!authUrl) {
-              await ctx.reply(`⚠️ Failed to start OAuth callback listener: ${msg}`);
+              await ctx.reply(this.t('oauthListenerFailed', { details: msg }, locale));
               await this.lockManager.releaseLock(userId, target);
               return;
             }
@@ -349,7 +344,7 @@ export class SharedSurfaceConnectCommandPack {
           }
         }
 
-        await ctx.reply(`OAuth configuration for **${cardDescriptor.displayName}** is active.`);
+        await ctx.reply(this.t('oauthConfigActive', { target: cardDescriptor.displayName }, locale));
         return;
       }
 
@@ -440,7 +435,7 @@ export class SharedSurfaceConnectCommandPack {
           `**${this.t('catalogTitle', {}, locale)}:**`,
           lines,
           '',
-          'To connect any target, type: `/connect <target>`',
+          this.t('catalogConnectHint', {}, locale),
         ].join('\n')
       );
       return;
@@ -456,7 +451,7 @@ export class SharedSurfaceConnectCommandPack {
       const statusLines = connections
         .map(
           c =>
-            `• **${c.displayName}** (\`${c.targetId}\`)\n  - Status: \`${c.status}\`\n  - Health: \`${c.healthStatus || 'healthy'}\`\n  - Auth: \`${c.authType}\`\n  - Connected At: \`${c.connectedAt}\``
+            `• **${c.displayName}** (\`${c.targetId}\`)\n  - ${this.t('statusLabel', {}, locale)}: \`${c.status}\`\n  - ${this.t('healthLabel', {}, locale)}: \`${c.healthStatus || 'healthy'}\`\n  - ${this.t('authLabel', {}, locale)}: \`${c.authType}\`\n  - ${this.t('connectedAtLabel', {}, locale)}: \`${c.connectedAt}\``
         )
         .join('\n\n');
 
@@ -473,7 +468,7 @@ export class SharedSurfaceConnectCommandPack {
         this.t('activeConnectionsHeader', { count: connections.length }, locale),
         formatted,
         '',
-        '• Disconnect a service: `/disconnect <target>`',
+        this.t('disconnectServiceHint', {}, locale),
       ].join('\n')
     );
   }

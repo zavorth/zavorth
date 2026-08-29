@@ -30,6 +30,11 @@ export interface IMessageContext {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     options?: Record<string, any> | null;
   } | null;
+  /**
+   * Preferred language tag for localized replies (BCP-47-ish, e.g. 'pt-BR').
+   * Absent or unrecognized tags resolve to the English fallback catalog.
+   */
+  locale?: string | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reply: (text: string, options?: any) => Promise<void>;
   editMessage: (messageId: string, text: string) => Promise<void>;

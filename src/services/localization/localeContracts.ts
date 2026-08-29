@@ -344,6 +344,24 @@ export interface ConnectionTranslations {
   catalogEmpty: string;
   statusHeader: string;
   statusEmpty: string;
+  guidanceLabel: string;
+  reconnectHint: string;
+  disconnectHint: string;
+  localPathVerifiedSuffix: string;
+  credentialsVaultSuffix: string;
+  secretStoreFailed: string;
+  deviceCodeFlowInstructions: string;
+  missingDeviceVerificationUrl: string;
+  oauthConnectedSuccess: string;
+  oauthExchangeFailed: string;
+  oauthListenerFailed: string;
+  oauthConfigActive: string;
+  catalogConnectHint: string;
+  statusLabel: string;
+  healthLabel: string;
+  authLabel: string;
+  connectedAtLabel: string;
+  disconnectServiceHint: string;
 }
 
 export interface LocalizationCatalog {

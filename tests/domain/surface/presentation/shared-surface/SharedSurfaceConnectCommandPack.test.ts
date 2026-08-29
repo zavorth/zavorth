@@ -258,7 +258,7 @@ describe('SharedSurfaceConnectCommandPack', () => {
 
   it('dynamically adapts messages to Portuguese when context locale is pt', async () => {
     const { ctx, replies } = createMockContext('user-pt');
-    (ctx as unknown as { locale: string }).locale = 'pt';
+    ctx.locale = 'pt';
 
     const handled = await commandPack.maybeHandle(ctx, '/connect', '');
     expect(handled).toBe(true);
