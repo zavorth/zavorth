@@ -58,6 +58,8 @@ import { MediaAnalysisTool } from '../tools/MediaAnalysisTool.js';
 import { NodeMeshTool } from '../tools/NodeMeshTool.js';
 import { VideoGenerationTool } from '../tools/VideoGenerationTool.js';
 import { KanbanTool } from '../tools/KanbanTool.js';
+import { ZavorthToolAdapter } from '../tools/ZavorthToolAdapter.js';
+import { ConnectionManageTool } from '../tool-runtime/tools/connection/ConnectionManageTool.js';
 import { SkillFeedbackCollectorTool } from '../tools/SkillFeedbackCollectorTool.js';
 import { BatchTrajectoryTool } from '../tools/BatchTrajectoryTool.js';
 import { MultiBackendTerminalTool } from '../tools/MultiBackendTerminalTool.js';
@@ -477,6 +479,21 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
       llmRuntime: consensusLlmRuntime,
       projectRoot: runtimeConfig.projectRoot || process.cwd(),
     }),
+  );
+
+  // Exposes the Echo connection tool to the conversational agent with explicit credential/network governance.
+  toolRegistry.register(
+    new ZavorthToolAdapter(new ConnectionManageTool()),
+    {
+      toolName: 'connection_manage',
+      surface: 'native-tool',
+      capabilities: ['credential', 'network'],
+      defaultRisk: 'dangerous',
+      requiresConfirmation: true,
+      canExfiltrateData: true,
+      description: 'Manages external service connections, credentials, and OAuth flows.',
+      source: 'explicit',
+    },
   );
 
   initializeBuiltinCommands();
