@@ -56,6 +56,11 @@ export class RememberFactTool extends BaseTool {
         type: 'number',
         description: 'Confidence score between 0.0 and 1.0 (default 1.0 for explicit user facts).',
       },
+      target_tools: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Optional list of specific tool names this procedural rule or preference applies to.',
+      },
     },
     required: ['fact', 'category'],
   };
@@ -82,6 +87,11 @@ export class RememberFactTool extends BaseTool {
     const rawKind = String(args.kind || 'preference').trim();
     const supersededFactId = args.superseded_fact_id ? String(args.superseded_fact_id).trim() : null;
     const confidenceInput = typeof args.confidence === 'number' ? args.confidence : 1.0;
+    const targetTools = Array.isArray(args.target_tools)
+      ? (args.target_tools as unknown[])
+          .map((t) => String(t || '').trim())
+          .filter(Boolean)
+      : [];
 
     if (!rawFact) {
       return JSON.stringify({ success: false, error: 'Missing required argument: fact' });
@@ -126,6 +136,7 @@ export class RememberFactTool extends BaseTool {
       status: 'active',
       version: 1,
       confidence,
+      targetTools,
       evidence: [
         {
           citation: 'Explicitly remembered via remember_fact tool',
@@ -155,6 +166,7 @@ export class RememberFactTool extends BaseTool {
       category: normalizedCategory,
       kind,
       confidence,
+      targetTools,
     });
   }
 }

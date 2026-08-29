@@ -9,6 +9,7 @@ import { canActorWriteLearning } from './ZavorthLearningWriteAuth.js';
 import { migrateLegacyLearningPreferencesToKnownUsers } from './ZavorthLearningLegacyMigration.js';
 import { UserModelFactStore } from './user-model/UserModelFactStore.js';
 import { UserModelTrajectoryReflectionService } from './user-model/UserModelTrajectoryReflectionService.js';
+import { UserModelMnemosProceduralBridgeService } from './user-model/UserModelMnemosProceduralBridgeService.js';
 
 export type ProductSurfaceId =
   | 'telegram'
@@ -170,11 +171,32 @@ export class ZavorthProductSurfaceRuntimeService {
         dataDir: path.join(this.projectRoot, 'data', 'runtime', 'user-model'),
       });
       const reflection = new UserModelTrajectoryReflectionService({ factStore });
-      void reflection.processTurn(input).catch((err: unknown) => {
-        logger.warn('UserModelTrajectoryReflectionService failed in background', {
-          error: err instanceof Error ? err.message : String(err),
+      void reflection
+        .processTurn(input)
+        .then(async () => {
+          try {
+            const bridge = new UserModelMnemosProceduralBridgeService({
+              factStore,
+              projectRoot: this.projectRoot,
+            });
+            const unpromotedFacts = (await factStore.listFactsByUserId(userId)).filter(
+              (f) => f.status === 'active' && !f.proceduralPointer,
+            );
+            const candidates = await bridge.evaluateNewFacts(unpromotedFacts);
+            for (const candidate of candidates) {
+              await bridge.proposePromotion(candidate.factId);
+            }
+          } catch (bridgeErr: unknown) {
+            logger.warn('UserModelMnemosProceduralBridgeService evaluation failed in background', {
+              error: bridgeErr instanceof Error ? bridgeErr.message : String(bridgeErr),
+            });
+          }
+        })
+        .catch((err: unknown) => {
+          logger.warn('UserModelTrajectoryReflectionService failed in background', {
+            error: err instanceof Error ? err.message : String(err),
+          });
         });
-      });
     } catch (err: unknown) {
       logger.warn('Failed to initiate UserModelTrajectoryReflectionService', {
         error: err instanceof Error ? err.message : String(err),

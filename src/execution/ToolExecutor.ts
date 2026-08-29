@@ -46,11 +46,15 @@ import {
 
 
 
+import { logger } from '../logger.js';
+import type { UserModelMnemosProceduralBridgeService } from '../services/user-model/UserModelMnemosProceduralBridgeService.js';
+
 type ToolExecutorRuntime = {
   defaultWorkspace?: string | null;
   hookPipelineService?: Pick<ToolHookPipelineService, 'run'>;
   securityPolicyEngine?: Pick<AgentSecurityPolicyEngine, 'evaluateToolInvocation'>;
   continuityKernel?: OperatorContinuityKernel;
+  proceduralBridgeService?: Pick<UserModelMnemosProceduralBridgeService, 'getScopedGuidanceForTool'>;
 };
 
 /**
@@ -64,6 +68,7 @@ export class ToolExecutor {
   private hookPipeline: Pick<ToolHookPipelineService, 'run'>;
   private securityPolicyEngine: Pick<AgentSecurityPolicyEngine, 'evaluateToolInvocation'> | null;
   private continuityKernel: OperatorContinuityKernel;
+  private proceduralBridge: Pick<UserModelMnemosProceduralBridgeService, 'getScopedGuidanceForTool'> | null;
   private lastContinuityEnvelope: OperatorContinuityEnvelope | null = null;
 
   constructor(
@@ -79,6 +84,7 @@ export class ToolExecutor {
     this.hookPipeline = runtime.hookPipelineService || new ToolHookPipelineService();
     this.securityPolicyEngine = runtime.securityPolicyEngine || null;
     this.continuityKernel = runtime.continuityKernel || new OperatorContinuityKernel();
+    this.proceduralBridge = runtime.proceduralBridgeService || null;
   }
 
   public getLastContinuityEnvelope(): OperatorContinuityEnvelope | null {
@@ -319,9 +325,30 @@ export class ToolExecutor {
     }
 
     this.logRepo.log('info', 'ToolExecutor', `Executing tool: ${toolName}`);
+
+    let scopedProceduralGuidance: string[] = [];
+    if (this.proceduralBridge) {
+      try {
+        scopedProceduralGuidance = await this.proceduralBridge.getScopedGuidanceForTool(toolName);
+        if (scopedProceduralGuidance.length > 0) {
+          this.logRepo.log(
+            'info',
+            'ToolExecutor',
+            `Applied ${scopedProceduralGuidance.length} scoped procedural rule(s) for ${toolName}`,
+          );
+        }
+      } catch (err: unknown) {
+        logger.warn('Failed to retrieve scoped procedural guidance, proceeding without it (fail-open)', {
+          toolName,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+
     await this.recordTelemetry(traceId, 'tool.started', 'running', {
       toolName,
       argKeys,
+      scopedProceduralRulesCount: scopedProceduralGuidance.length,
       securityRule: securityDecision.rule,
       securityRisk: securityDecision.risk,
       securityAction: securityDecision.action,

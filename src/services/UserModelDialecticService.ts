@@ -118,6 +118,7 @@ export class UserModelDialecticService {
         surface: null,
         lastObservedAt: this.now().toISOString(),
         occurrences: 1,
+        targetTools: [],
       }).catch((err: unknown) => {
         logger.warn('UserModelDialecticService failed to sync answer to factStore', {
           error: err instanceof Error ? err.message : String(err),
@@ -152,6 +153,7 @@ export class UserModelDialecticService {
         surface: null,
         lastObservedAt: this.now().toISOString(),
         occurrences: 1,
+        targetTools: [],
       }).catch((err: unknown) => {
         logger.warn('UserModelDialecticService failed to sync trait to factStore', {
           error: err instanceof Error ? err.message : String(err),

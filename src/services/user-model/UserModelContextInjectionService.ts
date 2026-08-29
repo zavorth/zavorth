@@ -31,7 +31,7 @@ export class UserModelContextInjectionService {
     }
 
     const facts = await this.factStore.listFactsByUserId(userId);
-    const activeFacts = facts.filter((f) => f.status === 'active');
+    const activeFacts = facts.filter((f) => f.status === 'active' && !f.proceduralPointer);
 
     if (activeFacts.length === 0) {
       return '';
@@ -76,7 +76,7 @@ export class UserModelContextInjectionService {
     }
 
     const facts = this.factStore.listFactsByUserIdSync(userId);
-    const activeFacts = facts.filter((f) => f.status === 'active');
+    const activeFacts = facts.filter((f) => f.status === 'active' && !f.proceduralPointer);
 
     if (activeFacts.length === 0) {
       return '';

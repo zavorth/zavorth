@@ -145,6 +145,7 @@ export class UserModelLegacyMigrationService {
         surface: null,
         lastObservedAt: timestamp,
         occurrences: 1,
+        targetTools: [],
       });
     }
 
@@ -212,6 +213,7 @@ export class UserModelLegacyMigrationService {
             surface: null,
             lastObservedAt: q.answeredAt || timestamp,
             occurrences: 1,
+            targetTools: [],
           });
         }
       }
@@ -240,6 +242,7 @@ export class UserModelLegacyMigrationService {
             surface: null,
             lastObservedAt: timestamp,
             occurrences: 1,
+            targetTools: [],
           });
         }
       }

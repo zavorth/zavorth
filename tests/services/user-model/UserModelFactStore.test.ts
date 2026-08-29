@@ -29,6 +29,7 @@ describe('UserModelFactStore', () => {
     surface: null,
     lastObservedAt: '2026-08-29T00:00:00.000Z',
     occurrences: 1,
+    targetTools: [],
   };
 
   beforeEach(async () => {

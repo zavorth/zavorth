@@ -58,6 +58,14 @@ export const userModelFactSchema = z.object({
   lastObservedAt: z.string(),
   occurrences: z.number().int().positive().default(1),
   supersededBy: z.string().nullable().optional(),
+  targetTools: z.array(z.string()).default([]),
+  proceduralPointer: z
+    .object({
+      ruleId: z.string().min(1),
+      promotedAt: z.string(),
+    })
+    .nullable()
+    .optional(),
   metadata: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
 });
 
@@ -69,6 +77,7 @@ export const userModelLifecycleEventTypeSchema = z.enum([
   'superseded',
   'retracted',
   'decayed',
+  'promoted_procedural',
 ]);
 
 export type UserModelLifecycleEventType = z.infer<typeof userModelLifecycleEventTypeSchema>;

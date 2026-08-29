@@ -15,6 +15,7 @@ export const userModelConfigSchema = z.object({
   maxInjectionTokens: z.number().int().positive().default(300),
   decayHalfLifeDays: z.number().positive().default(30),
   activationConfidenceThreshold: z.number().min(0).max(1).default(0.7),
+  proceduralPromotionThreshold: z.number().min(0).max(1).default(0.85),
   sourceAuthorityWeights: userModelSourceWeightsSchema.default({
     explicit: 1.0,
     userCorrection: 0.85,
@@ -46,6 +47,7 @@ export function resolveUserModelConfig(overrides?: Partial<UserModelConfig>): Us
     maxInjectionTokens: parseOptionalNumber(process.env.ZAVORTH_USER_MODEL_TOKEN_BUDGET),
     decayHalfLifeDays: parseOptionalNumber(process.env.ZAVORTH_USER_MODEL_DECAY_DAYS),
     activationConfidenceThreshold: parseOptionalNumber(process.env.ZAVORTH_USER_MODEL_ACTIVATION_THRESHOLD),
+    proceduralPromotionThreshold: parseOptionalNumber(process.env.ZAVORTH_USER_MODEL_PROCEDURAL_THRESHOLD),
     sourceAuthorityWeights: {
       explicit: parseOptionalNumber(process.env.ZAVORTH_USER_MODEL_WEIGHT_EXPLICIT) ?? 1.0,
       userCorrection: parseOptionalNumber(process.env.ZAVORTH_USER_MODEL_WEIGHT_CORRECTION) ?? 0.85,
@@ -61,6 +63,8 @@ export function resolveUserModelConfig(overrides?: Partial<UserModelConfig>): Us
     decayHalfLifeDays: overrides?.decayHalfLifeDays ?? envConfig.decayHalfLifeDays ?? 30,
     activationConfidenceThreshold:
       overrides?.activationConfidenceThreshold ?? envConfig.activationConfidenceThreshold ?? 0.7,
+    proceduralPromotionThreshold:
+      overrides?.proceduralPromotionThreshold ?? envConfig.proceduralPromotionThreshold ?? 0.85,
     sourceAuthorityWeights: {
       explicit: overrides?.sourceAuthorityWeights?.explicit ?? envConfig.sourceAuthorityWeights?.explicit ?? 1.0,
       userCorrection:

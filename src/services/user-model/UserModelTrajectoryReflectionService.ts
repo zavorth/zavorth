@@ -15,6 +15,7 @@ export const trajectoryExtractedFactSchema = z.object({
   content: z.string().min(1),
   kind: userModelFactKindSchema,
   category: z.string().min(1),
+  targetTools: z.array(z.string()).default([]),
   citation: z.string().min(1),
   confidenceScore: z.number().min(0).max(1).default(0.7),
 });
@@ -129,7 +130,15 @@ export class UserModelTrajectoryReflectionService {
             timestamp,
           });
 
-          await this.factStore.saveFact(reinforced);
+          const mergedTools = Array.from(
+            new Set([...(existing.targetTools || []), ...(factData.targetTools || [])]),
+          );
+          const reinforcedWithTools: UserModelFact = {
+            ...reinforced,
+            targetTools: mergedTools,
+          };
+
+          await this.factStore.saveFact(reinforcedWithTools);
           await this.factStore.recordLifecycleEvent({
             id: `event-${crypto.randomUUID()}`,
             factId: reinforced.id,
@@ -152,6 +161,7 @@ export class UserModelTrajectoryReflectionService {
             status,
             version: 1,
             confidence: factData.confidenceScore,
+            targetTools: factData.targetTools || [],
             evidence: [
               {
                 turnId,
@@ -226,6 +236,7 @@ export class UserModelTrajectoryReflectionService {
       '      "content": "Description of the fact or lesson",',
       '      "kind": "preference" | "behavior" | "expertise" | "schedule" | "decision" | "opinion" | "skill-lesson",',
       '      "category": "short_category_slug",',
+      '      "targetTools": ["tool_name"],',
       '      "citation": "Exact quote or execution snippet from turn justifying this fact",',
       '      "confidenceScore": 0.0 to 1.0',
       '    }',
