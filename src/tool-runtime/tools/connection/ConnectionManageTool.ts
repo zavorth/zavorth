@@ -15,6 +15,7 @@ import {
 import { ConnectionVerificationService } from '../../../services/connection/ConnectionVerificationService.js';
 import { ConnectionStateStore } from '../../../services/connection/ConnectionStateStore.js';
 import { ConnectionOAuthHandshakeService } from '../../../services/connection/ConnectionOAuthHandshakeService.js';
+import { ConnectionLockManager } from '../../../services/connection/ConnectionLockManager.js';
 import { ZavorthPluginRegistryService } from '../../../services/ZavorthPluginRegistryService.js';
 
 const connectionManageSchema = z.object({
@@ -37,12 +38,14 @@ export class ConnectionManageTool implements IZavorthTool {
   private readonly verifier: ConnectionVerificationService;
   private readonly stateStore: ConnectionStateStore;
   private readonly handshakeService: ConnectionOAuthHandshakeService;
+  private readonly lockManager: ConnectionLockManager;
 
   constructor(options?: {
     resolver?: ConnectionTargetResolver;
     verifier?: ConnectionVerificationService;
     stateStore?: ConnectionStateStore;
     handshakeService?: ConnectionOAuthHandshakeService;
+    lockManager?: ConnectionLockManager;
   }) {
     const pluginRegistryPort: ConnectionPluginRegistryPort = {
       listEntries: () => {
@@ -67,6 +70,7 @@ export class ConnectionManageTool implements IZavorthTool {
     this.stateStore = options?.stateStore || ConnectionStateStore.getInstance();
     this.handshakeService =
       options?.handshakeService || new ConnectionOAuthHandshakeService({ stateStore: this.stateStore });
+    this.lockManager = options?.lockManager || ConnectionLockManager.getInstance();
   }
 
   public async execute(
@@ -113,6 +117,9 @@ export class ConnectionManageTool implements IZavorthTool {
             error: 'Target parameter is required for disconnect action.',
           };
         }
+
+        // Abort any in-flight handshake for this target
+        await this.lockManager.abortInFlight(userId, target);
 
         const existing = await this.stateStore.getConnection(userId, target);
         if (!existing || existing.status === 'disconnected') {
@@ -169,8 +176,17 @@ export class ConnectionManageTool implements IZavorthTool {
           };
         }
 
-        const { descriptor, cardDescriptor } = resolution;
-        const cred = String(params.credentials || '').trim();
+        const lock = await this.lockManager.acquireLock(userId, target);
+        if (!lock.acquired) {
+          return {
+            success: false,
+            error: lock.error || 'A connection handshake is already in progress.',
+          };
+        }
+
+        try {
+          const { descriptor, cardDescriptor } = resolution;
+          const cred = String(params.credentials || '').trim();
 
         if (descriptor.authType === 'local_path') {
           if (!cred) {
@@ -319,7 +335,12 @@ export class ConnectionManageTool implements IZavorthTool {
           message: `Connected to ${cardDescriptor.displayName}.`,
           data: { target, displayName: cardDescriptor.displayName, status: 'connected' },
         };
+      } finally {
+        if (resolution.descriptor?.authType !== 'oauth2') {
+          await this.lockManager.releaseLock(userId, target);
+        }
       }
     }
   }
+}
 }

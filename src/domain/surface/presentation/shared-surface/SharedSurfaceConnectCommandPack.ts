@@ -22,6 +22,12 @@ import {
   ConnectionOAuthHandshakeService,
 } from '../../../../services/connection/ConnectionOAuthHandshakeService.js';
 import {
+  ConnectionLockManager,
+} from '../../../../services/connection/ConnectionLockManager.js';
+import {
+  ConnectionSemanticIntrospectionService,
+} from '../../../../services/connection/ConnectionSemanticIntrospectionService.js';
+import {
   LocalEncryptedProviderSecretStore,
 } from '../../../../services/ProviderSecretStore.js';
 
@@ -31,6 +37,8 @@ export interface SharedSurfaceConnectCommandPackDeps {
   stateStore?: ConnectionStateStore;
   secretStore?: LocalEncryptedProviderSecretStore;
   handshakeService?: ConnectionOAuthHandshakeService;
+  lockManager?: ConnectionLockManager;
+  introspectionService?: ConnectionSemanticIntrospectionService;
   rateLimitMaxPerMinute?: number;
 }
 
@@ -40,6 +48,8 @@ export class SharedSurfaceConnectCommandPack {
   private readonly stateStore: ConnectionStateStore;
   private readonly secretStore: LocalEncryptedProviderSecretStore;
   private readonly handshakeService: ConnectionOAuthHandshakeService;
+  private readonly lockManager: ConnectionLockManager;
+  private readonly introspectionService: ConnectionSemanticIntrospectionService;
   private readonly rateLimitMaxPerMinute: number;
   private readonly userCallTimestamps = new Map<string, number[]>();
 
@@ -50,6 +60,8 @@ export class SharedSurfaceConnectCommandPack {
     this.secretStore = deps.secretStore || LocalEncryptedProviderSecretStore.getInstance();
     this.handshakeService =
       deps.handshakeService || new ConnectionOAuthHandshakeService({ stateStore: this.stateStore });
+    this.lockManager = deps.lockManager || ConnectionLockManager.getInstance();
+    this.introspectionService = deps.introspectionService || new ConnectionSemanticIntrospectionService();
     this.rateLimitMaxPerMinute = deps.rateLimitMaxPerMinute || 10;
   }
 
@@ -126,25 +138,37 @@ export class SharedSurfaceConnectCommandPack {
 
     const resolution: ConnectionResolution = await this.resolver.resolve(target);
     if (resolution.source === 'unknown' || !resolution.descriptor || !resolution.cardDescriptor) {
-      await ctx.reply(resolution.error || `Target '${target}' is not recognized.`);
+      const intro = await this.introspectionService.introspect(target);
+      if (intro.enabled && intro.guidance) {
+        await ctx.reply(`${resolution.error || `Target '${target}' is not recognized.`}\n\n💡 **Guidance:** ${intro.guidance}`);
+      } else {
+        await ctx.reply(resolution.error || `Target '${target}' is not recognized.`);
+      }
       return;
     }
 
-    const { descriptor, cardDescriptor } = resolution;
-    const existing = await this.stateStore.getConnection(userId, target);
-
-    // If already connected and no credential passed to update:
-    if (existing && existing.status === 'connected' && !credentialValue) {
-      await ctx.reply(
-        [
-          `Target **${cardDescriptor.displayName}** is already connected (status: \`connected\`).`,
-          '',
-          `• To reconnect or upgrade credentials: \`/connect ${target} <new_credentials>\``,
-          `• To disconnect: \`/disconnect ${target}\``,
-        ].join('\n')
-      );
+    const lock = await this.lockManager.acquireLock(userId, target);
+    if (!lock.acquired) {
+      await ctx.reply(`⚠️ ${lock.error || 'A connection handshake is already in progress for this target.'}`);
       return;
     }
+
+    try {
+      const { descriptor, cardDescriptor } = resolution;
+      const existing = await this.stateStore.getConnection(userId, target);
+
+      // If already connected and no credential passed to update:
+      if (existing && existing.status === 'connected' && !credentialValue) {
+        await ctx.reply(
+          [
+            `Target **${cardDescriptor.displayName}** is already connected (status: \`connected\`).`,
+            '',
+            `• To reconnect or upgrade credentials: \`/connect ${target} <new_credentials>\``,
+            `• To disconnect: \`/disconnect ${target}\``,
+          ].join('\n')
+        );
+        return;
+      }
 
     // AuthType: Local Path
     if (descriptor.authType === 'local_path') {
@@ -296,6 +320,9 @@ export class SharedSurfaceConnectCommandPack {
             .catch(async (waitErr: unknown) => {
               const errText = waitErr instanceof Error ? waitErr.message : String(waitErr);
               await ctx.reply(`⚠️ OAuth authorization ended for **${cardDescriptor.displayName}**: ${errText}`);
+            })
+            .finally(async () => {
+              await this.lockManager.releaseLock(userId, target);
             });
 
           return;
@@ -309,6 +336,7 @@ export class SharedSurfaceConnectCommandPack {
               `[Authorize ${cardDescriptor.displayName}](${authUrl})`,
             ].join('\n')
           );
+          await this.lockManager.releaseLock(userId, target);
           return;
         }
       }
@@ -330,6 +358,11 @@ export class SharedSurfaceConnectCommandPack {
     });
 
     await ctx.reply(`✅ Connection to **${cardDescriptor.displayName}** established.`);
+    } finally {
+      if (resolution.descriptor?.authType !== 'oauth2') {
+        await this.lockManager.releaseLock(userId, target);
+      }
+    }
   }
 
   private async handleDisconnect(ctx: IMessageContext, rawArgs: string): Promise<void> {
@@ -340,6 +373,9 @@ export class SharedSurfaceConnectCommandPack {
       await ctx.reply('Usage: `/disconnect <target>`\nExample: `/disconnect stripe`');
       return;
     }
+
+    // Abort any in-flight handshake for this target immediately
+    await this.lockManager.abortInFlight(userId, target);
 
     const existing = await this.stateStore.getConnection(userId, target);
     if (!existing || existing.status === 'disconnected') {
@@ -412,8 +448,26 @@ export class SharedSurfaceConnectCommandPack {
       return;
     }
 
+    if (subCommand === 'status') {
+      const connections = await this.stateStore.listConnections(userId);
+      if (connections.length === 0) {
+        await ctx.reply('No active connections to report status.');
+        return;
+      }
+
+      const statusLines = connections
+        .map(
+          c =>
+            `• **${c.displayName}** (\`${c.targetId}\`)\n  - Status: \`${c.status}\`\n  - Health: \`${c.healthStatus || 'healthy'}\`\n  - Auth: \`${c.authType}\`\n  - Connected At: \`${c.connectedAt}\``
+        )
+        .join('\n\n');
+
+      await ctx.reply(`**Connection Health Status:**\n\n${statusLines}`);
+      return;
+    }
+
     const formatted = connections
-      .map(c => `• **${c.displayName}** (\`${c.targetId}\`) — ● \`${c.status}\` (${c.authType})`)
+      .map(c => `• **${c.displayName}** (\`${c.targetId}\`) — ● \`${c.status}\` [${c.healthStatus || 'healthy'}] (${c.authType})`)
       .join('\n');
 
     await ctx.reply(

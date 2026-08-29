@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Connection State Store.
  * Manages persistence for active connections and encrypted credentials in SQLite with in-memory fallback.
  *
@@ -12,6 +12,8 @@ import * as path from 'node:path';
 import { Database } from '../../storage/Database.js';
 import { logger } from '../../logger.js';
 
+export type ConnectionHealthStatus = 'healthy' | 'degraded' | 'expiring' | 'error' | 'unknown';
+
 export interface StoredConnection {
   userId: string;
   targetId: string;
@@ -19,7 +21,10 @@ export interface StoredConnection {
   authType: string;
   status: 'connected' | 'disconnected' | 'error' | 'expired';
   secretRef?: string;
+  refreshTokenRef?: string;
   localPath?: string;
+  expiresAt?: string;
+  healthStatus?: ConnectionHealthStatus;
   connectedAt: string;
   updatedAt: string;
 }
@@ -72,12 +77,31 @@ export class ConnectionStateStore {
           auth_type TEXT NOT NULL,
           status TEXT NOT NULL,
           secret_ref TEXT,
+          refresh_token_ref TEXT,
           local_path TEXT,
+          expires_at TEXT,
+          health_status TEXT,
           connected_at TEXT NOT NULL,
           updated_at TEXT NOT NULL,
           PRIMARY KEY (user_id, target_id)
         );
       `);
+
+      // Migration: guarantee columns exist if table was initialized previously
+      try {
+        const columns = db.all<{ name: string }>('PRAGMA table_info(active_connections)').map(c => c.name);
+        if (!columns.includes('refresh_token_ref')) {
+          db.run('ALTER TABLE active_connections ADD COLUMN refresh_token_ref TEXT;');
+        }
+        if (!columns.includes('expires_at')) {
+          db.run('ALTER TABLE active_connections ADD COLUMN expires_at TEXT;');
+        }
+        if (!columns.includes('health_status')) {
+          db.run('ALTER TABLE active_connections ADD COLUMN health_status TEXT;');
+        }
+      } catch {
+        // Migration complete
+      }
 
       db.run(`
         CREATE TABLE IF NOT EXISTS connection_secret_ciphertexts (
@@ -111,14 +135,21 @@ export class ConnectionStateStore {
     try {
       const db = await Database.getInstance();
       db.run(
-        `INSERT INTO active_connections (user_id, target_id, display_name, auth_type, status, secret_ref, local_path, connected_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `INSERT INTO active_connections (
+           user_id, target_id, display_name, auth_type, status,
+           secret_ref, refresh_token_ref, local_path, expires_at, health_status,
+           connected_at, updated_at
+         )
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON CONFLICT(user_id, target_id) DO UPDATE SET
            display_name = excluded.display_name,
            auth_type = excluded.auth_type,
            status = excluded.status,
            secret_ref = excluded.secret_ref,
+           refresh_token_ref = excluded.refresh_token_ref,
            local_path = excluded.local_path,
+           expires_at = excluded.expires_at,
+           health_status = excluded.health_status,
            updated_at = excluded.updated_at`,
         [
           connection.userId,
@@ -127,7 +158,10 @@ export class ConnectionStateStore {
           connection.authType,
           connection.status,
           connection.secretRef || null,
+          connection.refreshTokenRef || null,
           connection.localPath || null,
+          connection.expiresAt || null,
+          connection.healthStatus || 'healthy',
           connection.connectedAt,
           connection.updatedAt,
         ]
@@ -151,11 +185,14 @@ export class ConnectionStateStore {
         auth_type: string;
         status: string;
         secret_ref: string | null;
+        refresh_token_ref: string | null;
         local_path: string | null;
+        expires_at: string | null;
+        health_status: string | null;
         connected_at: string;
         updated_at: string;
       }>(
-        `SELECT user_id, target_id, display_name, auth_type, status, secret_ref, local_path, connected_at, updated_at
+        `SELECT user_id, target_id, display_name, auth_type, status, secret_ref, refresh_token_ref, local_path, expires_at, health_status, connected_at, updated_at
          FROM active_connections WHERE user_id = ? AND target_id = ?`,
         [userId, targetId.toLowerCase()]
       );
@@ -168,7 +205,10 @@ export class ConnectionStateStore {
           authType: row.auth_type,
           status: row.status as StoredConnection['status'],
           secretRef: row.secret_ref || undefined,
+          refreshTokenRef: row.refresh_token_ref || undefined,
           localPath: row.local_path || undefined,
+          expiresAt: row.expires_at || undefined,
+          healthStatus: (row.health_status as ConnectionHealthStatus) || 'healthy',
           connectedAt: row.connected_at,
           updatedAt: row.updated_at,
         };
@@ -181,11 +221,18 @@ export class ConnectionStateStore {
     return this.inMemoryConnections.get(key) || null;
   }
 
-  public async listConnections(userId: string): Promise<StoredConnection[]> {
+  public async listConnections(userId?: string): Promise<StoredConnection[]> {
     await this.ensureInitialized();
 
     try {
       const db = await Database.getInstance();
+      const query = userId
+        ? `SELECT user_id, target_id, display_name, auth_type, status, secret_ref, refresh_token_ref, local_path, expires_at, health_status, connected_at, updated_at
+           FROM active_connections WHERE user_id = ?`
+        : `SELECT user_id, target_id, display_name, auth_type, status, secret_ref, refresh_token_ref, local_path, expires_at, health_status, connected_at, updated_at
+           FROM active_connections`;
+
+      const params = userId ? [userId] : [];
       const rows = db.all<{
         user_id: string;
         target_id: string;
@@ -193,14 +240,13 @@ export class ConnectionStateStore {
         auth_type: string;
         status: string;
         secret_ref: string | null;
+        refresh_token_ref: string | null;
         local_path: string | null;
+        expires_at: string | null;
+        health_status: string | null;
         connected_at: string;
         updated_at: string;
-      }>(
-        `SELECT user_id, target_id, display_name, auth_type, status, secret_ref, local_path, connected_at, updated_at
-         FROM active_connections WHERE user_id = ?`,
-        [userId]
-      );
+      }>(query, params);
 
       if (rows && rows.length > 0) {
         return rows.map((row) => ({
@@ -210,7 +256,10 @@ export class ConnectionStateStore {
           authType: row.auth_type,
           status: row.status as StoredConnection['status'],
           secretRef: row.secret_ref || undefined,
+          refreshTokenRef: row.refresh_token_ref || undefined,
           localPath: row.local_path || undefined,
+          expiresAt: row.expires_at || undefined,
+          healthStatus: (row.health_status as ConnectionHealthStatus) || 'healthy',
           connectedAt: row.connected_at,
           updatedAt: row.updated_at,
         }));
@@ -220,13 +269,11 @@ export class ConnectionStateStore {
       logger.debug(`[ConnectionStateStore] SQLite list fallback: ${msg}`);
     }
 
-    const list: StoredConnection[] = [];
-    for (const conn of this.inMemoryConnections.values()) {
-      if (conn.userId === userId) {
-        list.push(conn);
-      }
+    if (!userId) {
+      return Array.from(this.inMemoryConnections.values());
     }
-    return list;
+
+    return Array.from(this.inMemoryConnections.values()).filter(c => c.userId === userId);
   }
 
   public async deleteConnection(userId: string, targetId: string): Promise<boolean> {
