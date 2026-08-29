@@ -31,8 +31,9 @@ export interface IMessageContext {
     options?: Record<string, any> | null;
   } | null;
   /**
-   * Preferred language tag for localized replies (BCP-47-ish, e.g. 'pt-BR').
-   * Absent or unrecognized tags resolve to the English fallback catalog.
+   * Preferred language tag for localized replies (BCP-47-ish).
+   * Absent or unrecognized tags resolve through the localization service
+   * fallback chain, never blocking any locale from being served.
    */
   locale?: string | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
