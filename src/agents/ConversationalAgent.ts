@@ -278,15 +278,11 @@ export class ConversationalAgent {
     }
 
     const allTools = this.getConversationalToolDefinitions();
-    const systemInstruction = this.appendProductRuntimeContext(
-      this.buildSystemInstruction(mode, options?.styleHints),
-      options,
-      userMessage,
-    );
+    const staticBaseInstruction = this.buildSystemInstruction(mode, options?.styleHints);
     const contextDecision = await this.prepareContextDecision(
       userMessage,
       allTools,
-      systemInstruction,
+      staticBaseInstruction,
       inlineData,
       options,
     );
@@ -298,11 +294,21 @@ export class ConversationalAgent {
     const fullRegistry = this.buildFullToolRegistry(allTools, quarantined);
     let activeTools = this.buildInitialLazyToolExposure(fullRegistry);
     const catalogNames = Array.from(fullRegistry.keys()).sort();
-    const systemWithCatalog = this.appendToolCatalogBrain(systemInstruction, activeTools, catalogNames);
+
+    // Cache-anchored prefix: Static System Instruction followed immediately by static Tool Catalog
+    const staticSystemWithCatalog = this.appendToolCatalogBrain(staticBaseInstruction, activeTools, catalogNames);
+
+    // Dynamic footer: Volatile runtime context appended strictly at the end
+    const finalSystemPrompt = this.appendProductRuntimeContext(
+      staticSystemWithCatalog,
+      options,
+      userMessage,
+    );
+
     const messages: ChatMessage[] = contextDecision
       ? this.injectToolCatalogIntoMessages(contextDecision.messages, activeTools, catalogNames)
       : [
-          { role: 'system', content: systemWithCatalog },
+          { role: 'system', content: finalSystemPrompt },
           { role: 'user', content: userMessage, inlineData },
         ];
 

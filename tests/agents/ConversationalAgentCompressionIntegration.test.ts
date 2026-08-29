@@ -90,4 +90,47 @@ describe('ConversationalAgent Compression Integration', () => {
     const compacted = toolMessages.filter((m) => String(m.content).includes('[compacted tool history]'));
     expect(compacted.length).toBeGreaterThanOrEqual(1);
   });
+
+  it('anchors the static system instruction and tool catalog as the prefix before dynamic context', async () => {
+    const chatDetailedMock = jest.fn().mockResolvedValue({
+      providerName: 'anthropic',
+      response: {
+        content: 'Hello, how can I help you?',
+      } as LlmResponse,
+    });
+
+    const llmRuntime = {
+      isProviderAvailable: jest.fn(() => true),
+      chatDetailed: chatDetailedMock,
+    } as unknown as LlmRuntimeService;
+
+    const toolRuntime = {
+      getToolDefinitions: () => [
+        { name: 'read_file', description: 'Read file', parameters: { type: 'object', properties: {} } },
+      ],
+      executeTool: async () => 'test',
+    };
+
+    const agent = new ConversationalAgent({ llmRuntime, toolRuntime });
+    await agent.chat('Hello world', undefined, { mode: 'direct', userId: 'user-cache-test' });
+
+    expect(chatDetailedMock).toHaveBeenCalledTimes(1);
+    const sentMessages: ChatMessage[] = chatDetailedMock.mock.calls[0][0];
+    const systemMessage = sentMessages.find((m) => m.role === 'system');
+
+    expect(systemMessage).toBeDefined();
+    const content = String(systemMessage?.content || '');
+
+    const personaIndex = content.indexOf('You are **Zavorth**');
+    const toolsIndex = content.indexOf('**TOOLS');
+
+    expect(personaIndex).toBeGreaterThanOrEqual(0);
+    expect(toolsIndex).toBeGreaterThan(personaIndex);
+
+    // If dynamic runtime context is present, it must be located AFTER **TOOLS
+    const learnedKnowledgeIndex = content.indexOf('LEARNED KNOWLEDGE');
+    if (learnedKnowledgeIndex >= 0) {
+      expect(learnedKnowledgeIndex).toBeGreaterThan(toolsIndex);
+    }
+  });
 });
