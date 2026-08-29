@@ -53,6 +53,7 @@ import { AutoSkillCreatorTool } from '../tools/AutoSkillCreatorTool.js';
 import { UseLearnedSkillTool } from '../tools/UseLearnedSkillTool.js';
 import { ConversationRecallTool } from '../tools/ConversationRecallTool.js';
 import { KnowledgeRecallTool } from '../tools/KnowledgeRecallTool.js';
+import { RememberFactTool } from '../tools/RememberFactTool.js';
 import { ImageGenerationTool } from '../tools/ImageGenerationTool.js';
 import { MediaAnalysisTool } from '../tools/MediaAnalysisTool.js';
 import { NodeMeshTool } from '../tools/NodeMeshTool.js';
@@ -307,6 +308,17 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
       }),
     );
     toolRegistry.register(new KnowledgeRecallTool({ projectRoot }));
+    toolRegistry.register(
+      new RememberFactTool({ projectRoot }),
+      {
+        toolName: 'remember_fact',
+        surface: 'native-tool',
+        capabilities: ['memory'],
+        defaultRisk: 'review',
+        requiresConfirmation: true,
+        description: 'Explicitly remembers durable facts in user model store',
+      },
+    );
   }
   toolRegistry.register(new ImageGenerationTool());
   toolRegistry.register(new MediaAnalysisTool());

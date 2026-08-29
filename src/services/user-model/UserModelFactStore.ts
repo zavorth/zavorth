@@ -123,6 +123,35 @@ export class UserModelFactStore {
     return results;
   }
 
+  public listFactsByUserIdSync(userId: string, filter?: FactStoreFilter): UserModelFact[] {
+    if (!this.isInitialized && fs.existsSync(this.snapshotPath)) {
+      try {
+        const raw = fs.readFileSync(this.snapshotPath, 'utf8');
+        const parsed = JSON.parse(raw) as unknown;
+        const validated = snapshotSchema.parse(parsed);
+        this.factsById.clear();
+        for (const fact of validated.facts) {
+          this.factsById.set(fact.id, fact);
+        }
+        this.processedTurnIds = new Set(validated.processedTurnIds);
+        this.isInitialized = true;
+      } catch {
+        // Safe fallback
+      }
+    }
+
+    const results: UserModelFact[] = [];
+    for (const fact of this.factsById.values()) {
+      if (fact.userId !== userId) continue;
+      if (filter?.status && fact.status !== filter.status) continue;
+      if (filter?.category && fact.category !== filter.category) continue;
+      if (filter?.surface && fact.surface !== null && fact.surface !== filter.surface) continue;
+      results.push(fact);
+    }
+
+    return results;
+  }
+
   public async recordLifecycleEvent(event: UserModelLifecycleEvent): Promise<void> {
     await this.ensureInitialized();
     const validated = userModelLifecycleEventSchema.parse(event);

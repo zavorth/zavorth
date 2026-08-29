@@ -1,4 +1,5 @@
 import { logger } from '../logger.js';
+import path from 'node:path';
 import * as os from 'os';
 import { config } from '../config/index.js';
 import type { ChatMessage, ILlmProvider, ToolDefinition } from '../providers/ILlmProvider.js';
@@ -43,6 +44,8 @@ import { ExperienceSkillLearningLoopService } from '../services/ExperienceSkillL
 import { getProductSurfaceRuntime } from '../services/ZavorthProductSurfaceRuntimeService.js';
 import { isLearnedKnowledgeEnabled, buildLearnedKnowledgeInject } from '../services/learned-knowledge/index.js';
 import { formatAboutYouInject } from '../services/learned-knowledge/AboutYouService.js';
+import { UserModelFactStore } from '../services/user-model/UserModelFactStore.js';
+import { UserModelContextInjectionService } from '../services/user-model/UserModelContextInjectionService.js';
 import { captureConversationTurn } from '../services/learned-knowledge/ConversationContinuumCapture.js';
 type InlineData = Array<{ mimeType: string; data: string }>;
 type ConversationalToolTelemetry = {
@@ -965,6 +968,18 @@ export class ConversationalAgent {
       const about = formatAboutYouInject(options?.userId, process.cwd());
       if (about) {
         next = `${next}\n\n${about}`;
+      }
+    } catch {
+      // optional
+    }
+    try {
+      const factStore = new UserModelFactStore({
+        dataDir: path.join(process.cwd(), 'data', 'runtime', 'user-model'),
+      });
+      const contextInjection = new UserModelContextInjectionService({ factStore });
+      const userModelBlock = contextInjection.buildInjectionContextSync(options?.userId || 'local-user');
+      if (userModelBlock) {
+        next = `${next}\n\n${userModelBlock}`;
       }
     } catch {
       // optional

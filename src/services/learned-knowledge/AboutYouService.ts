@@ -82,12 +82,23 @@ type AboutYouStore = {
 };
 
 const STORE_DIR = ['data', 'runtime', 'about-you'];
-const SECRET_KEYS = /password|secret|token|api[_-]?key|credential/i;
+const SECRET_KEYWORDS = ['password', 'secret', 'token', 'api_key', 'apikey', 'api-key', 'credential'] as const;
+
+function isSecretLike(text: string): boolean {
+  const lower = String(text || '').toLowerCase();
+  return SECRET_KEYWORDS.some((kw) => lower.includes(kw));
+}
 
 function cleanUserId(userId?: string | null): string {
   const raw = String(userId || '').trim();
   if (!raw) return 'local-user';
-  return raw.replace(/[^a-zA-Z0-9._@+-]+/g, '_').slice(0, 120) || 'local-user';
+  const allowed = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._@+-';
+  let out = '';
+  for (let i = 0; i < raw.length; i++) {
+    const char = raw[i];
+    out += allowed.includes(char) ? char : '_';
+  }
+  return out.slice(0, 120) || 'local-user';
 }
 
 function nowIso(now: () => Date): string {
@@ -95,19 +106,32 @@ function nowIso(now: () => Date): string {
 }
 
 function stripMdDecor(value: string): string {
-  return String(value || '')
-    .replace(/\*\*/g, '')
-    .replace(/^`+|`+$/g, '')
-    .trim();
+  let val = String(value || '').replaceAll('**', '').trim();
+  while (val.startsWith('`')) val = val.slice(1);
+  while (val.endsWith('`')) val = val.slice(0, -1);
+  return val.trim();
+}
+
+function slugifyKey(key: string): string {
+  const allowed = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let out = '';
+  for (const char of key.toLowerCase()) {
+    out += allowed.includes(char) ? char : '-';
+  }
+  return out;
 }
 
 function parseUserMdFields(body: string): Record<string, string> {
   const out: Record<string, string> = {};
-  for (const line of String(body || '').split(/\r\n|\r|\n/)) {
-    const m = line.match(/^\s*[-*]\s*(.+?)\s*:\s*(.+)\s*$/);
-    if (!m) continue;
-    const key = stripMdDecor(m[1]);
-    const value = stripMdDecor(m[2]);
+  const normalized = String(body || '').replaceAll('\r\n', '\n').replaceAll('\r', '\n');
+  for (const rawLine of normalized.split('\n')) {
+    const line = rawLine.trim();
+    if (!line.startsWith('-') && !line.startsWith('*')) continue;
+    const withoutBullet = line.slice(1).trim();
+    const colonIdx = withoutBullet.indexOf(':');
+    if (colonIdx <= 0) continue;
+    const key = stripMdDecor(withoutBullet.slice(0, colonIdx));
+    const value = stripMdDecor(withoutBullet.slice(colonIdx + 1));
     if (key && value) out[key] = value;
   }
   return out;
@@ -174,9 +198,9 @@ export class AboutYouService {
       const fields = parseUserMdFields(body);
       const at = nowIso(this.now);
       return Object.entries(fields)
-        .filter(([k, v]) => k && v && !SECRET_KEYS.test(k) && !SECRET_KEYS.test(v))
+        .filter(([k, v]) => k && v && !isSecretLike(k) && !isSecretLike(v))
         .map(([key, value]) => ({
-          id: `user-md-${key.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+          id: `user-md-${slugifyKey(key)}`,
           key,
           value: redactConversationText(value).slice(0, 400),
           source: 'user-md' as const,
@@ -274,8 +298,11 @@ export class AboutYouService {
     const facts = Array.from(byKey.values()).sort((a, b) => b.confidence - a.confidence || a.key.localeCompare(b.key));
     const drafts = store.drafts.filter((d) => d.status === 'draft');
 
-    const nameFact = facts.find((f) => /name|call them|preferred address/i.test(f.key));
-    const langFact = facts.find((f) => /language/i.test(f.key));
+    const nameFact = facts.find((f) => {
+      const lower = f.key.toLowerCase();
+      return lower.includes('name') || lower.includes('call them') || lower.includes('preferred address');
+    });
+    const langFact = facts.find((f) => f.key.toLowerCase().includes('language'));
     const displayName = nameFact?.value || null;
     const preferredLanguage = langFact?.value || null;
 
@@ -337,7 +364,8 @@ export class AboutYouService {
     if (opts.displayName) lines.push(`- Name/call: ${opts.displayName} [conf=high]`);
     if (opts.preferredLanguage) lines.push(`- Language: ${opts.preferredLanguage} [conf=high]`);
     for (const f of facts.slice(0, 12)) {
-      if (/name|language|call them/i.test(f.key)) continue;
+      const lowerKey = f.key.toLowerCase();
+      if (lowerKey.includes('name') || lowerKey.includes('language') || lowerKey.includes('call them')) continue;
       const conf = f.confidence >= 0.75 ? 'high' : f.confidence >= 0.5 ? 'med' : 'low';
       lines.push(`- ${f.key}: ${f.value} [conf=${conf}; source=${f.source}]`);
     }
@@ -355,7 +383,7 @@ export class AboutYouService {
     const key = String(input.key || '').trim().slice(0, 80);
     const value = redactConversationText(String(input.value || '')).slice(0, 400);
     if (!key || !value) return { ok: false, text: 'key and value are required' };
-    if (SECRET_KEYS.test(key) || SECRET_KEYS.test(value)) {
+    if (isSecretLike(key) || isSecretLike(value)) {
       return { ok: false, text: 'Refusing secret-like key/value in About you store' };
     }
     const store = this.readStore(userId);
