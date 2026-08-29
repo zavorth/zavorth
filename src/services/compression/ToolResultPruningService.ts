@@ -113,7 +113,7 @@ export class ToolResultPruningService {
       }
 
       const rawContent = String(msg.content ?? '');
-      if (rawContent.startsWith('[compacted tool]') || rawContent.startsWith('[read_file] superseded')) {
+      if (rawContent.startsWith('[compacted tool history]')) {
         return { ...msg };
       }
 
@@ -122,18 +122,15 @@ export class ToolResultPruningService {
 
       if (isSuperseded && invocation.targetPath) {
         deduplicatedReadsCount += 1;
-        prunedContent = `[read_file] ${invocation.targetPath} (superseded by newer read in subsequent turn)`;
+        prunedContent = `[compacted tool history] [read_file] ${invocation.targetPath} (superseded by newer read in subsequent turn)`;
       } else {
         prunedContent = this.formatSingleLineSummary(invocation, rawContent, maxPreview);
       }
 
+      toolsPrunedCount += 1;
       const charsSaved = Math.max(0, rawContent.length - prunedContent.length);
       const tokensSaved = Math.floor(charsSaved / 4);
-
-      if (charsSaved > 0) {
-        toolsPrunedCount += 1;
-        tokensSavedEstimate += tokensSaved;
-      }
+      tokensSavedEstimate += tokensSaved;
 
       return {
         ...msg,
@@ -264,20 +261,20 @@ export class ToolResultPruningService {
 
     if (this.isExecutionTool(name) && invocation.command) {
       const lineCount = rawContent.split('\n').filter((l) => l.trim().length > 0).length;
-      return `[compacted tool] [terminal] ran "${invocation.command}" -> ${lineCount} lines output (${charCount} chars)`;
+      return `[compacted tool history] [terminal] ran "${invocation.command}" -> ${lineCount} lines output (${charCount} chars)`;
     }
 
     if (this.isFileReadTool(name) && invocation.targetPath) {
-      return `[compacted tool] [read_file] read ${invocation.targetPath} (${charCount} chars)`;
+      return `[compacted tool history] [read_file] read ${invocation.targetPath} (${charCount} chars)`;
     }
 
     if (this.isSearchTool(name) && invocation.query) {
       const lineCount = rawContent.split('\n').filter((l) => l.trim().length > 0).length;
-      return `[compacted tool] [search] query "${invocation.query}" -> ${lineCount} results (${charCount} chars)`;
+      return `[compacted tool history] [search] query "${invocation.query}" -> ${lineCount} results (${charCount} chars)`;
     }
 
     if (this.isFileWriteTool(name) && invocation.targetPath) {
-      return `[compacted tool] [write] updated ${invocation.targetPath}`;
+      return `[compacted tool history] [write] updated ${invocation.targetPath}`;
     }
 
     // Clean preview without regex
@@ -288,6 +285,6 @@ export class ToolResultPruningService {
       .join(' ')
       .slice(0, maxPreview);
 
-    return `[compacted tool] tool=${name} (${charCount} chars): ${cleanPreview}${charCount > maxPreview ? '...' : ''}`;
+    return `[compacted tool history] tool=${name} (${charCount} chars): ${cleanPreview}${charCount > maxPreview ? '...' : ''}`;
   }
 }

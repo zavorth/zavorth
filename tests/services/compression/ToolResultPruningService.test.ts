@@ -41,7 +41,7 @@ describe('ToolResultPruningService', () => {
     const result = service.pruneOlderToolResults(messages, { keepRecent: 2 });
 
     expect(result.toolsPrunedCount).toBe(1);
-    expect(result.messages[2].content).toContain('[compacted tool] [terminal] ran "npm test"');
+    expect(result.messages[2].content).toContain('[compacted tool history] [terminal] ran "npm test"');
     expect(result.messages[4].content).toBe('const a = 1;\n'.repeat(50));
     expect(result.messages[6].content).toBe('const b = 2;\n'.repeat(50));
   });
@@ -71,7 +71,7 @@ describe('ToolResultPruningService', () => {
     const result = service.pruneOlderToolResults(messages, { keepRecent: 2, enableFileDeduplication: true });
 
     expect(result.deduplicatedReadsCount).toBe(1);
-    expect(result.messages[2].content).toBe('[read_file] src/config.ts (superseded by newer read in subsequent turn)');
+    expect(result.messages[2].content).toBe('[compacted tool history] [read_file] src/config.ts (superseded by newer read in subsequent turn)');
     expect(result.messages[4].content).toBe('updated config content\n'.repeat(40));
   });
 

@@ -43,6 +43,9 @@ import { isLearningWriteAllowed } from '../services/ZavorthLearningWriteAuth.js'
 import { ExperienceSkillLearningLoopService } from '../services/ExperienceSkillLearningLoopService.js';
 import { getProductSurfaceRuntime } from '../services/ZavorthProductSurfaceRuntimeService.js';
 import { isLearnedKnowledgeEnabled, buildLearnedKnowledgeInject } from '../services/learned-knowledge/index.js';
+import { ToolResultPruningService } from '../services/compression/ToolResultPruningService.js';
+import { AutomaticTrajectoryCompactorService } from '../services/compression/AutomaticTrajectoryCompactorService.js';
+import { DynamicModelCatalogService } from '../services/providers/catalog/DynamicModelCatalogService.js';
 import { formatAboutYouInject } from '../services/learned-knowledge/AboutYouService.js';
 import { UserModelFactStore } from '../services/user-model/UserModelFactStore.js';
 import { UserModelContextInjectionService } from '../services/user-model/UserModelContextInjectionService.js';
@@ -187,6 +190,8 @@ export class ConversationalAgent {
   private readonly usageTracker = new ToolUsageTracker();
   private readonly toolCache = new ToolResultCache();
   private readonly toolInjector = new ContextAwareInjector();
+  private readonly toolPruner = new ToolResultPruningService();
+  private readonly trajectoryCompactor = new AutomaticTrajectoryCompactorService();
   private sessionId = '';
 
   constructor(runtime: LlmRuntimeService | ConversationalAgentRuntime = {}) {
@@ -323,6 +328,33 @@ export class ConversationalAgent {
       allowFallback: llmStrategy.allowFallback,
       fallbackOrder: llmStrategy.fallbackOrder,
     };
+
+    if (process.env.ZAVORTH_AUTO_COMPACT_TRAJECTORY !== '0' && messages.length >= 6) {
+      const modelDef = DynamicModelCatalogService.getModel(
+        chatOptions.modelName || '',
+        chatOptions.providerName,
+      );
+      const contextLimitTokens = modelDef?.limit?.context || 128_000;
+      const compactionResult = await this.trajectoryCompactor.compactMessagesIfNeeded(messages, {
+        contextLimitTokens,
+        onPreCompress: async (middleTurns) => {
+          try {
+            logger.info(`[ConversationalAgent] Pre-compressing ${middleTurns.length} turns for durable continuum.`);
+            if (typeof (options as { onPreCompress?: (turns: unknown) => Promise<void> })?.onPreCompress === 'function') {
+              await (options as { onPreCompress?: (turns: unknown) => Promise<void> }).onPreCompress!(middleTurns);
+            }
+          } catch {
+            // best-effort fail-open
+          }
+        },
+      });
+      if (compactionResult.compacted) {
+        historyCompactions += 1;
+        messages.length = 0;
+        messages.push(...compactionResult.messages);
+      }
+    }
+
     let { providerName, response } = await this.llmRuntime
       .chatDetailed(messages, activeTools.length > 0 ? activeTools : undefined, chatOptions)
       .catch(async (error: unknown) => {
@@ -880,42 +912,21 @@ export class ConversationalAgent {
   }
 
   /**
-   * Summarize older tool messages so multi-round turns do not re-send full I/O every time.
-   * Keeps the most recent `keepRecent` tool messages intact. Mutates `messages` in place.
+   * Summarize older tool messages using ToolResultPruningService.
+   * Keeps the most recent `keepRecent` tool messages intact and deduplicates repeated file reads.
+   * Mutates `messages` in place for backwards compatibility with calling loops.
    * @returns number of tool messages compacted
    */
   private compactOlderToolHistory(messages: ChatMessage[], keepRecent: number): number {
-    const toolIndexes: number[] = [];
-    for (let i = 0; i < messages.length; i += 1) {
-      if (messages[i]?.role === 'tool') {
-        toolIndexes.push(i);
-      }
+    const result = this.toolPruner.pruneOlderToolResults(messages, {
+      keepRecent,
+      enableFileDeduplication: true,
+    });
+    if (result.toolsPrunedCount > 0) {
+      messages.length = 0;
+      messages.push(...result.messages);
     }
-    if (toolIndexes.length <= keepRecent) {
-      return 0;
-    }
-
-    const toCompact = toolIndexes.slice(0, toolIndexes.length - keepRecent);
-    let compacted = 0;
-    for (const idx of toCompact) {
-      const msg = messages[idx];
-      const raw = String(msg.content || '');
-      if (raw.includes('[compacted tool history]')) {
-        continue;
-      }
-      const toolName = String(msg.toolName || 'tool');
-      const preview = raw.replace(/\s+/g, ' ').trim().slice(0, 240);
-      messages[idx] = {
-        ...msg,
-        content: [
-          `[compacted tool history] tool=${toolName} original_chars=${raw.length}`,
-          preview ? `preview: ${preview}${raw.length > 240 ? '…' : ''}` : 'preview: (empty)',
-          'Details were truncated to save context. Re-call the tool if you need the full payload again.',
-        ].join('\n'),
-      };
-      compacted += 1;
-    }
-    return compacted;
+    return result.toolsPrunedCount;
   }
 
   private appendProductRuntimeContext(
