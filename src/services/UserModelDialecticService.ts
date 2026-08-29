@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { logger } from '../logger.js';
+import type { UserModelFactStore } from './user-model/UserModelFactStore.js';
 
 export type DialecticQuestionCategory =
   | 'communication_style'
@@ -36,6 +37,7 @@ export type DialecticProfile = {
 export type DialecticRuntime = {
   homeRoot?: string;
   now?: () => Date;
+  factStore?: UserModelFactStore;
 };
 
 const DEFAULT_QUESTIONS: Omit<DialecticQuestion, 'askedCount' | 'lastAskedAt' | 'answeredAt' | 'answer'>[] = [
@@ -61,11 +63,13 @@ const PROFILE_FILE = 'data/runtime/user-dialectic-profile.json';
 export class UserModelDialecticService {
   private readonly homeRoot: string;
   private readonly now: () => Date;
+  private readonly factStore: UserModelFactStore | null;
   private profile: DialecticProfile;
 
   constructor(runtime: DialecticRuntime = {}) {
     this.homeRoot = runtime.homeRoot || process.cwd();
     this.now = runtime.now || (() => new Date());
+    this.factStore = runtime.factStore || null;
     this.profile = this.loadProfile();
   }
 
@@ -77,7 +81,7 @@ export class UserModelDialecticService {
     return unanswered[0] || null;
   }
 
-  recordAnswer(questionId: string, answer: string): void {
+  recordAnswer(questionId: string, answer: string, userId = 'local-user'): void {
     const question = this.profile.questions.find((q) => q.id === questionId);
     if (!question) return;
 
@@ -92,12 +96,68 @@ export class UserModelDialecticService {
     this.profile.generatedAt = this.now().toISOString();
 
     this.saveProfile();
+
+    if (this.factStore) {
+      void this.factStore.saveFact({
+        id: `fact-q-${question.id}`,
+        userId,
+        content: `${question.question}: ${answer}`,
+        kind: 'preference',
+        category: question.category,
+        status: 'active',
+        version: 1,
+        confidence: 0.85,
+        evidence: [
+          {
+            citation: `Dialectic Q&A: ${question.question} -> ${answer}`,
+            timestamp: this.now().toISOString(),
+          },
+        ],
+        source: 'question',
+        language: 'en',
+        surface: null,
+        lastObservedAt: this.now().toISOString(),
+        occurrences: 1,
+      }).catch((err: unknown) => {
+        logger.warn('UserModelDialecticService failed to sync answer to factStore', {
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
+    }
   }
 
-  recordTrait(category: DialecticQuestionCategory, observation: string): void {
+  recordTrait(category: DialecticQuestionCategory, observation: string, userId = 'local-user'): void {
     this.profile.userTraits[category] = observation;
     this.profile.generatedAt = this.now().toISOString();
     this.saveProfile();
+
+    if (this.factStore) {
+      void this.factStore.saveFact({
+        id: `fact-trait-${category}`,
+        userId,
+        content: observation,
+        kind: 'preference',
+        category,
+        status: 'active',
+        version: 1,
+        confidence: 0.85,
+        evidence: [
+          {
+            citation: `Dialectic observation for ${category}`,
+            timestamp: this.now().toISOString(),
+          },
+        ],
+        source: 'question',
+        language: 'en',
+        surface: null,
+        lastObservedAt: this.now().toISOString(),
+        occurrences: 1,
+      }).catch((err: unknown) => {
+        logger.warn('UserModelDialecticService failed to sync trait to factStore', {
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
+    }
   }
 
   markAsked(questionId: string): void {
