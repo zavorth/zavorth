@@ -8,6 +8,9 @@ import type {
 } from './ILlmProvider.js';
 import { ZavorthUniversalToolCallingAdapterService } from '../services/llm/emulation/ZavorthUniversalToolCallingAdapterService.js';
 import { ModelToolCallingCapabilityTracker } from '../services/llm/ModelToolCallingCapabilityTracker.js';
+import { ContextImageCompressor } from '../services/llm/compression/ContextImageCompressor.js';
+
+import { DynamicModelCatalogService, type ModelDefinition } from '../services/providers/catalog/DynamicModelCatalogService.js';
 
 const EMULATION_FORMAT_HINT = '__zavorth_emulated_tools__';
 
@@ -31,6 +34,7 @@ export class EmulatedToolCallingProviderDecorator implements ILlmProvider {
   public readonly name: string;
   private readonly emulationAdapter = new ZavorthUniversalToolCallingAdapterService();
   private readonly tracker: ModelToolCallingCapabilityTracker;
+  private readonly compressor = new ContextImageCompressor();
 
   constructor(
     private readonly inner: ILlmProvider,
@@ -38,6 +42,8 @@ export class EmulatedToolCallingProviderDecorator implements ILlmProvider {
       providerType?: string;
       injectEmulationPrompt?: boolean;
       injectMinimalHint?: boolean;
+      compressContext?: boolean;
+      modelResolver?: (modelName?: string) => ModelDefinition | null;
     } = {},
   ) {
     this.name = inner.name;
@@ -52,7 +58,8 @@ export class EmulatedToolCallingProviderDecorator implements ILlmProvider {
     const providerName = this.name;
     const modelName = options?.modelName || null;
     const injectedMessages = this.maybeInjectEmulationPrompt(messages, tools, providerName, modelName);
-    const response = await this.inner.chat(injectedMessages, tools, options);
+    const finalMessages = await this.maybeCompressContext(injectedMessages, options);
+    const response = await this.inner.chat(finalMessages, tools, options);
     return this.processResponse(response, providerName, modelName);
   }
 
@@ -64,8 +71,9 @@ export class EmulatedToolCallingProviderDecorator implements ILlmProvider {
     const providerName = this.name;
     const modelName = options?.modelName || null;
     const injectedMessages = this.maybeInjectEmulationPrompt(messages, tools, providerName, modelName);
+    const finalMessages = await this.maybeCompressContext(injectedMessages, options);
     const stream = this.inner.streamChat
-      ? this.inner.streamChat(injectedMessages, tools, options)
+      ? this.inner.streamChat(finalMessages, tools, options)
       : [];
     let terminalDoneEmitted = false;
     let fallbackResponse: LlmResponse | null = null;
@@ -127,6 +135,30 @@ export class EmulatedToolCallingProviderDecorator implements ILlmProvider {
       content: system.content === null ? spec : `${system.content}\n\n${spec}`,
     };
     return updated;
+  }
+
+  private async maybeCompressContext(
+    messages: ChatMessage[],
+    options?: ProviderChatOptions,
+  ): Promise<ChatMessage[]> {
+    if (!this.runtime.compressContext) {
+      return messages;
+    }
+    const modelName = options?.modelName;
+    const modelDef = this.runtime.modelResolver
+      ? this.runtime.modelResolver(modelName)
+      : DynamicModelCatalogService.getModel(modelName || '', this.runtime.providerType);
+    if (!modelDef?.supportsImageCompression) {
+      return messages;
+    }
+    try {
+      const result = await this.compressor.compress(messages, {
+        modelName,
+      });
+      return result.totalBlocksCompressed > 0 ? result.compressedMessages : messages;
+    } catch {
+      return messages;
+    }
   }
 
   private processResponse(

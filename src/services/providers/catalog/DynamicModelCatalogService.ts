@@ -38,6 +38,7 @@ export interface ModelDefinition {
   structured_output?: boolean;
   temperature?: boolean;
   open_weights?: boolean;
+  supportsImageCompression?: boolean;
   limit?: ModelLimit;
   cost?: ModelCost;
   providerId: string;
@@ -88,8 +89,7 @@ export class DynamicModelCatalogService {
             providersMap.set(key.toLowerCase(), value);
           }
           if (providersMap.size > 0) {
-            this.cachedProviders = providersMap;
-            return providersMap;
+            break;
           }
         } catch {
           // Graceful fallback to next path
@@ -97,8 +97,27 @@ export class DynamicModelCatalogService {
       }
     }
 
-    // 2. Default standard catalog if cache is empty
-    this.cachedProviders = this.buildDefaultFallbackCatalog();
+    // 2. Merge default standard catalog so certified models and capabilities are always guaranteed
+    const fallback = this.buildDefaultFallbackCatalog();
+    for (const [providerKey, providerDef] of fallback.entries()) {
+      const existing = providersMap.get(providerKey);
+      if (!existing) {
+        providersMap.set(providerKey, providerDef);
+      } else {
+        for (const [modelId, fallbackModel] of Object.entries(providerDef.models)) {
+          const cachedModel = existing.models[modelId];
+          if (cachedModel) {
+            if (fallbackModel.supportsImageCompression !== undefined) {
+              cachedModel.supportsImageCompression = fallbackModel.supportsImageCompression;
+            }
+          } else {
+            existing.models[modelId] = fallbackModel;
+          }
+        }
+      }
+    }
+
+    this.cachedProviders = providersMap;
     return this.cachedProviders;
   }
 
@@ -237,13 +256,21 @@ export class DynamicModelCatalogService {
           name: 'Claude 3.7 Sonnet',
           reasoning: true,
           reasoning_options: [{ type: 'effort', values: ['low', 'medium', 'high', 'xhigh'] }],
+          supportsImageCompression: true,
           cost: { input: 3.0, output: 15.0, cache_read: 0.3 },
           limit: { context: 200000, output: 64000 },
         },
         'claude-3-5-sonnet-20241022': {
           id: 'claude-3-5-sonnet-20241022',
           name: 'Claude 3.5 Sonnet',
+          supportsImageCompression: true,
           cost: { input: 3.0, output: 15.0, cache_read: 0.3 },
+          limit: { context: 200000, output: 8192 },
+        },
+        'claude-fable-5': {
+          id: 'claude-fable-5',
+          name: 'Claude Fable 5',
+          supportsImageCompression: true,
           limit: { context: 200000, output: 8192 },
         },
       },
@@ -256,6 +283,7 @@ export class DynamicModelCatalogService {
         'gpt-4o': {
           id: 'gpt-4o',
           name: 'GPT-4o',
+          supportsImageCompression: false,
           cost: { input: 2.5, output: 10.0, cache_read: 1.25 },
           limit: { context: 128000, output: 16384 },
         },
@@ -264,6 +292,7 @@ export class DynamicModelCatalogService {
           name: 'o3-mini',
           reasoning: true,
           reasoning_options: [{ type: 'effort', values: ['low', 'medium', 'high'] }],
+          supportsImageCompression: false,
           cost: { input: 1.1, output: 4.4, cache_read: 0.55 },
           limit: { context: 200000, output: 100000 },
         },
@@ -277,12 +306,14 @@ export class DynamicModelCatalogService {
         'gemini-2.5-pro': {
           id: 'gemini-2.5-pro',
           name: 'Gemini 2.5 Pro',
+          supportsImageCompression: false,
           cost: { input: 1.25, output: 10.0 },
           limit: { context: 2000000, output: 65536 },
         },
         'gemini-2.5-flash': {
           id: 'gemini-2.5-flash',
           name: 'Gemini 2.5 Flash',
+          supportsImageCompression: false,
           cost: { input: 0.15, output: 0.6 },
           limit: { context: 1000000, output: 65536 },
         },

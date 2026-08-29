@@ -201,4 +201,55 @@ describe('EmulatedToolCallingProviderDecorator', () => {
     expect(messages[0].content).toContain('read_file');
     expect(messages[1].role).toBe('user');
   });
+
+  it('bypasses context compression in 0ms when model does not support image compression (fail-closed)', async () => {
+    let capturedMessages: unknown = null;
+    const provider = innerProvider(async (messages) => {
+      capturedMessages = messages;
+      return baseResponse({ content: 'ok' });
+    });
+    const decorator = new EmulatedToolCallingProviderDecorator(provider, {
+      compressContext: true,
+      modelResolver: () => ({ id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', providerId: 'google', providerName: 'Google', supportsImageCompression: false }),
+    });
+
+    const largeSystem = 'word '.repeat(500);
+    await decorator.chat(
+      [
+        { role: 'system', content: largeSystem },
+        { role: 'user', content: 'hello' },
+      ],
+      undefined,
+      { modelName: 'gemini-2.5-flash' },
+    );
+
+    const messages = capturedMessages as Array<{ role: string; content: string; inlineData?: unknown }>;
+    expect(messages[0].content).toBe(largeSystem);
+    expect(messages[0].inlineData).toBeUndefined();
+  });
+
+  it('preserves emulation prompt in pure text without converting it to image when compression is enabled', async () => {
+    let capturedMessages: unknown = null;
+    const provider = innerProvider(async (messages) => {
+      capturedMessages = messages;
+      return baseResponse({ content: 'ok' });
+    });
+    const decorator = new EmulatedToolCallingProviderDecorator(provider, {
+      injectEmulationPrompt: true,
+      compressContext: true,
+      modelResolver: () => ({ id: 'claude-3-7-sonnet-20250219', name: 'Claude 3.7 Sonnet', providerId: 'anthropic', providerName: 'Anthropic', supportsImageCompression: true }),
+    });
+
+    await decorator.chat(
+      [{ role: 'user', content: 'read a' }],
+      [{ name: 'read_file', description: 'Read a file '.repeat(30), parameters: { type: 'object', properties: {} } }],
+      { modelName: 'claude-3-7-sonnet-20250219' },
+    );
+
+    const messages = capturedMessages as Array<{ role: string; content: string; inlineData?: unknown }>;
+    expect(messages[0].role).toBe('system');
+    expect(messages[0].content).toContain('# TOOLS SYSTEM');
+    expect(messages[0].content).toContain('<tool_call>');
+    expect(messages[0].inlineData).toBeUndefined();
+  });
 });
