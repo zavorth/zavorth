@@ -17,6 +17,7 @@ import {
 } from '../domain/surface/presentation/shared-surface/factory/SharedSurfaceCommandServiceFactory.js';
 import { ZavorthSmartCommandSurfaceService } from './ZavorthSmartCommandSurfaceService.js';
 import { SharedSurfaceSlashEnhancementCommandPack } from '../domain/surface/presentation/shared-surface/SharedSurfaceSlashEnhancementCommandPack.js';
+import { ZavorthUserLocalePreferenceService } from './localization/ZavorthUserLocalePreferenceService.js';
 
 export class SharedSurfaceCommandService {
   private readonly parser!: SharedSurfaceCommandServiceComposition['parser'];
@@ -45,8 +46,11 @@ export class SharedSurfaceCommandService {
   private readonly taskControlCommandPack!: SharedSurfaceCommandServiceComposition['taskControlCommandPack'];
   private readonly workflowGovernanceCommandPack!: SharedSurfaceCommandServiceComposition['workflowGovernanceCommandPack'];
   private readonly presentationCommandPack!: SharedSurfaceCommandServiceComposition['presentationCommandPack'];
+  private readonly connectCommandPack!: SharedSurfaceCommandServiceComposition['connectCommandPack'];
+  private readonly botCommandPack!: SharedSurfaceCommandServiceComposition['botCommandPack'];
   private readonly smartCommandSurface = new ZavorthSmartCommandSurfaceService();
   private readonly slashEnhancementCommandPack = new SharedSurfaceSlashEnhancementCommandPack();
+  private readonly localePreferenceService = new ZavorthUserLocalePreferenceService();
 
   constructor(private readonly deps: SharedSurfaceCommandServiceDeps) {
     Object.assign(this, buildSharedSurfaceCommandServiceComposition(deps));
@@ -76,6 +80,8 @@ export class SharedSurfaceCommandService {
     if (!rawText) {
       return false;
     }
+
+    await this.enrichContextLocale(ctx);
 
     if (rawText.startsWith('/') && this.smartCommandSurface.canHandle(rawText)) {
       const snapshot = await this.smartCommandSurface.buildSnapshot({
@@ -121,6 +127,8 @@ export class SharedSurfaceCommandService {
       sessionNodeCommandPack: this.sessionNodeCommandPack,
       workflowGovernanceCommandPack: this.workflowGovernanceCommandPack,
       slashEnhancementCommandPack: this.slashEnhancementCommandPack,
+      connectCommandPack: this.connectCommandPack,
+      botCommandPack: this.botCommandPack,
     })) {
       return true;
     }
@@ -152,6 +160,21 @@ export class SharedSurfaceCommandService {
       context: ctx,
       parsedCommand: preDispatch.command,
     });
+  }
+
+  /**
+   * Resolves the effective locale for the user and enriches the message context
+   * before any pack runs. Surface-agnostic: works for every channel and surface
+   * now and in the future through the canonical user locale preference service.
+   */
+  private async enrichContextLocale(ctx: IMessageContext): Promise<void> {
+    const userId = String(ctx.userId || '').trim();
+    if (!userId) {
+      return;
+    }
+
+    const resolved = await this.localePreferenceService.resolveUserLocale(userId, ctx.locale);
+    ctx.locale = resolved;
   }
 }
 

@@ -6,6 +6,7 @@
 import { ZavorthPresentationAdapterService, type UniversalResponse } from './ZavorthPresentationAdapterService.js';
 import { ZavorthChannelCapabilitiesService } from './ZavorthChannelCapabilitiesService.js';
 import { getChannelPairingService } from './ZavorthChannelPairingService.js';
+import { ZavorthUserLocalePreferenceService } from './localization/ZavorthUserLocalePreferenceService.js';
 
 export interface MiddlewareInput {
   text: string;
@@ -32,20 +33,23 @@ export interface MiddlewareResult {
 export class ZavorthChannelMessageMiddleware {
   private readonly presentation: ZavorthPresentationAdapterService;
   private readonly caps: ZavorthChannelCapabilitiesService;
+  private readonly localePreferenceService: ZavorthUserLocalePreferenceService;
 
   constructor(deps?: {
     presentation?: ZavorthPresentationAdapterService;
     caps?: ZavorthChannelCapabilitiesService;
+    localePreferenceService?: ZavorthUserLocalePreferenceService;
   }) {
     this.caps = deps?.caps ?? new ZavorthChannelCapabilitiesService();
     this.presentation = deps?.presentation ?? new ZavorthPresentationAdapterService(this.caps);
+    this.localePreferenceService = deps?.localePreferenceService ?? new ZavorthUserLocalePreferenceService();
   }
 
   /**
    * Pairing-only. Free text always returns handled=false so the agent owns the turn.
    */
   public async processIncoming(input: MiddlewareInput): Promise<MiddlewareResult> {
-    const locale = String(input.locale || 'en').trim() || 'en';
+    const locale = await this.resolveLocale(input);
 
     const isLocalChannel = input.channelId === 'cli' || input.channelId === 'web';
     if (!isLocalChannel && input.userId) {
@@ -105,12 +109,20 @@ export class ZavorthChannelMessageMiddleware {
 
   /** Simple greeting helper (not a routing brain). */
   public getGreeting(_channelId: string, locale?: string): string {
-    const lang = String(locale || 'en').split(/[-_]/)[0].toLowerCase();
+    const lang = String(locale || 'en').toLowerCase().split('-')[0].split('_')[0].trim();
     const greetings: Record<string, string> = {
       en: "Hi! I'm Zavorth. Ask me anything — I use tools when needed.",
-      pt: 'Oi! Sou o Zavorth. Pode me pedir qualquer coisa — usage tools when preciso.',
-      es: '¡Hola! Soy Zavorth. Pide lo que necesites — usage tools cuando hace missing.',
+      pt: 'Oi! Sou o Zavorth. Pode me pedir qualquer coisa — uso ferramentas quando necessário.',
+      es: '¡Hola! Soy Zavorth. Pide lo que necesites — uso herramientas cuando hace falta.',
     };
     return greetings[lang] ?? greetings.en;
+  }
+
+  private async resolveLocale(input: MiddlewareInput): Promise<string> {
+    if (input.userId) {
+      return this.localePreferenceService.resolveUserLocale(input.userId, input.locale);
+    }
+    const signal = String(input.locale || '').trim();
+    return signal || 'en';
   }
 }
