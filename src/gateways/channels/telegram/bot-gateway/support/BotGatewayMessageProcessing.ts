@@ -577,6 +577,7 @@ export function buildSharedSurfaceTelegramContext(
     channelId: telegramChatId ? String(telegramChatId) : chatId,
     threadId: runtime.telegramChannelContractService.buildContract(ctx).threadId || null,
     transport: rawText.trim().startsWith('/') ? 'slash_command' : 'text',
+    locale: ctx.from?.language_code ?? ingressMetadata?.preferredLanguageCode ?? null,
     inlineData,
     reply: async (text: string, options?: Record<string, unknown>) => {
       // Certification matrix: Echo Mode — voice response

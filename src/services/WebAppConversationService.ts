@@ -171,7 +171,11 @@ private readonly audioTranscription = new AudioTranscriptionService({
     // must not shadow governed commands such as /status or /codexremote.
     const sharedSurfaceHandled = this.composerContext.hasContextualMentions(normalizedComposerPayload.mentions)
       ? false
-      : await this.maybeHandleSharedSurface(sessionId, message);
+      : await this.maybeHandleSharedSurface(
+          sessionId,
+          message,
+          String(body.locale || body.deviceLocale || '').trim() || null,
+        );
     if (sharedSurfaceHandled) {
       return {
         sessionId,
@@ -1131,7 +1135,11 @@ private readonly audioTranscription = new AudioTranscriptionService({
     return this.composerActions;
   }
 
-  private async maybeHandleSharedSurface(sessionId: string, message: string): Promise<boolean> {
+  private async maybeHandleSharedSurface(
+    sessionId: string,
+    message: string,
+    preferredLocale?: string | null,
+  ): Promise<boolean> {
     const surfaceApi = createInternalSurfaceCommandApi(this.deps.getSharedSurfaceCommandService?.() || null);
     if (!surfaceApi) {
       return false;
@@ -1146,6 +1154,7 @@ private readonly audioTranscription = new AudioTranscriptionService({
       channelId: sessionId,
       threadId: sessionId,
       transport: message.trim().startsWith('/') ? 'slash_command' : 'text',
+      locale: preferredLocale || null,
       composerPayload: null,
       reply: async (text: string) => {
         await this.deliverWebOutput(sessionId, text, 'shared-surface', message);

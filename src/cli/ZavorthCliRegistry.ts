@@ -718,6 +718,7 @@ async function executeZavorthCliCommandInner(params: {
     isGroup: false,
     rawText: normalized,
     transport: normalized.startsWith('/') ? 'slash_command' : 'text',
+    locale: String(Intl.DateTimeFormat().resolvedOptions().locale || '').trim() || null,
     reply: async (text: string) => {
       replies.push(text);
     },
