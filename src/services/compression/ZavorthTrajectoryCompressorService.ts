@@ -70,13 +70,28 @@ export class ZavorthTrajectoryCompressorService {
       if (turn.toolCalls && turn.toolCalls.length > 0) {
         for (const tc of turn.toolCalls) {
           executedTools.add(tc.toolName);
-          if (tc.inputPayload.includes('path') || tc.inputPayload.includes('file')) {
-            const tokens = tc.inputPayload.split(/["'\s]/).filter((t) => t.includes('.') || t.includes('/'));
-            for (const t of tokens) {
-              if (t.length > 3 && (t.endsWith('.ts') || t.endsWith('.js') || t.endsWith('.py') || t.endsWith('.json') || t.endsWith('.md'))) {
-                filesTouched.add(t);
+          let targetFile: string | null = null;
+          try {
+            const parsed = JSON.parse(tc.inputPayload);
+            if (typeof parsed === 'object' && parsed !== null) {
+              const obj = parsed as Record<string, unknown>;
+              const candidate = obj.path ?? obj.AbsolutePath ?? obj.TargetFile ?? obj.filePath ?? obj.targetPath;
+              if (typeof candidate === 'string' && candidate.trim().length > 0) {
+                targetFile = candidate.trim();
               }
             }
+          } catch {
+            const tokens = tc.inputPayload.split(' ');
+            for (const rawToken of tokens) {
+              const token = rawToken.replace(/['",]/g, '').trim();
+              if (token.length > 3 && (token.endsWith('.ts') || token.endsWith('.js') || token.endsWith('.py') || token.endsWith('.json') || token.endsWith('.md'))) {
+                targetFile = token;
+                break;
+              }
+            }
+          }
+          if (targetFile) {
+            filesTouched.add(targetFile);
           }
           summaryItems.push(`Executed tool \`${tc.toolName}\` (exit: ${tc.exitCode ?? 0})`);
         }
