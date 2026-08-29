@@ -1,5 +1,5 @@
 import { EmulatedToolCallingProviderDecorator } from '../../../../src/providers/EmulatedToolCallingProviderDecorator.js';
-import type { ILlmProvider, LlmResponse } from '../../../../src/providers/ILlmProvider.js';
+import type { ILlmProvider, LlmResponse, LlmStreamEvent } from '../../../../src/providers/ILlmProvider.js';
 import { ModelToolCallingCapabilityTracker } from '../../../../src/services/llm/ModelToolCallingCapabilityTracker.js';
 
 function baseResponse(overrides: Partial<LlmResponse> = {}): LlmResponse {
@@ -124,5 +124,81 @@ describe('EmulatedToolCallingProviderDecorator', () => {
     expect(system.content).toContain('__zavorth_emulated_tools__');
     expect(system.content).toContain('{"tool": "tool_name", "arguments": {...}}');
     expect(system.content).toContain('read_file');
+  });
+
+  it('emits exactly one done event when recovering emulated tool calls from a stream', async () => {
+    const invokedContent = 'Checking now. {"tool": "read_file", "arguments": {"path": "a.txt"}}';
+    async function* fakeStream(): AsyncIterable<LlmStreamEvent> {
+      yield { type: 'start' };
+      yield { type: 'delta', delta: invokedContent };
+      yield { type: 'done', done: true, response: baseResponse({ content: invokedContent }) };
+    }
+    const provider: ILlmProvider = {
+      name: 'test-provider',
+      chat: async () => baseResponse(),
+      streamChat: () => fakeStream(),
+    };
+    const decorator = new EmulatedToolCallingProviderDecorator(provider);
+
+    const events: LlmStreamEvent[] = [];
+    for await (const event of decorator.streamChat(
+      [{ role: 'user', content: 'read a.txt' }],
+      [{ name: 'read_file', description: 'r', parameters: { type: 'object', properties: {} } }],
+    )) {
+      events.push(event);
+    }
+
+    const doneEvents = events.filter((event) => event.type === 'done');
+    expect(doneEvents).toHaveLength(1);
+    expect(doneEvents[0].response?.toolCalls).toHaveLength(1);
+    expect(doneEvents[0].response?.toolCalls[0].name).toBe('read_file');
+    expect(doneEvents[0].response?.metadata?.emulatedToolCalling).toBe(true);
+  });
+
+  it('synthesizes a single terminal done when the backend stream carries the response without a done event', async () => {
+    const invokedContent = 'Plain. {"tool": "read_file", "arguments": {"path": "a.txt"}}';
+    async function* fakeStream(): AsyncIterable<LlmStreamEvent> {
+      yield { type: 'start' };
+      yield { type: 'delta', response: baseResponse({ content: invokedContent }) };
+    }
+    const provider: ILlmProvider = {
+      name: 'test-provider',
+      chat: async () => baseResponse(),
+      streamChat: () => fakeStream(),
+    };
+    const decorator = new EmulatedToolCallingProviderDecorator(provider);
+
+    const events: LlmStreamEvent[] = [];
+    for await (const event of decorator.streamChat(
+      [{ role: 'user', content: 'read a.txt' }],
+      [{ name: 'read_file', description: 'r', parameters: { type: 'object', properties: {} } }],
+    )) {
+      events.push(event);
+    }
+
+    const doneEvents = events.filter((event) => event.type === 'done');
+    expect(doneEvents).toHaveLength(1);
+    expect(doneEvents[0].response?.toolCalls).toHaveLength(1);
+    expect(doneEvents[0].response?.metadata?.emulatedToolCalling).toBe(true);
+  });
+
+  it('prepends a synthetic system message when the conversation has none', async () => {
+    let capturedMessages: unknown = null;
+    const provider = innerProvider(async (messages) => {
+      capturedMessages = messages;
+      return baseResponse({ content: 'ok' });
+    });
+    const decorator = new EmulatedToolCallingProviderDecorator(provider, { injectEmulationPrompt: true });
+
+    await decorator.chat(
+      [{ role: 'user', content: 'read a' }],
+      [{ name: 'read_file', description: 'Read a file', parameters: { type: 'object', properties: {} } }],
+    );
+
+    const messages = capturedMessages as Array<{ role: string; content: string }>;
+    expect(messages[0].role).toBe('system');
+    expect(messages[0].content).toContain('<tool_call>');
+    expect(messages[0].content).toContain('read_file');
+    expect(messages[1].role).toBe('user');
   });
 });

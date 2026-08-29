@@ -67,22 +67,25 @@ export class EmulatedToolCallingProviderDecorator implements ILlmProvider {
     const stream = this.inner.streamChat
       ? this.inner.streamChat(injectedMessages, tools, options)
       : [];
-    let finalResponse: LlmResponse | null = null;
+    let terminalDoneEmitted = false;
+    let fallbackResponse: LlmResponse | null = null;
     for await (const event of stream) {
+      if (event.type === 'done' && event.response) {
+        terminalDoneEmitted = true;
+        yield { ...event, response: this.processResponse(event.response, providerName, modelName) };
+        continue;
+      }
       if (event.response) {
-        finalResponse = event.response;
+        fallbackResponse = event.response;
       }
       yield event;
     }
-    if (finalResponse) {
-      const recovered = this.processResponse(finalResponse, providerName, modelName);
-      if (recovered.toolCalls.length > 0) {
-        yield {
-          type: 'done',
-          done: true,
-          response: recovered,
-        };
-      }
+    if (!terminalDoneEmitted && fallbackResponse) {
+      yield {
+        type: 'done',
+        done: true,
+        response: this.processResponse(fallbackResponse, providerName, modelName),
+      };
     }
   }
 
@@ -101,27 +104,27 @@ export class EmulatedToolCallingProviderDecorator implements ILlmProvider {
     if (!injectFull && !injectMinimal) {
       return messages;
     }
-    const systemIndex = messages.findIndex((message) => message.role === 'system');
-    if (systemIndex < 0) {
-      return messages;
-    }
-    const system = messages[systemIndex];
-    if (!system || system.content === null) {
-      return messages;
-    }
-    if (system.content.includes(EMULATION_FORMAT_HINT)) {
-      return messages;
-    }
     const spec = injectFull
       ? this.emulationAdapter.buildPromptToolSpecifications(tools, 'XML_TAGS')
       : buildMinimalHint(tools);
     if (!spec) {
       return messages;
     }
+    const systemIndex = messages.findIndex((message) => message.role === 'system');
+    if (systemIndex < 0) {
+      return [{ role: 'system', content: spec }, ...messages];
+    }
+    const system = messages[systemIndex];
+    if (!system) {
+      return messages;
+    }
+    if (system.content !== null && system.content.includes(EMULATION_FORMAT_HINT)) {
+      return messages;
+    }
     const updated = [...messages];
     updated[systemIndex] = {
       ...system,
-      content: `${system.content}\n\n${spec}`,
+      content: system.content === null ? spec : `${system.content}\n\n${spec}`,
     };
     return updated;
   }
