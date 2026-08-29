@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Connection Semantic Introspection Service.
  * Provides governed, privacy-preserving semantic classification and architectural guidance
  * for unknown/unvetted connection targets without requesting or handling credentials.
@@ -17,14 +17,25 @@ export interface SemanticIntrospectionResult {
   manifestTemplateSnippet?: string;
 }
 
+export interface SemanticLlmInferencePort {
+  classifyService(target: string): Promise<{
+    category: string;
+    authType: 'oauth2' | 'api_key' | 'local_path';
+    summary?: string;
+    guidance?: string;
+  } | null>;
+}
+
 export interface ConnectionSemanticIntrospectionOptions {
   enabled?: boolean;
   maxRequestsPerMinute?: number;
+  llmInferencePort?: SemanticLlmInferencePort;
 }
 
 export class ConnectionSemanticIntrospectionService {
   private readonly isEnabled: boolean;
   private readonly maxRequestsPerMinute: number;
+  private readonly llmInferencePort?: SemanticLlmInferencePort;
   private readonly requestTimestamps: number[] = [];
 
   // Known ecosystem domain classifications to provide immediate zero-latency guidance
@@ -46,6 +57,7 @@ export class ConnectionSemanticIntrospectionService {
   constructor(options: ConnectionSemanticIntrospectionOptions = {}) {
     this.isEnabled = options.enabled ?? (process.env.ZAVORTH_ENABLE_SEMANTIC_INTROSPECTION === 'true');
     this.maxRequestsPerMinute = options.maxRequestsPerMinute || 5;
+    this.llmInferencePort = options.llmInferencePort;
   }
 
   private isRateLimited(): boolean {
@@ -112,6 +124,43 @@ export class ConnectionSemanticIntrospectionService {
         guidance: `'${target}' appears to be a ${domain.category} service. To connect it securely, declare a plugin manifest in 'plugins/${normalized}/manifest.json' or configure an MCP server.`,
         manifestTemplateSnippet: snippet,
       };
+    }
+
+    if (this.llmInferencePort) {
+      try {
+        const llmResult = await this.llmInferencePort.classifyService(normalized);
+        if (llmResult && llmResult.category) {
+          const snippet = JSON.stringify(
+            {
+              id: normalized,
+              label: target,
+              summary: llmResult.summary || `Integration for ${llmResult.category}`,
+              connection: {
+                authType: llmResult.authType,
+                usePkce: llmResult.authType === 'oauth2',
+                ...(llmResult.authType === 'api_key'
+                  ? { apiKey: { label: `${target} API Key`, placeholder: 'Enter key...' } }
+                  : {}),
+              },
+            },
+            null,
+            2
+          );
+
+          return {
+            enabled: true,
+            target,
+            recognizedCategory: llmResult.category,
+            recommendedAuthType: llmResult.authType,
+            guidance:
+              llmResult.guidance ||
+              `'${target}' appears to be a ${llmResult.category} service. To connect it securely, declare a plugin manifest in 'plugins/${normalized}/manifest.json' or configure an MCP server.`,
+            manifestTemplateSnippet: snippet,
+          };
+        }
+      } catch (err: unknown) {
+        logger.debug(`[ConnectionSemanticIntrospectionService] Dynamic LLM classification fallback: ${String(err)}`);
+      }
     }
 
     return {

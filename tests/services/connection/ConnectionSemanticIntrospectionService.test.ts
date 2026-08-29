@@ -44,4 +44,28 @@ describe('ConnectionSemanticIntrospectionService', () => {
     const rateLimitedRes = await service.introspect('salesforce');
     expect(rateLimitedRes.guidance).toContain('rate limit reached');
   });
+
+  it('uses dynamic llmInferencePort when service is not in static domain knowledge', async () => {
+    const mockLlmPort = {
+      classifyService: jest.fn().mockResolvedValue({
+        category: 'Application Performance Monitoring (APM)',
+        authType: 'api_key' as const,
+        summary: 'Cloud monitoring & observability platform',
+        guidance: 'Datadog provides full-stack observability. Declare an API key in your plugin manifest.',
+      }),
+    };
+
+    const service = new ConnectionSemanticIntrospectionService({
+      enabled: true,
+      llmInferencePort: mockLlmPort,
+    });
+
+    const res = await service.introspect('datadog');
+    expect(res.enabled).toBe(true);
+    expect(res.recognizedCategory).toBe('Application Performance Monitoring (APM)');
+    expect(res.recommendedAuthType).toBe('api_key');
+    expect(res.guidance).toContain('Datadog provides full-stack observability');
+    expect(res.manifestTemplateSnippet).toContain('"id": "datadog"');
+    expect(mockLlmPort.classifyService).toHaveBeenCalledWith('datadog');
+  });
 });
