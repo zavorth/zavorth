@@ -1,4 +1,4 @@
-﻿import { LocalOAuthCallbackServer } from '../../../src/services/connection/LocalOAuthCallbackServer.js';
+import { LocalOAuthCallbackServer } from '../../../src/services/connection/LocalOAuthCallbackServer.js';
 
 describe('LocalOAuthCallbackServer', () => {
   let serverService: LocalOAuthCallbackServer;
@@ -55,7 +55,7 @@ describe('LocalOAuthCallbackServer', () => {
   it('rejects callback when provider returns error parameter', async () => {
     const instance = await serverService.start();
 
-    const errorUrl = `${instance.redirectUri}?error=access_denied&error_description=User+declined+permission`;
+    const errorUrl = `${instance.redirectUri}?error=access_denied&error_description=User+declined+permission&state=${instance.state}`;
     const fetchPromise = fetch(errorUrl);
 
     await expect(instance.waitForCallback()).rejects.toThrow('User declined permission');

@@ -17,6 +17,7 @@ import { ConnectionStateStore } from '../../../services/connection/ConnectionSta
 import { ConnectionOAuthHandshakeService } from '../../../services/connection/ConnectionOAuthHandshakeService.js';
 import { ConnectionLockManager } from '../../../services/connection/ConnectionLockManager.js';
 import { ZavorthPluginRegistryService } from '../../../services/ZavorthPluginRegistryService.js';
+import { logger } from '../../../logger.js';
 
 const connectionManageSchema = z.object({
   action: z.enum(['list', 'catalog', 'connect', 'disconnect']).describe('Action to perform on integrations'),
@@ -188,153 +189,167 @@ export class ConnectionManageTool implements IZavorthTool {
           const { descriptor, cardDescriptor } = resolution;
           const cred = String(params.credentials || '').trim();
 
-        if (descriptor.authType === 'local_path') {
-          if (!cred) {
-            return {
-              success: false,
-              message: `To connect ${cardDescriptor.displayName}, provide the local directory path.`,
-              data: { requiresInput: 'local_path', target },
-            };
-          }
+          if (descriptor.authType === 'local_path') {
+            if (!cred) {
+              return {
+                success: false,
+                message: `To connect ${cardDescriptor.displayName}, provide the local directory path.`,
+                data: { requiresInput: 'local_path', target },
+              };
+            }
 
-          const verifyRes = await this.verifier.verify(target, descriptor, { localPath: cred });
-          if (!verifyRes.ok) {
-            return {
-              success: false,
-              error: `Verification failed: ${verifyRes.details} (${verifyRes.error || 'Invalid path'})`,
-            };
-          }
+            const verifyRes = await this.verifier.verify(target, descriptor, { localPath: cred });
+            if (!verifyRes.ok) {
+              return {
+                success: false,
+                error: `Verification failed: ${verifyRes.details} (${verifyRes.error || 'Invalid path'})`,
+              };
+            }
 
-          const now = new Date().toISOString();
-          await this.stateStore.saveConnection({
-            userId,
-            targetId: target,
-            displayName: cardDescriptor.displayName,
-            authType: 'local_path',
-            status: 'connected',
-            localPath: cred,
-            connectedAt: now,
-            updatedAt: now,
-          });
+            const now = new Date().toISOString();
+            await this.stateStore.saveConnection({
+              userId,
+              targetId: target,
+              displayName: cardDescriptor.displayName,
+              authType: 'local_path',
+              status: 'connected',
+              localPath: cred,
+              connectedAt: now,
+              updatedAt: now,
+            });
 
-          return {
-            success: true,
-            message: `Connected to ${cardDescriptor.displayName} successfully! Local directory verified at: ${cred}`,
-            data: { target, displayName: cardDescriptor.displayName, status: 'connected' },
-          };
-        }
-
-        if (descriptor.authType === 'api_key') {
-          if (!cred) {
-            return {
-              success: false,
-              message: `To connect ${cardDescriptor.displayName}, provide your ${descriptor.apiKey?.label || 'API Key'}.`,
-              data: { requiresInput: 'api_key', target },
-            };
-          }
-
-          const verifyRes = await this.verifier.verify(target, descriptor, { apiKey: cred });
-          if (!verifyRes.ok) {
-            return {
-              success: false,
-              error: `Verification failed: ${verifyRes.details} (${verifyRes.error || 'Invalid key'})`,
-            };
-          }
-
-          const secretRef = await this.stateStore.saveSecret(target, cred);
-          const now = new Date().toISOString();
-          await this.stateStore.saveConnection({
-            userId,
-            targetId: target,
-            displayName: cardDescriptor.displayName,
-            authType: 'api_key',
-            status: 'connected',
-            secretRef,
-            connectedAt: now,
-            updatedAt: now,
-          });
-
-          return {
-            success: true,
-            message: `Connected to ${cardDescriptor.displayName} successfully! Credentials encrypted in vault.`,
-            data: { target, displayName: cardDescriptor.displayName, status: 'connected' },
-          };
-        }
-
-        if (descriptor.authType === 'oauth2') {
-          if (descriptor.oauth?.supportsDeviceCode) {
-            const deviceUrl = descriptor.oauth.deviceCodeUrl || 'https://github.com/login/device';
             return {
               success: true,
-              message: `Device Code OAuth flow instructions for ${cardDescriptor.displayName}. Open the verification link in your browser.`,
+              message: `Connected to ${cardDescriptor.displayName} successfully! Local directory verified at: ${cred}`,
+              data: { target, displayName: cardDescriptor.displayName, status: 'connected' },
+            };
+          }
+
+          if (descriptor.authType === 'api_key') {
+            if (!cred) {
+              return {
+                success: false,
+                message: `To connect ${cardDescriptor.displayName}, provide your ${descriptor.apiKey?.label || 'API Key'}.`,
+                data: { requiresInput: 'api_key', target },
+              };
+            }
+
+            const verifyRes = await this.verifier.verify(target, descriptor, { apiKey: cred });
+            if (!verifyRes.ok) {
+              return {
+                success: false,
+                error: `Verification failed: ${verifyRes.details} (${verifyRes.error || 'Invalid key'})`,
+              };
+            }
+
+            const secretRef = await this.stateStore.saveSecret(target, cred);
+            const now = new Date().toISOString();
+            await this.stateStore.saveConnection({
+              userId,
+              targetId: target,
+              displayName: cardDescriptor.displayName,
+              authType: 'api_key',
+              status: 'connected',
+              secretRef,
+              connectedAt: now,
+              updatedAt: now,
+            });
+
+            return {
+              success: true,
+              message: `Connected to ${cardDescriptor.displayName} successfully! Credentials encrypted in vault.`,
+              data: { target, displayName: cardDescriptor.displayName, status: 'connected' },
+            };
+          }
+
+          if (descriptor.authType === 'oauth2') {
+            if (descriptor.oauth?.supportsDeviceCode) {
+              const deviceUrl =
+                cardDescriptor.deviceCodeVerificationUrl ||
+                descriptor.oauth.verificationUri ||
+                descriptor.oauth.deviceCodeUrl;
+
+              if (!deviceUrl) {
+                return {
+                  success: false,
+                  error: `Provider '${target}' declares device code support but has no verification URL configured.`,
+                };
+              }
+
+              return {
+                success: true,
+                message: `Device Code OAuth flow instructions for ${cardDescriptor.displayName}. Open the verification link in your browser.`,
+                data: {
+                  target,
+                  displayName: cardDescriptor.displayName,
+                  authType: 'oauth2',
+                  flowType: 'device_code',
+                  verificationUrl: deviceUrl,
+                  supportsDeviceCode: true,
+                },
+              };
+            }
+
+            if (descriptor.oauth?.authorizationUrl) {
+              const clientId = descriptor.oauth.clientId || `${target}-client`;
+              try {
+                const flow = await this.handshakeService.prepareAuthCodeFlow(target, descriptor, clientId);
+                return {
+                  success: true,
+                  message: `Authorization URL prepared for ${cardDescriptor.displayName} with PKCE protection.`,
+                  data: {
+                    target,
+                    displayName: cardDescriptor.displayName,
+                    authType: 'oauth2',
+                    flowType: 'authorization_code_pkce',
+                    authorizationUrl: flow.authorizationUrl,
+                    redirectUri: flow.serverInstance.redirectUri,
+                  },
+                };
+              } catch (err: unknown) {
+                const msg = err instanceof Error ? err.message : String(err);
+                logger.warn(`[ConnectionManageTool] Ephemeral loopback server failed to start: ${msg}`);
+                return {
+                  success: true,
+                  message: `OAuth authorization link for ${cardDescriptor.displayName}`,
+                  data: {
+                    target,
+                    displayName: cardDescriptor.displayName,
+                    authType: 'oauth2',
+                    authorizationUrl: descriptor.oauth.authorizationUrl,
+                    fallbackWarning: `Loopback listener could not start (${msg}). Manual authorization required.`,
+                  },
+                };
+              }
+            }
+
+            return {
+              success: true,
+              message: `OAuth flow ready for ${cardDescriptor.displayName}`,
               data: {
                 target,
                 displayName: cardDescriptor.displayName,
                 authType: 'oauth2',
-                flowType: 'device_code',
-                verificationUrl: deviceUrl,
-                supportsDeviceCode: true,
               },
             };
           }
 
-          if (descriptor.oauth?.authorizationUrl) {
-            const clientId = descriptor.oauth.clientId || `${target}-client`;
-            try {
-              const flow = await this.handshakeService.prepareAuthCodeFlow(target, descriptor, clientId);
-              return {
-                success: true,
-                message: `Authorization URL prepared for ${cardDescriptor.displayName} with PKCE protection.`,
-                data: {
-                  target,
-                  displayName: cardDescriptor.displayName,
-                  authType: 'oauth2',
-                  flowType: 'authorization_code_pkce',
-                  authorizationUrl: flow.authorizationUrl,
-                  redirectUri: flow.serverInstance.redirectUri,
-                },
-              };
-            } catch {
-              return {
-                success: true,
-                message: `OAuth authorization link for ${cardDescriptor.displayName}`,
-                data: {
-                  target,
-                  displayName: cardDescriptor.displayName,
-                  authType: 'oauth2',
-                  authorizationUrl: descriptor.oauth.authorizationUrl,
-                },
-              };
-            }
-          }
+          const now = new Date().toISOString();
+          await this.stateStore.saveConnection({
+            userId,
+            targetId: target,
+            displayName: cardDescriptor.displayName,
+            authType: descriptor.authType,
+            status: 'connected',
+            connectedAt: now,
+            updatedAt: now,
+          });
 
           return {
             success: true,
-            message: `OAuth flow ready for ${cardDescriptor.displayName}`,
-            data: {
-              target,
-              displayName: cardDescriptor.displayName,
-              authType: 'oauth2',
-            },
+            message: `Connected to ${cardDescriptor.displayName}.`,
+            data: { target, displayName: cardDescriptor.displayName, status: 'connected' },
           };
-        }
-
-        const now = new Date().toISOString();
-        await this.stateStore.saveConnection({
-          userId,
-          targetId: target,
-          displayName: cardDescriptor.displayName,
-          authType: descriptor.authType,
-          status: 'connected',
-          connectedAt: now,
-          updatedAt: now,
-        });
-
-        return {
-          success: true,
-          message: `Connected to ${cardDescriptor.displayName}.`,
-          data: { target, displayName: cardDescriptor.displayName, status: 'connected' },
-        };
       } finally {
         if (resolution.descriptor?.authType !== 'oauth2') {
           await this.lockManager.releaseLock(userId, target);

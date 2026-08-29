@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Connection Target Resolver.
  * Deterministically resolves connection targets to their connection descriptors
  * and UI card descriptors across Plugin Manifests, Built-in OAuth providers,
@@ -68,6 +68,7 @@ export interface BuiltinOAuthProviderInfo {
   scopes: string[];
   supportsDeviceCode: boolean;
   deviceCodeUrl?: string;
+  verificationUri?: string;
 }
 
 export interface ConnectionOAuthCatalogPort {
@@ -96,6 +97,7 @@ class DefaultBuiltinOAuthCatalog implements ConnectionOAuthCatalogPort {
       scopes: Array.isArray(GITHUB_CONFIG.scopes) ? GITHUB_CONFIG.scopes : [],
       supportsDeviceCode: true,
       deviceCodeUrl: GITHUB_CONFIG.deviceCodeUrl,
+      verificationUri: 'https://github.com/login/device',
     });
 
     this.register({
@@ -423,7 +425,7 @@ export class ConnectionTargetResolver {
           status: 'disconnected',
           actionUrl: descriptor.oauth?.authorizationUrl,
           deviceCodeVerificationUrl: provider.supportsDeviceCode
-            ? provider.deviceCodeUrl || 'https://github.com/login/device'
+            ? provider.verificationUri || provider.deviceCodeUrl
             : undefined,
         };
 

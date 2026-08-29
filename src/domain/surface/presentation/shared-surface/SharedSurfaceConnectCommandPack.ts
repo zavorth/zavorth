@@ -30,6 +30,11 @@ import {
 import {
   LocalEncryptedProviderSecretStore,
 } from '../../../../services/ProviderSecretStore.js';
+import {
+  getConnectStrings,
+  formatTemplate,
+} from './connection/SharedSurfaceConnectLocalization.js';
+import { logger } from '../../../../logger.js';
 
 export interface SharedSurfaceConnectCommandPackDeps {
   resolver: ConnectionTargetResolver;
@@ -326,9 +331,15 @@ export class SharedSurfaceConnectCommandPack {
             });
 
           return;
-        } catch {
-          // Fallback to static link if server cannot open port
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          logger.warn(`[SharedSurfaceConnectCommandPack] Ephemeral loopback server failed to start: ${msg}`);
           const authUrl = descriptor.oauth.authorizationUrl;
+          if (!authUrl) {
+            await ctx.reply(`⚠️ Failed to start OAuth callback listener: ${msg}`);
+            await this.lockManager.releaseLock(userId, target);
+            return;
+          }
           await ctx.reply(
             [
               `🔗 **Connect ${cardDescriptor.displayName}:**`,
@@ -392,8 +403,9 @@ export class SharedSurfaceConnectCommandPack {
         if (secret) {
           await this.verifier.revoke(target, resolution.descriptor, secret);
         }
-      } catch {
-        // Continue local purge even if remote revocation call errors
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        logger.warn(`[SharedSurfaceConnectCommandPack] Remote token revocation failed for '${target}': ${msg}`);
       }
     }
 
@@ -401,8 +413,9 @@ export class SharedSurfaceConnectCommandPack {
     if (existing.secretRef) {
       try {
         await this.stateStore.deleteSecret(existing.secretRef);
-      } catch {
-        // soft cleanup
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        logger.error(`[SharedSurfaceConnectCommandPack] Vault secret deletion failed for '${target}': ${msg}`);
       }
     }
 

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Connection Verification & Revocation Service.
  * Performs non-destructive connectivity verification and RFC 7009 token revocation.
  *
@@ -61,7 +61,7 @@ export class ConnectionVerificationService {
       }
 
       if (descriptor.authType === 'oauth2') {
-        return this.verifyOAuth(targetId, descriptor, credentials, start);
+        return await this.verifyOAuth(targetId, descriptor, credentials, start);
       }
 
       return {
@@ -297,17 +297,19 @@ export class ConnectionVerificationService {
       ok: true,
       targetId,
       authType: 'api_key',
-      details: 'API key format verified',
+      details: verificationEndpoint
+        ? 'API key verified against remote endpoint'
+        : 'No remote verification endpoint declared; API key format validated without remote ping.',
       latencyMs: Date.now() - start,
     };
   }
 
-  private verifyOAuth(
+  private async verifyOAuth(
     targetId: string,
-    _descriptor: PluginConnectionDescriptor,
+    descriptor: PluginConnectionDescriptor,
     credentials: ConnectionCredentials,
     start: number
-  ): ConnectionVerificationResult {
+  ): Promise<ConnectionVerificationResult> {
     const token = credentials.token?.trim();
     if (!token) {
       return {
@@ -320,11 +322,52 @@ export class ConnectionVerificationService {
       };
     }
 
+    const userinfoUrl = descriptor.oauth?.userinfoUrl;
+    if (userinfoUrl) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), this.requestTimeoutMs);
+
+        const response = await fetch(userinfoUrl, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'User-Agent': 'Zavorth-Connection-Verifier/1.0',
+          },
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok && response.status >= 400 && response.status < 500) {
+          return {
+            ok: false,
+            targetId,
+            authType: 'oauth2',
+            details: `OAuth token verification failed with HTTP status ${response.status}`,
+            latencyMs: Date.now() - start,
+            error: `Unauthorized (HTTP ${response.status})`,
+          };
+        }
+
+        return {
+          ok: true,
+          targetId,
+          authType: 'oauth2',
+          details: 'OAuth access token verified against remote userinfo endpoint',
+          latencyMs: Date.now() - start,
+        };
+      } catch (err: unknown) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        logger.warn(`[ConnectionVerificationService] OAuth userinfo ping failed for '${targetId}': ${errorMsg}`);
+      }
+    }
+
     return {
       ok: true,
       targetId,
       authType: 'oauth2',
-      details: 'OAuth access token verified',
+      details: 'No remote userinfo endpoint declared in descriptor; token format validated without remote ping.',
       latencyMs: Date.now() - start,
     };
   }

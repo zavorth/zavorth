@@ -105,7 +105,18 @@ export class LocalOAuthCallbackServer {
         params[k] = v;
       }
 
-      // Check for OAuth provider errors (e.g. user cancelled)
+      // 1. Strict CSRF verification FIRST: incoming state must match expected state
+      if (!params.state || params.state !== state) {
+        res.writeHead(403, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(this.renderErrorHtml('Invalid state parameter. CSRF protection blocked this request.'));
+
+        void closeServer().finally(() => {
+          rejectCallback?.(new Error('OAuth state mismatch: Possible CSRF attack detected.'));
+        });
+        return;
+      }
+
+      // 2. Check for OAuth provider errors (e.g. user cancelled)
       if (params.error) {
         const errorDesc = params.error_description || params.error;
         res.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -113,17 +124,6 @@ export class LocalOAuthCallbackServer {
 
         void closeServer().finally(() => {
           rejectCallback?.(new Error(`OAuth Provider Error: ${errorDesc}`));
-        });
-        return;
-      }
-
-      // Strict CSRF verification: incoming state must match expected state
-      if (!params.state || params.state !== state) {
-        res.writeHead(403, { 'Content-Type': 'text/html; charset=utf-8' });
-        res.end(this.renderErrorHtml('Invalid state parameter. CSRF protection blocked this request.'));
-
-        void closeServer().finally(() => {
-          rejectCallback?.(new Error('OAuth state mismatch: Possible CSRF attack detected.'));
         });
         return;
       }
@@ -262,7 +262,17 @@ export class LocalOAuthCallbackServer {
 </html>`;
   }
 
+  private escapeHtml(input: string): string {
+    return String(input)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   private renderErrorHtml(message: string): string {
+    const safeMessage = this.escapeHtml(message);
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -310,7 +320,7 @@ export class LocalOAuthCallbackServer {
   <div class="card">
     <div class="icon">&#10008;</div>
     <h1>Authorization Failed</h1>
-    <p>${message}</p>
+    <p>${safeMessage}</p>
   </div>
 </body>
 </html>`;

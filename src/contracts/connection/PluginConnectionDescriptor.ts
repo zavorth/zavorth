@@ -33,6 +33,12 @@ export interface PluginConnectionDescriptor {
     /** Device code endpoint URL. Required when supportsDeviceCode is true. */
     deviceCodeUrl?: string;
 
+    /** Web verification URL where the user enters the device code (RFC 8628). Optional. */
+    verificationUri?: string;
+
+    /** Optional userinfo or ping endpoint to verify that the access token is valid. */
+    userinfoUrl?: string;
+
     /** Client ID for OAuth2 application. Optional. */
     clientId?: string;
 

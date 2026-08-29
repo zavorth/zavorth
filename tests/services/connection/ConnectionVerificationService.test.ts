@@ -1,4 +1,4 @@
-﻿import * as fs from 'node:fs';
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { ConnectionVerificationService } from '../../../src/services/connection/ConnectionVerificationService.js';
@@ -87,7 +87,7 @@ describe('ConnectionVerificationService', () => {
     const res = await service.verify('stripe', descriptor, { apiKey: 'sk_live_123456789' });
 
     expect(res.ok).toBe(true);
-    expect(res.details).toBe('API key format verified');
+    expect(res.details).toContain('without remote ping');
   });
 
   it('rejects an empty or suspiciously short API key', async () => {
@@ -106,7 +106,7 @@ describe('ConnectionVerificationService', () => {
     expect(res.error).toBe('Invalid API key length');
   });
 
-  it('verifies OAuth access token presence', async () => {
+  it('verifies OAuth access token presence and validates without remote ping when userinfo is not defined', async () => {
     const descriptor: PluginConnectionDescriptor = {
       authType: 'oauth2',
       usePkce: true,
@@ -118,10 +118,37 @@ describe('ConnectionVerificationService', () => {
 
     const validRes = await service.verify('oauth-target', descriptor, { token: 'gho_123456' });
     expect(validRes.ok).toBe(true);
+    expect(validRes.details).toContain('without remote ping');
 
     const missingRes = await service.verify('oauth-target', descriptor, {});
     expect(missingRes.ok).toBe(false);
     expect(missingRes.error).toBe('Missing access token');
+  });
+
+  it('performs live remote verification when userinfoUrl is provided', async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+    }) as unknown as typeof fetch;
+
+    try {
+      const descriptor: PluginConnectionDescriptor = {
+        authType: 'oauth2',
+        usePkce: true,
+        oauth: {
+          tokenUrl: 'https://oauth.example.com/token',
+          userinfoUrl: 'https://oauth.example.com/userinfo',
+          scopes: ['read'],
+        },
+      };
+
+      const res = await service.verify('oauth-target', descriptor, { token: 'gho_123456' });
+      expect(res.ok).toBe(true);
+      expect(res.details).toContain('verified against remote userinfo endpoint');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 
   it('implements Fail-open Option B when revokeUrl is undefined', async () => {

@@ -93,8 +93,8 @@ export class ConnectionLockManager {
     try {
       const db = await Database.getInstance();
       db.run(`DELETE FROM connection_handshake_locks WHERE expires_at <= ? OR status != 'active'`, [now]);
-    } catch {
-      // Memory fallback continues
+    } catch (err: unknown) {
+      logger.debug(`[ConnectionLockManager] SQLite purge fallback: ${String(err)}`);
     }
   }
 
@@ -124,13 +124,13 @@ export class ConnectionLockManager {
     if (activeGlobalCount >= this.maxGlobalConcurrent) {
       return {
         acquired: false,
-        error: `Maximum concurrent connection handshakes reached (${this.maxGlobalConcurrent}). Please wait for pending requests to finish.`,
+        error: `Global connection handshake limit reached (${this.maxGlobalConcurrent}). Please wait a few seconds and try again.`,
       };
     }
 
-    // Check if lock already exists for this user and target
-    const existingMemoryLock = this.inMemoryLocks.get(key);
-    if (existingMemoryLock && existingMemoryLock.status === 'active' && existingMemoryLock.expiresAt > now) {
+    // Check existing lock for this user and target
+    const existing = this.inMemoryLocks.get(key);
+    if (existing && existing.status === 'active' && existing.expiresAt > now) {
       return {
         acquired: false,
         error: `A connection handshake is already in progress for '${target}'. Use '/disconnect ${target}' to abort.`,
@@ -139,8 +139,8 @@ export class ConnectionLockManager {
 
     try {
       const db = await Database.getInstance();
-      const row = db.get<{ expires_at: number; status: string }>(
-        `SELECT expires_at, status FROM connection_handshake_locks WHERE user_id = ? AND target = ?`,
+      const row = db.get<{ status: string; expires_at: number }>(
+        `SELECT status, expires_at FROM connection_handshake_locks WHERE user_id = ? AND target = ?`,
         [userId, normalizedTarget]
       );
 
@@ -150,8 +150,8 @@ export class ConnectionLockManager {
           error: `A connection handshake is already in progress for '${target}'. Use '/disconnect ${target}' to abort.`,
         };
       }
-    } catch {
-      // Memory fallback continues
+    } catch (err: unknown) {
+      logger.debug(`[ConnectionLockManager] SQLite query fallback: ${String(err)}`);
     }
 
     const sessionId = crypto.randomUUID();
@@ -180,8 +180,8 @@ export class ConnectionLockManager {
            status = 'active'`,
         [userId, normalizedTarget, sessionId, now, expiresAt]
       );
-    } catch {
-      // Memory lock suffices
+    } catch (err: unknown) {
+      logger.debug(`[ConnectionLockManager] SQLite persist fallback: ${String(err)}`);
     }
 
     return {
@@ -216,8 +216,8 @@ export class ConnectionLockManager {
     try {
       const db = await Database.getInstance();
       db.run(`DELETE FROM connection_handshake_locks WHERE user_id = ? AND target = ?`, [userId, normalizedTarget]);
-    } catch {
-      // Memory cleanup complete
+    } catch (err: unknown) {
+      logger.debug(`[ConnectionLockManager] SQLite release fallback: ${String(err)}`);
     }
   }
 
@@ -245,7 +245,8 @@ export class ConnectionLockManager {
         [userId, normalizedTarget]
       );
       return hadLock;
-    } catch {
+    } catch (err: unknown) {
+      logger.debug(`[ConnectionLockManager] SQLite abort fallback: ${String(err)}`);
       return hadLock;
     }
   }

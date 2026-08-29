@@ -23,6 +23,8 @@ import { SharedSurfaceWorkflowGovernanceCommandPack } from '../SharedSurfaceWork
 import { SharedSurfaceBotCommandPack } from '../SharedSurfaceBotCommandPack.js';
 import { SharedSurfaceConnectCommandPack } from '../SharedSurfaceConnectCommandPack.js';
 import { ConnectionTargetResolver } from '../../../../../services/connection/ConnectionTargetResolver.js';
+import { ConnectionTokenRefreshService } from '../../../../../services/connection/ConnectionTokenRefreshService.js';
+import { ConnectionSemanticIntrospectionService } from '../../../../../services/connection/ConnectionSemanticIntrospectionService.js';
 import { PersonaRegistryService } from '../../../../../runtime/agent/roster/PersonaRegistryService.js';
 import { DynamicPersonaCompilerService } from '../../../../../runtime/agent/roster/DynamicPersonaCompilerService.js';
 import { EnsemblePersonaTaskRunner } from '../../../../../runtime/agent/roster/EnsemblePersonaTaskRunner.js';
@@ -310,24 +312,74 @@ export function buildSharedSurfaceCommandServiceAssembly(
     peerReviewService: new PeerReviewAdvisoryService(),
     personaRunner: new EnsemblePersonaTaskRunner(null, new LlmRuntimeService()),
   });
-  const connectCommandPack = new SharedSurfaceConnectCommandPack({
-    resolver: new ConnectionTargetResolver({
-      pluginRegistry: {
-        listEntries: () => {
-          if (!deps.pluginRegistryService) {
-            return [];
-          }
-          const snapshot = deps.pluginRegistryService.buildSnapshot();
-          return snapshot.entries.map((entry) => ({
-            manifest: {
-              id: entry.id,
-              label: entry.label,
-              description: entry.summary,
-            },
-          }));
-        },
+  const resolver = new ConnectionTargetResolver({
+    pluginRegistry: {
+      listEntries: () => {
+        if (!deps.pluginRegistryService) {
+          return [];
+        }
+        const snapshot = deps.pluginRegistryService.buildSnapshot();
+        return snapshot.entries.map((entry) => ({
+          manifest: {
+            id: entry.id,
+            label: entry.label,
+            description: entry.summary,
+            connection: (entry as unknown as { manifest?: { connection?: any } }).manifest?.connection,
+          },
+        }));
       },
-    }),
+    },
+    mcpClient: {
+      listServers: () => {
+        try {
+          const gw = deps.gatewayService as unknown as { listMcpServers?: () => Array<{ id: string; name: string }> };
+          if (typeof gw?.listMcpServers === 'function') {
+            return gw.listMcpServers();
+          }
+        } catch {
+          // MCP fallback
+        }
+        return [];
+      },
+    },
+  });
+
+  const llmRuntimeForIntrospection = new LlmRuntimeService();
+  const introspectionService = new ConnectionSemanticIntrospectionService({
+    enabled: true,
+    llmInferencePort: {
+      classifyService: async (target: string) => {
+        try {
+          const prompt = `Classify external software service "${target}". Return ONLY a JSON object: {"category": string, "authType": "api_key" | "oauth2" | "local_path", "summary": string, "guidance": string}.`;
+          const runRes = await llmRuntimeForIntrospection.chat([
+            { role: 'user', content: prompt },
+          ]);
+          const text = runRes?.content?.trim() || '';
+          const firstBrace = text.indexOf('{');
+          const lastBrace = text.lastIndexOf('}');
+          if (firstBrace !== -1 && lastBrace > firstBrace) {
+            const parsed = JSON.parse(text.substring(firstBrace, lastBrace + 1)) as {
+              category: string;
+              authType: 'api_key' | 'oauth2' | 'local_path';
+              summary?: string;
+              guidance?: string;
+            };
+            return parsed;
+          }
+        } catch {
+          // LLM classification fallback
+        }
+        return null;
+      },
+    },
+  });
+
+  const tokenRefreshService = new ConnectionTokenRefreshService({ resolver });
+  tokenRefreshService.startProactiveRefreshLoop(60000);
+
+  const connectCommandPack = new SharedSurfaceConnectCommandPack({
+    resolver,
+    introspectionService,
   });
   return {
     ...deps,

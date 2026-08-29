@@ -54,8 +54,10 @@ export class ConnectionStateStore {
       const newSeed = crypto.randomBytes(32).toString('hex');
       fs.writeFileSync(keyPath, newSeed, { mode: 0o600 });
       return newSeed;
-    } catch {
-      return 'zavorth-default-connection-seed-2026';
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      logger.error(`[ConnectionStateStore] Failed to access master key at ${keyPath}: ${msg}`);
+      throw new Error(`Master encryption key could not be accessed at ${keyPath}: ${msg}`);
     }
   }
 
