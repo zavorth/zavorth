@@ -31,7 +31,7 @@ import {
   LocalEncryptedProviderSecretStore,
 } from '../../../../services/ProviderSecretStore.js';
 import type { ZavorthLocalizationService } from '../../../../services/localization/ZavorthLocalizationService.js';
-import { createLegacyAwareLocalizationService } from '../../../../services/localization/legacySupport.js';
+import { createConnectionsAwareLocalizationService } from '../../../../services/localization/connectionsSupport.js';
 import { logger } from '../../../../logger.js';
 
 export interface SharedSurfaceConnectCommandPackDeps {
@@ -67,7 +67,7 @@ export class SharedSurfaceConnectCommandPack {
       deps.handshakeService || new ConnectionOAuthHandshakeService({ stateStore: this.stateStore });
     this.lockManager = deps.lockManager || ConnectionLockManager.getInstance();
     this.introspectionService = deps.introspectionService || new ConnectionSemanticIntrospectionService();
-    this.localizationService = deps.localizationService || createLegacyAwareLocalizationService();
+    this.localizationService = deps.localizationService || createConnectionsAwareLocalizationService();
     this.rateLimitMaxPerMinute = deps.rateLimitMaxPerMinute || 10;
   }
 
