@@ -48,7 +48,6 @@ export class ProviderHotPathCircuitBreaker {
     return this.instance;
   }
 
-  /** Test helper. */
   public static resetInstanceForTests(): void {
     this.instance = null;
   }
@@ -60,7 +59,6 @@ export class ProviderHotPathCircuitBreaker {
     this.maybeTransitionOpenToHalfOpen(breaker);
     if (breaker.state === 'CLOSED') return true;
     if (breaker.state === 'OPEN') return false;
-    // HALF_OPEN: allow limited probes
     return breaker.halfOpenAllowed > 0;
   }
 
@@ -75,7 +73,9 @@ export class ProviderHotPathCircuitBreaker {
       breaker.halfOpenAllowed = 0;
       return;
     }
-    breaker.failureCount = 0;
+    if (breaker.failureCount > 0) {
+      breaker.failureCount = Math.floor(breaker.failureCount / 2);
+    }
   }
 
   public async recordFailure(providerName: string, error?: unknown): Promise<void> {

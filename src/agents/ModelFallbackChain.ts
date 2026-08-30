@@ -5,18 +5,6 @@
  * fails (rate limit, auth error, billing), it enters automatic cooldown
  * and the next candidate is tried. Includes periodic recovery probing
  * and known-bad error cache within the session.
- *
- * Usage:
- *   const chain = new ModelFallbackChain({
- *     primary: { provider: 'openai', model: 'gpt-4o' },
- *     fallbacks: [
- *       { provider: 'anthropic', model: 'claude-sonnet-4-20250514' },
- *       { provider: 'google', model: 'gemini-2.0-flash' },
- *     ],
- *   });
- *   const candidate = chain.selectCandidate();
- *   // ? use candidate ?  *   if (failed) chain.recordFailure(candidate, 'rate_limit');
- *   if (success) chain.recordSuccess(candidate);
  */
 
 export type FailureReason =
@@ -31,6 +19,7 @@ export interface ModelCandidate {
   provider: string;
   model: string;
   priority?: number;
+  connectionId?: string;
 }
 
 export interface FallbackChainOptions {
@@ -64,7 +53,8 @@ export class ModelFallbackChain {
   }
 
   private key(c: ModelCandidate): string {
-    return `${c.provider}/${c.model}`;
+    const base = `${c.provider}/${c.model}`;
+    return c.connectionId ? `${base}@${c.connectionId}` : base;
   }
 
   private isAvailable(c: ModelCandidate): boolean {
@@ -91,10 +81,6 @@ export class ModelFallbackChain {
     return true;
   }
 
-  /**
-   * Selects the next available candidate.
-   * Returns null if all are in cooldown.
-   */
   selectCandidate(): ModelCandidate | null {
     for (const candidate of this.candidates) {
       if (this.isAvailable(candidate)) {
@@ -104,9 +90,6 @@ export class ModelFallbackChain {
     return null;
   }
 
-  /**
-   * Returns all candidates with their status.
-   */
   getCandidatesWithStatus(): Array<ModelCandidate & { available: boolean; cooldownRemainingMs: number }> {
     const now = Date.now();
     return this.candidates.map((c) => {
@@ -121,9 +104,6 @@ export class ModelFallbackChain {
     });
   }
 
-  /**
-   * Records a failure for a candidate.
-   */
   recordFailure(candidate: ModelCandidate, reason: FailureReason = 'unknown'): void {
     const k = this.key(candidate);
     const now = Date.now();
@@ -144,12 +124,27 @@ export class ModelFallbackChain {
     }
   }
 
-  /**
-   * Registra success e reseta o estado do candidato.
-   */
   recordSuccess(candidate: ModelCandidate): void {
     const k = this.key(candidate);
-    this.cooldowns.delete(k);
+    const existing = this.cooldowns.get(k);
+
+    if (existing && existing.failCount > 0) {
+      const decayedFailCount = Math.floor(existing.failCount / 2);
+      if (decayedFailCount <= 0) {
+        this.cooldowns.delete(k);
+      } else {
+        const now = Date.now();
+        const multiplier = Math.min(decayedFailCount, 5);
+        this.cooldowns.set(k, {
+          until: now + this.cooldownMs * multiplier,
+          reason: existing.reason,
+          failCount: decayedFailCount,
+        });
+      }
+    } else {
+      this.cooldowns.delete(k);
+    }
+
     this.knownBad.delete(k);
     this.lastProbe.delete(k);
   }
@@ -162,9 +157,6 @@ export class ModelFallbackChain {
     this.knownBad.add(key);
   }
 
-  /**
-   * Returns the shortest cooldown remaining among all candidates.
-   */
   soonestCooldownMs(): number {
     const now = Date.now();
     let min = Infinity;
@@ -177,9 +169,6 @@ export class ModelFallbackChain {
     return min === Infinity ? 0 : min;
   }
 
-  /**
-   * Returns a summary of current state.
-   */
   getSummary(): {
     total: number;
     available: number;
@@ -187,7 +176,6 @@ export class ModelFallbackChain {
     knownBad: number;
     soonestRecoveryMs: number;
   } {
-    Date.now();
     let available = 0;
     let inCooldown = 0;
 
@@ -208,9 +196,6 @@ export class ModelFallbackChain {
     };
   }
 
-  /**
-   * Clears all state (cooldowns, knownBad, probes).
-   */
   reset(): void {
     this.cooldowns.clear();
     this.knownBad.clear();

@@ -15,6 +15,11 @@ describe('ModelFallbackChain', () => {
     });
   });
 
+  const busyWait = (ms: number): void => {
+    const deadline = Date.now() + ms;
+    while (Date.now() < deadline) { /* spin */ }
+  };
+
   it('selects primary candidate initially', () => {
     const candidate = chain.selectCandidate();
     expect(candidate).toEqual({ provider: 'openai', model: 'gpt-4o' });
@@ -64,5 +69,82 @@ describe('ModelFallbackChain', () => {
     const candidates = chain.getCandidatesWithStatus();
     expect(candidates[0].available).toBe(false);
     expect(candidates[1].available).toBe(true);
+  });
+
+  it('decays failure count by half on success instead of full reset', () => {
+    const primary = { provider: 'openai', model: 'gpt-4o' };
+    chain.recordFailure(primary, 'rate_limit');
+    chain.recordFailure(primary, 'rate_limit');
+    chain.recordFailure(primary, 'rate_limit');
+
+    chain.recordSuccess(primary);
+
+    const summaryAfterSuccess = chain.getSummary();
+    expect(summaryAfterSuccess.inCooldown).toBe(1);
+
+    busyWait(3500);
+
+    const summaryAfterFullDecay = chain.getSummary();
+    expect(summaryAfterFullDecay.available).toBe(3);
+  });
+
+  it('removes candidate from cooldown after enough successes', () => {
+    const primary = { provider: 'openai', model: 'gpt-4o' };
+    chain.recordFailure(primary, 'rate_limit');
+    chain.recordFailure(primary, 'rate_limit');
+    chain.recordFailure(primary, 'rate_limit');
+    chain.recordFailure(primary, 'rate_limit');
+    chain.recordFailure(primary, 'rate_limit');
+
+    chain.recordSuccess(primary);
+    const afterFirst = chain.getSummary();
+    expect(afterFirst.inCooldown).toBe(1);
+
+    chain.recordSuccess(primary);
+    const afterSecond = chain.getSummary();
+    expect(afterSecond.inCooldown).toBe(1);
+
+    chain.recordSuccess(primary);
+    const afterThird = chain.getSummary();
+    expect(afterThird.inCooldown).toBe(0);
+  });
+
+  it('clears knownBad after success-decay', () => {
+    const primary = { provider: 'openai', model: 'gpt-4o' };
+    chain.recordFailure(primary, 'auth_error');
+    expect(chain.getSummary().knownBad).toBe(1);
+
+    chain.recordSuccess(primary);
+    expect(chain.getSummary().knownBad).toBe(0);
+  });
+
+  it('isolates cooldown per connectionId', () => {
+    const conn1 = { provider: 'openai', model: 'gpt-4o', connectionId: 'conn-1' };
+    const conn2 = { provider: 'openai', model: 'gpt-4o', connectionId: 'conn-2' };
+
+    chain.recordFailure(conn1, 'rate_limit');
+
+    expect(chain.isAvailable(conn1)).toBe(false);
+    expect(chain.isAvailable(conn2)).toBe(true);
+  });
+
+  it('treats candidates without connectionId as shared', () => {
+    const shared = { provider: 'openai', model: 'gpt-4o' };
+    const withConn = { provider: 'openai', model: 'gpt-4o', connectionId: 'conn-1' };
+
+    chain.recordFailure(shared, 'rate_limit');
+
+    expect(chain.isAvailable(shared)).toBe(false);
+    expect(chain.isAvailable(withConn)).toBe(true);
+  });
+
+  it('reports shared candidate as available when only specific connection is in cooldown', () => {
+    const conn1 = { provider: 'openai', model: 'gpt-4o', connectionId: 'conn-1' };
+
+    chain.recordFailure(conn1, 'rate_limit');
+
+    const candidates = chain.getCandidatesWithStatus();
+    const openaiEntry = candidates.find((c) => c.provider === 'openai');
+    expect(openaiEntry?.available).toBe(true);
   });
 });
