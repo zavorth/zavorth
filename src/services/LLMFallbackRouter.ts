@@ -54,9 +54,6 @@ export class LLMFallbackRouter {
     });
   }
 
-  /**
-   * Executes with automatic fallback.
-   */
   async executeWithFallback(
     request: ExecuteRequest,
     executor: (candidate: ModelCandidate) => Promise<string>,
@@ -65,7 +62,6 @@ export class LLMFallbackRouter {
     let attempts = 0;
     let fallbackUsed = false;
 
-    // Get routing decision
     const routing = this.llmRouter.route(request.taskType, {
       required_capabilities: request.requiredCapabilities,
       max_cost: request.maxCost,
@@ -75,7 +71,6 @@ export class LLMFallbackRouter {
       context_tokens_needed: request.contextTokensNeeded,
     });
 
-    // Build candidate chain from the routing fallback_chain
     const primary: ModelCandidate = {
       provider: routing.provider,
       model: routing.model,
@@ -96,7 +91,6 @@ export class LLMFallbackRouter {
       probeIntervalMs: this.fallbackChain['probeIntervalMs'],
     });
 
-    // Try candidates
     for (;;) {
       const candidate = chain.selectCandidate();
       if (!candidate) {
@@ -128,7 +122,6 @@ export class LLMFallbackRouter {
           continue;
         }
 
-        // For other errors, try the next available candidate.
         const nextCandidate = chain.selectCandidate();
         if (nextCandidate) {
           fallbackUsed = true;
@@ -141,7 +134,6 @@ export class LLMFallbackRouter {
   }
 
   private getProfileById(id: string): { provider: string; model: string } | null {
-    // Find profile by ID in LLMRouterService
     const models = this.llmRouter.listModels();
     const match = models.match(new RegExp(`${id}: ([^/]+)/([^\\s]+)`));
     if (match) {
@@ -171,9 +163,6 @@ export class LLMFallbackRouter {
     return 'unknown';
   }
 
-  /**
-   * Returns fallback router statistics.
-   */
   getStats(): {
     chainSummary: ReturnType<ModelFallbackChain['getSummary']>;
     routingStats: string;

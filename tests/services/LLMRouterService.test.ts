@@ -1,4 +1,4 @@
-import { LLMRouterService } from '../../../src/services/plugins/LLMRouterService';
+import { LLMRouterService } from '../../src/services/plugins/LLMRouterService';
 
 describe('LLMRouterService', () => {
   let service: LLMRouterService;
@@ -324,6 +324,57 @@ describe('LLMRouterService', () => {
       const result = service.route('research');
       expect(result.fallback_chain).toContain('claude-4');
       expect(result.fallback_chain).toContain('gpt-4o');
+    });
+  });
+
+  describe('routing strategies', () => {
+    it('least-used selects model with fewest calls', () => {
+      const leastUsed = new LLMRouterService({ strategy: 'least-used' });
+      leastUsed.recordUsage('gpt-4o', 100, 100, 0.01);
+      leastUsed.recordUsage('gpt-4o', 100, 100, 0.01);
+      leastUsed.recordUsage('claude-4-sonnet', 100, 100, 0.01);
+
+      const result = leastUsed.route('chat');
+      expect(result.model).not.toBe('gpt-4o');
+    });
+
+    it('cost-optimized selects cheapest model', () => {
+      const cheapest = new LLMRouterService({ strategy: 'cost-optimized' });
+      const result = cheapest.route('chat');
+      const profile = cheapest.resolveModelProfile(result.model);
+      expect(profile).not.toBeNull();
+      expect(profile!.cost_per_1k_input + profile!.cost_per_1k_output).toBeLessThanOrEqual(0.002);
+    });
+
+    it('round-robin alternates between candidates', () => {
+      const rr = new LLMRouterService({ strategy: 'round-robin' });
+      const first = rr.route('fast_answer');
+      const second = rr.route('fast_answer');
+      const third = rr.route('fast_answer');
+
+      const models = [first.model, second.model, third.model];
+      const unique = new Set(models);
+      expect(unique.size).toBeGreaterThan(1);
+    });
+
+    it('priority strategy preserves default behavior', () => {
+      const priority = new LLMRouterService({ strategy: 'priority' });
+      const result = priority.route('chat');
+      expect(result.model).toBe('gpt-4o-mini');
+    });
+
+    it('strategy works alongside prefer_speed', () => {
+      const leastUsed = new LLMRouterService({ strategy: 'least-used' });
+      const result = leastUsed.route('chat', { prefer_speed: true });
+      expect(result).toBeDefined();
+      expect(result.provider).toBeDefined();
+    });
+
+    it('strategy works alongside prefer_quality', () => {
+      const costOptimized = new LLMRouterService({ strategy: 'cost-optimized' });
+      const result = costOptimized.route('chat', { prefer_quality: true });
+      expect(result).toBeDefined();
+      expect(result.provider).toBeDefined();
     });
   });
 });

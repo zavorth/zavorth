@@ -1,5 +1,7 @@
 import { ZavorthPredictiveCostService } from '../ZavorthPredictiveCostService.js';
 
+export type RoutingStrategy = 'priority' | 'least-used' | 'cost-optimized' | 'round-robin';
+
 export interface ModelProfile {
   id: string;
   provider: string;
@@ -43,9 +45,12 @@ export class LLMRouterService {
   private usageStats: Map<string, { calls: number; tokens: number; cost: number; errors: number }> = new Map();
   private costBudgetDaily: number;
   private costUsedToday: number = 0;
+  private readonly strategy: RoutingStrategy;
+  private roundRobinIndex: number = 0;
 
-  constructor(options?: { costBudgetDaily?: number }) {
+  constructor(options?: { costBudgetDaily?: number; strategy?: RoutingStrategy }) {
     this.costBudgetDaily = options?.costBudgetDaily || 10.0;
+    this.strategy = options?.strategy || 'priority';
     this.initDefaultProfiles();
     this.initDefaultRoutingRules();
   }
@@ -88,6 +93,45 @@ export class LLMRouterService {
     for (const r of rules) this.routingRules.set(r.task_pattern, r);
   }
 
+  private selectByStrategy(candidates: string[]): string[] {
+    switch (this.strategy) {
+      case 'least-used':
+        return this.selectLeastUsed(candidates);
+      case 'cost-optimized':
+        return this.selectCostOptimized(candidates);
+      case 'round-robin':
+        return this.selectRoundRobin(candidates);
+      default:
+        return candidates;
+    }
+  }
+
+  private selectLeastUsed(candidates: string[]): string[] {
+    return [...candidates].sort((a, b) => {
+      const statsA = this.usageStats.get(a);
+      const statsB = this.usageStats.get(b);
+      return (statsA?.calls ?? 0) - (statsB?.calls ?? 0);
+    });
+  }
+
+  private selectCostOptimized(candidates: string[]): string[] {
+    return [...candidates].sort((a, b) => {
+      const profileA = this.modelProfiles.get(a);
+      const profileB = this.modelProfiles.get(b);
+      if (!profileA || !profileB) return 0;
+      const costA = profileA.cost_per_1k_input + profileA.cost_per_1k_output;
+      const costB = profileB.cost_per_1k_input + profileB.cost_per_1k_output;
+      return costA - costB;
+    });
+  }
+
+  private selectRoundRobin(candidates: string[]): string[] {
+    if (candidates.length === 0) return [];
+    const offset = this.roundRobinIndex % candidates.length;
+    this.roundRobinIndex = (this.roundRobinIndex + 1) % candidates.length;
+    return [...candidates.slice(offset), ...candidates.slice(0, offset)];
+  }
+
   public route(taskType: string, options?: {
     required_capabilities?: string[];
     max_cost?: number;
@@ -100,7 +144,7 @@ export class LLMRouterService {
     const prediction = predictiveService.predictCost(taskType);
 
     const rule = this.routingRules.get(taskType) || this.routingRules.get('chat')!;
-    const preferredModel = prediction.recommendedModelId || rule.preferred_model;
+    const preferredModel = prediction.historyCount > 0 ? prediction.recommendedModelId : rule.preferred_model;
 
     const excludeSet = new Set(options?.exclude_providers || []);
 
@@ -117,6 +161,8 @@ export class LLMRouterService {
         if (options?.context_tokens_needed && profile.max_context_tokens < options.context_tokens_needed) return false;
         return true;
       });
+
+    candidates = this.selectByStrategy(candidates);
 
     if (options?.prefer_speed) {
       candidates = expandCandidatesByPreference(candidates, Array.from(this.modelProfiles.values()), 'speed');
@@ -194,9 +240,31 @@ export class LLMRouterService {
   }
 
   private normalizeTaskType(value: string | null | undefined): string {
-    const raw = String(value || '').trim();
+    const raw = String(value || '').trim().toLowerCase();
     if (this.routingRules.has(raw)) {
       return raw;
+    }
+    const keywordMap: Array<[string, string[]]> = [
+      ['code_generation', ['function', 'write code', 'implement', 'parse', 'algorithm', 'class', 'module', 'api', 'endpoint', 'debug']],
+      ['code_review', ['review', 'bugs', 'refactor', 'code quality', 'lint', 'smell']],
+      ['reasoning', ['analyze', 'reason', 'logic', 'argument', 'proof', 'deduce', 'evaluate']],
+      ['summarization', ['summarize', 'summary', 'tldr', 'brief', 'overview']],
+      ['translation', ['translate', 'translation', 'localize', 'internationalization']],
+      ['research', ['research', 'investigate', 'explore', 'survey', 'trends', 'state of the art']],
+      ['data_analysis', ['data', 'csv', 'statistics', 'patterns', 'correlation', 'metrics', 'dashboard']],
+      ['creative_writing', ['story', 'poem', 'creative', 'fiction', 'narrative', 'write about']],
+      ['vision', ['image', 'photo', 'picture', 'describe this', 'screenshot', 'diagram']],
+      ['audio', ['audio', 'transcribe', 'speech', 'voice', 'podcast', 'recording']],
+      ['fast_answer', ['quick', 'what is', 'how do', 'define', 'short answer', 'briefly']],
+    ];
+    for (const [taskType, keywords] of keywordMap) {
+      if (this.routingRules.has(taskType)) {
+        for (const keyword of keywords) {
+          if (raw.includes(keyword)) {
+            return taskType;
+          }
+        }
+      }
     }
     return 'chat';
   }
@@ -215,7 +283,6 @@ export class LLMRouterService {
     ].join('\n');
   }
 
-  /** Resolve a structured profile by router id (e.g. gpt-4o-mini). */
   public resolveModelProfile(modelId: string): ModelProfile | null {
     const id = String(modelId || '').trim();
     if (!id) return null;
