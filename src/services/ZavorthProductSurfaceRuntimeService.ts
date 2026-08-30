@@ -179,12 +179,27 @@ export class ZavorthProductSurfaceRuntimeService {
               factStore,
               projectRoot: this.projectRoot,
             });
-            const unpromotedFacts = (await factStore.listFactsByUserId(userId)).filter(
+            const facts = await factStore.listFactsByUserId(userId);
+            const pendingLifecycle = facts.filter(
+              (f) => f.proceduralPointer && (f.status === 'superseded' || f.status === 'retracted'),
+            );
+            for (const fact of pendingLifecycle) {
+              await bridge.syncLifecycle(fact);
+            }
+            const unpromotedFacts = facts.filter(
               (f) => f.status === 'active' && !f.proceduralPointer,
             );
             const candidates = await bridge.evaluateNewFacts(unpromotedFacts);
             for (const candidate of candidates) {
-              await bridge.proposePromotion(candidate.factId);
+              const snapshot = await bridge.proposePromotion(candidate.factId);
+              if (snapshot && snapshot.status === 'ready' && snapshot.rule) {
+                logger.info('Procedural promotion draft persisted for operator approval', {
+                  factId: candidate.factId,
+                  ruleId: snapshot.rule.id,
+                  kind: snapshot.rule.kind,
+                  risk: snapshot.rule.risk,
+                });
+              }
             }
           } catch (bridgeErr: unknown) {
             logger.warn('UserModelMnemosProceduralBridgeService evaluation failed in background', {

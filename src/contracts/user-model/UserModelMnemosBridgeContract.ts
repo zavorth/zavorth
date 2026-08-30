@@ -31,19 +31,3 @@ export type BridgeCandidateAssessment = {
   risk: ZavorthMnemosProceduralRisk;
   confidence: number;
 };
-
-export const scopedToolRuleSchema = z.object({
-  id: z.string().min(1),
-  statement: z.string().min(1),
-  kind: proceduralRuleKindSchema,
-  risk: proceduralRiskSchema,
-});
-
-export type ScopedToolRule = z.infer<typeof scopedToolRuleSchema>;
-
-export const scopedToolGuidanceSchema = z.object({
-  toolName: z.string().min(1),
-  rules: z.array(scopedToolRuleSchema),
-});
-
-export type ScopedToolGuidance = z.infer<typeof scopedToolGuidanceSchema>;

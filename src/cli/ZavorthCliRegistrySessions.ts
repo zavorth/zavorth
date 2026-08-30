@@ -42,6 +42,8 @@ import { ZavorthMnemosProceduralMemoryService } from '../services/ZavorthMnemosP
 import { ZavorthMnemosQueryService } from '../services/ZavorthMnemosQueryService.js';
 import type { ZavorthAgentGateway } from '../runtime/agent/index.js';
 import type { LearningPlaneActionId } from '../services/ZavorthLearningPlaneService.js';
+import { UserModelFactStore } from '../services/user-model/UserModelFactStore.js';
+import { UserModelMnemosProceduralBridgeService } from '../services/user-model/UserModelMnemosProceduralBridgeService.js';
 
 type RegistryCommandParams = {
   runtime: ZavorthCliRuntime;
@@ -225,6 +227,52 @@ export async function handleZavorthCliRegistrySessionsCommand(params: RegistryCo
         : formatProceduralMemoryCli(snapshot);
       writer.line(body);
       return { ok: snapshot.status !== 'blocked', handled: true, output: [body], error: snapshot.status === 'blocked' ? 'Mnemos procedural memory blocked.' : null };
+    }
+    if (first === 'bridge') {
+      const service = new ZavorthMnemosProceduralMemoryService();
+      const factStore = new UserModelFactStore();
+      const bridge = new UserModelMnemosProceduralBridgeService({ factStore });
+      const subcommand = String(tokens[1] || 'candidates').toLowerCase();
+      const parsed = parseProceduralMemoryArgs(tokens.slice(2));
+      if (subcommand === 'candidates') {
+        const facts = await factStore.listFactsByUserId(effectiveFlags.userId || 'local-user');
+        const unpromoted = facts.filter((f) => f.status === 'active' && !f.proceduralPointer);
+        const candidates = await bridge.evaluateNewFacts(unpromoted);
+        const body = effectiveFlags.json
+          ? JSON.stringify(candidates, null, 2)
+          : formatBridgeCandidatesCli(candidates, facts);
+        writer.line(body);
+        return { ok: true, handled: true, output: [body], error: null };
+      }
+      if (subcommand === 'approve' || subcommand === 'promote') {
+        const factId = parsed.id || parsed.rest || tokens[2] || '';
+        const approvalId = parsed.approvalId;
+        if (!factId || !approvalId) {
+          const error = 'Usage: memory bridge approve <factId> --approval-id <id>';
+          writer.error(error);
+          return { ok: false, handled: true, output: [], error };
+        }
+        const snapshot = await bridge.promoteWithApproval(factId, approvalId);
+        const body = effectiveFlags.json
+          ? JSON.stringify(snapshot, null, 2)
+          : formatProceduralMemoryCli(snapshot || { status: 'not-found', action: 'apply', summary: { active: 0, total: 0 } });
+        writer.line(body);
+        return { ok: snapshot?.status === 'ready', handled: true, output: [body], error: null };
+      }
+      if (subcommand === 'list' || subcommand === 'drafts') {
+        const snapshot = service.list();
+        const body = effectiveFlags.json
+          ? JSON.stringify(snapshot, null, 2)
+          : formatProceduralMemoryCli(snapshot);
+        writer.line(body);
+        return { ok: true, handled: true, output: [body], error: null };
+      }
+      const snapshot = service.list();
+      const body = effectiveFlags.json
+        ? JSON.stringify(snapshot, null, 2)
+        : formatProceduralMemoryCli(snapshot);
+      writer.line(body);
+      return { ok: true, handled: true, output: [body], error: null };
     }
     if (first === 'receipts' || first === 'source' || first === 'sources') {
       const agentGateway = runtime.agentGateway as ZavorthAgentGateway | null | undefined;
@@ -429,6 +477,27 @@ function formatProceduralMemoryCli(snapshot: any): string {
   for (const rule of rules) {
     lines.push(`- ${rule.id} [${rule.status}/${rule.kind}/${rule.risk}] ${rule.statement}`);
   }
+  return lines.join('\n');
+}
+
+function formatBridgeCandidatesCli(
+  candidates: Array<{ factId: string; isCandidate: boolean; targetKind: string; risk: string; confidence: number; scopes: string[] }>,
+  facts: Array<{ id: string; content: string; kind: string; category: string; confidence: number }>,
+): string {
+  const lines = ['User Model Bridge — Pending Candidates'];
+  const candidateIds = new Set(candidates.map((c) => c.factId));
+  const pending = facts.filter((f) => candidateIds.has(f.id));
+  if (pending.length === 0) {
+    lines.push('No qualified candidates. Nothing to promote.');
+    return lines.join('\n');
+  }
+  for (const fact of pending) {
+    const ass = candidates.find((c) => c.factId === fact.id);
+    if (!ass) continue;
+    lines.push(`- ${fact.id} [${fact.kind}/${ass.targetKind}] ${fact.content.slice(0, 80)}`);
+    lines.push(`  category=${fact.category} confidence=${ass.confidence.toFixed(2)} risk=${ass.risk} scope=${ass.scopes.join(',')}`);
+  }
+  lines.push('', 'To approve: zavorth memory bridge approve <factId> --approval-id <id>');
   return lines.join('\n');
 }
 

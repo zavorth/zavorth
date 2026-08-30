@@ -345,6 +345,16 @@ export class ToolExecutor {
       }
     }
 
+    const effectiveInput = scopedProceduralGuidance.length > 0
+      ? {
+          ...input,
+          metadata: {
+            ...metadata,
+            proceduralGuidance: scopedProceduralGuidance,
+          },
+        }
+      : input;
+
     await this.recordTelemetry(traceId, 'tool.started', 'running', {
       toolName,
       argKeys,
@@ -359,7 +369,7 @@ export class ToolExecutor {
     });
 
     try {
-      const result = await tool.execute(input);
+      const result = await tool.execute(effectiveInput);
       continuity = this.continuityKernel.attachResult(continuity, resultFromToolOutcome({
         ok: true,
         status: 'applied',

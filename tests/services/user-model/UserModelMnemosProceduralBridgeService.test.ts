@@ -76,6 +76,7 @@ describe('UserModelMnemosProceduralBridgeService', () => {
     expect(assessment.scopes).toContain('git');
     expect(assessment.scopes).toContain('commit');
     expect(assessment.targetKind).toBe('general-procedure');
+    expect(assessment.risk).toBe('low');
   });
 
   it('rejects facts with confidence below proceduralPromotionThreshold', () => {
@@ -100,15 +101,46 @@ describe('UserModelMnemosProceduralBridgeService', () => {
     expect(assessment.reasons.some((r) => r.includes('not an operational lesson'))).toBe(true);
   });
 
-  it('proposes promotion via Mnemos preview requiring approval', async () => {
+  it('classifies kind and risk strictly from structured fact fields, never from content keywords', () => {
+    // Content contains forbidden-sounding keywords but is a skill-lesson: still general-procedure/low
+    const skillLesson = createTestFact({
+      kind: 'skill-lesson',
+      category: 'deploy',
+      content: 'Never bypass the secret store when deploying to production',
+      confidence: 0.95,
+    });
+    const skillAssessment = bridgeService.assessFact(skillLesson);
+    expect(skillAssessment.targetKind).toBe('general-procedure');
+    expect(skillAssessment.risk).toBe('low');
+
+    // Decision facts map to workflow-preference/medium
+    const decision = createTestFact({
+      kind: 'decision',
+      category: 'release',
+      content: 'Decided to always run the full suite before release',
+      confidence: 0.95,
+    });
+    const decisionAssessment = bridgeService.assessFact(decision);
+    expect(decisionAssessment.targetKind).toBe('workflow-preference');
+    expect(decisionAssessment.risk).toBe('medium');
+  });
+
+  it('proposes promotion by persisting a durable draft requiring approval', async () => {
     const fact = createTestFact({ id: 'fact-to-promote', confidence: 0.92 });
     await factStore.saveFact(fact);
 
-    const previewSnapshot = await bridgeService.proposePromotion(fact.id);
-    expect(previewSnapshot).not.toBeNull();
-    expect(previewSnapshot?.action).toBe('preview');
-    expect(previewSnapshot?.status).toBe('requires-approval');
-    expect(previewSnapshot?.rule?.statement).toContain('Always run automated test suite before git commit');
+    const draftSnapshot = await bridgeService.proposePromotion(fact.id);
+    expect(draftSnapshot).not.toBeNull();
+    expect(draftSnapshot?.action).toBe('draft');
+    expect(draftSnapshot?.status).toBe('ready');
+    expect(draftSnapshot?.safety.durableMutation).toBe(true);
+    expect(draftSnapshot?.rule?.status).toBe('draft');
+    expect(draftSnapshot?.rule?.statement).toContain('Always run automated test suite before git commit');
+
+    // Draft is durable on disk and listed in Mnemos
+    const listed = proceduralMemory.list().rules.filter((r) => r.id === draftSnapshot?.rule?.id);
+    expect(listed).toHaveLength(1);
+    expect(listed[0].status).toBe('draft');
   });
 
   it('promotes fact to Mnemos with approval and updates fact with proceduralPointer', async () => {
@@ -256,8 +288,56 @@ describe('UserModelMnemosProceduralBridgeService', () => {
     // Must not throw, must return empty array
     const guidance = await resilientBridge.getScopedGuidanceForTool('git_commit');
     expect(guidance).toEqual([]);
+  });
 
-    const structured = await resilientBridge.getScopedGuidanceStructured('git_commit');
-    expect(structured.rules).toEqual([]);
+  it('propagates kind, risk and confidence from the fact assessment into the Mnemos rule', async () => {
+    const fact = createTestFact({
+      id: 'fact-kind-risk',
+      kind: 'decision',
+      category: 'release',
+      targetTools: ['release_pipeline'],
+      content: 'Always run the full suite before cutting a release',
+      confidence: 0.93,
+    });
+    await factStore.saveFact(fact);
+
+    const draft = await bridgeService.proposePromotion(fact.id);
+    expect(draft?.rule?.kind).toBe('workflow-preference');
+    expect(draft?.rule?.risk).toBe('medium');
+    expect(draft?.rule?.confidence).toBeGreaterThanOrEqual(0.9);
+
+    const approved = await bridgeService.promoteWithApproval(fact.id, 'operator-approval-kind-risk');
+    expect(approved?.rule?.kind).toBe('workflow-preference');
+    expect(approved?.rule?.risk).toBe('medium');
+    expect(approved?.rule?.scope).toContain('release_pipeline');
+  });
+
+  it('persists a durable draft across service instances (survives restart)', async () => {
+    const fact = createTestFact({ id: 'fact-restart', confidence: 0.9 });
+    await factStore.saveFact(fact);
+
+    await bridgeService.proposePromotion(fact.id);
+
+    // A brand-new bridge + Mnemos instance reading the same on-disk store must see the draft
+    const freshProceduralMemory = new ZavorthMnemosProceduralMemoryService({ projectRoot: tmpDir });
+    const freshBridge = new UserModelMnemosProceduralBridgeService({
+      factStore,
+      proceduralMemory: freshProceduralMemory,
+      projectRoot: tmpDir,
+    });
+
+    const listed = freshProceduralMemory.list().rules.filter(
+      (r) => r.status === 'draft' && r.statement.includes('Always run automated test suite'),
+    );
+    expect(listed).toHaveLength(1);
+
+    const guidance = await freshBridge.getScopedGuidanceForTool('git_commit');
+    expect(guidance).toHaveLength(0);
+
+    const approved = await freshBridge.promoteWithApproval(fact.id, 'operator-approval-restart');
+    expect(approved?.status).toBe('ready');
+
+    const activeGuidance = await freshBridge.getScopedGuidanceForTool('git_commit');
+    expect(activeGuidance.some((g) => g.includes('Always run automated test suite'))).toBe(true);
   });
 });

@@ -7,7 +7,6 @@ import {
 import type { UserModelFact } from '../../contracts/user-model/UserModelFactContract.js';
 import {
   type BridgeCandidateAssessment,
-  type ScopedToolGuidance,
 } from '../../contracts/user-model/UserModelMnemosBridgeContract.js';
 import type {
   ZavorthMnemosProceduralMemorySnapshot,
@@ -18,6 +17,8 @@ import { ZavorthMnemosProceduralMemoryService } from '../ZavorthMnemosProcedural
 import { UserModelConfidenceEngine } from './UserModelConfidenceEngine.js';
 import type { UserModelFactStore } from './UserModelFactStore.js';
 import { logger } from '../../logger.js';
+
+const AUTO_SYNC_REVOCATION_APPROVAL_ID = 'auto-sync-lifecycle';
 
 export type UserModelMnemosBridgeDeps = {
   factStore: UserModelFactStore;
@@ -79,24 +80,11 @@ export class UserModelMnemosProceduralBridgeService {
 
     const scopes = Array.from(new Set([...(fact.targetTools || []), ...categoryWords]));
 
-    let targetKind: ZavorthMnemosProceduralRuleKind = 'workflow-preference';
-    let risk: ZavorthMnemosProceduralRisk = 'medium';
+    let targetKind: ZavorthMnemosProceduralRuleKind = 'general-procedure';
+    let risk: ZavorthMnemosProceduralRisk = 'low';
 
-    const normalizedLower = fact.content.toLowerCase();
-    if (
-      fact.category.includes('security') ||
-      fact.category.includes('safety') ||
-      normalizedLower.includes('never bypass') ||
-      normalizedLower.includes('forbidden')
-    ) {
-      targetKind = 'safety-boundary';
-      risk = 'high';
-    } else if (
-      fact.category.includes('approval') ||
-      normalizedLower.includes('ask before') ||
-      normalizedLower.includes('require approval')
-    ) {
-      targetKind = 'approval-policy';
+    if (fact.kind === 'decision') {
+      targetKind = 'workflow-preference';
       risk = 'medium';
     } else if (fact.kind === 'skill-lesson') {
       targetKind = 'general-procedure';
@@ -129,9 +117,12 @@ export class UserModelMnemosProceduralBridgeService {
       return null;
     }
 
-    return this.proceduralMemory.preview({
+    return this.proceduralMemory.draft({
       text: fact.content,
       scope: assessment.scopes,
+      kind: assessment.targetKind,
+      risk: assessment.risk,
+      confidence: assessment.confidence,
     });
   }
 
@@ -156,6 +147,9 @@ export class UserModelMnemosProceduralBridgeService {
     const snapshot = this.proceduralMemory.apply({
       text: fact.content,
       scope: assessment.scopes,
+      kind: assessment.targetKind,
+      risk: assessment.risk,
+      confidence: assessment.confidence,
       approvalId,
     });
 
@@ -217,32 +211,6 @@ export class UserModelMnemosProceduralBridgeService {
     }
   }
 
-  public async getScopedGuidanceStructured(toolName: string): Promise<ScopedToolGuidance> {
-    try {
-      const cleanToolName = toolName.trim();
-      if (!cleanToolName) {
-        return { toolName, rules: [] };
-      }
-
-      const snapshot = this.proceduralMemory.query({ query: cleanToolName, limit: 10 });
-      return {
-        toolName: cleanToolName,
-        rules: snapshot.rules.map((rule) => ({
-          id: rule.id,
-          statement: rule.statement,
-          kind: rule.kind,
-          risk: rule.risk,
-        })),
-      };
-    } catch (err: unknown) {
-      logger.warn('Failed to query structured procedural guidance (fail-open)', {
-        toolName,
-        error: err instanceof Error ? err.message : String(err),
-      });
-      return { toolName, rules: [] };
-    }
-  }
-
   public async syncLifecycle(fact: UserModelFact): Promise<void> {
     if (!fact.proceduralPointer) {
       return;
@@ -252,7 +220,7 @@ export class UserModelMnemosProceduralBridgeService {
       try {
         this.proceduralMemory.revoke({
           id: fact.proceduralPointer.ruleId,
-          approvalId: 'auto-sync-lifecycle',
+          approvalId: AUTO_SYNC_REVOCATION_APPROVAL_ID,
           reason: `Source fact was ${fact.status} in user model fact store`,
         });
       } catch (err: unknown) {

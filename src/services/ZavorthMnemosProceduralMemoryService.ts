@@ -23,6 +23,9 @@ type PreviewInput = {
   text: string;
   scope?: string[];
   expiresAt?: string | null;
+  kind?: ZavorthMnemosProceduralRuleKind;
+  risk?: ZavorthMnemosProceduralRisk;
+  confidence?: number;
 };
 
 type ApplyInput = PreviewInput & {
@@ -43,8 +46,67 @@ function redact(value: string): string {
   return sanitizeSecretText(value);
 }
 
+function collapseWhitespace(value: string): string {
+  let out = '';
+  let previousSpace = false;
+  for (const ch of value) {
+    const isSpace = ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r';
+    if (isSpace) {
+      if (!previousSpace && out.length > 0) {
+        out += ' ';
+      }
+      previousSpace = true;
+    } else {
+      out += ch;
+      previousSpace = false;
+    }
+  }
+  return out;
+}
+
 function compact(value: string, maxChars = 900): string {
-  return redact(value).replace(/\s+/g, ' ').trim().slice(0, maxChars);
+  return redact(collapseWhitespace(value)).trim().slice(0, maxChars);
+}
+
+function toScopeSlug(value: string): string {
+  const lower = value.toLowerCase();
+  let out = '';
+  for (const ch of lower) {
+    const code = ch.charCodeAt(0);
+    const isAllowed =
+      (code >= 97 && code <= 122) ||
+      (code >= 48 && code <= 57) ||
+      ch === '_' ||
+      ch === '.' ||
+      ch === '-';
+    out += isAllowed ? ch : '-';
+  }
+  return out;
+}
+
+function tokenize(value: string): string[] {
+  const lower = value.toLowerCase();
+  const tokens: string[] = [];
+  let current = '';
+  for (const ch of lower) {
+    const code = ch.charCodeAt(0);
+    const isAllowed =
+      (code >= 97 && code <= 122) ||
+      (code >= 48 && code <= 57) ||
+      ch === '_' ||
+      ch === '.' ||
+      ch === '-';
+    if (isAllowed) {
+      current += ch;
+    } else if (current) {
+      tokens.push(current);
+      current = '';
+    }
+  }
+  if (current) {
+    tokens.push(current);
+  }
+  return tokens;
 }
 
 export class ZavorthMnemosProceduralMemoryService {
@@ -78,6 +140,34 @@ export class ZavorthMnemosProceduralMemoryService {
       rule: blocked ? { ...rule, statement: 'Blocked secret-like procedural memory proposal.' } : rule,
       rules: existing,
       durableMutation: false,
+      approvalId: null,
+    });
+  }
+
+  public draft(input: PreviewInput): ZavorthMnemosProceduralMemorySnapshot {
+    const generatedAt = this.now().toISOString();
+    const existing = this.readRules();
+    if (this.hasRawSecret(input.text)) {
+      return this.snapshot({
+        action: 'draft',
+        status: 'blocked',
+        generatedAt,
+        rule: this.buildRule(input, generatedAt, 'draft', null),
+        rules: existing,
+        durableMutation: false,
+        approvalId: null,
+      });
+    }
+    const draftRule = this.buildRule(input, generatedAt, 'draft', null);
+    const nextRules = this.upsertRule(existing, draftRule);
+    this.writeRules(nextRules);
+    return this.snapshot({
+      action: 'draft',
+      status: 'ready',
+      generatedAt,
+      rule: draftRule,
+      rules: nextRules,
+      durableMutation: true,
       approvalId: null,
     });
   }
@@ -214,9 +304,9 @@ export class ZavorthMnemosProceduralMemoryService {
     approvalId: string | null,
   ): ZavorthMnemosProceduralRule {
     const sourceText = compact(input.text);
-    const kind = this.classifyKind(sourceText);
-    const risk = this.estimateRisk(sourceText);
-    const scope = this.normalizeScope(input.scope?.length ? input.scope : this.inferScope(sourceText, kind));
+    const kind = input.kind || 'general-procedure';
+    const risk = input.risk || 'low';
+    const scope = this.normalizeScope(input.scope?.length ? input.scope : this.fallbackScope(kind));
     const statement = this.toStatement(sourceText, kind);
     return {
       id: `mnemos-procedure-${stableId(`${kind}:${scope.join('|')}:${statement}`)}`,
@@ -225,7 +315,7 @@ export class ZavorthMnemosProceduralMemoryService {
       statement,
       scope,
       sourceText,
-      confidence: this.estimateConfidence(sourceText, kind),
+      confidence: input.confidence ?? this.estimateConfidence(sourceText, kind),
       risk,
       createdAt: generatedAt,
       updatedAt: generatedAt,
@@ -237,27 +327,19 @@ export class ZavorthMnemosProceduralMemoryService {
     };
   }
 
-  private classifyKind(_text: string): ZavorthMnemosProceduralRuleKind {
-    return 'general-procedure';
-  }
-
-  private estimateRisk(_text: string): ZavorthMnemosProceduralRisk {
-    return 'low';
-  }
-
   private estimateConfidence(text: string, kind: ZavorthMnemosProceduralRuleKind): number {
     let confidence = kind === 'general-procedure' ? 0.62 : 0.78;
     if (text.length < 12) confidence -= 0.18;
     return Math.max(0.2, Math.min(0.95, Number(confidence.toFixed(2))));
   }
 
-  private inferScope(_text: string, kind: ZavorthMnemosProceduralRuleKind): string[] {
+  private fallbackScope(kind: ZavorthMnemosProceduralRuleKind): string[] {
     return [kind];
   }
 
   private normalizeScope(scope: string[]): string[] {
     return Array.from(new Set(scope
-      .map((entry) => compact(entry, 48).toLowerCase().replace(/[^a-z0-9_.-]+/g, '-'))
+      .map((entry) => toScopeSlug(compact(entry, 48)))
       .filter(Boolean))).slice(0, 12);
   }
 
@@ -291,7 +373,7 @@ export class ZavorthMnemosProceduralMemoryService {
         ...rule,
         statement: compact(rule.statement),
         sourceText: compact(rule.sourceText),
-        secretFree: true,
+        secretFree: rule.secretFree !== false,
       })) : [];
     } catch (error: unknown) {logger.warn('[Zavorth Mnemos Procedural Memory] JSON parse failed', error); return []; }
   }
@@ -322,7 +404,7 @@ export class ZavorthMnemosProceduralMemoryService {
       ...rule,
       statement: compact(rule.statement),
       sourceText: compact(rule.sourceText),
-      secretFree: true,
+      secretFree: rule.secretFree !== false,
     }));
     return {
       version: ZAVORTH_MNEMOS_PROCEDURAL_MEMORY_VERSION,
@@ -357,10 +439,7 @@ export class ZavorthMnemosProceduralMemoryService {
   }
 
   private terms(query: string): string[] {
-    return Array.from(new Set(compact(query)
-      .toLowerCase()
-      .split(/[^a-z0-9_.-]+/i)
-      .map((term) => term.trim())
+    return Array.from(new Set(tokenize(compact(query))
       .filter((term) => term.length >= 3))).slice(0, 20);
   }
 

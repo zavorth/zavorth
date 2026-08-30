@@ -10,6 +10,8 @@ import { ServiceTokens } from './ServiceTokens.js';
 import { initializeBuiltinCommands, globalCommandRegistry } from '../domain/commands/index.js';
 import { CommandBackedTool, buildCommandSecurityDefinition } from '../domain/commands/CommandBackedTool.js';
 import { logger } from '../logger.js';
+import { UserModelFactStore } from '../services/user-model/UserModelFactStore.js';
+import { UserModelMnemosProceduralBridgeService } from '../services/user-model/UserModelMnemosProceduralBridgeService.js';
 
 import { ToolRegistry } from '../tools/ToolRegistry.js';
 import { ToolExecutor } from '../execution/ToolExecutor.js';
@@ -551,6 +553,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
 
   const toolExecutor = new ToolExecutor(toolRegistry, logRepo, telemetryRuntime, {
     hookPipelineService,
+    proceduralBridgeService: createUserModelMnemosBridge(),
   });
   const runtimeComposition = new RuntimeCompositionService({
     toolRegistry,
@@ -898,4 +901,12 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
     },
     dispose,
   };
+}
+
+function createUserModelMnemosBridge(): UserModelMnemosProceduralBridgeService {
+  const projectRoot = runtimeConfig.projectRoot || process.cwd();
+  const factStore = new UserModelFactStore({
+    dataDir: path.join(projectRoot, 'data', 'runtime', 'user-model'),
+  });
+  return new UserModelMnemosProceduralBridgeService({ factStore, projectRoot });
 }

@@ -33,7 +33,7 @@ export type ZavorthMnemosProceduralRule = {
 export type ZavorthMnemosProceduralMemorySnapshot = {
   version: typeof ZAVORTH_MNEMOS_PROCEDURAL_MEMORY_VERSION;
   generatedAt: string;
-  action: 'preview' | 'apply' | 'list' | 'revoke' | 'query';
+  action: 'preview' | 'draft' | 'apply' | 'list' | 'revoke' | 'query';
   status: 'ready' | 'requires-approval' | 'blocked' | 'not-found';
   rule: ZavorthMnemosProceduralRule | null;
   rules: ZavorthMnemosProceduralRule[];
