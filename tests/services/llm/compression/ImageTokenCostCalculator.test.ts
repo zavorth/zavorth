@@ -51,8 +51,17 @@ describe('ImageTokenCostCalculator', () => {
     expect(estimateTextTokens('abcde')).toBe(2);
   });
 
-  it('computes image tokens using registered capabilities', () => {
+  it('computes image tokens using registered capabilities with and without providerId', () => {
     const tokens = estimateImageTokens(1568, 728, 'claude-fable-5');
     expect(tokens).toBeGreaterThan(0);
+
+    const tokensWithProvider = estimateImageTokens(1568, 728, 'claude-fable-5', 'anthropic');
+    expect(tokensWithProvider).toBe(tokens);
+  });
+
+  it('evaluates shouldCompressToImage with providerId scope', () => {
+    const decision = shouldCompressToImage('x'.repeat(50000), 'claude-fable-5', 0.5, 'anthropic');
+    expect(decision.compress).toBe(true);
+    expect(decision.modelSupported).toBe(true);
   });
 });

@@ -79,7 +79,7 @@ export class ContextImageCompressor {
 
         const pages = this.renderer.renderPages(block, maxColumns, linesPerPage);
         const totalImageTokens = pages.reduce(
-          (sum, p) => sum + estimateImageTokens(p.width, p.height, modelName ?? ''),
+          (sum, p) => sum + estimateImageTokens(p.width, p.height, modelName ?? '', providerId),
           0,
         );
         const estimatedTextTokens = estimateTextTokens(block);

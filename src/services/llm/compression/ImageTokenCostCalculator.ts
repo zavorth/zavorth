@@ -128,8 +128,13 @@ export function estimateTextTokens(text: string): number {
   return Math.ceil(text.length / 4);
 }
 
-export function estimateImageTokens(width: number, height: number, modelName: string): number {
-  const caps = registry.getCapabilities(modelName);
+export function estimateImageTokens(
+  width: number,
+  height: number,
+  modelName: string,
+  providerId?: string,
+): number {
+  const caps = registry.getCapabilities(modelName, providerId);
   return calculateImageTokens(width, height, caps.billing);
 }
 
@@ -147,8 +152,9 @@ export function shouldCompressToImage(
   text: string,
   modelName: string,
   minSavingsRatio = 0.5,
+  providerId?: string,
 ): CompressionDecision {
-  const caps = registry.getCapabilities(modelName);
+  const caps = registry.getCapabilities(modelName, providerId);
 
   if (!caps.supportsImages) {
     return {
