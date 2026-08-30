@@ -60,49 +60,15 @@ export class ModelCapabilityRegistry {
 
     const catalogDef = DynamicModelCatalogService.getModel(model, providerId);
     if (catalogDef?.supportsImageCompression) {
-      if (catalogDef.providerId === 'google' || catalogDef.family === 'gemini') {
-        return {
-          supportsImages: true,
-          billing: {
-            type: 'fixed',
-            fixedTokens: 258,
-          },
-          pageGeometry: {
-            cols: 250,
-            widthPx: 1024,
-            heightPx: 768,
-            linesPerPage: 80,
-          },
-        };
-      }
-      if (catalogDef.providerId === 'openai' || catalogDef.family === 'gpt') {
-        return {
-          supportsImages: true,
-          billing: {
-            type: 'tile',
-            fixedTokens: 85,
-            multiplier: 170,
-            tileSize: 512,
-          },
-          pageGeometry: {
-            cols: 250,
-            widthPx: 1024,
-            heightPx: 768,
-            linesPerPage: 80,
-          },
-        };
-      }
-
-      // Default certified geometry for Anthropic / Claude
       return {
         supportsImages: true,
-        billing: {
+        billing: catalogDef.visionBilling ?? {
           type: 'patch',
           patchSize: 28,
           longEdgeMax: 1568,
           tokenCap: 1568,
         },
-        pageGeometry: {
+        pageGeometry: catalogDef.pageGeometry ?? {
           cols: 312,
           widthPx: 1568,
           heightPx: 728,

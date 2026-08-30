@@ -140,8 +140,7 @@ export class ContextImageCompressor {
   private isImmuneBlock(block: string): boolean {
     return (
       block.includes(ZAVORTH_TOOL_SPEC_IMMUNE_MARKER) ||
-      block.includes('__zavorth_emulated_tools__') ||
-      block.includes('<tool_call>')
+      block.includes('__zavorth_emulated_tools__')
     );
   }
 

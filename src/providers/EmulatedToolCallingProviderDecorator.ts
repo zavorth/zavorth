@@ -131,8 +131,7 @@ export class EmulatedToolCallingProviderDecorator implements ILlmProvider {
     if (
       system.content !== null &&
       (system.content.includes(ZAVORTH_TOOL_SPEC_IMMUNE_MARKER) ||
-        system.content.includes(EMULATION_FORMAT_HINT) ||
-        system.content.includes('<tool_call>'))
+        system.content.includes(EMULATION_FORMAT_HINT))
     ) {
       return messages;
     }

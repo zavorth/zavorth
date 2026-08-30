@@ -8,6 +8,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import type { VisionBillingRule, PageGeometry } from '../../llm/compression/ImageTokenCostCalculator.js';
 
 export interface ModelCost {
   input: number;
@@ -39,6 +40,8 @@ export interface ModelDefinition {
   temperature?: boolean;
   open_weights?: boolean;
   supportsImageCompression?: boolean;
+  visionBilling?: VisionBillingRule;
+  pageGeometry?: PageGeometry;
   limit?: ModelLimit;
   cost?: ModelCost;
   providerId: string;
@@ -110,8 +113,34 @@ export class DynamicModelCatalogService {
             if (cachedModel.supportsImageCompression === undefined && fallbackModel.supportsImageCompression !== undefined) {
               cachedModel.supportsImageCompression = fallbackModel.supportsImageCompression;
             }
+            if (!cachedModel.visionBilling && fallbackModel.visionBilling) {
+              cachedModel.visionBilling = fallbackModel.visionBilling;
+            }
+            if (!cachedModel.pageGeometry && fallbackModel.pageGeometry) {
+              cachedModel.pageGeometry = fallbackModel.pageGeometry;
+            }
           } else {
             existing.models[modelId] = fallbackModel;
+          }
+        }
+      }
+
+      // Propagate certified capability and billing to any identical model ID across all providers
+      for (const [modelId, fallbackModel] of Object.entries(providerDef.models)) {
+        if (fallbackModel.supportsImageCompression !== undefined) {
+          for (const provider of providersMap.values()) {
+            const matching = provider.models[modelId];
+            if (matching) {
+              if (matching.supportsImageCompression === undefined) {
+                matching.supportsImageCompression = fallbackModel.supportsImageCompression;
+              }
+              if (!matching.visionBilling && fallbackModel.visionBilling) {
+                matching.visionBilling = fallbackModel.visionBilling;
+              }
+              if (!matching.pageGeometry && fallbackModel.pageGeometry) {
+                matching.pageGeometry = fallbackModel.pageGeometry;
+              }
+            }
           }
         }
       }
@@ -152,6 +181,31 @@ export class DynamicModelCatalogService {
             providerId: provider.id,
             providerName: provider.name,
           };
+        }
+      }
+    }
+
+    // When provider is not specified, prefer the model's canonical provider
+    if (!providerId) {
+      const preferredProvider = cleanModelId.startsWith('claude')
+        ? 'anthropic'
+        : (cleanModelId.startsWith('gpt') || cleanModelId.startsWith('o1') || cleanModelId.startsWith('o3'))
+        ? 'openai'
+        : cleanModelId.startsWith('gemini')
+        ? 'google'
+        : undefined;
+
+      if (preferredProvider) {
+        const p = catalog.get(preferredProvider);
+        if (p?.models) {
+          const found = p.models[cleanModelId] || p.models[cleanModelId.toLowerCase()];
+          if (found) {
+            return {
+              ...found,
+              providerId: p.id,
+              providerName: p.name,
+            };
+          }
         }
       }
     }
@@ -272,20 +326,19 @@ export class DynamicModelCatalogService {
           id: 'claude-fable-5',
           name: 'Claude Fable 5',
           supportsImageCompression: true,
+          visionBilling: {
+            type: 'patch',
+            patchSize: 28,
+            longEdgeMax: 1568,
+            tokenCap: 1568,
+          },
+          pageGeometry: {
+            cols: 312,
+            widthPx: 1568,
+            heightPx: 728,
+            linesPerPage: 90,
+          },
           limit: { context: 200000, output: 8192 },
-        },
-      },
-    });
-
-    map.set('xpersona', {
-      id: 'xpersona',
-      name: 'Xpersona',
-      models: {
-        'claude-fable-5': {
-          id: 'claude-fable-5',
-          name: 'Claude Fable 5',
-          supportsImageCompression: true,
-          limit: { context: 1000000, output: 128000 },
         },
       },
     });

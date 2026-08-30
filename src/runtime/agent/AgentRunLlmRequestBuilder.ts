@@ -1,4 +1,5 @@
 import type { ChatMessage } from '../../providers/ILlmProvider.js';
+import { ZAVORTH_TOOL_SPEC_IMMUNE_MARKER } from '../../providers/EmulatedToolCallingProviderDecorator.js';
 import type { LlmRunOptions } from '../../services/llm/LlmRuntimeService.js';
 import type { UniversalAgentRequest, UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 import {
@@ -174,10 +175,12 @@ export class AgentRunLlmRequestBuilder {
     if (injectMinimal) {
       const toolNames = tools.map((tool) => tool.id).join(', ');
       return [
+        ZAVORTH_TOOL_SPEC_IMMUNE_MARKER,
         '__zavorth_emulated_tools__',
         `Available tools: ${toolNames}`,
         'To invoke a tool, output: {"tool": "tool_name", "arguments": {...}}',
         'You may call several tools in sequence.',
+        ZAVORTH_TOOL_SPEC_IMMUNE_MARKER,
       ].join('\n');
     }
     const toolDefinitions = tools.map((tool) => ({
@@ -188,10 +191,11 @@ export class AgentRunLlmRequestBuilder {
         properties: {},
       },
     }));
-    return new ZavorthUniversalToolCallingAdapterService().buildPromptToolSpecifications(
+    const rawSpec = new ZavorthUniversalToolCallingAdapterService().buildPromptToolSpecifications(
       toolDefinitions,
       'XML_TAGS',
     );
+    return `${ZAVORTH_TOOL_SPEC_IMMUNE_MARKER}\n${rawSpec}\n${ZAVORTH_TOOL_SPEC_IMMUNE_MARKER}`;
   }
 
   private buildDesktopProfilePrompt(metadata: Record<string, unknown>): string {
