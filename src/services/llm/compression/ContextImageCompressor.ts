@@ -11,6 +11,7 @@ const MIN_BLOCK_CHARS = 800;
 
 export interface CompressionOptions {
   modelName?: string;
+  providerId?: string;
   maxColumns?: number;
   minSavingsRatio?: number;
 }
@@ -33,7 +34,8 @@ export class ContextImageCompressor {
     options?: CompressionOptions,
   ): Promise<CompressionResult> {
     const modelName = options?.modelName;
-    const modelSupported = capabilityRegistry.isImageSupported(modelName ?? '');
+    const providerId = options?.providerId;
+    const modelSupported = capabilityRegistry.isImageSupported(modelName ?? '', providerId);
 
     if (!modelSupported) {
       return {
@@ -47,7 +49,7 @@ export class ContextImageCompressor {
       };
     }
 
-    const caps = capabilityRegistry.getCapabilities(modelName ?? '');
+    const caps = capabilityRegistry.getCapabilities(modelName ?? '', providerId);
     const maxColumns = options?.maxColumns ?? caps.pageGeometry.cols;
     const linesPerPage = caps.pageGeometry.linesPerPage;
     const minSavingsRatio = options?.minSavingsRatio ?? 0.5;

@@ -151,15 +151,17 @@ export class EmulatedToolCallingProviderDecorator implements ILlmProvider {
       return messages;
     }
     const modelName = options?.modelName;
+    const providerId = this.runtime.providerType || this.name;
     const modelDef = this.runtime.modelResolver
       ? this.runtime.modelResolver(modelName)
-      : DynamicModelCatalogService.getModel(modelName || '', this.runtime.providerType);
+      : DynamicModelCatalogService.getModel(modelName || '', providerId);
     if (!modelDef?.supportsImageCompression) {
       return messages;
     }
     try {
       const result = await this.compressor.compress(messages, {
         modelName,
+        providerId: modelDef.providerId || providerId,
       });
       return result.totalBlocksCompressed > 0 ? result.compressedMessages : messages;
     } catch {

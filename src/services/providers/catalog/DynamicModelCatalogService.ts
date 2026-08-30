@@ -185,31 +185,6 @@ export class DynamicModelCatalogService {
       }
     }
 
-    // When provider is not specified, prefer the model's canonical provider
-    if (!providerId) {
-      const preferredProvider = cleanModelId.startsWith('claude')
-        ? 'anthropic'
-        : (cleanModelId.startsWith('gpt') || cleanModelId.startsWith('o1') || cleanModelId.startsWith('o3'))
-        ? 'openai'
-        : cleanModelId.startsWith('gemini')
-        ? 'google'
-        : undefined;
-
-      if (preferredProvider) {
-        const p = catalog.get(preferredProvider);
-        if (p?.models) {
-          const found = p.models[cleanModelId] || p.models[cleanModelId.toLowerCase()];
-          if (found) {
-            return {
-              ...found,
-              providerId: p.id,
-              providerName: p.name,
-            };
-          }
-        }
-      }
-    }
-
     for (const provider of catalog.values()) {
       if (provider.models) {
         for (const [key, m] of Object.entries(provider.models)) {
